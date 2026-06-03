@@ -31,6 +31,20 @@ For a real local database, create PostgreSQL database `menarium2`, update `DATAB
 npm run db:migrate
 ```
 
+Optional demo data for local or staging verification:
+
+```bash
+npm run db:seed
+```
+
+Demo accounts created by the seed script:
+
+- `admin@menarium.ru` / `MenariumAdmin2026!`
+- `maria@menarium.ru` / `MenariumDemo2026!`
+- `dmitry@menarium.ru` / `MenariumDemo2026!`
+
+Use these only outside production.
+
 ## Verification
 
 ```bash
