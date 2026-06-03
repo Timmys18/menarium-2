@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { ExchangeProposal } from "./exchange-proposal";
 import { ItemChatPanel } from "./item-chat-panel";
+import { DeleteItemButton } from "./owner-actions";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -100,9 +101,12 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   {isOwner ? (
-                    <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="flex-1">
-                      Редактировать объявление
-                    </MenariumLinkButton>
+                    <div className="flex-1 space-y-3">
+                      <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="w-full">
+                        Редактировать объявление
+                      </MenariumLinkButton>
+                      <DeleteItemButton itemId={publicItem.id} />
+                    </div>
                   ) : userId ? (
                     <ExchangeProposal receiverItemId={publicItem.id} userItems={userItems} />
                   ) : (

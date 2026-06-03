@@ -6,6 +6,7 @@ import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
+import { SignOutButton } from "./profile-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -93,7 +94,10 @@ export default async function ProfilePage() {
                   </div>
                 </div>
               </div>
-              <MenariumLinkButton href="/profile/edit" variant="secondary">Редактировать профиль</MenariumLinkButton>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <MenariumLinkButton href="/profile/edit" variant="secondary">Редактировать профиль</MenariumLinkButton>
+                <SignOutButton />
+              </div>
             </div>
           </GlassCard>
 
