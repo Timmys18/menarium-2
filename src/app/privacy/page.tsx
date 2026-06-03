@@ -1,6 +1,29 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { GlassCard } from "@/components/menarium/card";
 
+const sections = [
+  {
+    title: "Какие данные обрабатываются",
+    text: "Email, имя, город, аватар, объявления, изображения, сообщения в чатах, статусы обменов, уведомления и технические данные безопасности.",
+  },
+  {
+    title: "Зачем нужны данные",
+    text: "Для регистрации, входа, публикации объявлений, обменов, сообщений, уведомлений, защиты от злоупотреблений и выполнения требований закона.",
+  },
+  {
+    title: "Хранение и инфраструктура",
+    text: "Production-контур Menarium проектируется для размещения персональных данных в РФ или в юридически допустимой инфраструктуре с PostgreSQL, Redis и S3-compatible storage.",
+  },
+  {
+    title: "Доступ и безопасность",
+    text: "Доступ к данным ограничивается аккаунтом пользователя, серверными проверками прав, rate limiting, админ-доступом через allowlist и HTTPS в production.",
+  },
+  {
+    title: "Права пользователя",
+    text: "Пользователь может редактировать профиль, управлять объявлениями и запросить удаление или уточнение данных через канал поддержки, который будет опубликован перед запуском.",
+  },
+];
+
 export default function PrivacyPage() {
   return (
     <AppShell>
@@ -8,12 +31,16 @@ export default function PrivacyPage() {
         <GlassCard className="mx-auto max-w-4xl space-y-5 p-8">
           <h1 className="text-4xl font-bold">Политика конфиденциальности</h1>
           <p className="text-white/60">
-            Menarium проектируется с учетом требований 152-ФЗ: персональные данные хранятся в РФ,
-            доступ ограничивается ролями и журналируется в production-контуре.
+            Menarium проектируется с учетом требований 152-ФЗ и российского production-контура.
+            Эта редакция описывает базовую модель обработки данных для запуска сервиса.
           </p>
-          <p className="text-white/60">
-            Финальная юридическая редакция будет утверждена перед публикацией `menarium.ru`.
-          </p>
+          {sections.map((section) => (
+            <section key={section.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <h2 className="mb-2 text-xl font-semibold">{section.title}</h2>
+              <p className="text-white/60">{section.text}</p>
+            </section>
+          ))}
+          <p className="text-sm text-white/40">Финальная юридическая редакция должна быть утверждена перед публичным запуском `menarium.ru`.</p>
         </GlassCard>
       </div>
     </AppShell>
