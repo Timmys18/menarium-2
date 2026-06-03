@@ -6,7 +6,7 @@ import { getCurrentUserId } from "@/server/session";
 export async function AppShell({ children }: { children: ReactNode }) {
   const userId = await getCurrentUserId();
   const unreadCount = userId
-    ? await prisma.notification.count({ where: { userId, isRead: false } })
+    ? await prisma.notification.count({ where: { userId, isRead: false } }).catch(() => 0)
     : 0;
 
   return (
