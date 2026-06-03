@@ -3,7 +3,6 @@ import { SwapStatus } from "@prisma/client";
 import { CheckCircle2, MessageCircle, RotateCcw, XCircle } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
-import { MenariumButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { pickMutualPendingSwapIds } from "@/features/exchange/matches";
@@ -11,6 +10,7 @@ import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
+import { DealMessageForm, ExchangeActionPanel } from "./exchange-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -188,6 +188,16 @@ export default async function ExchangePage({ searchParams }: Props) {
                   </p>
                 </div>
               </div>
+              {selectedSwap ? (
+                <ExchangeActionPanel
+                  swapId={selectedSwap.id}
+                  status={selectedSwap.status}
+                  isSender={selectedSwap.senderId === userId}
+                  isReceiver={selectedSwap.receiverId === userId}
+                  senderCompleted={selectedSwap.senderCompleted}
+                  receiverCompleted={selectedSwap.receiverCompleted}
+                />
+              ) : null}
               <div className="space-y-3">
                 {selectedMessages.length > 0 ? (
                   selectedMessages.map((message) => (
@@ -208,10 +218,9 @@ export default async function ExchangePage({ searchParams }: Props) {
                   </div>
                 )}
               </div>
-              <div className="mt-5 flex gap-2">
-                <input className="glass-card min-w-0 flex-1 rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-white/35" placeholder="Сообщение..." />
-                <MenariumButton size="sm">Отправить</MenariumButton>
-              </div>
+              {selectedSwap ? (
+                <DealMessageForm swapId={selectedSwap.id} disabled={selectedSwap.status !== SwapStatus.ACCEPTED} />
+              ) : null}
               <button className="mt-6 flex items-center gap-2 text-sm text-white/45">
                 <RotateCcw className="h-4 w-4" />
                 История обновляется автоматически

@@ -34,7 +34,13 @@ export async function GET() {
 const profileSchema = z.object({
   name: z.string().trim().min(2).max(80).optional().or(z.literal("")),
   city: z.string().trim().max(80).optional().or(z.literal("")),
-  image: z.string().url().optional().or(z.literal("")),
+  image: z
+    .string()
+    .refine((value) => value === "" || value.startsWith("/") || z.string().url().safeParse(value).success, {
+      message: "Image URL must be absolute or app-relative",
+    })
+    .optional()
+    .or(z.literal("")),
 });
 
 export async function PATCH(req: Request) {

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { ItemStatus } from "@prisma/client";
 import { ArrowLeft, ArrowRightLeft, MessageCircle, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
@@ -8,6 +9,8 @@ import { GlassCard } from "@/components/menarium/card";
 import { serializeItem } from "@/features/items/serializers";
 import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUserId } from "@/server/session";
+import { ExchangeProposal } from "./exchange-proposal";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -25,6 +28,16 @@ export default async function ItemPage({ params }: Props) {
   const publicItem = serializeItem(item);
   const card = toItemCardView(publicItem);
   const wanted = itemWantedLabel(publicItem);
+  const userId = await getCurrentUserId();
+  const isOwner = Boolean(userId && publicItem.owner?.id === userId);
+  const userItems =
+    userId && !isOwner
+      ? await prisma.item.findMany({
+          where: { ownerId: userId, status: ItemStatus.ACTIVE, id: { not: publicItem.id } },
+          select: { id: true, title: true },
+          orderBy: { updatedAt: "desc" },
+        })
+      : [];
 
   return (
     <AppShell>
@@ -58,13 +71,23 @@ export default async function ItemPage({ params }: Props) {
                   Безопасная сделка через статусы Menarium
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <MenariumLinkButton href={`/exchange?receiverItem=${publicItem.id}`} className="flex-1">
-                    Предложить обмен
-                  </MenariumLinkButton>
-                  <MenariumLinkButton href={`/item/${publicItem.id}?thread=open`} variant="secondary" className="flex-1">
-                    <MessageCircle className="h-5 w-5" />
-                    Написать
-                  </MenariumLinkButton>
+                  {isOwner ? (
+                    <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="flex-1">
+                      Редактировать объявление
+                    </MenariumLinkButton>
+                  ) : userId ? (
+                    <ExchangeProposal receiverItemId={publicItem.id} userItems={userItems} />
+                  ) : (
+                    <MenariumLinkButton href="/auth/login" className="flex-1">
+                      Войти и предложить обмен
+                    </MenariumLinkButton>
+                  )}
+                  {!isOwner ? (
+                    <MenariumLinkButton href={`/item/${publicItem.id}?thread=open`} variant="secondary" className="flex-1">
+                      <MessageCircle className="h-5 w-5" />
+                      Написать
+                    </MenariumLinkButton>
+                  ) : null}
                 </div>
               </GlassCard>
 
