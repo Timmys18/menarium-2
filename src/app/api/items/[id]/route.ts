@@ -41,7 +41,14 @@ export async function PATCH(req: Request, context: Context) {
 
   const data = parsed.data;
   const updated = await prisma.$transaction(async (tx) => {
-    await tx.mediaAsset.deleteMany({ where: { itemId: id } });
+    const submittedImageIds = data.images.flatMap((image) => (image.id ? [image.id] : []));
+    await tx.mediaAsset.deleteMany({
+      where: {
+        itemId: id,
+        ...(submittedImageIds.length ? { id: { notIn: submittedImageIds } } : {}),
+      },
+    });
+
     await tx.item.update({
       where: { id },
       data: {
@@ -60,7 +67,11 @@ export async function PATCH(req: Request, context: Context) {
     const existingImageIds = data.images.flatMap((image) => (image.id ? [image.id] : []));
     if (existingImageIds.length) {
       await tx.mediaAsset.updateMany({
-        where: { id: { in: existingImageIds }, ownerId: auth.userId, itemId: null },
+        where: {
+          id: { in: existingImageIds },
+          ownerId: auth.userId,
+          OR: [{ itemId: null }, { itemId: id }],
+        },
         data: { itemId: id, ownerType: "ITEM" },
       });
     }

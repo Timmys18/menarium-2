@@ -11,13 +11,18 @@ import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { ExchangeProposal } from "./exchange-proposal";
+import { ItemChatPanel } from "./item-chat-panel";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ thread?: string }>;
+};
 
 export const dynamic = "force-dynamic";
 
-export default async function ItemPage({ params }: Props) {
+export default async function ItemPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const query = await searchParams;
   const item = await prisma.item.findUnique({
     where: { id },
     include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
@@ -38,6 +43,29 @@ export default async function ItemPage({ params }: Props) {
           orderBy: { updatedAt: "desc" },
         })
       : [];
+  const chatUserId = query.thread && userId && !isOwner ? userId : null;
+  const thread = chatUserId
+    ? query.thread === "open"
+      ? await prisma.itemThread.findUnique({
+          where: { itemId_buyerId: { itemId: publicItem.id, buyerId: chatUserId } },
+          include: { messages: { orderBy: { createdAt: "asc" }, take: 50 } },
+        })
+      : await prisma.itemThread.findFirst({
+          where: {
+            id: query.thread,
+            itemId: publicItem.id,
+            OR: [{ buyerId: chatUserId }, { ownerId: chatUserId }],
+          },
+          include: { messages: { orderBy: { createdAt: "asc" }, take: 50 } },
+        })
+    : null;
+  const itemChatMessages =
+    thread?.messages.map((message) => ({
+      id: message.id,
+      senderId: message.senderId,
+      text: message.text,
+      createdAt: message.createdAt.toISOString(),
+    })) ?? [];
 
   return (
     <AppShell>
@@ -103,6 +131,14 @@ export default async function ItemPage({ params }: Props) {
               </GlassCard>
             </div>
           </div>
+          {chatUserId ? (
+            <ItemChatPanel
+              itemId={publicItem.id}
+              initialThreadId={thread?.id ?? null}
+              currentUserId={chatUserId}
+              messages={itemChatMessages}
+            />
+          ) : null}
         </div>
       </div>
     </AppShell>

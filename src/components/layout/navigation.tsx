@@ -18,7 +18,7 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Navigation() {
+export function Navigation({ unreadCount = 0 }: { unreadCount?: number }) {
   const pathname = usePathname();
 
   return (
@@ -62,10 +62,14 @@ export function Navigation() {
                 <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white/60 transition-colors hover:bg-white/10 hover:text-white">
                   <Search className="h-5 w-5" />
                 </button>
-                <button className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white/60 transition-colors hover:bg-white/10 hover:text-white">
+                <Link href="/notifications" className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white/60 transition-colors hover:bg-white/10 hover:text-white" aria-label="Уведомления">
                   <Bell className="h-5 w-5" />
-                  <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-purple-500" />
-                </button>
+                  {unreadCount > 0 ? (
+                    <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-purple-500 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  ) : null}
+                </Link>
               </div>
             </div>
           </div>
@@ -95,6 +99,19 @@ export function Navigation() {
                   </Link>
                 );
               })}
+              <Link
+                href="/notifications"
+                className={cn(
+                  "relative rounded-2xl p-3 transition-all active:scale-95",
+                  isActivePath(pathname, "/notifications")
+                    ? "bg-gradient-to-r from-teal-500 to-purple-500 text-white"
+                    : "text-white/60",
+                )}
+                aria-label="Уведомления"
+              >
+                <Bell className="h-6 w-6" />
+                {unreadCount > 0 ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-purple-500" /> : null}
+              </Link>
             </div>
           </div>
         </div>
