@@ -56,7 +56,7 @@ The health endpoint is:
 GET /api/health
 ```
 
-Expected response has `status: "ok"`.
+Expected response has `ok: true`.
 
 ## Backups
 

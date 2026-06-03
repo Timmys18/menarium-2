@@ -42,7 +42,7 @@ export async function PATCH(req: Request, context: Context) {
   const data = parsed.data;
   const updated = await prisma.$transaction(async (tx) => {
     await tx.mediaAsset.deleteMany({ where: { itemId: id } });
-    return tx.item.update({
+    await tx.item.update({
       where: { id },
       data: {
         title: data.title,
@@ -54,16 +54,33 @@ export async function PATCH(req: Request, context: Context) {
         desired: data.desired,
         acceptsAnything: data.acceptsAnything,
         extraOfferText: data.extraOfferText || null,
-        images: {
-          create: data.images.map((image) => ({
-            ownerId: auth.userId,
-            ownerType: "ITEM",
-            url: image.url,
-            contentType: image.contentType,
-            sizeBytes: image.sizeBytes,
-          })),
-        },
       },
+    });
+
+    const existingImageIds = data.images.flatMap((image) => (image.id ? [image.id] : []));
+    if (existingImageIds.length) {
+      await tx.mediaAsset.updateMany({
+        where: { id: { in: existingImageIds }, ownerId: auth.userId, itemId: null },
+        data: { itemId: id, ownerType: "ITEM" },
+      });
+    }
+
+    const newImages = data.images.filter((image) => !image.id);
+    if (newImages.length) {
+      await tx.mediaAsset.createMany({
+        data: newImages.map((image) => ({
+          ownerId: auth.userId,
+          ownerType: "ITEM",
+          itemId: id,
+          url: image.url,
+          contentType: image.contentType,
+          sizeBytes: image.sizeBytes,
+        })),
+      });
+    }
+
+    return tx.item.findUniqueOrThrow({
+      where: { id },
       include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
     });
   });

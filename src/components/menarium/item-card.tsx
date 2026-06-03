@@ -4,23 +4,27 @@ import { ArrowRightLeft, Heart, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
 import { HoverCard } from "@/components/menarium/card";
 
+export type ItemCardProps = {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  wanted: string;
+  city?: string;
+  likes?: number;
+  trending?: boolean;
+};
+
 export function ItemCard({
   id,
   title,
   category,
   image,
   wanted,
+  city,
   likes,
   trending,
-}: {
-  id: string;
-  title: string;
-  category: string;
-  image: string;
-  wanted: string;
-  likes?: number;
-  trending?: boolean;
-}) {
+}: ItemCardProps) {
   return (
     <Link href={`/item/${id}`}>
       <HoverCard className="group overflow-hidden">
@@ -55,6 +59,7 @@ export function ItemCard({
             <ArrowRightLeft className="h-3.5 w-3.5 text-purple-400" />
             <span className="tracking-wide">{wanted}</span>
           </div>
+          {city ? <p className="mt-2 text-xs text-white/35">{city}</p> : null}
         </div>
       </HoverCard>
     </Link>

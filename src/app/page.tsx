@@ -1,11 +1,25 @@
+import { ItemStatus } from "@prisma/client";
 import { ArrowRight, Shield, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
-import { sampleItems } from "@/features/items/sample-data";
+import { serializeItem } from "@/features/items/serializers";
+import { toItemCardView } from "@/features/items/presenters";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const items = await prisma.item.findMany({
+    where: { status: ItemStatus.ACTIVE },
+    include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+  });
+  const cards = items.map((item) => toItemCardView(serializeItem(item)));
+
   return (
     <AppShell>
       <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
@@ -43,11 +57,20 @@ export default function Home() {
               <ArrowRight className="h-4 w-4" />
             </MenariumLinkButton>
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {sampleItems.slice(0, 6).map((item) => (
-              <ItemCard key={item.id} {...item} />
-            ))}
-          </div>
+          {cards.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {cards.map((item) => (
+                <ItemCard key={item.id} {...item} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="Каталог готов к первым объявлениям"
+              description="Как только пользователи создадут активные предложения, главная витрина начнет показывать живые карточки."
+              actionHref="/new"
+              actionLabel="Создать объявление"
+            />
+          )}
         </section>
 
         <section className="mx-auto mt-32 max-w-7xl">

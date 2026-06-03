@@ -63,29 +63,48 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
-  const item = await prisma.item.create({
-    data: {
-      title: data.title,
-      type: data.type,
-      category: data.category,
-      description: data.description,
-      city: data.city,
-      isOnline: data.isOnline,
-      desired: data.desired,
-      acceptsAnything: data.acceptsAnything,
-      extraOfferText: data.extraOfferText || null,
-      ownerId: auth.userId,
-      images: {
-        create: data.images.map((image) => ({
+  const item = await prisma.$transaction(async (tx) => {
+    const created = await tx.item.create({
+      data: {
+        title: data.title,
+        type: data.type,
+        category: data.category,
+        description: data.description,
+        city: data.city,
+        isOnline: data.isOnline,
+        desired: data.desired,
+        acceptsAnything: data.acceptsAnything,
+        extraOfferText: data.extraOfferText || null,
+        ownerId: auth.userId,
+      },
+    });
+
+    const existingImageIds = data.images.flatMap((image) => (image.id ? [image.id] : []));
+    if (existingImageIds.length) {
+      await tx.mediaAsset.updateMany({
+        where: { id: { in: existingImageIds }, ownerId: auth.userId, itemId: null },
+        data: { itemId: created.id, ownerType: "ITEM" },
+      });
+    }
+
+    const newImages = data.images.filter((image) => !image.id);
+    if (newImages.length) {
+      await tx.mediaAsset.createMany({
+        data: newImages.map((image) => ({
           ownerId: auth.userId,
           ownerType: "ITEM",
+          itemId: created.id,
           url: image.url,
           contentType: image.contentType,
           sizeBytes: image.sizeBytes,
         })),
-      },
-    },
-    include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      });
+    }
+
+    return tx.item.findUniqueOrThrow({
+      where: { id: created.id },
+      include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+    });
   });
 
   return actionResponse(serializeItem(item), {}, 201);

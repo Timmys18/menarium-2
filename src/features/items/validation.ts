@@ -14,7 +14,10 @@ export const itemPayloadSchema = z.object({
   images: z
     .array(
       z.object({
-        url: z.string().url(),
+        id: z.string().optional(),
+        url: z.string().refine((value) => value.startsWith("/") || z.string().url().safeParse(value).success, {
+          message: "Image URL must be absolute or app-relative",
+        }),
         contentType: z.string().min(3).max(120).default("image/jpeg"),
         sizeBytes: z.number().int().positive().max(10 * 1024 * 1024).default(1),
       }),

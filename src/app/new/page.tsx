@@ -1,21 +1,14 @@
-import { Camera, Check, Sparkles, Upload } from "lucide-react";
+import { Check } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Badge } from "@/components/menarium/badge";
-import { MenariumButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { EmptyState } from "@/components/menarium/empty-state";
+import { getCurrentUserId } from "@/server/session";
+import { NewItemForm } from "./new-item-form";
 
-const categories = [
-  ["Техника", "💻"],
-  ["Мода", "👟"],
-  ["Музыка", "🎸"],
-  ["Спорт", "⚽"],
-  ["Книги", "📚"],
-  ["Искусство", "🎨"],
-];
+export const dynamic = "force-dynamic";
 
-const wants = ["iPhone 15", "MacBook Pro", "PlayStation 5", "AirPods Pro", "Nike Jordan", "Vintage камера"];
+export default async function NewItemPage() {
+  const userId = await getCurrentUserId();
 
-export default function NewItemPage() {
   return (
     <AppShell>
       <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
@@ -41,56 +34,16 @@ export default function NewItemPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <GlassCard className="cursor-pointer rounded-3xl border-2 border-dashed border-white/20 p-12 text-center transition-colors hover:border-purple-500/50">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-teal-500/20 to-purple-500/20">
-                <Upload className="h-10 w-10 text-purple-400" />
-              </div>
-              <h3 className="mb-2 text-2xl font-bold">Загрузи фото</h3>
-              <p className="mb-4 text-white/60">или перетащи сюда</p>
-              <div className="flex items-center justify-center gap-4">
-                <MenariumButton variant="secondary" size="sm">
-                  <Camera className="h-5 w-5" />
-                  Камера
-                </MenariumButton>
-                <MenariumButton variant="secondary" size="sm">
-                  <Upload className="h-5 w-5" />
-                  Галерея
-                </MenariumButton>
-              </div>
-            </GlassCard>
-
-            <GlassCard className="rounded-2xl border border-purple-500/30 p-6">
-              <div className="mb-3 flex items-center gap-3">
-                <Sparkles className="h-5 w-5 text-purple-400" />
-                <span className="gradient-text-accent font-semibold">AI подсказка</span>
-              </div>
-              <p className="text-white/80">
-                После загрузки фото Menarium предложит категорию, описание и честный диапазон обмена.
-              </p>
-            </GlassCard>
-
-            <section>
-              <h3 className="mb-4 text-center text-xl font-bold">Или выбери категорию</h3>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                {categories.map(([name, emoji]) => (
-                  <GlassCard key={name} className="p-6 text-center transition-transform hover:-translate-y-1">
-                    <div className="mb-3 text-4xl">{emoji}</div>
-                    <div className="font-semibold">{name}</div>
-                  </GlassCard>
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <h3 className="mb-4 text-xl font-bold">Что хочешь взамен?</h3>
-              <div className="flex flex-wrap gap-2">
-                {wants.map((want) => (
-                  <Badge key={want} variant="purple">{want}</Badge>
-                ))}
-              </div>
-            </section>
-          </div>
+          {userId ? (
+            <NewItemForm />
+          ) : (
+            <EmptyState
+              title="Войдите, чтобы создать объявление"
+              description="Menarium привязывает объявления, фото и обмены к вашему профилю."
+              actionHref="/auth/login"
+              actionLabel="Войти"
+            />
+          )}
         </div>
       </div>
     </AppShell>

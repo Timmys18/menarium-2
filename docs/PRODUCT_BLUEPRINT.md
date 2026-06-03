@@ -30,7 +30,7 @@ Figma Make `XT9Xe6gYW5lm6qWyuCTVpd` is the source of truth for UI:
 
 Screens missing in Figma must be designed as direct continuations of the same design language.
 
-## MVP Routes
+## Production Product Routes
 
 - `/` - homepage and product entry.
 - `/catalog` - searchable and filterable item catalog.
@@ -117,10 +117,10 @@ Production must be compatible with Russian infrastructure requirements:
 - HTTPS, backups, healthcheck, rollback instructions;
 - privacy and terms pages for 152-FZ readiness.
 
-## Non-MVP
+## Later Product Expansions
 
-- Multi-party exchange chains.
-- Payments.
+- Multi-party exchange chains, if they prove useful after the two-party exchange flow is excellent.
+- Payments, only if Menarium intentionally expands beyond barter.
 - Full AI photo valuation.
 - Native mobile apps.
 - Complex admin console beyond basic moderation hooks.

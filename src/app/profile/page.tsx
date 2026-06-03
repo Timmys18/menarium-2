@@ -1,28 +1,94 @@
+import { SwapStatus } from "@prisma/client";
 import { ArrowRightLeft, CheckCircle2, MessageCircle, Star, Tag } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { EmptyState } from "@/components/menarium/empty-state";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUserId } from "@/server/session";
 
-export default function ProfilePage() {
+export const dynamic = "force-dynamic";
+
+function getInitials(name: string | null, email: string) {
+  const source = name?.trim() || email;
+  return source
+    .split(/\s+|@/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+export default async function ProfilePage() {
+  const userId = await getCurrentUserId();
+  const user = userId
+    ? await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true, name: true, city: true },
+      })
+    : null;
+  const [activeItems, activeSwaps, completedSwaps, dealChats, itemChats] = userId
+    ? await Promise.all([
+        prisma.item.count({ where: { ownerId: userId, status: "ACTIVE" } }),
+        prisma.swapRequest.count({
+          where: {
+            status: { in: [SwapStatus.PENDING, SwapStatus.ACCEPTED] },
+            OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+        }),
+        prisma.swapRequest.count({
+          where: {
+            status: SwapStatus.COMPLETED,
+            OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+        }),
+        prisma.swapRequest.count({
+          where: {
+            OR: [{ senderId: userId }, { receiverId: userId }],
+            messages: { some: {} },
+          },
+        }),
+        prisma.itemThread.count({
+          where: { OR: [{ buyerId: userId }, { ownerId: userId }] },
+        }),
+      ])
+    : [0, 0, 0, 0, 0];
+
+  const stats = [
+    { label: "Активных объявлений", value: activeItems, icon: Tag, color: "text-teal-400" },
+    { label: "Активных обменов", value: activeSwaps, icon: ArrowRightLeft, color: "text-purple-400" },
+    { label: "Завершенных обменов", value: completedSwaps, icon: CheckCircle2, color: "text-green-400" },
+    { label: "Чатов", value: dealChats + itemChats, icon: MessageCircle, color: "text-blue-400" },
+  ];
+
   return (
     <AppShell>
       <div className="min-h-screen px-6 pb-32 pt-24 md:pt-28">
         <div className="mx-auto max-w-[1400px] space-y-6">
+          {!user ? (
+            <EmptyState
+              title="Войдите в личный кабинет"
+              description="Профиль Menarium показывает ваши объявления, обмены, чаты и быстрые действия."
+              actionHref="/auth/login"
+              actionLabel="Войти"
+            />
+          ) : (
+            <>
           <GlassCard className="rounded-3xl p-8">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
               <div className="flex items-center gap-5">
                 <div className="relative">
                   <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-purple-600 shadow-lg shadow-teal-500/20">
-                    <span className="text-2xl font-bold">МК</span>
+                    <span className="text-2xl font-bold">{getInitials(user.name, user.email)}</span>
                   </div>
                   <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-[#0a0a0f] bg-teal-500" />
                 </div>
                 <div>
                   <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-white/30">Личный кабинет</p>
-                  <h1 className="mb-1 text-3xl tracking-tight">Menarium пользователь</h1>
+                  <h1 className="mb-1 text-3xl tracking-tight">{user.name ?? "Menarium пользователь"}</h1>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-white/40">
-                    <span>user@menarium.ru</span>
-                    <span>Москва</span>
+                    <span>{user.email}</span>
+                    <span>{user.city ?? "Город не указан"}</span>
                     <span className="flex items-center gap-1 text-yellow-400"><Star className="h-3 w-3 fill-yellow-400" />4.9</span>
                   </div>
                 </div>
@@ -32,12 +98,7 @@ export default function ProfilePage() {
           </GlassCard>
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {[
-              { label: "Активных объявлений", value: 5, icon: Tag, color: "text-teal-400" },
-              { label: "Активных обменов", value: 3, icon: ArrowRightLeft, color: "text-purple-400" },
-              { label: "Завершенных обменов", value: 12, icon: CheckCircle2, color: "text-green-400" },
-              { label: "Чатов", value: 8, icon: MessageCircle, color: "text-blue-400" },
-            ].map((item) => {
+            {stats.map((item) => {
               const Icon = item.icon;
               return (
                 <GlassCard key={item.label} className="p-5">
@@ -77,6 +138,8 @@ export default function ProfilePage() {
               </div>
             </GlassCard>
           </div>
+            </>
+          )}
         </div>
       </div>
     </AppShell>
