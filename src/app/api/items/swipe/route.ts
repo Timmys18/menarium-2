@@ -1,0 +1,38 @@
+import { ItemStatus } from "@prisma/client";
+import { NextRequest } from "next/server";
+import { getPaging, listResponse } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/server/session";
+import { serializeItem } from "@/features/items/serializers";
+
+export async function GET(req: NextRequest) {
+  const auth = await requireUserId();
+  if (!auth.ok) return auth.response;
+
+  const { limit, offset } = getPaging(req, 12, 30);
+
+  const alreadySeen = await prisma.swapRequest.findMany({
+    where: { senderId: auth.userId },
+    select: { receiverItemId: true },
+  });
+
+  const excludedItemIds = alreadySeen.map((swap) => swap.receiverItemId);
+  const where = {
+    status: ItemStatus.ACTIVE,
+    ownerId: { not: auth.userId },
+    ...(excludedItemIds.length ? { id: { notIn: excludedItemIds } } : {}),
+  };
+
+  const [items, total] = await Promise.all([
+    prisma.item.findMany({
+      where,
+      include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      orderBy: { createdAt: "desc" },
+      skip: offset,
+      take: limit,
+    }),
+    prisma.item.count({ where }),
+  ]);
+
+  return listResponse(items.map(serializeItem), { limit, offset }, total);
+}
