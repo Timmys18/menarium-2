@@ -20,6 +20,7 @@ DATABASE_URL=postgresql://...
 NEXTAUTH_URL=https://menarium.ru
 NEXTAUTH_SECRET=<strong-secret>
 NEXT_PUBLIC_APP_URL=https://menarium.ru
+ADMIN_EMAILS=admin@menarium.ru
 REDIS_URL=redis://...
 STORAGE_PROVIDER=s3
 STORAGE_ENDPOINT=https://storage.yandexcloud.net
@@ -30,14 +31,39 @@ STORAGE_SECRET_ACCESS_KEY=<secret>
 STORAGE_PUBLIC_BASE_URL=https://<bucket>.storage.yandexcloud.net
 ```
 
+Use `.env.production.example` as the production checklist. Never reuse demo passwords in production.
+
+## Local Infrastructure
+
+For local or staging checks with real services:
+
+```bash
+docker compose -f docker-compose.local.yml up -d
+npm run db:migrate
+npm run db:seed
+npm run dev
+```
+
+The seed script creates demo users and items for functional verification only.
+
 ## Release
+
+PM2 release:
 
 ```bash
 npm ci
+npm run db:generate
 npx prisma migrate deploy
 npm run build
 pm2 start ecosystem.config.cjs --env production
 pm2 save
+```
+
+Docker build smoke:
+
+```bash
+docker build -t menarium:latest .
+docker run --env-file .env.production -p 3000:3000 menarium:latest
 ```
 
 ## Nginx

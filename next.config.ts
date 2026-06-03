@@ -6,6 +6,7 @@ const storageHost = storagePublicBaseUrl?.startsWith("http")
   : undefined;
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
