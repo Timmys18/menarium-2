@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ItemStatus } from "@prisma/client";
-import { ArrowRightLeft, Heart, Info, X } from "lucide-react";
+import { ArrowRightLeft } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
@@ -8,19 +8,15 @@ import { EmptyState } from "@/components/menarium/empty-state";
 import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
+import { getSwipeExcludedItemIds } from "@/features/items/swipe-exclusions";
 import { getCurrentUserId } from "@/server/session";
+import { SwipeActions } from "./swipe-actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function SwipePage() {
   const userId = await getCurrentUserId();
-  const alreadySeen = userId
-    ? await prisma.swapRequest.findMany({
-        where: { senderId: userId },
-        select: { receiverItemId: true },
-      })
-    : [];
-  const excludedItemIds = alreadySeen.map((swap) => swap.receiverItemId);
+  const excludedItemIds = userId ? await getSwipeExcludedItemIds(userId) : [];
   const item = userId
     ? await prisma.item.findFirst({
         where: {
@@ -77,17 +73,7 @@ export default async function SwipePage() {
                 </GlassCard>
               </div>
 
-              <div className="mt-8 flex items-center justify-center gap-6">
-                <MenariumLinkButton href="/catalog" variant="secondary" className="h-16 w-16 rounded-full p-0">
-                  <X className="h-8 w-8 text-red-400" />
-                </MenariumLinkButton>
-                <MenariumLinkButton href={`/item/${card.id}`} variant="secondary" className="h-16 w-16 rounded-full p-0">
-                  <Info className="h-7 w-7 text-blue-400" />
-                </MenariumLinkButton>
-                <MenariumLinkButton href={`/item/${card.id}`} className="h-16 w-16 rounded-full p-0">
-                  <Heart className="h-8 w-8 text-white" />
-                </MenariumLinkButton>
-              </div>
+              <SwipeActions itemId={card.id} />
             </>
           ) : (
             <EmptyState

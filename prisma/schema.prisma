@@ -63,6 +63,7 @@ model User {
   itemMessages  ItemThreadMessage[]
   notifications Notification[]
   mediaAssets   MediaAsset[]
+  swipePasses   SwipePass[]
 
   @@index([createdAt])
 }
@@ -127,12 +128,25 @@ model Item {
   sentSwaps     SwapRequest[] @relation("SenderItem")
   receivedSwaps SwapRequest[] @relation("ReceiverItem")
   threads       ItemThread[]
+  swipePasses   SwipePass[]
 
   @@index([status, createdAt])
   @@index([ownerId, status])
   @@index([category, status])
   @@index([city, status])
   @@index([type, status])
+}
+
+model SwipePass {
+  userId    String
+  itemId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@id([userId, itemId])
+  @@index([userId, createdAt])
 }
 
 model SwapRequest {

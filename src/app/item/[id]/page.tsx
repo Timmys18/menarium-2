@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ItemStatus } from "@prisma/client";
 import { ArrowLeft, ArrowRightLeft, MessageCircle, ShieldCheck } from "lucide-react";
@@ -12,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { ExchangeProposal } from "./exchange-proposal";
 import { ItemChatPanel } from "./item-chat-panel";
+import { ItemImageGallery } from "./item-image-gallery";
 import { DeleteItemButton } from "./owner-actions";
 
 type Props = {
@@ -79,9 +79,12 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
             <GlassCard className="overflow-hidden rounded-[32px]">
-              <div className="relative h-[560px]">
-                <Image src={card.image} alt={card.title} fill className="object-cover" priority />
-                <div className="absolute left-5 top-5">
+              <div className="relative">
+                <ItemImageGallery
+                  images={publicItem.images.length > 0 ? publicItem.images : [{ id: "placeholder", url: card.image }]}
+                  title={publicItem.title}
+                />
+                <div className="absolute left-5 top-5 z-10">
                   <Badge>{publicItem.category}</Badge>
                 </div>
               </div>

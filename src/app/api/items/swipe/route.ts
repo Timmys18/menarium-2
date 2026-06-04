@@ -11,12 +11,8 @@ export async function GET(req: NextRequest) {
 
   const { limit, offset } = getPaging(req, 12, 30);
 
-  const alreadySeen = await prisma.swapRequest.findMany({
-    where: { senderId: auth.userId },
-    select: { receiverItemId: true },
-  });
-
-  const excludedItemIds = alreadySeen.map((swap) => swap.receiverItemId);
+  const { getSwipeExcludedItemIds } = await import("@/features/items/swipe-exclusions");
+  const excludedItemIds = await getSwipeExcludedItemIds(auth.userId);
   const where = {
     status: ItemStatus.ACTIVE,
     ownerId: { not: auth.userId },

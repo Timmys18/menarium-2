@@ -25,7 +25,27 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-For a real local database, create PostgreSQL database `menarium2`, update `DATABASE_URL`, then run:
+For a real local database with Docker:
+
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
+
+Then set in `.env`:
+
+```bash
+DATABASE_URL="postgresql://menarium:menarium_local_password@localhost:5432/menarium2?schema=public"
+REDIS_URL="redis://localhost:6379"
+```
+
+Run migrations and optional seed:
+
+```bash
+npm run db:migrate
+npm run db:seed
+```
+
+For a manually created PostgreSQL database, update `DATABASE_URL`, then run:
 
 ```bash
 npm run db:migrate
@@ -76,8 +96,8 @@ Production product routes:
 - `/profile/edit`
 - `/auth/login`
 - `/auth/register`
-- `/privacy`
-- `/terms`
+- `/notifications`
+- `/admin`
 
 Core backend:
 
@@ -90,6 +110,7 @@ Core backend:
 
 ## Production
 
-See `docs/DEPLOYMENT_RU.md`.
+- `/privacy`
+- `/terms`
 
-Target domain: `menarium.ru`.
+See also `docs/ROADMAP_RU.md` (status burndown), `docs/PRODUCTION_CHECKLIST.md`, and `.env.production.example` for launch.

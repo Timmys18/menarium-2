@@ -1,5 +1,5 @@
 import { SwapStatus } from "@prisma/client";
-import { ArrowRightLeft, CheckCircle2, MessageCircle, Star, Tag } from "lucide-react";
+import { ArrowRightLeft, CheckCircle2, MessageCircle, Tag } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
@@ -28,7 +28,7 @@ export default async function ProfilePage() {
         select: { id: true, email: true, name: true, city: true },
       })
     : null;
-  const [activeItems, activeSwaps, completedSwaps, dealChats, itemChats] = userId
+  const [activeItems, activeSwaps, completedSwaps, dealChats, itemChats, incomingSwaps, outgoingSwaps, matchSwaps] = userId
     ? await Promise.all([
         prisma.item.count({ where: { ownerId: userId, status: "ACTIVE" } }),
         prisma.swapRequest.count({
@@ -52,8 +52,16 @@ export default async function ProfilePage() {
         prisma.itemThread.count({
           where: { OR: [{ buyerId: userId }, { ownerId: userId }] },
         }),
+        prisma.swapRequest.count({ where: { receiverId: userId, status: SwapStatus.PENDING } }),
+        prisma.swapRequest.count({ where: { senderId: userId, status: SwapStatus.PENDING } }),
+        prisma.swapRequest.count({
+          where: {
+            status: { in: [SwapStatus.ACCEPTED, SwapStatus.COMPLETED] },
+            OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+        }),
       ])
-    : [0, 0, 0, 0, 0];
+    : [0, 0, 0, 0, 0, 0, 0, 0];
 
   const stats = [
     { label: "Активных объявлений", value: activeItems, icon: Tag, color: "text-teal-400" },
@@ -90,7 +98,6 @@ export default async function ProfilePage() {
                   <div className="flex flex-wrap items-center gap-3 text-xs text-white/40">
                     <span>{user.email}</span>
                     <span>{user.city ?? "Город не указан"}</span>
-                    <span className="flex items-center gap-1 text-yellow-400"><Star className="h-3 w-3 fill-yellow-400" />4.9</span>
                   </div>
                 </div>
               </div>
@@ -124,10 +131,17 @@ export default async function ProfilePage() {
                 <MenariumLinkButton href="/exchange" variant="ghost" size="sm">Полный режим</MenariumLinkButton>
               </div>
               <div className="grid gap-4 md:grid-cols-3">
-                {["Вам предложили", "Вы предложили", "Матчи"].map((title) => (
-                  <GlassCard key={title} className="p-5">
-                    <h3 className="mb-2 font-semibold">{title}</h3>
-                    <p className="text-sm text-white/45">Новые события появятся здесь.</p>
+                {[
+                  { title: "Вам предложили", count: incomingSwaps, href: "/exchange?tab=incoming" },
+                  { title: "Вы предложили", count: outgoingSwaps, href: "/exchange?tab=outgoing" },
+                  { title: "Матчи", count: matchSwaps, href: "/exchange?tab=matches" },
+                ].map((entry) => (
+                  <GlassCard key={entry.title} className="p-5">
+                    <h3 className="mb-2 font-semibold">{entry.title}</h3>
+                    <p className="mb-4 text-3xl font-semibold">{entry.count}</p>
+                    <MenariumLinkButton href={entry.href} variant="ghost" size="sm">
+                      Открыть
+                    </MenariumLinkButton>
                   </GlassCard>
                 ))}
               </div>
@@ -138,6 +152,8 @@ export default async function ProfilePage() {
               <div className="space-y-3">
                 <MenariumLinkButton href="/new" className="w-full">Создать объявление</MenariumLinkButton>
                 <MenariumLinkButton href="/my-items" variant="secondary" className="w-full">Мои объявления</MenariumLinkButton>
+                <MenariumLinkButton href="/exchange" variant="secondary" className="w-full">Центр обменов</MenariumLinkButton>
+                <MenariumLinkButton href="/notifications" variant="secondary" className="w-full">Уведомления</MenariumLinkButton>
                 <MenariumLinkButton href="/profile/chats" variant="secondary" className="w-full">Мои чаты</MenariumLinkButton>
               </div>
             </GlassCard>

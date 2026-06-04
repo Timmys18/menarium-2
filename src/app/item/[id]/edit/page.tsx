@@ -8,6 +8,8 @@ import { EditItemForm } from "./edit-item-form";
 
 type Props = { params: Promise<{ id: string }> };
 
+export const dynamic = "force-dynamic";
+
 export default async function EditItemPage({ params }: Props) {
   const { id } = await params;
   const userId = await getCurrentUserId();

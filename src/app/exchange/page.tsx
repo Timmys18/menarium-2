@@ -15,8 +15,17 @@ import { DealMessageForm, ExchangeActionPanel } from "./exchange-controls";
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ swap?: string }>;
+  searchParams: Promise<{ swap?: string; tab?: string }>;
 };
+
+type ExchangeTab = "incoming" | "outgoing" | "matches";
+
+function exchangeHref(tab: ExchangeTab, swapId?: string) {
+  const search = new URLSearchParams();
+  search.set("tab", tab);
+  if (swapId) search.set("swap", swapId);
+  return `/exchange?${search.toString()}`;
+}
 
 const swapInclude = {
   sender: { select: { id: true, name: true, city: true, image: true } },
@@ -72,7 +81,17 @@ export default async function ExchangePage({ searchParams }: Props) {
       swap.status === SwapStatus.ACCEPTED ||
       swap.status === SwapStatus.COMPLETED,
   );
-  const selectedSwap = swaps.find((swap) => swap.id === params.swap) ?? matches[0] ?? incoming[0] ?? outgoing[0];
+  const activeTab: ExchangeTab =
+    params.tab === "outgoing" || params.tab === "matches" ? params.tab : "incoming";
+  const tabSwaps =
+    activeTab === "incoming" ? incoming : activeTab === "outgoing" ? outgoing : matches;
+  const selectedSwap =
+    swaps.find((swap) => swap.id === params.swap && tabSwaps.some((entry) => entry.id === swap.id)) ??
+    tabSwaps[0] ??
+    swaps.find((swap) => swap.id === params.swap) ??
+    matches[0] ??
+    incoming[0] ??
+    outgoing[0];
   const selectedMessages = selectedSwap
     ? await prisma.dealMessage.findMany({
         where: { swapId: selectedSwap.id },
@@ -80,7 +99,12 @@ export default async function ExchangePage({ searchParams }: Props) {
         take: 30,
       })
     : [];
-  const visibleSwaps = [...incoming, ...outgoing.filter((swap) => !incoming.some((entry) => entry.id === swap.id))];
+  const visibleSwaps = tabSwaps;
+  const firstSwapByTab = {
+    incoming: incoming[0]?.id,
+    outgoing: outgoing[0]?.id,
+    matches: matches[0]?.id,
+  };
 
   return (
     <AppShell>
@@ -118,24 +142,39 @@ export default async function ExchangePage({ searchParams }: Props) {
           <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
             <GlassCard className="p-6">
               <div className="mb-6 flex gap-2 overflow-x-auto">
-                {[
-                  ["Вам предложили", incoming.length],
-                  ["Вы предложили", outgoing.length],
-                  ["Матчи", matches.length],
-                ].map(([tab, count], index) => (
-                  <button
+                {([
+                  ["incoming", "Вам предложили", incoming.length],
+                  ["outgoing", "Вы предложили", outgoing.length],
+                  ["matches", "Матчи", matches.length],
+                ] as const).map(([tab, label, count]) => (
+                  <a
                     key={tab}
+                    href={exchangeHref(tab, tab === activeTab ? selectedSwap?.id : firstSwapByTab[tab])}
                     className={`rounded-2xl px-5 py-3 text-sm font-medium ${
-                      index === 0
+                      tab === activeTab
                         ? "bg-gradient-to-r from-teal-500 to-purple-500 text-white"
-                        : "bg-white/5 text-white/50"
+                        : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    {tab} {count}
-                  </button>
+                    {label} {count}
+                  </a>
                 ))}
               </div>
 
+              {visibleSwaps.length === 0 ? (
+                <EmptyState
+                  title={
+                    activeTab === "incoming"
+                      ? "Входящих предложений пока нет"
+                      : activeTab === "outgoing"
+                        ? "Исходящих предложений пока нет"
+                        : "Матчей пока нет"
+                  }
+                  description="Когда появятся новые обмены, они будут в этой вкладке."
+                  actionHref="/catalog"
+                  actionLabel="Открыть каталог"
+                />
+              ) : (
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {visibleSwaps.map((swap) => {
                   const isIncoming = swap.receiverId === userId;
@@ -144,7 +183,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                   const theirCard = toItemCardView(theirItem);
                   const partner = isIncoming ? swap.sender : swap.receiver;
                   return (
-                    <a key={swap.id} href={`/exchange?swap=${swap.id}`}>
+                    <a key={swap.id} href={exchangeHref(activeTab, swap.id)}>
                       <GlassCard className="group overflow-hidden">
                         <div className="relative h-52">
                           <Image src={theirCard.image} alt={theirCard.title} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -174,6 +213,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                   );
                 })}
               </div>
+              )}
             </GlassCard>
 
             <GlassCard className="p-6">
