@@ -1,14 +1,13 @@
 import { Clock, Heart, Search, TrendingUp } from "lucide-react";
-import { ItemStatus, ItemType, Prisma } from "@prisma/client";
+import { ItemType } from "@prisma/client";
 import { AppShell } from "@/components/layout/app-shell";
+import { PreviewUiNotice } from "@/components/preview-ui-notice";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { categories } from "@/features/items/sample-data";
 import { buildCatalogHref, parseCatalogSort, type CatalogSort } from "@/features/items/catalog-url";
-import { serializeItem } from "@/features/items/serializers";
-import { toItemCardView } from "@/features/items/presenters";
-import { prisma } from "@/lib/prisma";
+import { loadCatalogItemCards } from "@/features/items/load-item-cards";
 
 export const dynamic = "force-dynamic";
 
@@ -38,57 +37,19 @@ export default async function CatalogPage({ searchParams }: Props) {
   const selectedCategory = category && category !== "Все" ? category : undefined;
   const catalogBase = { q, city, type: parsedType, sort };
 
-  const where: Prisma.ItemWhereInput = {
-    status: ItemStatus.ACTIVE,
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q, mode: "insensitive" as const } },
-            { description: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
-    ...(selectedCategory ? { category: selectedCategory } : {}),
-    ...(city ? { city: { equals: city, mode: "insensitive" as const } } : {}),
-    ...(parsedType ? { type: parsedType } : {}),
-  };
-
-  const orderBy =
-    sort === "popular"
-      ? { receivedSwaps: { _count: "desc" as const } }
-      : sort === "trends"
-        ? { updatedAt: "desc" as const }
-        : { createdAt: "desc" as const };
-
-  const [items, categoryRows, cityRows] = await Promise.all([
-    prisma.item.findMany({
-      where,
-      include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
-      orderBy,
-      take: 60,
-    }),
-    prisma.item.findMany({
-      where: { status: ItemStatus.ACTIVE },
-      distinct: ["category"],
-      select: { category: true },
-      orderBy: { category: "asc" },
-    }),
-    prisma.item.findMany({
-      where: { status: ItemStatus.ACTIVE },
-      distinct: ["city"],
-      select: { city: true },
-      orderBy: { city: "asc" },
-    }),
-  ]);
-
-  const liveCategories = ["Все", ...categoryRows.map((entry) => entry.category)];
-  const categoryList = liveCategories.length > 1 ? liveCategories : categories;
-  const cityList = cityRows.map((entry) => entry.city);
-  const cards = items.map((item) => toItemCardView(serializeItem(item)));
+  const { cards, preview, categoryList, cityList } = await loadCatalogItemCards({
+    q,
+    category: selectedCategory,
+    city,
+    type: parsedType,
+    sort,
+    fallbackCategories: categories,
+  });
 
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
+      {preview ? <PreviewUiNotice /> : null}
+      <div className={`min-h-screen px-6 pb-32 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <div className="mx-auto max-w-[1600px]">
           <div className="mb-10">
             <h1 className="text-4xl font-bold md:text-5xl">

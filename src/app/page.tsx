@@ -1,28 +1,21 @@
-import { ItemStatus } from "@prisma/client";
 import { ArrowRight, Shield, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
+import { PreviewUiNotice } from "@/components/preview-ui-notice";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
-import { serializeItem } from "@/features/items/serializers";
-import { toItemCardView } from "@/features/items/presenters";
-import { prisma } from "@/lib/prisma";
+import { loadHomeItemCards } from "@/features/items/load-item-cards";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const items = await prisma.item.findMany({
-    where: { status: ItemStatus.ACTIVE },
-    include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-  });
-  const cards = items.map((item) => toItemCardView(serializeItem(item)));
+  const { cards, preview } = await loadHomeItemCards();
 
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
+      {preview ? <PreviewUiNotice /> : null}
+      <div className={`min-h-screen px-6 pb-32 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <section className="mx-auto max-w-7xl text-center">
           <div className="mb-6 inline-flex rounded-full border border-purple-500/30 bg-gradient-to-r from-teal-500/20 to-purple-500/20 px-6 py-2 backdrop-blur-xl">
             <span className="gradient-text-accent flex items-center gap-2 text-sm font-medium">
