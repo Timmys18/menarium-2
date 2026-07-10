@@ -79,25 +79,11 @@ export async function POST(req: Request) {
       },
     });
 
-    const existingImageIds = data.images.flatMap((image) => (image.id ? [image.id] : []));
-    if (existingImageIds.length) {
+    const imageIds = data.images.map((image) => image.id);
+    if (imageIds.length) {
       await tx.mediaAsset.updateMany({
-        where: { id: { in: existingImageIds }, ownerId: auth.userId, itemId: null },
+        where: { id: { in: imageIds }, ownerId: auth.userId, itemId: null },
         data: { itemId: created.id, ownerType: "ITEM" },
-      });
-    }
-
-    const newImages = data.images.filter((image) => !image.id);
-    if (newImages.length) {
-      await tx.mediaAsset.createMany({
-        data: newImages.map((image) => ({
-          ownerId: auth.userId,
-          ownerType: "ITEM",
-          itemId: created.id,
-          url: image.url,
-          contentType: image.contentType,
-          sizeBytes: image.sizeBytes,
-        })),
       });
     }
 

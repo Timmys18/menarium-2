@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const admin = await getCurrentAdmin();
 
-  const [usersCount, activeItemsCount, archivedItemsCount, activeSwapsCount, completedSwapsCount, recentItems] = admin
+  const [usersCount, activeItemsCount, archivedItemsCount, activeSwapsCount, completedSwapsCount, recentItems, recentUsers] = admin
     ? await Promise.all([
         prisma.user.count(),
         prisma.item.count({ where: { status: ItemStatus.ACTIVE } }),
@@ -26,8 +26,21 @@ export default async function AdminPage() {
           orderBy: { updatedAt: "desc" },
           take: 30,
         }),
+        prisma.user.findMany({
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            emailVerified: true,
+            city: true,
+            createdAt: true,
+            _count: { select: { items: true, sentSwaps: true, receivedSwaps: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 30,
+        }),
       ])
-    : [0, 0, 0, 0, 0, []];
+    : [0, 0, 0, 0, 0, [], []];
 
   const stats = [
     { label: "Пользователи", value: usersCount, icon: Users, color: "text-teal-400" },
@@ -94,6 +107,39 @@ export default async function AdminPage() {
                       </p>
                     </div>
                     <ItemModerationActions itemId={item.id} status={item.status} />
+                  </div>
+                ))}
+              </GlassCard>
+
+              <GlassCard className="overflow-hidden">
+                <div className="border-b border-white/[0.06] px-5 py-4">
+                  <h2 className="text-xl font-semibold">Пользователи</h2>
+                  <p className="mt-1 text-sm text-white/45">Последние регистрации — объявления, обмены, статус email.</p>
+                </div>
+                {recentUsers.map((user) => (
+                  <div key={user.id} className="flex flex-col gap-3 border-b border-white/[0.04] px-5 py-4 last:border-b-0 md:flex-row md:items-center">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <Link href={`/user/${user.id}`} className="font-medium transition-colors hover:text-teal-300">
+                          {user.name ?? "Без имени"}
+                        </Link>
+                        <Badge variant={user.emailVerified ? "teal" : "glass"}>
+                          {user.emailVerified ? "Email подтверждён" : "Email не подтверждён"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-white/45">
+                        {user.email}
+                        {user.city ? ` · ${user.city}` : ""}
+                        {" · "}
+                        {new Intl.DateTimeFormat("ru-RU", { dateStyle: "medium" }).format(user.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-xs text-white/50">
+                      <span className="rounded-xl bg-white/5 px-3 py-1.5">{user._count.items} объявл.</span>
+                      <span className="rounded-xl bg-white/5 px-3 py-1.5">
+                        {user._count.sentSwaps + user._count.receivedSwaps} обменов
+                      </span>
+                    </div>
                   </div>
                 ))}
               </GlassCard>

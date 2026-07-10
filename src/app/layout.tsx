@@ -1,18 +1,7 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Space_Grotesk } from "next/font/google";
+import { onest, spaceGrotesk } from "./fonts";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import "./globals.css";
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin", "latin-ext"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
@@ -20,8 +9,21 @@ export const metadata: Metadata = {
     default: "Menarium",
     template: "%s | Menarium",
   },
-  description: "Menarium — премиальная платформа бартерного обмена вещами и услугами.",
+  description:
+    "Menarium — премиальная платформа бартерного обмена вещами и услугами. Свайп, каталог, безопасные сделки.",
   applicationName: "Menarium",
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    siteName: "Menarium",
+    title: "Menarium — бартерный обмен нового уровня",
+    description: "Меняйся просто. Находи людей, которым нужен твой предмет.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Menarium",
+    description: "Премиальная платформа бартерного обмена",
+  },
 };
 
 export default function RootLayout({
@@ -32,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${spaceGrotesk.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${onest.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <AuthProvider>{children}</AuthProvider>

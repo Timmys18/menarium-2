@@ -33,7 +33,7 @@ const itemFixtures = [
     description: "Флагманские наушники в отличном состоянии. Полный комплект, бережное использование.",
     city: "Москва",
     desired: ["Механическая клавиатура", "AirPods Pro"],
-    image: "https://images.unsplash.com/photo-1704440278730-b420f5892700?auto=format&fit=crop&w=1080&q=80",
+    image: "/demo/items/sony.jpg",
   },
   {
     ownerEmail: "dmitry@menarium.ru",
@@ -43,7 +43,7 @@ const itemFixtures = [
     description: "Пленочная камера Canon AE-1. Подойдет для тех, кто хочет начать с аналоговой фотографии.",
     city: "Санкт-Петербург",
     desired: ["Винтажные часы", "Объектив"],
-    image: "https://images.unsplash.com/photo-1588419344934-13f50aa8fc5f?auto=format&fit=crop&w=1080&q=80",
+    image: "/demo/items/canon.jpg",
   },
   {
     ownerEmail: "maria@menarium.ru",
@@ -53,7 +53,7 @@ const itemFixtures = [
     description: "Помогу собрать визуальную концепцию комнаты, подобрать референсы и список покупок.",
     city: "Москва",
     desired: ["Фотосъемка", "Книги по дизайну"],
-    image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1080&q=80",
+    image: "/demo/items/interior.jpg",
   },
   {
     ownerEmail: "dmitry@menarium.ru",
@@ -63,7 +63,7 @@ const itemFixtures = [
     description: "Небольшая коллекция пластинок в хорошем состоянии. Готов обсуждать обмен комплектом.",
     city: "Санкт-Петербург",
     desired: ["Проигрыватель", "Аудиотехника"],
-    image: "https://images.unsplash.com/photo-1631692364644-d6558eab0915?auto=format&fit=crop&w=1080&q=80",
+    image: "/demo/items/vinyl.jpg",
   },
 ];
 
@@ -84,7 +84,7 @@ async function upsertUser(user) {
   });
 }
 
-async function createItemIfMissing(fixture, owners) {
+async function upsertItem(fixture, owners) {
   const owner = owners.get(fixture.ownerEmail);
   if (!owner) throw new Error(`Missing owner for ${fixture.ownerEmail}`);
 
@@ -93,8 +93,29 @@ async function createItemIfMissing(fixture, owners) {
       ownerId: owner.id,
       title: fixture.title,
     },
+    include: { images: true },
   });
-  if (existing) return existing;
+
+  if (existing) {
+    if (existing.images[0]) {
+      await prisma.mediaAsset.update({
+        where: { id: existing.images[0].id },
+        data: { url: fixture.image, contentType: "image/jpeg" },
+      });
+    } else {
+      await prisma.mediaAsset.create({
+        data: {
+          ownerId: owner.id,
+          ownerType: MediaOwnerType.ITEM,
+          itemId: existing.id,
+          url: fixture.image,
+          contentType: "image/jpeg",
+          sizeBytes: 1,
+        },
+      });
+    }
+    return existing;
+  }
 
   return prisma.item.create({
     data: {
@@ -121,9 +142,20 @@ async function createItemIfMissing(fixture, owners) {
 }
 
 async function main() {
+  // Защита от катастрофы: демо-данные с известными паролями НИКОГДА
+  // не должны попасть в production. Разрешаем сид только явным флагом.
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_PROD_SEED !== "true") {
+    console.error(
+      "Отказано: запуск seed в production запрещён. " +
+        "Демо-аккаунты с известными паролями небезопасны. " +
+        "Если это действительно нужно — установите ALLOW_PROD_SEED=true.",
+    );
+    process.exit(1);
+  }
+
   const ownerEntries = await Promise.all(users.map(upsertUser));
   const owners = new Map(ownerEntries.map((user) => [user.email, user]));
-  await Promise.all(itemFixtures.map((fixture) => createItemIfMissing(fixture, owners)));
+  await Promise.all(itemFixtures.map((fixture) => upsertItem(fixture, owners)));
 
   console.log("Seed complete:");
   console.log("- admin@menarium.ru / MenariumAdmin2026!");

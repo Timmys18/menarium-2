@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Bell, MessageCircle, Repeat, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
@@ -6,7 +5,9 @@ import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
+import { loginHref } from "@/lib/utils";
 import { MarkAllNotificationsRead, MarkNotificationRead } from "./notification-actions";
+import { NotificationLink } from "./notification-link";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export default async function NotificationsPage() {
             <EmptyState
               title="Войдите, чтобы видеть уведомления"
               description="Menarium будет показывать здесь новые обмены, сообщения и изменения статусов."
-              actionHref="/auth/login"
+              actionHref={loginHref("/notifications")}
               actionLabel="Войти"
             />
           ) : notifications.length > 0 ? (
@@ -86,9 +87,9 @@ export default async function NotificationsPage() {
                 );
 
                 return notification.href ? (
-                  <Link key={notification.id} href={notification.href}>
+                  <NotificationLink key={notification.id} id={notification.id} href={notification.href} isRead={notification.isRead}>
                     {content}
-                  </Link>
+                  </NotificationLink>
                 ) : (
                   <div key={notification.id}>{content}</div>
                 );

@@ -25,7 +25,7 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-**First-time UI preview:** start Docker Desktop, then run `npm run preview:setup` and `npm run dev`. Step-by-step acceptance routes: `docs/PREVIEW_LOCAL_RU.md`.
+**Full UI preview:** run `npm run preview:full` — database, demo data, and site start automatically. Guide: `docs/PREVIEW_LOCAL_RU.md`.
 
 For a real local database with Docker:
 

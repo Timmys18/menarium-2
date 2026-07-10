@@ -14,28 +14,28 @@ const validPayload = {
 };
 
 describe("itemPayloadSchema", () => {
-  it("accepts app-relative dev upload image urls", () => {
+  it("accepts media asset ids from /api/media upload", () => {
     const parsed = itemPayloadSchema.safeParse({
       ...validPayload,
-      images: [{ id: "asset-1", url: "/uploads/user/image.jpg", contentType: "image/jpeg", sizeBytes: 1024 }],
+      images: [{ id: "asset-1" }],
     });
 
     expect(parsed.success).toBe(true);
   });
 
-  it("accepts absolute production storage image urls", () => {
+  it("rejects arbitrary external image urls (security)", () => {
     const parsed = itemPayloadSchema.safeParse({
       ...validPayload,
-      images: [{ url: "https://bucket.storage.yandexcloud.net/uploads/user/image.webp", contentType: "image/webp", sizeBytes: 2048 }],
+      images: [{ url: "https://evil.com/image.jpg", contentType: "image/jpeg", sizeBytes: 2048 }],
     });
 
-    expect(parsed.success).toBe(true);
+    expect(parsed.success).toBe(false);
   });
 
-  it("rejects invalid image urls", () => {
+  it("rejects images without id", () => {
     const parsed = itemPayloadSchema.safeParse({
       ...validPayload,
-      images: [{ url: "not-a-url", contentType: "image/jpeg", sizeBytes: 1024 }],
+      images: [{ contentType: "image/jpeg", sizeBytes: 1024 }],
     });
 
     expect(parsed.success).toBe(false);
@@ -45,9 +45,7 @@ describe("itemPayloadSchema", () => {
     const parsed = itemPayloadSchema.safeParse({
       ...validPayload,
       images: Array.from({ length: 9 }, (_, index) => ({
-        url: `/uploads/user/${index}.jpg`,
-        contentType: "image/jpeg",
-        sizeBytes: 1024,
+        id: `asset-${index}`,
       })),
     });
 

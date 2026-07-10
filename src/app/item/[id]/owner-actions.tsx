@@ -11,7 +11,9 @@ export function DeleteItemButton({ itemId }: { itemId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   async function deleteItem() {
-    const confirmed = window.confirm("Удалить объявление? Это действие нельзя отменить.");
+    const confirmed = window.confirm(
+      "Удалить объявление?\n\nЕсли по нему уже были завершённые обмены, оно будет снято с публикации, но останется в истории сделок.",
+    );
     if (!confirmed) return;
 
     setError(null);
@@ -20,6 +22,9 @@ export function DeleteItemButton({ itemId }: { itemId: string }) {
       const response = await fetch(`/api/items/${itemId}`, { method: "DELETE" });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Не удалось удалить объявление");
+      if (body.data?.archived) {
+        window.alert(body.data.message ?? "Объявление снято с публикации.");
+      }
       router.push("/my-items");
       router.refresh();
     } catch (deleteError) {

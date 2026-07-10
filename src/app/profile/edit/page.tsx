@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState } from "@/components/menarium/empty-state";
+import { loginHref } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { ProfileEditForm } from "./profile-edit-form";
@@ -26,7 +27,7 @@ export default async function ProfileEditPage() {
             <EmptyState
               title="Войдите, чтобы редактировать профиль"
               description="Настройки профиля доступны только авторизованному пользователю."
-              actionHref="/auth/login"
+              actionHref={loginHref("/profile/edit")}
               actionLabel="Войти"
             />
           )}

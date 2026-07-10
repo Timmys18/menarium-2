@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Clock, Heart, Search, TrendingUp } from "lucide-react";
 import { ItemType } from "@prisma/client";
 import { AppShell } from "@/components/layout/app-shell";
@@ -6,10 +7,15 @@ import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { categories } from "@/features/items/sample-data";
-import { buildCatalogHref, parseCatalogSort, type CatalogSort } from "@/features/items/catalog-url";
+import { buildCatalogHref, parseCatalogSort, type CatalogSort, CATALOG_PAGE_SIZE } from "@/features/items/catalog-url";
 import { loadCatalogItemCards } from "@/features/items/load-item-cards";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Каталог обменов",
+  description: "Ищи вещи и услуги для бартерного обмена на Menarium.",
+};
 
 type Props = {
   searchParams: Promise<{
@@ -18,6 +24,7 @@ type Props = {
     city?: string;
     type?: string;
     sort?: string;
+    page?: string;
   }>;
 };
 
@@ -34,17 +41,20 @@ export default async function CatalogPage({ searchParams }: Props) {
   const city = params.city?.trim();
   const parsedType = params.type === ItemType.THING || params.type === ItemType.SERVICE ? params.type : undefined;
   const sort = parseCatalogSort(params.sort);
+  const page = Math.max(1, Number(params.page) || 1);
   const selectedCategory = category && category !== "Все" ? category : undefined;
   const catalogBase = { q, city, type: parsedType, sort };
 
-  const { cards, preview, categoryList, cityList } = await loadCatalogItemCards({
+  const { cards, preview, categoryList, cityList, total, hasMore } = await loadCatalogItemCards({
     q,
     category: selectedCategory,
     city,
     type: parsedType,
     sort,
     fallbackCategories: categories,
+    page,
   });
+  const totalPages = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));
 
   return (
     <AppShell>
@@ -89,7 +99,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                       <a
                         key={item.id}
                         href={buildCatalogHref({ ...catalogBase, sort: item.id })}
-                        className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-all ${
+                        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                           active
                             ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
                             : "text-white/60 hover:bg-white/5 hover:text-white"
@@ -105,6 +115,31 @@ export default async function CatalogPage({ searchParams }: Props) {
                 <div className="mb-6 h-px bg-white/10" />
 
                 <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
+                  Тип
+                </h3>
+                <div className="mb-6 space-y-1.5">
+                  {[
+                    { id: undefined, label: "Все" },
+                    { id: ItemType.THING, label: "Предметы" },
+                    { id: ItemType.SERVICE, label: "Услуги" },
+                  ].map((entry) => (
+                    <a
+                      key={entry.label}
+                      href={buildCatalogHref({ ...catalogBase, type: entry.id })}
+                      className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
+                        (entry.id === undefined && !parsedType) || entry.id === parsedType
+                          ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
+                          : "text-white/60 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      {entry.label}
+                    </a>
+                  ))}
+                </div>
+
+                <div className="mb-6 h-px bg-white/10" />
+
+                <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
                   Категории
                 </h3>
                 <div className="space-y-1.5">
@@ -112,7 +147,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                     <a
                       key={entry}
                       href={buildCatalogHref({ ...catalogBase, category: entry === "Все" ? undefined : entry })}
-                      className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition-all ${
+                      className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                         (entry === "Все" && !selectedCategory) || entry === selectedCategory
                           ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
                           : "text-white/60 hover:bg-white/5 hover:text-white"
@@ -132,7 +167,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                     <div className="space-y-1.5">
                       <a
                         href={buildCatalogHref({ ...catalogBase, city: undefined })}
-                        className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition-all ${
+                        className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                           !city ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
                         }`}
                       >
@@ -142,7 +177,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                         <a
                           key={entry}
                           href={buildCatalogHref({ ...catalogBase, city: entry })}
-                          className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition-all ${
+                          className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                             city?.toLowerCase() === entry.toLowerCase()
                               ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
                               : "text-white/60 hover:bg-white/5 hover:text-white"
@@ -159,11 +194,36 @@ export default async function CatalogPage({ searchParams }: Props) {
 
             <section className="flex-1">
               {cards.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                  {cards.map((item) => (
-                    <ItemCard key={item.id} {...item} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {cards.map((item) => (
+                      <ItemCard key={item.id} {...item} />
+                    ))}
+                  </div>
+                  {totalPages > 1 ? (
+                    <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+                      {page > 1 ? (
+                        <a
+                          href={buildCatalogHref({ ...catalogBase, category: selectedCategory, page: page - 1 })}
+                          className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                        >
+                          ← Назад
+                        </a>
+                      ) : null}
+                      <span className="text-sm text-white/45">
+                        Страница {page} из {totalPages}
+                      </span>
+                      {hasMore ? (
+                        <a
+                          href={buildCatalogHref({ ...catalogBase, category: selectedCategory, page: page + 1 })}
+                          className="rounded-2xl bg-gradient-to-r from-teal-500 to-purple-500 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+                        >
+                          Показать ещё →
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </>
               ) : (
                 <EmptyState
                   title="Пока нет подходящих объявлений"

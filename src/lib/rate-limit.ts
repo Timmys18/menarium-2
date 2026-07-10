@@ -32,22 +32,29 @@ export async function checkRateLimit(
     return { ok: true };
   }
 
-  const count = await redis.incr(fullKey);
-  if (count === 1) {
-    await redis.expire(fullKey, options.windowSec);
-  }
+  try {
+    const count = await redis.incr(fullKey);
+    if (count === 1) {
+      await redis.expire(fullKey, options.windowSec);
+    }
 
-  if (count > options.limit) {
-    const ttl = await redis.ttl(fullKey);
-    return {
-      ok: false,
-      status: 429,
-      error: options.error,
-      retryAfterSec: ttl > 0 ? ttl : options.windowSec,
-    };
-  }
+    if (count > options.limit) {
+      const ttl = await redis.ttl(fullKey);
+      return {
+        ok: false,
+        status: 429,
+        error: options.error,
+        retryAfterSec: ttl > 0 ? ttl : options.windowSec,
+      };
+    }
 
-  return { ok: true };
+    return { ok: true };
+  } catch (error) {
+    // Если Redis временно недоступен в рантайме — не роняем запрос 500-й ошибкой
+    // и не блокируем пользователей. Пропускаем (fail-open), лишь логируя проблему.
+    console.error("[rate-limit] Redis error, failing open:", error);
+    return { ok: true };
+  }
 }
 
 export async function checkMessageRateLimit(userId: string) {
@@ -71,5 +78,30 @@ export function checkActionRateLimit(userId: string, action: string) {
     limit: 1,
     windowSec: 3,
     error: "Слишком много запросов. Попробуйте чуть позже.",
+  });
+}
+
+/** Достаёт IP клиента из заголовков прокси (Nginx ставит x-forwarded-for). */
+export function getClientIp(headers: Headers): string {
+  const forwarded = headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0]!.trim();
+  return headers.get("x-real-ip")?.trim() || "unknown";
+}
+
+/** Лимит на попытки входа: защита от перебора паролей (по email + IP). */
+export function checkLoginRateLimit(email: string, ip: string) {
+  return checkRateLimit(`login:${email}:${ip}`, {
+    limit: 10,
+    windowSec: 10 * 60,
+    error: "Слишком много попыток входа. Попробуйте через несколько минут.",
+  });
+}
+
+/** Лимит на регистрацию: защита от массового создания аккаунтов (по IP). */
+export function checkRegisterRateLimit(ip: string) {
+  return checkRateLimit(`register:${ip}`, {
+    limit: 5,
+    windowSec: 60 * 60,
+    error: "Слишком много регистраций с этого адреса. Попробуйте позже.",
   });
 }

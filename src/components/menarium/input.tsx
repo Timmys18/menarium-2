@@ -5,7 +5,7 @@ export function MenariumInput({ className, ...props }: InputHTMLAttributes<HTMLI
   return (
     <input
       className={cn(
-        "glass-card w-full rounded-2xl px-4 py-3 text-white outline-none placeholder:text-white/40 focus:border-teal-400/60",
+        "glass-card w-full rounded-2xl px-4 py-3 text-white outline-none placeholder:text-white/40 focus:border-teal-400/60 focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]",
         className,
       )}
       {...props}

@@ -5,6 +5,14 @@ import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { isDbUnavailableError } from "@/lib/db-unavailable";
 import { prisma } from "@/lib/prisma";
+import { CATALOG_PAGE_SIZE } from "@/features/items/catalog-url";
+
+// Демо-карточки при недоступной БД показываем ТОЛЬКО вне production.
+// В production поломка БД должна честно приводить к ошибке (error.tsx),
+// а не маскироваться фейковыми объявлениями с нерабочими ссылками.
+function canUsePreviewFallback(error: unknown): boolean {
+  return process.env.NODE_ENV !== "production" && isDbUnavailableError(error);
+}
 
 const itemInclude = {
   owner: { select: { id: true, name: true, city: true, image: true } },
@@ -16,6 +24,10 @@ export type ItemCardsLoadResult = {
   preview: boolean;
   categoryList: string[];
   cityList: string[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
 };
 
 function filterPreviewCards(
@@ -56,7 +68,7 @@ export async function loadHomeItemCards(): Promise<Pick<ItemCardsLoadResult, "ca
       preview: false,
     };
   } catch (error) {
-    if (!isDbUnavailableError(error)) throw error;
+    if (!canUsePreviewFallback(error)) throw error;
     return { cards: getPreviewItemCards().slice(0, 6), preview: true };
   }
 }
@@ -68,8 +80,13 @@ export async function loadCatalogItemCards(input: {
   type?: ItemType;
   sort: "new" | "popular" | "trends";
   fallbackCategories: string[];
+  page?: number;
+  pageSize?: number;
 }): Promise<ItemCardsLoadResult> {
   const selectedCategory = input.category && input.category !== "Все" ? input.category : undefined;
+  const page = Math.max(1, input.page ?? 1);
+  const pageSize = input.pageSize ?? CATALOG_PAGE_SIZE;
+  const offset = (page - 1) * pageSize;
 
   try {
     const where: Prisma.ItemWhereInput = {
@@ -94,8 +111,9 @@ export async function loadCatalogItemCards(input: {
           ? { updatedAt: "desc" as const }
           : { createdAt: "desc" as const };
 
-    const [items, categoryRows, cityRows] = await Promise.all([
-      prisma.item.findMany({ where, include: itemInclude, orderBy, take: 60 }),
+    const [items, total, categoryRows, cityRows] = await Promise.all([
+      prisma.item.findMany({ where, include: itemInclude, orderBy, skip: offset, take: pageSize }),
+      prisma.item.count({ where }),
       prisma.item.findMany({
         where: { status: ItemStatus.ACTIVE },
         distinct: ["category"],
@@ -116,9 +134,13 @@ export async function loadCatalogItemCards(input: {
       preview: false,
       categoryList: liveCategories.length > 1 ? liveCategories : input.fallbackCategories,
       cityList: cityRows.map((entry) => entry.city),
+      total,
+      page,
+      pageSize,
+      hasMore: offset + items.length < total,
     };
   } catch (error) {
-    if (!isDbUnavailableError(error)) throw error;
+    if (!canUsePreviewFallback(error)) throw error;
 
     const meta = previewMeta();
     let cards = filterPreviewCards(getPreviewItemCards(), {
@@ -131,11 +153,18 @@ export async function loadCatalogItemCards(input: {
       cards = [...cards].sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
     }
 
+    const total = cards.length;
+    const paged = cards.slice(offset, offset + pageSize);
+
     return {
-      cards,
+      cards: paged,
       preview: true,
       categoryList: meta.categoryList,
       cityList: meta.cityList,
+      total,
+      page,
+      pageSize,
+      hasMore: offset + paged.length < total,
     };
   }
 }

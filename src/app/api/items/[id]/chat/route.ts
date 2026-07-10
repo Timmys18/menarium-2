@@ -1,3 +1,4 @@
+import { ItemStatus } from "@prisma/client";
 import { actionResponse, errorResponse } from "@/lib/api";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
@@ -17,6 +18,9 @@ export async function POST(_: Request, context: Context) {
   const item = await prisma.item.findUnique({ where: { id } });
   if (!item) return errorResponse("Объявление не найдено", 404);
   if (item.ownerId === auth.userId) return errorResponse("Нельзя открыть чат с самим собой", 400);
+  if (item.status !== ItemStatus.ACTIVE) {
+    return errorResponse("Объявление недоступно для новых сообщений", 409);
+  }
 
   const thread = await prisma.itemThread.upsert({
     where: { itemId_buyerId: { itemId: item.id, buyerId: auth.userId } },

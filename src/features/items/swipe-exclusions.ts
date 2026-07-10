@@ -1,9 +1,10 @@
+import { SwapStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export async function getSwipeExcludedItemIds(userId: string) {
   const [swaps, passes] = await Promise.all([
     prisma.swapRequest.findMany({
-      where: { senderId: userId },
+      where: { senderId: userId, status: SwapStatus.PENDING },
       select: { receiverItemId: true },
     }),
     prisma.swipePass.findMany({

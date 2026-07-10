@@ -32,7 +32,7 @@ export function MenariumButton({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]",
         variants[variant],
         sizes[size],
         className,
@@ -59,7 +59,7 @@ export function MenariumLinkButton({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]",
+        "inline-flex items-center justify-center gap-2 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]",
         variants[variant],
         sizes[size],
         className,

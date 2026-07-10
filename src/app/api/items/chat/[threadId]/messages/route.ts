@@ -1,4 +1,4 @@
-import { NotificationType } from "@prisma/client";
+import { ItemStatus, NotificationType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { actionResponse, errorResponse, getPaging, listResponse, parseJson } from "@/lib/api";
 import { checkMessageRateLimit } from "@/lib/rate-limit";
@@ -56,12 +56,13 @@ export async function POST(req: Request, context: Context) {
     const message = await prisma.$transaction(async (tx) => {
       const thread = await tx.itemThread.findUnique({
         where: { id: threadId },
-        include: { item: { select: { id: true, title: true } } },
+        include: { item: { select: { id: true, title: true, status: true } } },
       });
       if (!thread) throw new Error("THREAD_NOT_FOUND");
 
       const isParticipant = thread.buyerId === auth.userId || thread.ownerId === auth.userId;
       if (!isParticipant) throw new Error("FORBIDDEN");
+      if (thread.item.status !== ItemStatus.ACTIVE) throw new Error("ITEM_NOT_ACTIVE");
 
       const created = await tx.itemThreadMessage.create({
         data: { threadId, senderId: auth.userId, text },
@@ -87,6 +88,7 @@ export async function POST(req: Request, context: Context) {
     if (error instanceof Error) {
       if (error.message === "THREAD_NOT_FOUND") return errorResponse("Чат не найден", 404);
       if (error.message === "FORBIDDEN") return errorResponse("Нет доступа к этому чату", 403);
+      if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Объявление больше недоступно для переписки", 409);
     }
     return errorResponse("Не удалось отправить сообщение", 500);
   }

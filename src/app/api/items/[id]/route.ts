@@ -41,7 +41,7 @@ export async function PATCH(req: Request, context: Context) {
 
   const data = parsed.data;
   const updated = await prisma.$transaction(async (tx) => {
-    const submittedImageIds = data.images.flatMap((image) => (image.id ? [image.id] : []));
+    const submittedImageIds = data.images.map((image) => image.id);
     await tx.mediaAsset.deleteMany({
       where: {
         itemId: id,
@@ -64,29 +64,14 @@ export async function PATCH(req: Request, context: Context) {
       },
     });
 
-    const existingImageIds = data.images.flatMap((image) => (image.id ? [image.id] : []));
-    if (existingImageIds.length) {
+    if (submittedImageIds.length) {
       await tx.mediaAsset.updateMany({
         where: {
-          id: { in: existingImageIds },
+          id: { in: submittedImageIds },
           ownerId: auth.userId,
           OR: [{ itemId: null }, { itemId: id }],
         },
         data: { itemId: id, ownerType: "ITEM" },
-      });
-    }
-
-    const newImages = data.images.filter((image) => !image.id);
-    if (newImages.length) {
-      await tx.mediaAsset.createMany({
-        data: newImages.map((image) => ({
-          ownerId: auth.userId,
-          ownerType: "ITEM",
-          itemId: id,
-          url: image.url,
-          contentType: image.contentType,
-          sizeBytes: image.sizeBytes,
-        })),
       });
     }
 
@@ -117,6 +102,21 @@ export async function DELETE(_: Request, context: Context) {
 
   if (blockingSwaps > 0) {
     return errorResponse("Нельзя удалить объявление, пока по нему есть активные или ожидающие обмены", 409);
+  }
+
+  const historySwaps = await prisma.swapRequest.count({
+    where: {
+      status: SwapStatus.COMPLETED,
+      OR: [{ senderItemId: id }, { receiverItemId: id }],
+    },
+  });
+
+  if (historySwaps > 0) {
+    if (existing.status !== ItemStatus.ARCHIVED) {
+      await prisma.item.update({ where: { id }, data: { status: ItemStatus.ARCHIVED } });
+      return actionResponse({ archived: true, message: "Объявление снято с публикации — в истории обменов оно сохранится." });
+    }
+    return errorResponse("Объявление уже в архиве и связано с завершёнными обменами", 409);
   }
 
   await prisma.item.delete({ where: { id } });

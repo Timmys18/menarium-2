@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightLeft, Heart, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
 import { HoverCard } from "@/components/menarium/card";
+import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 
 export type ItemCardProps = {
   id: string;
@@ -29,12 +29,11 @@ export function ItemCard({
     <Link href={`/item/${id}`}>
       <HoverCard className="group overflow-hidden">
         <div className="relative h-80 overflow-hidden">
-          <Image
+          <ItemCoverImage
             src={image}
             alt={title}
-            fill
             sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            imageClassName="transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute left-4 top-4">
             <Badge>{category}</Badge>

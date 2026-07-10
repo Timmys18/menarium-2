@@ -1,33 +1,37 @@
-import Image from "next/image";
 import { ItemStatus } from "@prisma/client";
-import { ArrowRightLeft } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
 import { getSwipeExcludedItemIds } from "@/features/items/swipe-exclusions";
+import { loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
-import { SwipeActions } from "./swipe-actions";
+import { SwipeCardStack } from "./swipe-card-stack";
 
 export const dynamic = "force-dynamic";
 
 export default async function SwipePage() {
   const userId = await getCurrentUserId();
   const excludedItemIds = userId ? await getSwipeExcludedItemIds(userId) : [];
-  const item = userId
-    ? await prisma.item.findFirst({
-        where: {
-          status: ItemStatus.ACTIVE,
-          ownerId: { not: userId },
-          ...(excludedItemIds.length ? { id: { notIn: excludedItemIds } } : {}),
-        },
-        include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
-        orderBy: { createdAt: "desc" },
-      })
-    : null;
+  const [item, userItems] = userId
+    ? await Promise.all([
+        prisma.item.findFirst({
+          where: {
+            status: ItemStatus.ACTIVE,
+            ownerId: { not: userId },
+            ...(excludedItemIds.length ? { id: { notIn: excludedItemIds } } : {}),
+          },
+          include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.item.findMany({
+          where: { ownerId: userId, status: ItemStatus.ACTIVE },
+          select: { id: true, title: true },
+          orderBy: { updatedAt: "desc" },
+        }),
+      ])
+    : [null, []];
   const card = item ? toItemCardView(serializeItem(item)) : null;
 
   return (
@@ -39,7 +43,7 @@ export default async function SwipePage() {
               <span className="gradient-text">Свайп</span> обмена
             </h1>
             <p className="text-white/60">
-              Листай как в Tinder: влево не интересно, вправо хочу обменять.
+              Тяни влево — пропустить, вправо — предложить обмен. Или используй кнопки ниже.
             </p>
           </div>
 
@@ -47,34 +51,20 @@ export default async function SwipePage() {
             <EmptyState
               title="Войдите, чтобы открыть свайп"
               description="Свайп-лента персональная: Menarium исключает ваши объявления и уже отправленные предложения."
-              actionHref="/auth/login"
+              actionHref={loginHref("/swipe")}
               actionLabel="Войти"
             />
           ) : card ? (
-            <>
-              <div className="relative flex h-[640px] items-center justify-center">
-                <GlassCard className="absolute h-[600px] w-[420px] translate-y-8 scale-90 rounded-3xl opacity-40" />
-                <GlassCard className="absolute h-[600px] w-[420px] translate-y-4 scale-95 rounded-3xl opacity-60" />
-                <GlassCard className="relative h-[600px] w-full max-w-[450px] overflow-hidden rounded-3xl">
-                  <div className="relative h-[82%]">
-                    <Image src={card.image} alt={card.title} fill className="object-cover" />
-                    <div className="absolute left-4 top-4 rounded-xl border border-white/10 bg-black/40 px-3 py-1.5 backdrop-blur-xl">
-                      <span className="text-xs tracking-wide text-white/90">{card.category}</span>
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/70 to-transparent" />
-                  </div>
-                  <div className="flex h-[18%] flex-col justify-center px-6 py-4">
-                    <h2 className="mb-2 text-xl tracking-tight">{card.title}</h2>
-                    <div className="flex items-center gap-2 text-sm text-white/50">
-                      <ArrowRightLeft className="h-3.5 w-3.5 text-purple-400" />
-                      <span className="tracking-wide">{card.wanted}</span>
-                    </div>
-                  </div>
-                </GlassCard>
-              </div>
-
-              <SwipeActions itemId={card.id} />
-            </>
+            <SwipeCardStack
+              card={{
+                id: card.id,
+                title: card.title,
+                category: card.category,
+                wanted: card.wanted,
+                image: card.image,
+              }}
+              userItems={userItems}
+            />
           ) : (
             <EmptyState
               title="Новых карточек пока нет"

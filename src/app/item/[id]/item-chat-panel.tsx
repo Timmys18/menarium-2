@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Send } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { useAutoRefresh } from "@/components/hooks/use-auto-refresh";
 
 type ItemChatMessage = {
   id: string;
@@ -18,17 +19,26 @@ export function ItemChatPanel({
   initialThreadId,
   currentUserId,
   messages,
+  isOwner = false,
 }: {
   itemId: string;
   initialThreadId: string | null;
   currentUserId: string;
   messages: ItemChatMessage[];
+  isOwner?: boolean;
 }) {
   const router = useRouter();
   const [threadId, setThreadId] = useState(initialThreadId);
   const [text, setText] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useAutoRefresh(Boolean(threadId), 8000);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
 
   async function readError(response: Response) {
     const body = await response.json().catch(() => ({}));
@@ -72,7 +82,11 @@ export function ItemChatPanel({
     <GlassCard className="mt-8 p-6">
       <div className="mb-5">
         <h2 className="text-xl font-semibold">Чат по объявлению</h2>
-        <p className="mt-1 text-sm text-white/45">Задайте вопрос владельцу до предложения обмена.</p>
+        <p className="mt-1 text-sm text-white/45">
+          {isOwner
+            ? "Ответьте покупателю на вопрос по этому объявлению."
+            : "Задайте вопрос владельцу до предложения обмена."}
+        </p>
       </div>
 
       <div className="max-h-96 space-y-3 overflow-y-auto pr-1">
@@ -94,6 +108,7 @@ export function ItemChatPanel({
             Сообщений пока нет. Начните диалог первым сообщением.
           </div>
         )}
+        <div ref={bottomRef} />
       </div>
 
       <div className="mt-5 space-y-2">
@@ -109,7 +124,7 @@ export function ItemChatPanel({
             }}
             disabled={isSending}
             className="glass-card min-w-0 flex-1 rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-white/35 disabled:opacity-50"
-            placeholder="Напишите владельцу..."
+            placeholder={isOwner ? "Ответьте покупателю..." : "Напишите владельцу..."}
           />
           <MenariumButton size="sm" onClick={sendMessage} disabled={isSending || !text.trim()}>
             {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

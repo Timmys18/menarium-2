@@ -20,6 +20,9 @@ Core promise:
 
 Figma Make `XT9Xe6gYW5lm6qWyuCTVpd` is the source of truth for UI:
 
+- Full URL and MCP params: `docs/FIGMA_MAKE.md`, `figma.config.json`
+- Example preview: `?code-node-id=0-9&preview-route=/profile`
+
 - dark premium background `#0a0a0f`;
 - glass cards with heavy blur and subtle white borders;
 - Space Grotesk typography;

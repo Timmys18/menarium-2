@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 
 export function ItemImageGallery({
   images,
@@ -15,8 +15,8 @@ export function ItemImageGallery({
 
   if (!active) {
     return (
-      <div className="relative h-[560px] bg-white/5">
-        <Image src="/menarium-placeholder.svg" alt={title} fill className="object-cover" priority />
+      <div className="relative h-[560px]">
+        <ItemCoverImage src="" alt={title} priority />
       </div>
     );
   }
@@ -24,7 +24,7 @@ export function ItemImageGallery({
   return (
     <div>
       <div className="relative h-[560px]">
-        <Image src={active.url} alt={title} fill className="object-cover" priority />
+        <ItemCoverImage src={active.url} alt={title} priority />
       </div>
       {images.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto p-4">
@@ -37,7 +37,7 @@ export function ItemImageGallery({
                 index === activeIndex ? "border-teal-400" : "border-white/10 opacity-70"
               }`}
             >
-              <Image src={image.url} alt="" fill className="object-cover" />
+              <ItemCoverImage src={image.url} alt="" sizes="80px" />
             </button>
           ))}
         </div>

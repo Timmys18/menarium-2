@@ -4,3 +4,26 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+/**
+ * Приводит callbackUrl к безопасному внутреннему пути.
+ * Защита от open redirect: принимаем только относительные пути внутри сайта,
+ * отсекаем абсолютные URL (//evil.com, https://evil.com) и служебные схемы.
+ */
+export function safeCallbackUrl(value: string | null | undefined, fallback = "/profile"): string {
+  if (!value) return fallback;
+  // Должен начинаться с одного слэша и не быть protocol-relative "//".
+  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
+    return fallback;
+  }
+  // Исключаем попытки внедрить схему через backslash-трюки.
+  if (value.includes("\\") || value.includes("://")) {
+    return fallback;
+  }
+  return value;
+}
+
+/** Ссылка на login с безопасным возвратом на текущую страницу. */
+export function loginHref(callbackPath: string, fallback = "/profile") {
+  return `/auth/login?callbackUrl=${encodeURIComponent(safeCallbackUrl(callbackPath, fallback))}`;
+}

@@ -19,8 +19,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-space-grotesk);
-  --font-mono: var(--font-geist-mono);
+  --color-brand-blue: var(--brand-blue-primary);
+  --color-brand-blue-light: var(--brand-blue-light);
+  --color-brand-purple: var(--accent-purple);
+  --color-accent-teal: var(--accent-teal);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-fuchsia: var(--accent-fuchsia);
+  --font-sans: var(--font-onest);
+  --font-display: var(--font-space-grotesk);
 }
 
 * {
@@ -39,7 +45,7 @@ body {
     radial-gradient(circle at 50% 100%, rgba(59, 127, 255, 0.14), transparent 34rem),
     var(--background);
   color: var(--foreground);
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-onest), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -51,6 +57,22 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+/* Латинский дисплейный акцент (логотип, латинские заголовки бренда). */
+.font-display {
+  font-family: var(--font-space-grotesk), var(--font-onest), sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .dot-grid-bg {

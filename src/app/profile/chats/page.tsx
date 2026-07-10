@@ -1,32 +1,44 @@
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
+import { SwapStatus } from "@prisma/client";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { prisma } from "@/lib/prisma";
+import { loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 
 export const dynamic = "force-dynamic";
 
+// Статусы, в которых у сделки есть доступный чат (после принятия обмена).
+const DEAL_CHAT_STATUSES: SwapStatus[] = [
+  SwapStatus.ACCEPTED,
+  SwapStatus.COMPLETED,
+  SwapStatus.CANCELLED,
+];
+
 export default async function ProfileChatsPage() {
   const userId = await getCurrentUserId();
-  const [dealMessages, itemThreads] = userId
+
+  const [dealSwaps, itemThreads] = userId
     ? await Promise.all([
-        prisma.dealMessage.findMany({
-          where: { swap: { OR: [{ senderId: userId }, { receiverId: userId }] } },
-          include: {
-            swap: {
-              include: {
-                sender: { select: { id: true, name: true } },
-                receiver: { select: { id: true, name: true } },
-                senderItem: { select: { title: true } },
-                receiverItem: { select: { title: true } },
-              },
-            },
+        // Источник — сами сделки, а не сообщения: чат виден даже без переписки.
+        prisma.swapRequest.findMany({
+          where: {
+            status: { in: DEAL_CHAT_STATUSES },
+            OR: [{ senderId: userId }, { receiverId: userId }],
           },
-          orderBy: { createdAt: "desc" },
-          take: 20,
+          include: {
+            sender: { select: { id: true, name: true } },
+            receiver: { select: { id: true, name: true } },
+            senderItem: { select: { title: true } },
+            receiverItem: { select: { title: true } },
+            messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: { select: { messages: { where: { senderId: { not: userId }, isRead: false } } } },
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 40,
         }),
         prisma.itemThread.findMany({
           where: { OR: [{ buyerId: userId }, { ownerId: userId }] },
@@ -35,30 +47,27 @@ export default async function ProfileChatsPage() {
             buyer: { select: { id: true, name: true } },
             owner: { select: { id: true, name: true } },
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: { select: { messages: { where: { senderId: { not: userId }, isRead: false } } } },
           },
           orderBy: { updatedAt: "desc" },
-          take: 20,
+          take: 40,
         }),
       ])
     : [[], []];
 
-  const seenSwaps = new Set<string>();
-  const dealChats = dealMessages.flatMap((message) => {
-    if (seenSwaps.has(message.swapId)) return [];
-    seenSwaps.add(message.swapId);
-    const partner = message.swap.senderId === userId ? message.swap.receiver : message.swap.sender;
-    const contextItem = message.swap.senderId === userId ? message.swap.receiverItem : message.swap.senderItem;
-    return [
-      {
-        id: `deal-${message.swapId}`,
-        title: partner.name ?? "Пользователь Menarium",
-        context: `Обмен · ${contextItem.title}`,
-        href: `/exchange?swap=${message.swapId}`,
-        unread: message.senderId !== userId && !message.isRead ? 1 : 0,
-        preview: message.text,
-        at: message.createdAt,
-      },
-    ];
+  const dealChats = dealSwaps.map((swap) => {
+    const partner = swap.senderId === userId ? swap.receiver : swap.sender;
+    const contextItem = swap.senderId === userId ? swap.receiverItem : swap.senderItem;
+    const lastMessage = swap.messages[0];
+    return {
+      id: `deal-${swap.id}`,
+      title: partner.name ?? "Пользователь Menarium",
+      context: `Обмен · ${contextItem.title}`,
+      href: `/exchange?tab=matches&swap=${swap.id}`,
+      unread: swap._count.messages,
+      preview: lastMessage?.text ?? "Сделка активна. Обсудите детали обмена.",
+      at: lastMessage?.createdAt ?? swap.updatedAt,
+    };
   });
   const itemChats = itemThreads.map((thread) => {
     const partner = thread.buyerId === userId ? thread.owner : thread.buyer;
@@ -68,12 +77,12 @@ export default async function ProfileChatsPage() {
       title: partner.name ?? "Пользователь Menarium",
       context: `Объявление · ${thread.item.title}`,
       href: `/item/${thread.item.id}?thread=${thread.id}`,
-      unread: lastMessage && lastMessage.senderId !== userId && !lastMessage.isRead ? 1 : 0,
+      unread: thread._count.messages,
       preview: lastMessage?.text ?? "Диалог создан, сообщений пока нет.",
       at: lastMessage?.createdAt ?? thread.updatedAt,
     };
   });
-  const chats = [...dealChats, ...itemChats].sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, 30);
+  const chats = [...dealChats, ...itemChats].sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, 40);
 
   return (
     <AppShell>
@@ -87,7 +96,7 @@ export default async function ProfileChatsPage() {
             <EmptyState
               title="Войдите, чтобы увидеть чаты"
               description="Здесь будут диалоги по объявлениям и сделкам."
-              actionHref="/auth/login"
+              actionHref={loginHref("/profile/chats")}
               actionLabel="Войти"
             />
           ) : chats.length > 0 ? (

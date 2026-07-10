@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
@@ -37,7 +38,7 @@ export function RegisterForm() {
         return;
       }
 
-      router.push("/profile");
+      router.push("/profile?welcome=1");
       router.refresh();
     } finally {
       setIsSubmitting(false);
@@ -48,7 +49,7 @@ export function RegisterForm() {
     <div className="space-y-4">
       <MenariumInput placeholder="Имя" value={name} onChange={(event) => setName(event.target.value)} />
       <MenariumInput placeholder="Город" value={city} onChange={(event) => setCity(event.target.value)} />
-      <MenariumInput type="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
+      <MenariumInput type="email" placeholder="Электронная почта" value={email} onChange={(event) => setEmail(event.target.value)} />
       <MenariumInput
         type="password"
         placeholder="Пароль"
@@ -58,8 +59,17 @@ export function RegisterForm() {
           if (event.key === "Enter") submit();
         }}
       />
+      <p className="text-xs text-white/40">Минимум 8 символов, буквы и цифры. После регистрации придёт письмо для подтверждения email.</p>
       <p className="text-xs leading-relaxed text-white/40">
-        Регистрируясь, вы соглашаетесь с пользовательским соглашением и политикой конфиденциальности Menarium.
+        Регистрируясь, вы соглашаетесь с{" "}
+        <Link href="/terms" className="text-teal-300 hover:underline">
+          пользовательским соглашением
+        </Link>{" "}
+        и{" "}
+        <Link href="/privacy" className="text-teal-300 hover:underline">
+          политикой конфиденциальности
+        </Link>{" "}
+        Menarium.
       </p>
       {error ? <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">{error}</div> : null}
       <MenariumButton className="w-full" onClick={submit} disabled={isSubmitting || !email || password.length < 8}>

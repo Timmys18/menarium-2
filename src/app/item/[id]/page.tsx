@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { ItemStatus } from "@prisma/client";
 import { ArrowLeft, ArrowRightLeft, MessageCircle, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
@@ -9,15 +10,27 @@ import { serializeItem } from "@/features/items/serializers";
 import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
+import { loginHref } from "@/lib/utils";
 import { ExchangeProposal } from "./exchange-proposal";
 import { ItemChatPanel } from "./item-chat-panel";
 import { ItemImageGallery } from "./item-image-gallery";
+import { itemStatusLabels } from "@/features/items/status-labels";
 import { DeleteItemButton } from "./owner-actions";
 
 type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ thread?: string }>;
 };
+
+export async function generateMetadata({ params }: Props) {
+  const { id } = await params;
+  const item = await prisma.item.findUnique({ where: { id }, select: { title: true, description: true } });
+  if (!item) return { title: "Объявление не найдено" };
+  return {
+    title: item.title,
+    description: item.description.slice(0, 160),
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -44,22 +57,39 @@ export default async function ItemPage({ params, searchParams }: Props) {
           orderBy: { updatedAt: "desc" },
         })
       : [];
-  const chatUserId = query.thread && userId && !isOwner ? userId : null;
-  const thread = chatUserId
+  // Чат по объявлению доступен и покупателю, и владельцу.
+  // - thread=open: покупатель начинает диалог (владельцу с самим собой нельзя);
+  // - thread=<id>: открытие конкретной ветки — доступно обоим участникам.
+  const chatViewerId = query.thread && userId ? userId : null;
+  const thread = chatViewerId
     ? query.thread === "open"
-      ? await prisma.itemThread.findUnique({
-          where: { itemId_buyerId: { itemId: publicItem.id, buyerId: chatUserId } },
-          include: { messages: { orderBy: { createdAt: "asc" }, take: 50 } },
-        })
+      ? isOwner
+        ? null
+        : await prisma.itemThread.findUnique({
+            where: { itemId_buyerId: { itemId: publicItem.id, buyerId: chatViewerId } },
+            include: { messages: { orderBy: { createdAt: "asc" }, take: 50 } },
+          })
       : await prisma.itemThread.findFirst({
           where: {
             id: query.thread,
             itemId: publicItem.id,
-            OR: [{ buyerId: chatUserId }, { ownerId: chatUserId }],
+            OR: [{ buyerId: chatViewerId }, { ownerId: chatViewerId }],
           },
           include: { messages: { orderBy: { createdAt: "asc" }, take: 50 } },
         })
     : null;
+
+  // Показываем панель, если пользователь — покупатель (может начать диалог),
+  // либо владелец с уже существующей веткой (может ответить).
+  const showChatPanel = Boolean(chatViewerId && (!isOwner || thread));
+
+  if (thread && chatViewerId) {
+    await prisma.itemThreadMessage.updateMany({
+      where: { threadId: thread.id, senderId: { not: chatViewerId }, isRead: false },
+      data: { isRead: true },
+    });
+  }
+
   const itemChatMessages =
     thread?.messages.map((message) => ({
       id: message.id,
@@ -113,12 +143,20 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   ) : userId ? (
                     <ExchangeProposal receiverItemId={publicItem.id} userItems={userItems} />
                   ) : (
-                    <MenariumLinkButton href="/auth/login" className="flex-1">
+                    <MenariumLinkButton href={loginHref(`/item/${publicItem.id}`)} className="flex-1">
                       Войти и предложить обмен
                     </MenariumLinkButton>
                   )}
                   {!isOwner ? (
-                    <MenariumLinkButton href={`/item/${publicItem.id}?thread=open`} variant="secondary" className="flex-1">
+                    <MenariumLinkButton
+                      href={
+                        userId
+                          ? `/item/${publicItem.id}?thread=open`
+                          : loginHref(`/item/${publicItem.id}?thread=open`)
+                      }
+                      variant="secondary"
+                      className="flex-1"
+                    >
                       <MessageCircle className="h-5 w-5" />
                       Написать
                     </MenariumLinkButton>
@@ -132,18 +170,27 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   <div className="flex justify-between"><span>Город</span><span className="text-white">{publicItem.city}</span></div>
                   <div className="flex justify-between"><span>Категория</span><span className="text-white">{publicItem.category}</span></div>
                   <div className="flex justify-between"><span>Тип</span><span className="text-white">{publicItem.type === "SERVICE" ? "Услуга" : "Предмет"}</span></div>
-                  <div className="flex justify-between"><span>Владелец</span><span className="text-white">{publicItem.owner?.name ?? "Пользователь Menarium"}</span></div>
-                  <div className="flex justify-between"><span>Статус</span><span className="text-teal-300">{publicItem.status === "ACTIVE" ? "Активно" : publicItem.status}</span></div>
+                  <div className="flex justify-between"><span>Владелец</span>
+                    {publicItem.owner?.id ? (
+                      <Link href={`/user/${publicItem.owner.id}`} className="text-teal-300 hover:underline">
+                        {publicItem.owner.name ?? "Пользователь Menarium"}
+                      </Link>
+                    ) : (
+                      <span className="text-white">Пользователь Menarium</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between"><span>Статус</span><span className="text-teal-300">{itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}</span></div>
                 </div>
               </GlassCard>
             </div>
           </div>
-          {chatUserId ? (
+          {showChatPanel && chatViewerId ? (
             <ItemChatPanel
               itemId={publicItem.id}
               initialThreadId={thread?.id ?? null}
-              currentUserId={chatUserId}
+              currentUserId={chatViewerId}
               messages={itemChatMessages}
+              isOwner={isOwner}
             />
           ) : null}
         </div>

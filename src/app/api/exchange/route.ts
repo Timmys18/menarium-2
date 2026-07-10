@@ -105,7 +105,7 @@ export async function POST(req: Request) {
         type: NotificationType.SWAP_RECEIVED,
         title: "Новое предложение обмена",
         message: "Вам поступило предложение обмена.",
-        href: `/exchange?swap=${created.id}`,
+        href: `/exchange?tab=incoming&swap=${created.id}`,
         entityType: "SwapRequest",
         entityId: created.id,
       });
@@ -160,17 +160,22 @@ export async function PATCH(req: Request) {
       if (action === "accept") {
         if (!isReceiver) throw new Error("ONLY_RECEIVER");
         if (swap.status !== SwapStatus.PENDING) throw new Error("INVALID_STATUS");
-        if (swap.senderItem.status !== ItemStatus.ACTIVE || swap.receiverItem.status !== ItemStatus.ACTIVE) {
+
+        // Атомарно: переводим оба объявления в IN_DEAL, только если они ещё ACTIVE.
+        // Условие по статусу + проверка count === 2 закрывает гонку, когда
+        // два параллельных accept пытаются занять одно и то же объявление.
+        const itemsUpdated = await tx.item.updateMany({
+          where: { id: { in: [swap.senderItemId, swap.receiverItemId] }, status: ItemStatus.ACTIVE },
+          data: { status: ItemStatus.IN_DEAL },
+        });
+        if (itemsUpdated.count !== 2) {
           throw new Error("ITEM_NOT_ACTIVE");
         }
 
-        await tx.item.updateMany({
-          where: { id: { in: [swap.senderItemId, swap.receiverItemId] } },
-          data: { status: ItemStatus.IN_DEAL },
-        });
-
-        const updated = await tx.swapRequest.update({
-          where: { id: swapId },
+        // Атомарно переводим сам свап PENDING -> ACCEPTED. Если в этот момент его
+        // уже кто-то перевёл (двойной accept), count будет 0 -> откатываемся.
+        const swapUpdated = await tx.swapRequest.updateMany({
+          where: { id: swapId, status: SwapStatus.PENDING },
           data: {
             status: SwapStatus.ACCEPTED,
             acceptedAt: new Date(),
@@ -178,6 +183,46 @@ export async function PATCH(req: Request) {
             receiverCompleted: false,
             pendingPairKey: null,
           },
+        });
+        if (swapUpdated.count !== 1) {
+          throw new Error("INVALID_STATUS");
+        }
+
+        // Автоматически отклоняем прочие PENDING-предложения, которые затрагивают
+        // любое из этих двух объявлений — они больше не могут быть приняты.
+        const affectedItemIds = [swap.senderItemId, swap.receiverItemId];
+        const competing = await tx.swapRequest.findMany({
+          where: {
+            id: { not: swapId },
+            status: SwapStatus.PENDING,
+            OR: [
+              { senderItemId: { in: affectedItemIds } },
+              { receiverItemId: { in: affectedItemIds } },
+            ],
+          },
+          select: { id: true, senderId: true },
+        });
+
+        if (competing.length) {
+          await tx.swapRequest.updateMany({
+            where: { id: { in: competing.map((entry) => entry.id) } },
+            data: { status: SwapStatus.DECLINED, pendingPairKey: null },
+          });
+          for (const entry of competing) {
+            await createNotification(tx, {
+              userId: entry.senderId,
+              type: NotificationType.SWAP_DECLINED,
+              title: "Объявление больше недоступно",
+              message: "Объявление уже участвует в другом обмене, ваше предложение отклонено.",
+              href: `/exchange?tab=outgoing&swap=${entry.id}`,
+              entityType: "SwapRequest",
+              entityId: entry.id,
+            });
+          }
+        }
+
+        const updated = await tx.swapRequest.findUniqueOrThrow({
+          where: { id: swapId },
           include: swapInclude,
         });
 
@@ -186,7 +231,7 @@ export async function PATCH(req: Request) {
           type: NotificationType.SWAP_ACCEPTED,
           title: "Обмен принят",
           message: "Ваше предложение обмена принято.",
-          href: `/exchange?swap=${swap.id}`,
+          href: `/exchange?tab=matches&swap=${swap.id}`,
           entityType: "SwapRequest",
           entityId: swap.id,
         });
@@ -207,7 +252,7 @@ export async function PATCH(req: Request) {
           type: NotificationType.SWAP_DECLINED,
           title: "Обмен отклонен",
           message: "Ваше предложение обмена отклонено.",
-          href: `/exchange?swap=${swap.id}`,
+          href: `/exchange?tab=outgoing&swap=${swap.id}`,
           entityType: "SwapRequest",
           entityId: swap.id,
         });
@@ -227,7 +272,7 @@ export async function PATCH(req: Request) {
           type: NotificationType.SWAP_CANCELLED,
           title: "Предложение отозвано",
           message: "Отправитель отозвал предложение обмена.",
-          href: `/exchange?swap=${swap.id}`,
+          href: `/exchange?tab=incoming&swap=${swap.id}`,
           entityType: "SwapRequest",
           entityId: swap.id,
         });
@@ -236,6 +281,14 @@ export async function PATCH(req: Request) {
 
       if (action === "complete") {
         if (swap.status !== SwapStatus.ACCEPTED) throw new Error("INVALID_STATUS");
+
+        const alreadyConfirmed = isSender ? swap.senderCompleted : swap.receiverCompleted;
+        // Идемпотентность: повторное подтверждение той же стороной ничего не меняет
+        // и не должно плодить дубли уведомлений.
+        if (alreadyConfirmed) {
+          return tx.swapRequest.findUniqueOrThrow({ where: { id: swapId }, include: swapInclude });
+        }
+
         const senderCompleted = isSender ? true : swap.senderCompleted;
         const receiverCompleted = isReceiver ? true : swap.receiverCompleted;
         const shouldComplete = senderCompleted && receiverCompleted;
@@ -260,11 +313,11 @@ export async function PATCH(req: Request) {
         await createNotification(tx, {
           userId: isSender ? swap.receiverId : swap.senderId,
           type: shouldComplete ? NotificationType.SWAP_COMPLETED : NotificationType.SWAP_ACCEPTED,
-          title: shouldComplete ? "Обмен завершен" : "Подтверждение обмена",
+          title: shouldComplete ? "Обмен завершен" : "Партнёр подтвердил завершение",
           message: shouldComplete
             ? "Обе стороны подтвердили завершение обмена."
-            : "Вторая сторона подтвердила готовность завершить обмен.",
-          href: `/exchange?swap=${swap.id}`,
+            : "Вторая сторона подтвердила готовность завершить обмен. Подтвердите и вы.",
+          href: `/exchange?tab=matches&swap=${swap.id}`,
           entityType: "SwapRequest",
           entityId: swap.id,
         });
@@ -298,7 +351,7 @@ export async function PATCH(req: Request) {
           type: NotificationType.SWAP_CANCELLED,
           title: "Обмен отменен",
           message: "Вторая сторона отменила активный обмен.",
-          href: `/exchange?swap=${swap.id}`,
+          href: `/exchange?tab=matches&swap=${swap.id}`,
           entityType: "SwapRequest",
           entityId: swap.id,
         });

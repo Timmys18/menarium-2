@@ -1,16 +1,29 @@
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
+import { createAuthToken, emailVerifyIdentifier } from "@/lib/auth-tokens";
+import { sendEmailVerification } from "@/lib/auth-emails";
 import { prisma } from "@/lib/prisma";
+import { checkRegisterRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, "Имя слишком короткое").max(80).optional().or(z.literal("")),
   city: z.string().trim().max(80).optional().or(z.literal("")),
   email: z.string().trim().toLowerCase().email("Некорректный email"),
-  password: z.string().min(8, "Пароль должен быть не короче 8 символов").max(128),
+  password: z
+    .string()
+    .min(8, "Пароль должен быть не короче 8 символов")
+    .max(128)
+    .refine((value) => /[a-zA-Zа-яА-Я]/.test(value) && /\d/.test(value), {
+      message: "Пароль должен содержать буквы и цифры",
+    }),
 });
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req.headers);
+  const rate = await checkRegisterRateLimit(ip);
+  if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
+
   const body = await parseJson(req);
   const parsed = registerSchema.safeParse(body);
 
@@ -41,5 +54,8 @@ export async function POST(req: Request) {
     },
   });
 
-  return actionResponse(user, {}, 201);
+  const verifyToken = await createAuthToken(emailVerifyIdentifier(email), 24);
+  await sendEmailVerification(email, verifyToken);
+
+  return actionResponse(user, { verifyEmailSent: true }, 201);
 }

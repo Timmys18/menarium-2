@@ -1,0 +1,24 @@
+{
+  "type": "figma-make",
+  "fileKey": "XT9Xe6gYW5lm6qWyuCTVpd",
+  "title": "Design premium UX for Menarium",
+  "url": "https://www.figma.com/make/XT9Xe6gYW5lm6qWyuCTVpd/Design-premium-UX-for-Menarium",
+  "codeNodeId": "0:9",
+  "defaultNodeId": "0:1",
+  "examplePreviewRoute": "/profile",
+  "exampleUrl": "https://www.figma.com/make/XT9Xe6gYW5lm6qWyuCTVpd/Design-premium-UX-for-Menarium?code-node-id=0-9&preview-route=%2Fprofile",
+  "mcpTools": {
+    "readDesign": "get_design_context",
+    "readMetadata": "get_metadata",
+    "note": "get_screenshot does not support Figma Make files"
+  },
+  "appRouteMap": {
+    "/": "Home",
+    "/catalog": "Catalog",
+    "/swipe": "Swipe",
+    "/profile": "Profile",
+    "/exchange": "Exchange",
+    "/new": "Create item",
+    "/item/[id]": "Item detail"
+  }
+}

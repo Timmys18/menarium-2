@@ -7,6 +7,14 @@ import { MenariumButton } from "@/components/menarium/button";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
 
+const confirmMessages: Record<ExchangeAction, string> = {
+  accept: "Принять предложение обмена? Объявления перейдут в статус «В сделке».",
+  decline: "Отклонить предложение? Отправитель получит уведомление.",
+  revoke: "Отозвать своё предложение обмена?",
+  complete: "Подтвердить завершение обмена? После подтверждения обеими сторонами объявления будут архивированы.",
+  cancel: "Отменить активный обмен? Объявления снова станут доступны для обмена.",
+};
+
 async function readApiError(response: Response) {
   const body = await response.json().catch(() => ({}));
   return typeof body.error === "string" ? body.error : "Не удалось выполнить действие";
@@ -32,6 +40,8 @@ export function ExchangeActionPanel({
   const [error, setError] = useState<string | null>(null);
 
   async function runAction(action: ExchangeAction) {
+    if (!window.confirm(confirmMessages[action])) return;
+
     setError(null);
     setPendingAction(action);
     try {
@@ -51,11 +61,18 @@ export function ExchangeActionPanel({
 
   const hasActions = status === "PENDING" || status === "ACCEPTED";
   const alreadyCompleted = (isSender && senderCompleted) || (isReceiver && receiverCompleted);
+  const waitingForPartner =
+    status === "ACCEPTED" && alreadyCompleted && !(senderCompleted && receiverCompleted);
 
   if (!hasActions) return null;
 
   return (
     <div className="mb-5 space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      {waitingForPartner ? (
+        <p className="rounded-xl border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm text-teal-200">
+          Вы подтвердили завершение. Ожидаем подтверждения от партнёра — ему придёт уведомление.
+        </p>
+      ) : null}
       {status === "PENDING" && isReceiver ? (
         <div className="grid grid-cols-2 gap-2">
           <MenariumButton size="sm" onClick={() => runAction("accept")} disabled={Boolean(pendingAction)}>

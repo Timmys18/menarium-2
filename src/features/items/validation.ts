@@ -11,15 +11,13 @@ export const itemPayloadSchema = z.object({
   desired: z.array(z.string().trim().min(1).max(80)).max(12).default([]),
   acceptsAnything: z.boolean().default(false),
   extraOfferText: z.string().trim().max(1000).optional().or(z.literal("")),
+  // Изображения принимаются только по id уже загруженного через /api/media
+  // ассета (принадлежащего пользователю). Произвольные внешние URL запрещены —
+  // иначе можно подставить ссылку на чужой/вредоносный контент.
   images: z
     .array(
       z.object({
-        id: z.string().optional(),
-        url: z.string().refine((value) => value.startsWith("/") || z.string().url().safeParse(value).success, {
-          message: "Image URL must be absolute or app-relative",
-        }),
-        contentType: z.string().min(3).max(120).default("image/jpeg"),
-        sizeBytes: z.number().int().positive().max(10 * 1024 * 1024).default(1),
+        id: z.string().min(1),
       }),
     )
     .max(8)

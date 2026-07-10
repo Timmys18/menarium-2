@@ -1,12 +1,14 @@
-import { Loader2 } from "lucide-react";
+import { CardGridSkeleton } from "@/components/menarium/skeleton";
 
 export default function Loading() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-6">
-      <div className="glass-card rounded-3xl p-8 text-center">
-        <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-teal-300" />
-        <h1 className="text-2xl font-semibold">Загружаем Menarium</h1>
-        <p className="mt-2 text-white/50">Готовим данные и интерфейс обмена.</p>
+    <div className="min-h-screen px-6 pb-32 pt-28">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <div className="space-y-3">
+          <div className="h-10 w-64 animate-pulse rounded-2xl bg-white/10" />
+          <div className="h-5 w-96 max-w-full animate-pulse rounded-xl bg-white/10" />
+        </div>
+        <CardGridSkeleton count={6} />
       </div>
     </div>
   );

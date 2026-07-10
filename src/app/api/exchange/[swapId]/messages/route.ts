@@ -84,7 +84,7 @@ export async function POST(req: Request, context: Context) {
         type: NotificationType.DEAL_MESSAGE_RECEIVED,
         title: "Новое сообщение в обмене",
         message: "Вам написали в чате сделки.",
-        href: `/exchange?swap=${swapId}`,
+        href: `/exchange?tab=matches&swap=${swapId}`,
         entityType: "SwapRequest",
         entityId: swapId,
       });

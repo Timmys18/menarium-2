@@ -1,6 +1,6 @@
-import Image from "next/image";
+import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { SwapStatus } from "@prisma/client";
-import { CheckCircle2, MessageCircle, RotateCcw, XCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
@@ -10,22 +10,33 @@ import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
+import { loginHref } from "@/lib/utils";
 import { DealMessageForm, ExchangeActionPanel } from "./exchange-controls";
+import { ExchangeChatRefresh } from "./exchange-chat-refresh";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ swap?: string; tab?: string }>;
+  searchParams: Promise<{ swap?: string; tab?: string; filter?: string; page?: string }>;
 };
+
+const EXCHANGE_PAGE_SIZE = 30;
 
 type ExchangeTab = "incoming" | "outgoing" | "matches";
 
-function exchangeHref(tab: ExchangeTab, swapId?: string) {
+function exchangeHref(tab: ExchangeTab, swapId?: string, filter: ExchangeFilter = "active", page?: number) {
   const search = new URLSearchParams();
   search.set("tab", tab);
+  search.set("filter", filter);
   if (swapId) search.set("swap", swapId);
+  if (page && page > 1) search.set("page", String(page));
   return `/exchange?${search.toString()}`;
 }
+
+type ExchangeFilter = "active" | "history";
+
+const ACTIVE_STATUSES: SwapStatus[] = [SwapStatus.PENDING, SwapStatus.ACCEPTED];
+const HISTORY_STATUSES: SwapStatus[] = [SwapStatus.DECLINED, SwapStatus.CANCELLED, SwapStatus.COMPLETED];
 
 const swapInclude = {
   sender: { select: { id: true, name: true, city: true, image: true } },
@@ -55,43 +66,115 @@ const statusLabels: Record<SwapStatus, string> = {
 export default async function ExchangePage({ searchParams }: Props) {
   const userId = await getCurrentUserId();
   const params = await searchParams;
-  const swaps = userId
-    ? await prisma.swapRequest.findMany({
-        where: { OR: [{ senderId: userId }, { receiverId: userId }] },
-        include: swapInclude,
-        orderBy: { updatedAt: "desc" },
-        take: 60,
-      })
-    : [];
-  const pendingRows = swaps
-    .filter((swap) => swap.status === SwapStatus.PENDING)
-    .map((swap) => ({
-      id: swap.id,
-      senderId: swap.senderId,
-      receiverId: swap.receiverId,
-      senderItemId: swap.senderItemId,
-      receiverItemId: swap.receiverItemId,
-    }));
+  const page = Math.max(1, Number(params.page) || 1);
+  const swapWhere = userId ? { OR: [{ senderId: userId }, { receiverId: userId }] } : undefined;
+
+  const [swapsPage, totalSwaps, pendingForMatches, requestedSwapById] = userId
+    ? await Promise.all([
+        prisma.swapRequest.findMany({
+          where: swapWhere,
+          include: swapInclude,
+          orderBy: { updatedAt: "desc" },
+          skip: (page - 1) * EXCHANGE_PAGE_SIZE,
+          take: EXCHANGE_PAGE_SIZE,
+        }),
+        prisma.swapRequest.count({ where: swapWhere }),
+        prisma.swapRequest.findMany({
+          where: { ...swapWhere, status: SwapStatus.PENDING },
+          select: {
+            id: true,
+            senderId: true,
+            receiverId: true,
+            senderItemId: true,
+            receiverItemId: true,
+          },
+        }),
+        params.swap
+          ? prisma.swapRequest.findFirst({
+              where: { id: params.swap, ...swapWhere },
+              include: swapInclude,
+            })
+          : Promise.resolve(null),
+      ])
+    : [[], 0, [], null];
+
+  const swaps =
+    requestedSwapById && !swapsPage.some((entry) => entry.id === requestedSwapById.id)
+      ? [requestedSwapById, ...swapsPage]
+      : swapsPage;
+  const exchangeHasMore = page * EXCHANGE_PAGE_SIZE < totalSwaps;
+  const exchangeTotalPages = Math.max(1, Math.ceil(totalSwaps / EXCHANGE_PAGE_SIZE));
+
+  const pendingRows = pendingForMatches.map((swap) => ({
+    id: swap.id,
+    senderId: swap.senderId,
+    receiverId: swap.receiverId,
+    senderItemId: swap.senderItemId,
+    receiverItemId: swap.receiverItemId,
+  }));
   const mutualPendingIds = userId ? pickMutualPendingSwapIds(pendingRows, userId) : new Set<string>();
-  const incoming = userId ? swaps.filter((swap) => swap.receiverId === userId) : [];
-  const outgoing = userId ? swaps.filter((swap) => swap.senderId === userId) : [];
+  const requestedSwapEarly = params.swap ? swaps.find((swap) => swap.id === params.swap) : undefined;
+  const activeFilter: ExchangeFilter =
+    params.filter === "history"
+      ? "history"
+      : params.filter === "active"
+        ? "active"
+        : requestedSwapEarly && HISTORY_STATUSES.includes(requestedSwapEarly.status)
+          ? "history"
+          : "active";
+  const statusFilter = activeFilter === "active" ? ACTIVE_STATUSES : HISTORY_STATUSES;
+
+  const incoming = userId
+    ? swaps.filter((swap) => swap.receiverId === userId && statusFilter.includes(swap.status))
+    : [];
+  const outgoing = userId
+    ? swaps.filter((swap) => swap.senderId === userId && statusFilter.includes(swap.status))
+    : [];
   const matches = swaps.filter(
     (swap) =>
-      mutualPendingIds.has(swap.id) ||
-      swap.status === SwapStatus.ACCEPTED ||
-      swap.status === SwapStatus.COMPLETED,
+      statusFilter.includes(swap.status) &&
+      (mutualPendingIds.has(swap.id) ||
+        swap.status === SwapStatus.ACCEPTED ||
+        swap.status === SwapStatus.COMPLETED),
   );
+  const explicitTab: ExchangeTab | null =
+    params.tab === "outgoing" || params.tab === "matches" || params.tab === "incoming"
+      ? params.tab
+      : null;
+
+  // Определяем, в каких вкладках реально присутствует запрошенный swap,
+  // чтобы deep-link из уведомления открывал ту вкладку, где обмен виден.
+  const requestedSwap = params.swap ? swaps.find((swap) => swap.id === params.swap) : undefined;
+  const tabsForRequested: ExchangeTab[] = requestedSwap
+    ? ([
+        matches.some((s) => s.id === requestedSwap.id) ? "matches" : null,
+        incoming.some((s) => s.id === requestedSwap.id) ? "incoming" : null,
+        outgoing.some((s) => s.id === requestedSwap.id) ? "outgoing" : null,
+      ].filter(Boolean) as ExchangeTab[])
+    : [];
+
   const activeTab: ExchangeTab =
-    params.tab === "outgoing" || params.tab === "matches" ? params.tab : "incoming";
+    explicitTab && (!requestedSwap || tabsForRequested.includes(explicitTab))
+      ? explicitTab
+      : (tabsForRequested[0] ?? explicitTab ?? "incoming");
+
   const tabSwaps =
     activeTab === "incoming" ? incoming : activeTab === "outgoing" ? outgoing : matches;
   const selectedSwap =
-    swaps.find((swap) => swap.id === params.swap && tabSwaps.some((entry) => entry.id === swap.id)) ??
+    (requestedSwap && tabSwaps.some((entry) => entry.id === requestedSwap.id) ? requestedSwap : undefined) ??
     tabSwaps[0] ??
-    swaps.find((swap) => swap.id === params.swap) ??
     matches[0] ??
     incoming[0] ??
     outgoing[0];
+
+  if (selectedSwap && userId) {
+    // Отмечаем входящие сообщения этого чата прочитанными при открытии страницы.
+    await prisma.dealMessage.updateMany({
+      where: { swapId: selectedSwap.id, senderId: { not: userId }, isRead: false },
+      data: { isRead: true },
+    });
+  }
+
   const selectedMessages = selectedSwap
     ? await prisma.dealMessage.findMany({
         where: { swapId: selectedSwap.id },
@@ -128,7 +211,7 @@ export default async function ExchangePage({ searchParams }: Props) {
             <EmptyState
               title="Войдите, чтобы управлять обменами"
               description="Центр обменов персональный: здесь будут входящие предложения, ваши исходящие заявки и реальные матчи."
-              actionHref="/auth/login"
+              actionHref={loginHref("/exchange")}
               actionLabel="Войти"
             />
           ) : swaps.length === 0 ? (
@@ -149,7 +232,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                 ] as const).map(([tab, label, count]) => (
                   <a
                     key={tab}
-                    href={exchangeHref(tab, tab === activeTab ? selectedSwap?.id : firstSwapByTab[tab])}
+                    href={exchangeHref(tab, tab === activeTab ? selectedSwap?.id : firstSwapByTab[tab], activeFilter)}
                     className={`rounded-2xl px-5 py-3 text-sm font-medium ${
                       tab === activeTab
                         ? "bg-gradient-to-r from-teal-500 to-purple-500 text-white"
@@ -157,6 +240,25 @@ export default async function ExchangePage({ searchParams }: Props) {
                     }`}
                   >
                     {label} {count}
+                  </a>
+                ))}
+              </div>
+
+              <div className="mb-6 flex gap-2">
+                {([
+                  ["active", "Активные"],
+                  ["history", "История"],
+                ] as const).map(([filter, label]) => (
+                  <a
+                    key={filter}
+                    href={exchangeHref(activeTab, selectedSwap?.id, filter)}
+                    className={`rounded-xl px-4 py-2 text-sm ${
+                      activeFilter === filter
+                        ? "bg-white/15 text-white"
+                        : "bg-white/5 text-white/45 hover:bg-white/10"
+                    }`}
+                  >
+                    {label}
                   </a>
                 ))}
               </div>
@@ -183,23 +285,17 @@ export default async function ExchangePage({ searchParams }: Props) {
                   const theirCard = toItemCardView(theirItem);
                   const partner = isIncoming ? swap.sender : swap.receiver;
                   return (
-                    <a key={swap.id} href={exchangeHref(activeTab, swap.id)}>
+                    <a key={swap.id} href={exchangeHref(activeTab, swap.id, activeFilter)}>
                       <GlassCard className="group overflow-hidden">
                         <div className="relative h-52">
-                          <Image src={theirCard.image} alt={theirCard.title} fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <ItemCoverImage
+                            src={theirCard.image}
+                            alt={theirCard.title}
+                            imageClassName="transition-transform duration-500 group-hover:scale-110"
+                          />
                           <div className="absolute left-3 top-3 rounded-xl border border-white/10 bg-black/50 px-3 py-1.5 text-xs backdrop-blur-xl">
                             {partner?.name ?? "Пользователь Menarium"}
                           </div>
-                          {swap.status === SwapStatus.PENDING && isIncoming ? (
-                            <div className="absolute bottom-3 right-3 flex gap-2 opacity-100 transition-opacity">
-                              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60">
-                                <XCircle className="h-4 w-4" />
-                              </span>
-                              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-purple-500">
-                                <CheckCircle2 className="h-4 w-4" />
-                              </span>
-                            </div>
-                          ) : null}
                         </div>
                         <div className="p-4">
                           <div className="mb-2 flex items-start justify-between gap-2">
@@ -214,6 +310,29 @@ export default async function ExchangePage({ searchParams }: Props) {
                 })}
               </div>
               )}
+              {exchangeTotalPages > 1 ? (
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                  {page > 1 ? (
+                    <a
+                      href={exchangeHref(activeTab, selectedSwap?.id, activeFilter, page - 1)}
+                      className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+                    >
+                      ← Назад
+                    </a>
+                  ) : null}
+                  <span className="text-sm text-white/45">
+                    Страница {page} из {exchangeTotalPages}
+                  </span>
+                  {exchangeHasMore ? (
+                    <a
+                      href={exchangeHref(activeTab, selectedSwap?.id, activeFilter, page + 1)}
+                      className="rounded-2xl bg-gradient-to-r from-teal-500 to-purple-500 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+                    >
+                      Показать ещё →
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
             </GlassCard>
 
             <GlassCard className="p-6">
@@ -261,10 +380,9 @@ export default async function ExchangePage({ searchParams }: Props) {
               {selectedSwap ? (
                 <DealMessageForm swapId={selectedSwap.id} disabled={selectedSwap.status !== SwapStatus.ACCEPTED} />
               ) : null}
-              <button className="mt-6 flex items-center gap-2 text-sm text-white/45">
-                <RotateCcw className="h-4 w-4" />
-                История обновляется автоматически
-              </button>
+              {selectedSwap && userId ? (
+                <ExchangeChatRefresh enabled={selectedSwap.status === SwapStatus.ACCEPTED} />
+              ) : null}
             </GlassCard>
           </div>
           )}

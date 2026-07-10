@@ -18,6 +18,14 @@ export async function POST(req: Request) {
 
   if (!(file instanceof File)) return errorResponse("Передайте файл в поле file", 400);
 
+  // Разрешаем привязку медиа только к собственному объявлению — иначе это IDOR:
+  // чужую картинку нельзя прикрепить к чужому объявлению.
+  if (itemId) {
+    const item = await prisma.item.findUnique({ where: { id: itemId }, select: { ownerId: true } });
+    if (!item) return errorResponse("Объявление не найдено", 404);
+    if (item.ownerId !== auth.userId) return errorResponse("Нет доступа к этому объявлению", 403);
+  }
+
   try {
     const stored = await storeImageUpload(file, auth.userId);
     const asset = await prisma.mediaAsset.create({
