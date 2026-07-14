@@ -13,8 +13,9 @@ test.describe("Menarium smoke", () => {
 
   test("страница входа открывается", async ({ page }) => {
     await page.goto("/auth/login");
-    await expect(page.getByPlaceholder("Электронная почта")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Войти" })).toBeVisible();
+    const form = page.locator("main");
+    await expect(form.getByPlaceholder("Электронная почта")).toBeVisible();
+    await expect(form.getByRole("button", { name: "Войти" })).toBeVisible();
   });
 
   test("страница регистрации открывается", async ({ page }) => {

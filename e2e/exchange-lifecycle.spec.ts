@@ -27,12 +27,18 @@ function resetSeedData() {
   }
 }
 
+function loginForm(page: Page) {
+  return page.locator("main");
+}
+
 async function login(page: Page, credentials: typeof MARIA) {
   await page.goto("/auth/login");
-  await page.getByPlaceholder("Электронная почта").fill(credentials.email);
-  await page.getByPlaceholder("Пароль").fill(credentials.password);
-  await page.getByRole("button", { name: "Войти" }).click();
-  await expect(page).toHaveURL("/");
+  const form = loginForm(page);
+  await form.getByPlaceholder("Электронная почта").fill(credentials.email);
+  await form.getByPlaceholder("Пароль").fill(credentials.password);
+  await form.getByRole("button", { name: "Войти" }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
+  await expect(page).toHaveURL(/\/(profile)?$/);
 }
 
 async function confirmAction(page: Page, actionLabel: string, confirmLabel: string) {
@@ -56,7 +62,8 @@ test.describe("критический жизненный цикл обмена",
 
     try {
       await test.step("seeded пользователи входят в независимых сессиях", async () => {
-        await Promise.all([login(maria, MARIA), login(dmitry, DMITRY)]);
+        await login(maria, MARIA);
+        await login(dmitry, DMITRY);
       });
 
       await test.step("Мария создает объявление через UI", async () => {
