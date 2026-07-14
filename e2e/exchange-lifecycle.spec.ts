@@ -31,18 +31,22 @@ function main(page: Page) {
   return page.locator("main");
 }
 
+function pick<T extends { first: () => T }>(locator: T) {
+  return locator.first();
+}
+
 async function login(page: Page, credentials: typeof MARIA) {
   await page.goto("/auth/login");
   const content = main(page);
-  await content.getByPlaceholder("Электронная почта").fill(credentials.email);
-  await content.getByPlaceholder("Пароль").fill(credentials.password);
-  await content.getByRole("button", { name: "Войти" }).click();
+  await pick(content.getByPlaceholder("Электронная почта")).fill(credentials.email);
+  await pick(content.getByPlaceholder("Пароль")).fill(credentials.password);
+  await pick(content.getByRole("button", { name: "Войти" })).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
   await expect(page).toHaveURL(/\/(profile)?$/);
 }
 
 async function confirmAction(page: Page, actionLabel: string, confirmLabel: string) {
-  await main(page).getByRole("button", { name: actionLabel, exact: true }).click();
+  await pick(main(page).getByRole("button", { name: actionLabel, exact: true })).click();
   const dialog = page.getByRole("dialog", { name: "Подтвердите действие" });
   await expect(dialog).toBeVisible();
   await dialog.getByRole("button", { name: confirmLabel, exact: true }).click();
@@ -69,23 +73,24 @@ test.describe("критический жизненный цикл обмена",
       await test.step("Мария создает объявление через UI", async () => {
         await maria.goto("/new");
         const mariaMain = main(maria);
-        await mariaMain.getByPlaceholder("Например, Sony WH-1000XM5").fill(createdItemTitle);
+        await mariaMain.getByRole("textbox", { name: "Название" }).first().fill(createdItemTitle);
         await mariaMain
-          .getByPlaceholder("Состояние, комплектация, нюансы, что важно знать перед обменом...")
+          .getByRole("textbox", { name: "Описание" })
+          .first()
           .fill("Новая клавиатура с тихими переключателями и полным комплектом.");
-        await mariaMain.getByPlaceholder("Через запятую: iPad Pro, камера, часы").fill("Пленочная камера");
-        await mariaMain.getByRole("button", { name: "Создать объявление" }).click();
+        await mariaMain.getByRole("textbox", { name: "Что хотите взамен" }).first().fill("Пленочная камера");
+        await pick(mariaMain.getByRole("button", { name: "Создать объявление" })).click();
         await expect(maria).toHaveURL(/\/item\/[^/?]+$/);
         await expect(mariaMain.getByRole("heading", { name: createdItemTitle })).toBeVisible();
       });
 
       await test.step("Мария выбирает seeded объявление и предлагает обмен", async () => {
         await maria.goto(`/catalog?q=${encodeURIComponent(targetItemTitle)}&sort=new`);
-        await main(maria).getByRole("link").filter({ hasText: targetItemTitle }).click();
+        await pick(main(maria).getByRole("link").filter({ hasText: targetItemTitle })).click();
         const mariaMain = main(maria);
-        await expect(mariaMain.getByRole("heading", { name: targetItemTitle })).toBeVisible();
-        await mariaMain.locator("select").selectOption({ label: createdItemTitle });
-        await mariaMain.getByRole("button", { name: "Предложить обмен" }).click();
+        await expect(mariaMain.getByRole("heading", { name: targetItemTitle }).first()).toBeVisible();
+        await pick(mariaMain.locator("select")).selectOption({ label: createdItemTitle });
+        await pick(mariaMain.getByRole("button", { name: "Предложить обмен" })).click();
         await expect(maria).toHaveURL(/\/exchange\?swap=[^&]+/);
         await expect(mariaMain.getByText("Ожидает", { exact: true }).first()).toBeVisible();
       });
@@ -93,30 +98,32 @@ test.describe("критический жизненный цикл обмена",
       await test.step("Дмитрий получает предложение и принимает его", async () => {
         await dmitry.goto("/notifications");
         const dmitryMain = main(dmitry);
-        await expect(dmitryMain.getByRole("heading", { name: "Новое предложение обмена" })).toBeVisible();
-        await dmitryMain.getByRole("heading", { name: "Новое предложение обмена" }).click();
+        await expect(dmitryMain.getByRole("heading", { name: "Новое предложение обмена" }).first()).toBeVisible();
+        await pick(dmitryMain.getByRole("heading", { name: "Новое предложение обмена" })).click();
         await expect(dmitry).toHaveURL(/\/exchange\?.*swap=/);
         await confirmAction(dmitry, "Принять", "Принять обмен");
         await expect(dmitryMain.getByText("Принят", { exact: true }).last()).toBeVisible();
-        await expect(dmitryMain.getByPlaceholder("Сообщение...")).toBeEnabled();
+        await expect(pick(dmitryMain.getByPlaceholder("Сообщение..."))).toBeEnabled();
       });
 
       await test.step("обе стороны обмениваются сообщениями в чате сделки", async () => {
         await maria.goto("/notifications");
         const mariaMain = main(maria);
-        await expect(mariaMain.getByRole("heading", { name: "Обмен принят" })).toBeVisible();
-        await mariaMain.getByRole("heading", { name: "Обмен принят" }).click();
-        await mariaMain.getByPlaceholder("Сообщение...").fill(senderMessage);
-        await mariaMain.getByPlaceholder("Сообщение...").press("Enter");
+        await expect(mariaMain.getByRole("heading", { name: "Обмен принят" }).first()).toBeVisible();
+        await pick(mariaMain.getByRole("heading", { name: "Обмен принят" })).click();
+        const mariaMessage = pick(mariaMain.getByPlaceholder("Сообщение..."));
+        await mariaMessage.fill(senderMessage);
+        await mariaMessage.press("Enter");
         await expect(mariaMain.getByText(senderMessage).first()).toBeVisible();
 
         await dmitry.goto("/notifications");
         const dmitryMain = main(dmitry);
-        await expect(dmitryMain.getByRole("heading", { name: "Новое сообщение в обмене" })).toBeVisible();
-        await dmitryMain.getByRole("heading", { name: "Новое сообщение в обмене" }).click();
+        await expect(dmitryMain.getByRole("heading", { name: "Новое сообщение в обмене" }).first()).toBeVisible();
+        await pick(dmitryMain.getByRole("heading", { name: "Новое сообщение в обмене" })).click();
         await expect(dmitryMain.getByText(senderMessage).first()).toBeVisible();
-        await dmitryMain.getByPlaceholder("Сообщение...").fill(receiverMessage);
-        await dmitryMain.getByPlaceholder("Сообщение...").press("Enter");
+        const dmitryMessage = pick(dmitryMain.getByPlaceholder("Сообщение..."));
+        await dmitryMessage.fill(receiverMessage);
+        await dmitryMessage.press("Enter");
         await expect(dmitryMain.getByText(receiverMessage).first()).toBeVisible();
 
         await maria.reload();
@@ -129,16 +136,16 @@ test.describe("критический жизненный цикл обмена",
 
         await dmitry.goto("/notifications");
         const dmitryMain = main(dmitry);
-        await expect(dmitryMain.getByRole("heading", { name: "Партнёр подтвердил завершение" })).toBeVisible();
-        await dmitryMain.getByRole("heading", { name: "Партнёр подтвердил завершение" }).click();
+        await expect(dmitryMain.getByRole("heading", { name: "Партнёр подтвердил завершение" }).first()).toBeVisible();
+        await pick(dmitryMain.getByRole("heading", { name: "Партнёр подтвердил завершение" })).click();
         await confirmAction(dmitry, "Подтвердить завершение", "Подтвердить завершение");
         await expect(dmitryMain.getByText("Завершен", { exact: true }).last()).toBeVisible();
-        await expect(dmitryMain.getByPlaceholder("Чат закрыт для новых сообщений")).toBeDisabled();
+        await expect(pick(dmitryMain.getByPlaceholder("Чат закрыт для новых сообщений"))).toBeDisabled();
       });
 
       await test.step("финальное уведомление и история доступны отправителю", async () => {
         await maria.goto("/notifications");
-        await expect(main(maria).getByRole("heading", { name: "Обмен завершен" })).toBeVisible();
+        await expect(pick(main(maria).getByRole("heading", { name: "Обмен завершен" }))).toBeVisible();
 
         await maria.goto("/exchange?tab=outgoing&filter=history");
         const mariaMain = main(maria);
