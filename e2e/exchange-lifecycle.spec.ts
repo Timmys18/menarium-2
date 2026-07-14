@@ -87,7 +87,7 @@ test.describe("критический жизненный цикл обмена",
         await mariaMain.locator("select").selectOption({ label: createdItemTitle });
         await mariaMain.getByRole("button", { name: "Предложить обмен" }).click();
         await expect(maria).toHaveURL(/\/exchange\?swap=[^&]+/);
-        await expect(mariaMain.getByText("Ожидает", { exact: true })).toBeVisible();
+        await expect(mariaMain.getByText("Ожидает", { exact: true }).first()).toBeVisible();
       });
 
       await test.step("Дмитрий получает предложение и принимает его", async () => {
@@ -108,19 +108,19 @@ test.describe("критический жизненный цикл обмена",
         await mariaMain.getByRole("heading", { name: "Обмен принят" }).click();
         await mariaMain.getByPlaceholder("Сообщение...").fill(senderMessage);
         await mariaMain.getByPlaceholder("Сообщение...").press("Enter");
-        await expect(mariaMain.getByText(senderMessage)).toBeVisible();
+        await expect(mariaMain.getByText(senderMessage).first()).toBeVisible();
 
         await dmitry.goto("/notifications");
         const dmitryMain = main(dmitry);
         await expect(dmitryMain.getByRole("heading", { name: "Новое сообщение в обмене" })).toBeVisible();
         await dmitryMain.getByRole("heading", { name: "Новое сообщение в обмене" }).click();
-        await expect(dmitryMain.getByText(senderMessage)).toBeVisible();
+        await expect(dmitryMain.getByText(senderMessage).first()).toBeVisible();
         await dmitryMain.getByPlaceholder("Сообщение...").fill(receiverMessage);
         await dmitryMain.getByPlaceholder("Сообщение...").press("Enter");
-        await expect(dmitryMain.getByText(receiverMessage)).toBeVisible();
+        await expect(dmitryMain.getByText(receiverMessage).first()).toBeVisible();
 
         await maria.reload();
-        await expect(main(maria).getByText(receiverMessage)).toBeVisible();
+        await expect(main(maria).getByText(receiverMessage).first()).toBeVisible();
       });
 
       await test.step("обе стороны подтверждают завершение", async () => {
@@ -144,8 +144,8 @@ test.describe("критический жизненный цикл обмена",
         const mariaMain = main(maria);
         await expect(mariaMain.getByText(targetItemTitle, { exact: true }).first()).toBeVisible();
         await expect(mariaMain.getByText("Завершен", { exact: true }).first()).toBeVisible();
-        await expect(mariaMain.getByText(senderMessage)).toBeVisible();
-        await expect(mariaMain.getByText(receiverMessage)).toBeVisible();
+        await expect(mariaMain.getByText(senderMessage).first()).toBeVisible();
+        await expect(mariaMain.getByText(receiverMessage).first()).toBeVisible();
       });
     } finally {
       await mariaContext.close();
