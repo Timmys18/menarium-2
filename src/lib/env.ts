@@ -14,8 +14,6 @@ export function validateProductionEnv() {
     "ADMIN_EMAILS",
     "SMTP_HOST",
     "SMTP_FROM",
-    "SENTRY_DSN",
-    "NEXT_PUBLIC_SENTRY_DSN",
   ] as const;
   const missing = required.filter((key) => !process.env[key]?.trim());
 

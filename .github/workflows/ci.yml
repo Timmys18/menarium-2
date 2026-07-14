@@ -12,7 +12,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/menarium2?schema=public
       NEXTAUTH_URL: http://localhost:3000
-      NEXTAUTH_SECRET: ci-only-secret-change-in-production
+      NEXTAUTH_SECRET: ci-only-secret-change-in-production-must-be-32-chars-min
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       REDIS_URL: redis://localhost:6379
       ADMIN_EMAILS: admin@menarium.test
@@ -50,12 +50,14 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/menarium2?schema=public
       NEXTAUTH_URL: http://localhost:3000
-      NEXTAUTH_SECRET: ci-only-secret-change-in-production
+      NEXTAUTH_SECRET: ci-only-secret-change-in-production-must-be-32-chars-min-must-be-32-chars-min
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       REDIS_URL: redis://localhost:6379
-      ADMIN_EMAILS: admin@menarium.test
+      ADMIN_EMAILS: admin@menarium.ru
       SMTP_HOST: localhost
       SMTP_FROM: Menarium CI <noreply@menarium.test>
+      SENTRY_DSN: https://ci@example.test/1
+      NEXT_PUBLIC_SENTRY_DSN: https://ci@example.test/1
       STORAGE_PROVIDER: s3
       STORAGE_ENDPOINT: https://storage.example.test
       STORAGE_BUCKET: menarium-ci
