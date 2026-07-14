@@ -16,6 +16,7 @@ import { ItemChatPanel } from "./item-chat-panel";
 import { ItemImageGallery } from "./item-image-gallery";
 import { itemStatusLabels } from "@/features/items/status-labels";
 import { DeleteItemButton } from "./owner-actions";
+import { TrustActions } from "@/components/trust/trust-actions";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -49,8 +50,23 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const wanted = itemWantedLabel(publicItem);
   const userId = await getCurrentUserId();
   const isOwner = Boolean(userId && publicItem.owner?.id === userId);
+  const ownerId = publicItem.owner?.id;
+  const blocks =
+    userId && ownerId && !isOwner
+      ? await prisma.userBlock.findMany({
+          where: {
+            OR: [
+              { blockerId: userId, blockedId: ownerId },
+              { blockerId: ownerId, blockedId: userId },
+            ],
+          },
+          select: { blockerId: true },
+        })
+      : [];
+  const communicationBlocked = blocks.length > 0;
+  const viewerBlockedOwner = blocks.some((block) => block.blockerId === userId);
   const userItems =
-    userId && !isOwner
+    userId && !isOwner && !communicationBlocked
       ? await prisma.item.findMany({
           where: { ownerId: userId, status: ItemStatus.ACTIVE, id: { not: publicItem.id } },
           select: { id: true, title: true },
@@ -81,7 +97,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
   // Показываем панель, если пользователь — покупатель (может начать диалог),
   // либо владелец с уже существующей веткой (может ответить).
-  const showChatPanel = Boolean(chatViewerId && (!isOwner || thread));
+  const showChatPanel = Boolean(chatViewerId && !communicationBlocked && (!isOwner || thread));
 
   if (thread && chatViewerId) {
     await prisma.itemThreadMessage.updateMany({
@@ -140,14 +156,18 @@ export default async function ItemPage({ params, searchParams }: Props) {
                       </MenariumLinkButton>
                       <DeleteItemButton itemId={publicItem.id} />
                     </div>
-                  ) : userId ? (
+                  ) : userId && !communicationBlocked ? (
                     <ExchangeProposal receiverItemId={publicItem.id} userItems={userItems} />
+                  ) : userId ? (
+                    <div className="flex-1 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100/80">
+                      Контакт с этим пользователем ограничен.
+                    </div>
                   ) : (
                     <MenariumLinkButton href={loginHref(`/item/${publicItem.id}`)} className="flex-1">
                       Войти и предложить обмен
                     </MenariumLinkButton>
                   )}
-                  {!isOwner ? (
+                  {!isOwner && !communicationBlocked ? (
                     <MenariumLinkButton
                       href={
                         userId
@@ -181,6 +201,16 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   </div>
                   <div className="flex justify-between"><span>Статус</span><span className="text-teal-300">{itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}</span></div>
                 </div>
+                {userId && !isOwner && ownerId ? (
+                  <div className="mt-5 border-t border-white/10 pt-5">
+                    <TrustActions
+                      targetType="ITEM"
+                      targetId={publicItem.id}
+                      userId={ownerId}
+                      initialBlocked={viewerBlockedOwner}
+                    />
+                  </div>
+                ) : null}
               </GlassCard>
             </div>
           </div>

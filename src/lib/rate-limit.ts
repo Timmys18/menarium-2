@@ -2,7 +2,7 @@ import { getRedis } from "@/lib/redis";
 
 type RateLimitResult =
   | { ok: true }
-  | { ok: false; status: 429; error: string; retryAfterSec?: number };
+  | { ok: false; status: 429 | 503; error: string; retryAfterSec?: number };
 
 const devMemory = new Map<string, number[]>();
 
@@ -19,20 +19,20 @@ export async function checkRateLimit(
     error: string;
   },
 ): Promise<RateLimitResult> {
-  const redis = getRedis();
   const fullKey = `rate:${key}`;
 
-  if (!redis) {
-    const current = prune(devMemory.get(fullKey) ?? [], options.windowSec * 1000);
-    if (current.length >= options.limit) {
-      return { ok: false, status: 429, error: options.error, retryAfterSec: options.windowSec };
-    }
-    current.push(Date.now());
-    devMemory.set(fullKey, current);
-    return { ok: true };
-  }
-
   try {
+    const redis = getRedis();
+    if (!redis) {
+      const current = prune(devMemory.get(fullKey) ?? [], options.windowSec * 1000);
+      if (current.length >= options.limit) {
+        return { ok: false, status: 429, error: options.error, retryAfterSec: options.windowSec };
+      }
+      current.push(Date.now());
+      devMemory.set(fullKey, current);
+      return { ok: true };
+    }
+
     const count = await redis.incr(fullKey);
     if (count === 1) {
       await redis.expire(fullKey, options.windowSec);
@@ -50,9 +50,15 @@ export async function checkRateLimit(
 
     return { ok: true };
   } catch (error) {
-    // Если Redis временно недоступен в рантайме — не роняем запрос 500-й ошибкой
-    // и не блокируем пользователей. Пропускаем (fail-open), лишь логируя проблему.
-    console.error("[rate-limit] Redis error, failing open:", error);
+    console.error("[rate-limit] Redis error:", error);
+    if (process.env.NODE_ENV === "production") {
+      return {
+        ok: false,
+        status: 503,
+        error: "Сервис временно недоступен. Повторите попытку через минуту.",
+        retryAfterSec: 60,
+      };
+    }
     return { ok: true };
   }
 }

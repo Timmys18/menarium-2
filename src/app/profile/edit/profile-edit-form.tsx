@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import { Loader2, Trash2, Upload } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { ConfirmDialog } from "@/components/menarium/dialog";
 import { MenariumInput } from "@/components/menarium/input";
 
 type ProfileFormUser = {
@@ -27,6 +28,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -93,9 +95,6 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   }
 
   async function deleteAccount() {
-    if (!window.confirm("Удалить аккаунт безвозвратно? Все объявления и история будут удалены.")) {
-      return;
-    }
     setError(null);
     setMessage(null);
     setIsDeleting(true);
@@ -107,6 +106,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Не удалось удалить аккаунт");
+      setDeleteDialogOpen(false);
       await signOut({ callbackUrl: "/" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось удалить аккаунт");
@@ -189,7 +189,8 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       <GlassCard className="space-y-4 border border-red-500/20 p-8">
         <h2 className="text-lg font-semibold text-red-200">Удаление аккаунта</h2>
         <p className="text-sm text-white/50">
-          Действие необратимо. Активные обмены нужно завершить или отменить заранее.
+          Личные данные будут удалены, объявления сняты с публикации. История завершённых сделок
+          сохранится у участников в обезличенном виде.
         </p>
         <MenariumInput
           type="password"
@@ -197,11 +198,25 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           value={deletePassword}
           onChange={(event) => setDeletePassword(event.target.value)}
         />
-        <MenariumButton variant="danger" onClick={deleteAccount} disabled={isDeleting || !deletePassword}>
+        <MenariumButton
+          variant="danger"
+          onClick={() => setDeleteDialogOpen(true)}
+          disabled={isDeleting || !deletePassword}
+        >
           {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
           Удалить аккаунт
         </MenariumButton>
       </GlassCard>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={deleteAccount}
+        title="Удалить аккаунт?"
+        description="Это действие нельзя отменить. Мы удалим ваши личные данные и закроем доступ к аккаунту. Завершённые сделки и сообщения останутся у участников с подписью «Удалённый пользователь»."
+        confirmLabel="Удалить мои данные"
+        pending={isDeleting}
+        danger
+      />
     </div>
   );
 }

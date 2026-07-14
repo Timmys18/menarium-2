@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeDealMessage } from "@/features/exchange/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
+import { publishUserEvents } from "@/lib/realtime";
 
 type Context = { params: Promise<{ swapId: string }> };
 
@@ -61,7 +62,7 @@ export async function POST(req: Request, context: Context) {
   if (text.length > 2000) return errorResponse("Сообщение слишком длинное", 400);
 
   try {
-    const message = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const swap = await tx.swapRequest.findUnique({ where: { id: swapId } });
       if (!swap) throw new Error("SWAP_NOT_FOUND");
 
@@ -89,10 +90,19 @@ export async function POST(req: Request, context: Context) {
         entityId: swapId,
       });
 
-      return created;
+      return { created, recipientId, participantIds: [swap.senderId, swap.receiverId] };
     });
 
-    return actionResponse(serializeDealMessage(message), serializeDealMessage(message), 201);
+    await publishUserEvents(result.participantIds, {
+      type: "deal-message",
+      entityId: swapId,
+    });
+
+    return actionResponse(
+      serializeDealMessage(result.created),
+      serializeDealMessage(result.created),
+      201,
+    );
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "SWAP_NOT_FOUND") return errorResponse("Обмен не найден", 404);

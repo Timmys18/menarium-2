@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { UserStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { checkLoginRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -45,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         // Всегда выполняем bcrypt.compare (даже если пользователя нет) —
         // одинаковое время ответа против email enumeration по таймингу.
         const isValid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
-        if (!user?.passwordHash || !isValid) {
+        if (!user?.passwordHash || !isValid || user.status !== UserStatus.ACTIVE) {
           return null;
         }
 
@@ -54,18 +55,36 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
+          sessionVersion: user.sessionVersion,
         };
       },
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user?.id) {
         token.sub = user.id;
+        token.sessionVersion = (user as { sessionVersion?: number }).sessionVersion ?? 0;
       }
+
+      if (token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { status: true, sessionVersion: true },
+        });
+        if (!dbUser || dbUser.status !== UserStatus.ACTIVE) {
+          token.invalid = true;
+        } else if (typeof token.sessionVersion === "number" && dbUser.sessionVersion !== token.sessionVersion) {
+          token.invalid = true;
+        }
+      }
+
       return token;
     },
     session({ session, token }) {
+      if (token.invalid) {
+        return { ...session, user: undefined, expires: "1970-01-01T00:00:00.000Z" };
+      }
       if (session.user && token.sub) {
         session.user.id = token.sub;
       }

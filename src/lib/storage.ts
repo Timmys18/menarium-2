@@ -1,6 +1,6 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { nanoid } from "nanoid";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const allowedContentTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
@@ -81,4 +81,23 @@ export async function storeImageUpload(file: File, ownerId: string): Promise<Sto
     contentType: file.type,
     sizeBytes: file.size,
   };
+}
+
+export async function deleteStoredUpload(key: string): Promise<void> {
+  if (!key.startsWith("uploads/") || key.includes("..")) {
+    throw new Error("INVALID_STORAGE_KEY");
+  }
+
+  if (process.env.STORAGE_PROVIDER === "s3") {
+    const bucket = process.env.STORAGE_BUCKET;
+    if (!bucket) throw new Error("STORAGE_NOT_CONFIGURED");
+    await getS3Client().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+    return;
+  }
+
+  const root = path.join(process.cwd(), "public", "uploads");
+  const diskPath = path.join(root, key.replace(/^uploads\//, ""));
+  await unlink(diskPath).catch((error: NodeJS.ErrnoException) => {
+    if (error.code !== "ENOENT") throw error;
+  });
 }

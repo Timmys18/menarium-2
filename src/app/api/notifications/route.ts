@@ -4,6 +4,7 @@ import { actionResponse, errorResponse, getPaging, listResponse, parseJson } fro
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
+import { publishUserEvent } from "@/lib/realtime";
 
 function serializeNotification(notification: {
   id: string;
@@ -65,6 +66,7 @@ export async function PATCH(req: Request) {
       where: { userId: auth.userId, isRead: false },
       data: { isRead: true },
     });
+    await publishUserEvent(auth.userId, { type: "counts" });
     return actionResponse({ readAll: true });
   }
 
@@ -80,5 +82,6 @@ export async function PATCH(req: Request) {
     data: { isRead: true },
   });
 
+  await publishUserEvent(auth.userId, { type: "counts" });
   return actionResponse({ id: notification.id, isRead: true });
 }

@@ -22,6 +22,17 @@ export async function POST(_: Request, context: Context) {
     return errorResponse("Объявление недоступно для новых сообщений", 409);
   }
 
+  const blocked = await prisma.userBlock.findFirst({
+    where: {
+      OR: [
+        { blockerId: auth.userId, blockedId: item.ownerId },
+        { blockerId: item.ownerId, blockedId: auth.userId },
+      ],
+    },
+    select: { blockerId: true },
+  });
+  if (blocked) return errorResponse("Связаться с этим пользователем нельзя", 403);
+
   const thread = await prisma.itemThread.upsert({
     where: { itemId_buyerId: { itemId: item.id, buyerId: auth.userId } },
     create: {

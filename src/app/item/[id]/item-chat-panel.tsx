@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Send } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { MenariumInput } from "@/components/menarium/input";
 import { useAutoRefresh } from "@/components/hooks/use-auto-refresh";
 
 type ItemChatMessage = {
@@ -34,7 +35,7 @@ export function ItemChatPanel({
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useAutoRefresh(Boolean(threadId), 8000);
+  useAutoRefresh(Boolean(threadId));
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -113,7 +114,7 @@ export function ItemChatPanel({
 
       <div className="mt-5 space-y-2">
         <div className="flex gap-2">
-          <input
+          <MenariumInput
             value={text}
             onChange={(event) => setText(event.target.value)}
             onKeyDown={(event) => {
@@ -123,7 +124,7 @@ export function ItemChatPanel({
               }
             }}
             disabled={isSending}
-            className="glass-card min-w-0 flex-1 rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-white/35 disabled:opacity-50"
+            className="min-w-0 flex-1 text-sm disabled:opacity-50"
             placeholder={isOwner ? "Ответьте покупателю..." : "Напишите владельцу..."}
           />
           <MenariumButton size="sm" onClick={sendMessage} disabled={isSending || !text.trim()}>

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, Send, XCircle } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
+import { ConfirmDialog } from "@/components/menarium/dialog";
+import { MenariumInput } from "@/components/menarium/input";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
 
@@ -37,11 +39,10 @@ export function ExchangeActionPanel({
 }) {
   const router = useRouter();
   const [pendingAction, setPendingAction] = useState<ExchangeAction | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ExchangeAction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function runAction(action: ExchangeAction) {
-    if (!window.confirm(confirmMessages[action])) return;
-
     setError(null);
     setPendingAction(action);
     try {
@@ -51,6 +52,7 @@ export function ExchangeActionPanel({
         body: JSON.stringify({ swapId, action }),
       });
       if (!response.ok) throw new Error(await readApiError(response));
+      setConfirmAction(null);
       router.refresh();
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Не удалось выполнить действие");
@@ -75,11 +77,11 @@ export function ExchangeActionPanel({
       ) : null}
       {status === "PENDING" && isReceiver ? (
         <div className="grid grid-cols-2 gap-2">
-          <MenariumButton size="sm" onClick={() => runAction("accept")} disabled={Boolean(pendingAction)}>
+          <MenariumButton size="sm" onClick={() => setConfirmAction("accept")} disabled={Boolean(pendingAction)}>
             {pendingAction === "accept" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             Принять
           </MenariumButton>
-          <MenariumButton size="sm" variant="danger" onClick={() => runAction("decline")} disabled={Boolean(pendingAction)}>
+          <MenariumButton size="sm" variant="danger" onClick={() => setConfirmAction("decline")} disabled={Boolean(pendingAction)}>
             {pendingAction === "decline" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
             Отклонить
           </MenariumButton>
@@ -87,7 +89,7 @@ export function ExchangeActionPanel({
       ) : null}
 
       {status === "PENDING" && isSender ? (
-        <MenariumButton size="sm" variant="danger" className="w-full" onClick={() => runAction("revoke")} disabled={Boolean(pendingAction)}>
+        <MenariumButton size="sm" variant="danger" className="w-full" onClick={() => setConfirmAction("revoke")} disabled={Boolean(pendingAction)}>
           {pendingAction === "revoke" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
           Отозвать предложение
         </MenariumButton>
@@ -95,11 +97,11 @@ export function ExchangeActionPanel({
 
       {status === "ACCEPTED" ? (
         <div className="space-y-2">
-          <MenariumButton size="sm" className="w-full" onClick={() => runAction("complete")} disabled={Boolean(pendingAction) || alreadyCompleted}>
+          <MenariumButton size="sm" className="w-full" onClick={() => setConfirmAction("complete")} disabled={Boolean(pendingAction) || alreadyCompleted}>
             {pendingAction === "complete" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             {alreadyCompleted ? "Вы подтвердили завершение" : "Подтвердить завершение"}
           </MenariumButton>
-          <MenariumButton size="sm" variant="danger" className="w-full" onClick={() => runAction("cancel")} disabled={Boolean(pendingAction)}>
+          <MenariumButton size="sm" variant="danger" className="w-full" onClick={() => setConfirmAction("cancel")} disabled={Boolean(pendingAction)}>
             {pendingAction === "cancel" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
             Отменить обмен
           </MenariumButton>
@@ -107,6 +109,24 @@ export function ExchangeActionPanel({
       ) : null}
 
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      <ConfirmDialog
+        open={Boolean(confirmAction)}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={() => {
+          if (confirmAction) void runAction(confirmAction);
+        }}
+        title="Подтвердите действие"
+        description={confirmAction ? confirmMessages[confirmAction] : ""}
+        confirmLabel={
+          confirmAction === "accept"
+            ? "Принять обмен"
+            : confirmAction === "complete"
+              ? "Подтвердить завершение"
+              : "Продолжить"
+        }
+        pending={Boolean(pendingAction)}
+        danger={confirmAction === "decline" || confirmAction === "revoke" || confirmAction === "cancel"}
+      />
     </div>
   );
 }
@@ -142,7 +162,7 @@ export function DealMessageForm({ swapId, disabled }: { swapId: string; disabled
   return (
     <div className="mt-5 space-y-2">
       <div className="flex gap-2">
-        <input
+        <MenariumInput
           value={text}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
@@ -152,7 +172,7 @@ export function DealMessageForm({ swapId, disabled }: { swapId: string; disabled
             }
           }}
           disabled={disabled || isSending}
-          className="glass-card min-w-0 flex-1 rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-white/35 disabled:opacity-50"
+          className="min-w-0 flex-1 text-sm disabled:opacity-50"
           placeholder={disabled ? "Чат закрыт для новых сообщений" : "Сообщение..."}
         />
         <MenariumButton size="sm" onClick={sendMessage} disabled={disabled || isSending || !text.trim()}>

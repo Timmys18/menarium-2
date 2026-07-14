@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { PrismaClient, ItemType, MediaOwnerType } from "@prisma/client";
+import { ItemStatus, PrismaClient, ItemType, MediaOwnerType, UserStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -74,6 +74,11 @@ async function upsertUser(user) {
     update: {
       name: user.name,
       city: user.city,
+      passwordHash,
+      status: UserStatus.ACTIVE,
+      deletedAt: null,
+      suspendedAt: null,
+      suspensionReason: null,
     },
     create: {
       email: user.email,
@@ -97,6 +102,20 @@ async function upsertItem(fixture, owners) {
   });
 
   if (existing) {
+    await prisma.item.update({
+      where: { id: existing.id },
+      data: {
+        type: fixture.type,
+        category: fixture.category,
+        description: fixture.description,
+        city: fixture.city,
+        desired: fixture.desired,
+        acceptsAnything: false,
+        isOnline: false,
+        extraOfferText: null,
+        status: ItemStatus.ACTIVE,
+      },
+    });
     if (existing.images[0]) {
       await prisma.mediaAsset.update({
         where: { id: existing.images[0].id },
@@ -155,6 +174,34 @@ async function main() {
 
   const ownerEntries = await Promise.all(users.map(upsertUser));
   const owners = new Map(ownerEntries.map((user) => [user.email, user]));
+  const demoUserIds = ownerEntries.map((user) => user.id);
+
+  // Seed is also the E2E reset boundary. Remove only activity involving the
+  // well-known demo accounts, leaving all other local data untouched.
+  await prisma.$transaction([
+    prisma.swapRequest.deleteMany({
+      where: {
+        OR: [{ senderId: { in: demoUserIds } }, { receiverId: { in: demoUserIds } }],
+      },
+    }),
+    prisma.itemThread.deleteMany({
+      where: {
+        OR: [{ buyerId: { in: demoUserIds } }, { ownerId: { in: demoUserIds } }],
+      },
+    }),
+    prisma.notification.deleteMany({ where: { userId: { in: demoUserIds } } }),
+    prisma.userBlock.deleteMany({
+      where: {
+        OR: [{ blockerId: { in: demoUserIds } }, { blockedId: { in: demoUserIds } }],
+      },
+    }),
+  ]);
+  await prisma.item.deleteMany({
+    where: {
+      ownerId: { in: demoUserIds },
+      title: { startsWith: "[E2E]" },
+    },
+  });
   await Promise.all(itemFixtures.map((fixture) => upsertItem(fixture, owners)));
 
   console.log("Seed complete:");

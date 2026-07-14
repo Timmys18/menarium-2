@@ -2,14 +2,19 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useRealtime } from "@/components/hooks/use-realtime";
 
-/** Периодически обновляет серверные данные страницы (polling через router.refresh). */
-export function useAutoRefresh(enabled: boolean, intervalMs = 8000) {
+/** Refreshes server-rendered data when Redis pub/sub delivers a user event. */
+export function useAutoRefresh(enabled: boolean) {
   const router = useRouter();
+  const connected = useRealtime(enabled, () => router.refresh());
 
   useEffect(() => {
     if (!enabled) return;
-    const id = window.setInterval(() => router.refresh(), intervalMs);
-    return () => window.clearInterval(id);
-  }, [enabled, intervalMs, router]);
+    const onFocus = () => router.refresh();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [enabled, router]);
+
+  return connected;
 }

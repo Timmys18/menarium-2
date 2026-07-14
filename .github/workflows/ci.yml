@@ -14,8 +14,17 @@ jobs:
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: ci-only-secret-change-in-production
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-      STORAGE_PROVIDER: local
-      STORAGE_PUBLIC_BASE_URL: /uploads
+      REDIS_URL: redis://localhost:6379
+      ADMIN_EMAILS: admin@menarium.test
+      SMTP_HOST: localhost
+      SMTP_FROM: Menarium CI <noreply@menarium.test>
+      STORAGE_PROVIDER: s3
+      STORAGE_ENDPOINT: https://storage.example.test
+      STORAGE_BUCKET: menarium-ci
+      STORAGE_REGION: test-1
+      STORAGE_ACCESS_KEY_ID: ci-access-key
+      STORAGE_SECRET_ACCESS_KEY: ci-secret-key
+      STORAGE_PUBLIC_BASE_URL: https://storage.example.test/menarium-ci
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,8 +52,17 @@ jobs:
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: ci-only-secret-change-in-production
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-      STORAGE_PROVIDER: local
-      STORAGE_PUBLIC_BASE_URL: /uploads
+      REDIS_URL: redis://localhost:6379
+      ADMIN_EMAILS: admin@menarium.test
+      SMTP_HOST: localhost
+      SMTP_FROM: Menarium CI <noreply@menarium.test>
+      STORAGE_PROVIDER: s3
+      STORAGE_ENDPOINT: https://storage.example.test
+      STORAGE_BUCKET: menarium-ci
+      STORAGE_REGION: test-1
+      STORAGE_ACCESS_KEY_ID: ci-access-key
+      STORAGE_SECRET_ACCESS_KEY: ci-secret-key
+      STORAGE_PUBLIC_BASE_URL: https://storage.example.test/menarium-ci
       PLAYWRIGHT_BASE_URL: http://localhost:3000
       CI: true
     services:
@@ -58,6 +76,15 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -80,8 +107,13 @@ jobs:
       - name: Apply migrations
         run: npx prisma migrate deploy
 
+      - name: Seed deterministic E2E data
+        run: npm run db:seed
+        env:
+          ALLOW_PROD_SEED: "true"
+
       - name: Install Playwright browser
-        run: npm run test:e2e:install
+        run: npx playwright install --with-deps chromium
 
       - name: Build application
         run: npm run build
@@ -99,5 +131,16 @@ jobs:
           echo "Server failed to start"
           exit 1
 
-      - name: Run E2E smoke tests
+      - name: Run Playwright E2E tests
         run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14

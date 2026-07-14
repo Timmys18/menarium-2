@@ -1,9 +1,11 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { ItemStatus, SwapStatus } from "@prisma/client";
+import { ItemStatus, SwapStatus, UserStatus } from "@prisma/client";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
+import { emailVerifyIdentifier, passwordResetIdentifier } from "@/lib/auth-tokens";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
+import { deleteStoredUpload } from "@/lib/storage";
 import { requireUserId } from "@/server/session";
 
 function serializeUser(user: {
@@ -88,7 +90,7 @@ export async function DELETE(req: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: auth.userId },
-    select: { passwordHash: true },
+    select: { email: true, passwordHash: true },
   });
   if (!user?.passwordHash) return errorResponse("Пользователь не найден", 404);
 
@@ -112,7 +114,59 @@ export async function DELETE(req: Request) {
     return errorResponse("У вас есть объявления в активной сделке. Сначала завершите обмены", 409);
   }
 
-  await prisma.user.delete({ where: { id: auth.userId } });
+  const profileMedia = await prisma.mediaAsset.findMany({
+    where: { ownerId: auth.userId, ownerType: "USER", itemId: null },
+    select: { id: true, key: true },
+  });
 
-  return actionResponse({ ok: true }, { ok: true });
+  await prisma.$transaction(async (tx) => {
+    await tx.item.updateMany({
+      where: { ownerId: auth.userId, status: { not: ItemStatus.ARCHIVED } },
+      data: { status: ItemStatus.ARCHIVED },
+    });
+    await Promise.all([
+      tx.account.deleteMany({ where: { userId: auth.userId } }),
+      tx.session.deleteMany({ where: { userId: auth.userId } }),
+      tx.swipePass.deleteMany({ where: { userId: auth.userId } }),
+      tx.notification.deleteMany({ where: { userId: auth.userId } }),
+      tx.userBlock.deleteMany({
+        where: { OR: [{ blockerId: auth.userId }, { blockedId: auth.userId }] },
+      }),
+      tx.verificationToken.deleteMany({
+        where: {
+          identifier: {
+            in: [passwordResetIdentifier(user.email), emailVerifyIdentifier(user.email)],
+          },
+        },
+      }),
+      tx.mediaAsset.deleteMany({
+        where: { id: { in: profileMedia.map((asset) => asset.id) } },
+      }),
+    ]);
+    await tx.user.update({
+      where: { id: auth.userId },
+      data: {
+        status: UserStatus.DELETED,
+        deletedAt: new Date(),
+        sessionVersion: { increment: 1 },
+        email: `deleted+${auth.userId}@deleted.invalid`,
+        emailVerified: null,
+        passwordHash: null,
+        name: "Удалённый пользователь",
+        city: null,
+        image: null,
+        suspendedAt: null,
+        suspensionReason: null,
+      },
+    });
+  });
+
+  await Promise.allSettled(
+    profileMedia.flatMap((asset) => (asset.key ? [deleteStoredUpload(asset.key)] : [])),
+  );
+
+  return actionResponse(
+    { ok: true, anonymized: true },
+    { ok: true, message: "Аккаунт удалён, а история сделок сохранена в обезличенном виде." },
+  );
 }

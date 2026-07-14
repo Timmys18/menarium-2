@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeItemThreadMessage } from "@/features/chat/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
+import { publishUserEvents } from "@/lib/realtime";
 
 type Context = { params: Promise<{ threadId: string }> };
 
@@ -53,7 +54,7 @@ export async function POST(req: Request, context: Context) {
   if (text.length > 2000) return errorResponse("Сообщение слишком длинное", 400);
 
   try {
-    const message = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const thread = await tx.itemThread.findUnique({
         where: { id: threadId },
         include: { item: { select: { id: true, title: true, status: true } } },
@@ -64,12 +65,23 @@ export async function POST(req: Request, context: Context) {
       if (!isParticipant) throw new Error("FORBIDDEN");
       if (thread.item.status !== ItemStatus.ACTIVE) throw new Error("ITEM_NOT_ACTIVE");
 
+      const recipientId = auth.userId === thread.buyerId ? thread.ownerId : thread.buyerId;
+      const blocked = await tx.userBlock.findFirst({
+        where: {
+          OR: [
+            { blockerId: auth.userId, blockedId: recipientId },
+            { blockerId: recipientId, blockedId: auth.userId },
+          ],
+        },
+        select: { blockerId: true },
+      });
+      if (blocked) throw new Error("USER_BLOCKED");
+
       const created = await tx.itemThreadMessage.create({
         data: { threadId, senderId: auth.userId, text },
       });
       await tx.itemThread.update({ where: { id: threadId }, data: { updatedAt: new Date() } });
 
-      const recipientId = auth.userId === thread.buyerId ? thread.ownerId : thread.buyerId;
       await createNotification(tx, {
         userId: recipientId,
         type: NotificationType.ITEM_MESSAGE_RECEIVED,
@@ -80,15 +92,25 @@ export async function POST(req: Request, context: Context) {
         entityId: thread.id,
       });
 
-      return created;
+      return { created, participantIds: [thread.buyerId, thread.ownerId] };
     });
 
-    return actionResponse(serializeItemThreadMessage(message), serializeItemThreadMessage(message), 201);
+    await publishUserEvents(result.participantIds, {
+      type: "item-message",
+      entityId: threadId,
+    });
+
+    return actionResponse(
+      serializeItemThreadMessage(result.created),
+      serializeItemThreadMessage(result.created),
+      201,
+    );
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "THREAD_NOT_FOUND") return errorResponse("Чат не найден", 404);
       if (error.message === "FORBIDDEN") return errorResponse("Нет доступа к этому чату", 403);
       if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Объявление больше недоступно для переписки", 409);
+      if (error.message === "USER_BLOCKED") return errorResponse("Переписка с этим пользователем недоступна", 403);
     }
     return errorResponse("Не удалось отправить сообщение", 500);
   }

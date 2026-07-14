@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeSwap } from "@/features/exchange/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
+import { publishUserEvents } from "@/lib/realtime";
 
 const swapInclude = {
   sender: { select: { id: true, name: true, city: true, image: true } },
@@ -88,6 +89,17 @@ export async function POST(req: Request) {
         throw new Error("ITEM_NOT_ACTIVE");
       }
 
+      const blocked = await tx.userBlock.findFirst({
+        where: {
+          OR: [
+            { blockerId: auth.userId, blockedId: receiverItem.ownerId },
+            { blockerId: receiverItem.ownerId, blockedId: auth.userId },
+          ],
+        },
+        select: { blockerId: true },
+      });
+      if (blocked) throw new Error("USER_BLOCKED");
+
       const created = await tx.swapRequest.create({
         data: {
           senderId: auth.userId,
@@ -113,6 +125,11 @@ export async function POST(req: Request) {
       return created;
     });
 
+    await publishUserEvents([swap.senderId, swap.receiverId], {
+      type: "swap",
+      entityId: swap.id,
+    });
+
     return actionResponse(serializeSwap(swap), {}, 201);
   } catch (error) {
     if (error instanceof Error) {
@@ -120,6 +137,7 @@ export async function POST(req: Request) {
       if (error.message === "SENDER_NOT_OWNER") return errorResponse("Вы не можете обменивать чужое объявление", 403);
       if (error.message === "SELF_SWAP") return errorResponse("Нельзя обмениваться с самим собой", 400);
       if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Одно из объявлений недоступно для обмена", 409);
+      if (error.message === "USER_BLOCKED") return errorResponse("Предложение этому пользователю недоступно", 403);
       if (error.message.includes("Unique constraint")) return errorResponse("Такое предложение обмена уже существует", 409);
     }
     return errorResponse("Не удалось создать обмен", 500);
@@ -145,6 +163,7 @@ export async function PATCH(req: Request) {
   const { swapId, action } = parsed.data;
 
   try {
+    const realtimeUserIds = new Set<string>();
     const result = await prisma.$transaction(async (tx) => {
       const swap = await tx.swapRequest.findUnique({
         where: { id: swapId },
@@ -156,6 +175,8 @@ export async function PATCH(req: Request) {
       const isSender = swap.senderId === auth.userId;
       const isReceiver = swap.receiverId === auth.userId;
       if (!isSender && !isReceiver) throw new Error("FORBIDDEN");
+      realtimeUserIds.add(swap.senderId);
+      realtimeUserIds.add(swap.receiverId);
 
       if (action === "accept") {
         if (!isReceiver) throw new Error("ONLY_RECEIVER");
@@ -209,6 +230,7 @@ export async function PATCH(req: Request) {
             data: { status: SwapStatus.DECLINED, pendingPairKey: null },
           });
           for (const entry of competing) {
+            realtimeUserIds.add(entry.senderId);
             await createNotification(tx, {
               userId: entry.senderId,
               type: NotificationType.SWAP_DECLINED,
@@ -359,6 +381,11 @@ export async function PATCH(req: Request) {
       }
 
       throw new Error("INVALID_ACTION");
+    });
+
+    await publishUserEvents([...realtimeUserIds], {
+      type: "swap",
+      entityId: result.id,
     });
 
     return actionResponse(serializeSwap(result), serializeSwap(result));

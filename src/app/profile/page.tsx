@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { SignOutButton } from "./profile-actions";
 import { EmailVerifyBanner } from "./email-verify-banner";
+import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -230,19 +231,31 @@ export default async function ProfilePage() {
                     {recentIncoming.length > 0 ? (
                       <div className="space-y-3">
                         {recentIncoming.map((swap) => (
-                          <Link
+                          <div
                             key={swap.id}
-                            href={`/exchange?tab=incoming&swap=${swap.id}`}
-                            className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:bg-white/[0.06]"
+                            className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
                           >
-                            <div>
-                              <p className="font-medium">{swap.sender.name ?? "Пользователь"}</p>
-                              <p className="text-sm text-white/45">
-                                {swap.senderItem.title} → {swap.receiverItem.title}
-                              </p>
-                            </div>
-                            <Badge variant="teal">Ответить</Badge>
-                          </Link>
+                            <Link
+                              href={`/exchange?tab=incoming&swap=${swap.id}`}
+                              className="mb-3 flex items-center justify-between rounded-xl transition hover:text-teal-200"
+                            >
+                              <div>
+                                <p className="font-medium">{swap.sender.name ?? "Пользователь"}</p>
+                                <p className="text-sm text-white/45">
+                                  {swap.senderItem.title} → {swap.receiverItem.title}
+                                </p>
+                              </div>
+                              <Badge variant="teal">Подробнее</Badge>
+                            </Link>
+                            <ExchangeActionPanel
+                              swapId={swap.id}
+                              status={swap.status}
+                              isSender={false}
+                              isReceiver
+                              senderCompleted={swap.senderCompleted}
+                              receiverCompleted={swap.receiverCompleted}
+                            />
+                          </div>
                         ))}
                       </div>
                     ) : (

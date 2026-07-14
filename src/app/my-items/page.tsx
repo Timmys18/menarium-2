@@ -9,7 +9,12 @@ import { getCurrentUserId } from "@/server/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function MyItemsPage() {
+export default async function MyItemsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string }>;
+}) {
+  const { notice } = await searchParams;
   const userId = await getCurrentUserId();
   const items = userId
     ? await prisma.item.findMany({
@@ -31,6 +36,13 @@ export default async function MyItemsPage() {
             </div>
             <MenariumLinkButton href="/new">Создать</MenariumLinkButton>
           </div>
+          {notice === "archived" || notice === "deleted" ? (
+            <div className="mb-6 rounded-2xl border border-teal-500/25 bg-teal-500/10 px-5 py-4 text-sm text-teal-100">
+              {notice === "archived"
+                ? "Объявление снято с публикации и сохранено в истории завершённых обменов."
+                : "Объявление удалено."}
+            </div>
+          ) : null}
           {!userId ? (
             <EmptyState
               title="Войдите, чтобы управлять объявлениями"

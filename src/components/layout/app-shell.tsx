@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { RealtimeProvider } from "@/components/hooks/use-realtime";
 import { NavigationWithPolling } from "@/components/layout/navigation-with-polling";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { prisma } from "@/lib/prisma";
@@ -16,13 +17,15 @@ export async function AppShell({ children }: { children: ReactNode }) {
     : [0, 0];
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="dot-grid-bg pointer-events-none fixed inset-0 opacity-60" />
-      <div className="pointer-events-none fixed left-1/4 top-0 h-96 w-96 rounded-full bg-teal-500/20 blur-[128px]" />
-      <div className="pointer-events-none fixed bottom-0 right-1/4 h-96 w-96 rounded-full bg-purple-500/20 blur-[128px]" />
-      <NavigationWithPolling initialUnreadCount={unreadCount} initialPendingSwaps={pendingSwaps} />
-      <main className="relative z-10">{children}</main>
-      <SiteFooter />
-    </div>
+    <RealtimeProvider enabled={Boolean(userId)}>
+      <div className="relative min-h-screen overflow-hidden">
+        <div className="dot-grid-bg pointer-events-none fixed inset-0 opacity-60" />
+        <div className="pointer-events-none fixed left-1/4 top-0 h-96 w-96 rounded-full bg-teal-500/20 blur-[128px]" />
+        <div className="pointer-events-none fixed bottom-0 right-1/4 h-96 w-96 rounded-full bg-purple-500/20 blur-[128px]" />
+        <NavigationWithPolling initialUnreadCount={unreadCount} initialPendingSwaps={pendingSwaps} />
+        <main className="relative z-10">{children}</main>
+        <SiteFooter />
+      </div>
+    </RealtimeProvider>
   );
 }

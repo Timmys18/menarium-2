@@ -1,0 +1,132 @@
+"use client";
+
+import { useEffect, useId, useRef, type ReactNode } from "react";
+import { X } from "lucide-react";
+import { MenariumButton } from "@/components/menarium/button";
+import { cn } from "@/lib/utils";
+
+export function MenariumDialog({
+  open,
+  onClose,
+  title,
+  description,
+  children,
+  footer,
+  danger = false,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  description?: string;
+  children?: ReactNode;
+  footer?: ReactNode;
+  danger?: boolean;
+}) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onClose, open]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/70 p-4 backdrop-blur-md sm:items-center"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        className="glass-card w-full max-w-lg rounded-[28px] border border-white/15 bg-[#101017]/95 p-6 shadow-2xl shadow-black/60 sm:p-7"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div
+              className={cn(
+                "mb-3 h-1 w-12 rounded-full bg-gradient-to-r",
+                danger ? "from-red-400 to-orange-400" : "from-teal-400 to-purple-500",
+              )}
+            />
+            <h2 id={titleId} className="text-xl font-semibold tracking-tight">
+              {title}
+            </h2>
+            {description ? (
+              <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-white/55">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Закрыть"
+            className="rounded-xl p-2 text-white/45 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        {children ? <div className="mt-5">{children}</div> : null}
+        {footer ? <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">{footer}</div> : null}
+      </section>
+    </div>
+  );
+}
+
+export function ConfirmDialog({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  confirmLabel = "Подтвердить",
+  pending = false,
+  danger = false,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  description: string;
+  confirmLabel?: string;
+  pending?: boolean;
+  danger?: boolean;
+}) {
+  return (
+    <MenariumDialog
+      open={open}
+      onClose={pending ? () => undefined : onClose}
+      title={title}
+      description={description}
+      danger={danger}
+      footer={
+        <>
+          <MenariumButton variant="secondary" onClick={onClose} disabled={pending}>
+            Отмена
+          </MenariumButton>
+          <MenariumButton variant={danger ? "danger" : "primary"} onClick={onConfirm} disabled={pending}>
+            {pending ? "Выполняем…" : confirmLabel}
+          </MenariumButton>
+        </>
+      }
+    />
+  );
+}
