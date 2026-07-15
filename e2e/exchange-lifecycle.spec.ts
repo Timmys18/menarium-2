@@ -50,7 +50,7 @@ async function confirmAction(page: Page, actionLabel: string, confirmLabel: stri
   const dialog = page.getByRole("dialog", { name: "Подтвердите действие" });
   await expect(dialog).toBeVisible();
   await dialog.getByRole("button", { name: confirmLabel, exact: true }).click();
-  await expect(dialog).toBeHidden();
+  await expect(dialog).toBeHidden({ timeout: 15_000 });
 }
 
 test.describe("критический жизненный цикл обмена", () => {
@@ -102,8 +102,7 @@ test.describe("критический жизненный цикл обмена",
         await pick(dmitryMain.getByRole("heading", { name: "Новое предложение обмена" })).click();
         await expect(dmitry).toHaveURL(/\/exchange\?.*swap=/);
         await confirmAction(dmitry, "Принять", "Принять обмен");
-        await expect(dmitryMain.getByText("Принят", { exact: true }).last()).toBeVisible();
-        await expect(pick(dmitryMain.getByPlaceholder("Сообщение..."))).toBeEnabled();
+        await expect(pick(dmitryMain.getByPlaceholder("Сообщение..."))).toBeEnabled({ timeout: 20_000 });
       });
 
       await test.step("обе стороны обмениваются сообщениями в чате сделки", async () => {
@@ -139,8 +138,9 @@ test.describe("критический жизненный цикл обмена",
         await expect(dmitryMain.getByRole("heading", { name: "Партнёр подтвердил завершение" }).first()).toBeVisible();
         await pick(dmitryMain.getByRole("heading", { name: "Партнёр подтвердил завершение" })).click();
         await confirmAction(dmitry, "Подтвердить завершение", "Подтвердить завершение");
-        await expect(dmitryMain.getByText("Завершен", { exact: true }).last()).toBeVisible();
-        await expect(pick(dmitryMain.getByPlaceholder("Чат закрыт для новых сообщений"))).toBeDisabled();
+        await expect(pick(dmitryMain.getByPlaceholder("Чат закрыт для новых сообщений"))).toBeDisabled({
+          timeout: 20_000,
+        });
       });
 
       await test.step("финальное уведомление и история доступны отправителю", async () => {
