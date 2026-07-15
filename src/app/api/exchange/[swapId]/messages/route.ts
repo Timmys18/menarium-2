@@ -8,6 +8,9 @@ import { requireUserId } from "@/server/session";
 import { serializeDealMessage } from "@/features/exchange/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
 import { publishUserEvents } from "@/lib/realtime";
+import { runSerializableTransaction } from "@/lib/transactions";
+import { loadDealMessagePage } from "@/features/chat/message-pages";
+import { markDealChatRead } from "@/features/chat/read-state";
 
 type Context = { params: Promise<{ swapId: string }> };
 
@@ -23,27 +26,18 @@ export async function GET(req: NextRequest, context: Context) {
   if (!isParticipant) return errorResponse("Нет доступа к этому чату", 403);
   if (!canOpenDealChat(swap.status)) return errorResponse("Чат доступен только после принятия обмена", 403);
 
-  await prisma.dealMessage.updateMany({
-    where: {
-      swapId,
-      senderId: { not: auth.userId },
-      isRead: false,
-    },
-    data: { isRead: true },
-  });
+  await markDealChatRead(auth.userId, swapId);
 
-  const { limit, offset } = getPaging(req, 50, 100);
-  const [messages, total] = await Promise.all([
-    prisma.dealMessage.findMany({
-      where: { swapId },
-      orderBy: { createdAt: "asc" },
-      skip: offset,
-      take: limit,
-    }),
+  const { limit } = getPaging(req, 40, 100);
+  const before = req.nextUrl.searchParams.get("before");
+  const [page, total] = await Promise.all([
+    loadDealMessagePage({ swapId, before, limit }),
     prisma.dealMessage.count({ where: { swapId } }),
   ]);
 
-  return listResponse(messages.map(serializeDealMessage), { limit, offset }, total, {
+  return listResponse(page.messages.map(serializeDealMessage), { limit, offset: 0 }, total, {
+    hasMore: page.hasOlder,
+    nextCursor: page.nextCursor,
     chatClosed: !canWriteDealChat(swap.status),
   });
 }
@@ -62,7 +56,7 @@ export async function POST(req: Request, context: Context) {
   if (text.length > 2000) return errorResponse("Сообщение слишком длинное", 400);
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await runSerializableTransaction(async (tx) => {
       const swap = await tx.swapRequest.findUnique({ where: { id: swapId } });
       if (!swap) throw new Error("SWAP_NOT_FOUND");
 
@@ -77,6 +71,11 @@ export async function POST(req: Request, context: Context) {
           senderId: auth.userId,
           text,
         },
+      });
+
+      await tx.swapRequest.update({
+        where: { id: swapId },
+        data: { updatedAt: created.createdAt },
       });
 
       const recipientId = auth.userId === swap.senderId ? swap.receiverId : swap.senderId;

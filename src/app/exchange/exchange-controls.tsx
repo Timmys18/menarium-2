@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, Send, XCircle } from "lucide-react";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { ChatConversation, type ChatMessageView } from "@/components/chat/chat-conversation";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
-import { MenariumInput } from "@/components/menarium/input";
-import { ExchangeChatRefresh } from "./exchange-chat-refresh";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
 type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED";
@@ -23,11 +22,6 @@ const confirmMessages: Record<ExchangeAction, string> = {
   complete: "Подтвердить завершение обмена? После подтверждения обеими сторонами объявления будут архивированы.",
   cancel: "Отменить активный обмен? Объявления снова станут доступны для обмена.",
 };
-
-async function readApiError(response: Response) {
-  const body = await response.json().catch(() => ({}));
-  return typeof body.error === "string" ? body.error : "Не удалось выполнить действие";
-}
 
 export function ExchangeActionPanel({
   swapId,
@@ -152,12 +146,16 @@ export function ExchangeDealPanel({
   isReceiver,
   senderCompleted,
   receiverCompleted,
-  children,
+  currentUserId,
+  messages,
+  nextCursor,
 }: ExchangeSnapshot & {
   swapId: string;
   isSender: boolean;
   isReceiver: boolean;
-  children: ReactNode;
+  currentUserId: string;
+  messages: ChatMessageView[];
+  nextCursor: string | null;
 }) {
   const [snapshot, setSnapshot] = useState<ExchangeSnapshot>({
     status,
@@ -176,62 +174,17 @@ export function ExchangeDealPanel({
         receiverCompleted={snapshot.receiverCompleted}
         onSwapUpdated={setSnapshot}
       />
-      {children}
-      <DealMessageForm swapId={swapId} disabled={snapshot.status !== "ACCEPTED"} />
-      <ExchangeChatRefresh enabled={snapshot.status === "ACCEPTED"} />
+      <ChatConversation
+        target={{ endpoint: `/api/exchange/${swapId}/messages`, entityId: swapId }}
+        currentUserId={currentUserId}
+        initialMessages={messages}
+        initialNextCursor={nextCursor}
+        realtimeTypes={["deal-message", "swap"]}
+        canWrite={snapshot.status === "ACCEPTED"}
+        placeholder="Сообщение..."
+        disabledPlaceholder="Чат закрыт для новых сообщений"
+        emptyMessage="Сообщений по этой сделке пока нет."
+      />
     </>
-  );
-}
-
-export function DealMessageForm({ swapId, disabled }: { swapId: string; disabled: boolean }) {
-  const router = useRouter();
-  const [text, setText] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function sendMessage() {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-
-    setError(null);
-    setIsSending(true);
-    try {
-      const response = await fetch(`/api/exchange/${swapId}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: trimmed }),
-      });
-      if (!response.ok) throw new Error(await readApiError(response));
-      setText("");
-      router.refresh();
-    } catch (messageError) {
-      setError(messageError instanceof Error ? messageError.message : "Не удалось отправить сообщение");
-    } finally {
-      setIsSending(false);
-    }
-  }
-
-  return (
-    <div className="mt-5 space-y-2">
-      <div className="flex gap-2">
-        <MenariumInput
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              sendMessage();
-            }
-          }}
-          disabled={disabled || isSending}
-          className="min-w-0 flex-1 text-sm disabled:opacity-50"
-          placeholder={disabled ? "Чат закрыт для новых сообщений" : "Сообщение..."}
-        />
-        <MenariumButton size="sm" onClick={sendMessage} disabled={disabled || isSending || !text.trim()}>
-          {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        </MenariumButton>
-      </div>
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
-    </div>
   );
 }

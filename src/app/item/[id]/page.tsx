@@ -19,6 +19,8 @@ import { ItemImageGallery } from "./item-image-gallery";
 import { itemStatusLabels } from "@/features/items/status-labels";
 import { DeleteItemButton } from "./owner-actions";
 import { TrustActions } from "@/components/trust/trust-actions";
+import { loadItemThreadMessagePage } from "@/features/chat/message-pages";
+import { markItemThreadRead } from "@/features/chat/read-state";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,24 +46,45 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const { id } = await params;
   const query = await searchParams;
   const identity = await getCurrentUserIdentity();
+  const userId = identity?.id ?? null;
   const viewerIsAdmin = Boolean(identity && isAdminEmail(identity.email));
   const viewer = identity ? { id: identity.id, isAdmin: viewerIsAdmin } : null;
-  const item = await prisma.item.findFirst({
+  const itemInclude = {
+    owner: { select: { id: true, name: true, city: true, image: true } },
+    images: true,
+  } as const;
+  let item = await prisma.item.findFirst({
     where: visibleItemWhere(id, viewer),
-    include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+    include: itemInclude,
   });
+
+  // Участник существующего чата сохраняет доступ к истории после архивации
+  // объявления, но не получает права на новые действия с ним.
+  if (!item && userId && query.thread && query.thread !== "open") {
+    item = await prisma.item.findFirst({
+      where: {
+        id,
+        threads: {
+          some: {
+            id: query.thread,
+            OR: [{ buyerId: userId }, { ownerId: userId }],
+          },
+        },
+      },
+      include: itemInclude,
+    });
+  }
 
   if (!item) notFound();
 
   const publicItem = serializeItem(item);
   const card = toItemCardView(publicItem);
   const wanted = itemWantedLabel(publicItem);
-  const userId = identity?.id ?? null;
   const isOwner = Boolean(userId && publicItem.owner?.id === userId);
   const canInteract = canInteractWithItem(item.status, viewerIsAdmin);
   const ownerId = publicItem.owner?.id;
   const blocks =
-    userId && ownerId && !isOwner && canInteract
+    userId && ownerId && !isOwner
       ? await prisma.userBlock.findMany({
           where: {
             OR: [
@@ -85,14 +108,14 @@ export default async function ItemPage({ params, searchParams }: Props) {
   // Чат по объявлению доступен и покупателю, и владельцу.
   // - thread=open: покупатель начинает диалог (владельцу с самим собой нельзя);
   // - thread=<id>: открытие конкретной ветки — доступно обоим участникам.
-  const chatViewerId = query.thread && userId && (canInteract || isOwner) ? userId : null;
+  const chatViewerId =
+    query.thread && userId && (query.thread !== "open" || (canInteract && !isOwner))
+      ? userId
+      : null;
   const thread = chatViewerId
     ? query.thread === "open"
-      ? isOwner
-        ? null
-        : await prisma.itemThread.findUnique({
+      ? await prisma.itemThread.findUnique({
             where: { itemId_buyerId: { itemId: publicItem.id, buyerId: chatViewerId } },
-            include: { messages: { orderBy: { createdAt: "asc" }, take: 50 } },
           })
       : await prisma.itemThread.findFirst({
           where: {
@@ -100,28 +123,32 @@ export default async function ItemPage({ params, searchParams }: Props) {
             itemId: publicItem.id,
             OR: [{ buyerId: chatViewerId }, { ownerId: chatViewerId }],
           },
-          include: { messages: { orderBy: { createdAt: "asc" }, take: 50 } },
         })
     : null;
 
-  // Показываем панель, если пользователь — покупатель (может начать диалог),
-  // либо владелец с уже существующей веткой (может ответить).
-  const showChatPanel = Boolean(chatViewerId && !communicationBlocked && (!isOwner || thread));
+  const showChatPanel = Boolean(
+    chatViewerId &&
+      (thread || (query.thread === "open" && canInteract && !isOwner && !communicationBlocked)),
+  );
+  const canWriteItemChat = canInteract && !communicationBlocked;
 
-  if (thread && chatViewerId) {
-    await prisma.itemThreadMessage.updateMany({
-      where: { threadId: thread.id, senderId: { not: chatViewerId }, isRead: false },
-      data: { isRead: true },
-    });
-  }
+  const itemMessagePage =
+    thread && chatViewerId
+      ? (
+          await Promise.all([
+            loadItemThreadMessagePage({ threadId: thread.id }),
+            markItemThreadRead(chatViewerId, thread.id),
+          ])
+        )[0]
+      : { messages: [], nextCursor: null };
 
   const itemChatMessages =
-    thread?.messages.map((message) => ({
+    itemMessagePage.messages.map((message) => ({
       id: message.id,
       senderId: message.senderId,
       text: message.text,
       createdAt: message.createdAt.toISOString(),
-    })) ?? [];
+    }));
 
   return (
     <AppShell>
@@ -235,10 +262,13 @@ export default async function ItemPage({ params, searchParams }: Props) {
           </div>
           {showChatPanel && chatViewerId ? (
             <ItemChatPanel
+              key={thread?.id ?? "open"}
               itemId={publicItem.id}
               initialThreadId={thread?.id ?? null}
               currentUserId={chatViewerId}
               messages={itemChatMessages}
+              nextCursor={itemMessagePage.nextCursor}
+              canWrite={canWriteItemChat}
               isOwner={isOwner}
             />
           ) : null}
