@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Menarium — бартерная платформа";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -41,7 +40,7 @@ export default function OpenGraphImage() {
               fontSize: 44,
             }}
           >
-            ⇄
+            M
           </div>
           <span style={{ fontSize: 72, fontWeight: 700, letterSpacing: -2 }}>MENARIUM</span>
         </div>

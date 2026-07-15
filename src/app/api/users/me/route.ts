@@ -1,12 +1,13 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { ItemStatus, SwapStatus, UserStatus } from "@prisma/client";
+import { ItemStatus, MediaOwnerType, SwapStatus, UserStatus } from "@prisma/client";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { emailVerifyIdentifier, passwordResetIdentifier } from "@/lib/auth-tokens";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
-import { deleteStoredUpload } from "@/lib/storage";
 import { requireUserId } from "@/server/session";
+import { deleteMediaObjects } from "@/features/media/cleanup";
+import { runSerializableTransaction } from "@/lib/transactions";
 
 function serializeUser(user: {
   id: string;
@@ -38,13 +39,7 @@ export async function GET() {
 const profileSchema = z.object({
   name: z.string().trim().min(2).max(80).optional().or(z.literal("")),
   city: z.string().trim().max(80).optional().or(z.literal("")),
-  image: z
-    .string()
-    .refine((value) => value === "" || value.startsWith("/") || z.string().url().safeParse(value).success, {
-      message: "Image URL must be absolute or app-relative",
-    })
-    .optional()
-    .or(z.literal("")),
+  image: z.string().trim().max(2048).optional().or(z.literal("")),
 });
 
 export async function PATCH(req: Request) {
@@ -58,17 +53,64 @@ export async function PATCH(req: Request) {
   const parsed = profileSchema.safeParse(body);
   if (!parsed.success) return errorResponse("Некорректные данные профиля", 400);
 
-  const user = await prisma.user.update({
-    where: { id: auth.userId },
-    data: {
-      name: parsed.data.name || null,
-      city: parsed.data.city || null,
-      image: parsed.data.image || null,
-    },
-    select: { id: true, email: true, name: true, city: true, image: true, createdAt: true },
-  });
+  try {
+    const result = await runSerializableTransaction(async (tx) => {
+      const current = await tx.user.findUnique({
+        where: { id: auth.userId },
+        select: { image: true },
+      });
+      if (!current) throw new Error("USER_NOT_FOUND");
 
-  return actionResponse(serializeUser(user), serializeUser(user));
+      const requestedImage = parsed.data.image || null;
+      const profileAssets = await tx.mediaAsset.findMany({
+        where: {
+          ownerId: auth.userId,
+          ownerType: MediaOwnerType.USER,
+          itemId: null,
+        },
+        select: { id: true, key: true, url: true },
+      });
+      const selectedAsset = requestedImage
+        ? profileAssets.find((asset) => asset.url === requestedImage)
+        : undefined;
+
+      // Legacy OAuth/demo avatars may remain unchanged, but every newly selected
+      // URL must come from this user's own media upload.
+      if (requestedImage && requestedImage !== current.image && !selectedAsset) {
+        throw new Error("INVALID_PROFILE_IMAGE");
+      }
+
+      const obsoleteAssets = profileAssets.filter((asset) => asset.id !== selectedAsset?.id);
+      const user = await tx.user.update({
+        where: { id: auth.userId },
+        data: {
+          name: parsed.data.name || null,
+          city: parsed.data.city || null,
+          image: requestedImage,
+        },
+        select: { id: true, email: true, name: true, city: true, image: true, createdAt: true },
+      });
+      if (obsoleteAssets.length) {
+        await tx.mediaAsset.deleteMany({
+          where: { id: { in: obsoleteAssets.map((asset) => asset.id) }, ownerId: auth.userId },
+        });
+      }
+
+      return { user, obsoleteKeys: obsoleteAssets.map((asset) => asset.key) };
+    });
+
+    await deleteMediaObjects(result.obsoleteKeys);
+    return actionResponse(serializeUser(result.user), serializeUser(result.user));
+  } catch (error) {
+    if (error instanceof Error && error.message === "INVALID_PROFILE_IMAGE") {
+      return errorResponse("Выберите аватар, загруженный в вашем профиле", 400);
+    }
+    if (error instanceof Error && error.message === "USER_NOT_FOUND") {
+      return errorResponse("Пользователь не найден", 404);
+    }
+    console.error("[profile] update failed:", error);
+    return errorResponse("Не удалось сохранить профиль", 500);
+  }
 }
 
 const deleteSchema = z.object({
@@ -161,9 +203,7 @@ export async function DELETE(req: Request) {
     });
   });
 
-  await Promise.allSettled(
-    profileMedia.flatMap((asset) => (asset.key ? [deleteStoredUpload(asset.key)] : [])),
-  );
+  await deleteMediaObjects(profileMedia.map((asset) => asset.key));
 
   return actionResponse(
     { ok: true, anonymized: true },

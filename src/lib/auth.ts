@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { UserStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { checkLoginRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkLoginRateLimit, getClientIp, resetLoginRateLimit } from "@/lib/rate-limit";
 
 // Заглушка-хэш для выравнивания времени ответа, когда пользователь не найден:
 // bcrypt.compare выполняется всегда, чтобы нельзя было по времени определить,
@@ -49,6 +49,8 @@ export const authOptions: NextAuthOptions = {
         if (!user?.passwordHash || !isValid || user.status !== UserStatus.ACTIVE) {
           return null;
         }
+
+        await resetLoginRateLimit(email, ip);
 
         return {
           id: user.id,

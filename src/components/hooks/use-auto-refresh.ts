@@ -2,12 +2,17 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useRealtime } from "@/components/hooks/use-realtime";
+import { useRealtime, type RealtimeEvent } from "@/components/hooks/use-realtime";
 
 /** Refreshes server-rendered data when Redis pub/sub delivers a user event. */
-export function useAutoRefresh(enabled: boolean) {
+export function useAutoRefresh(
+  enabled: boolean,
+  shouldRefresh?: (event: RealtimeEvent) => boolean,
+) {
   const router = useRouter();
-  const connected = useRealtime(enabled, () => router.refresh());
+  const connected = useRealtime(enabled, (event) => {
+    if (!shouldRefresh || shouldRefresh(event)) router.refresh();
+  });
 
   useEffect(() => {
     if (!enabled) return;

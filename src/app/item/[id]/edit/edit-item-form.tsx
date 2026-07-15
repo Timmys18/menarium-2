@@ -15,6 +15,7 @@ type EditableImage = {
   url: string;
   contentType: string;
   sizeBytes: number;
+  isNew?: boolean;
 };
 
 const categories = ["Техника", "Мода", "Музыка", "Спорт", "Книги", "Искусство", "Фото", "Услуги"];
@@ -40,6 +41,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
   );
   const [isOnline, setIsOnline] = useState(item.isOnline);
   const [isUploading, setIsUploading] = useState(false);
+  const [removingImageId, setRemovingImageId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,26 +54,50 @@ export function EditItemForm({ item }: { item: PublicItem }) {
     [desiredText],
   );
 
-  async function uploadFiles(files: FileList | null) {
-    if (!files?.length) return;
+  async function uploadFiles(files: File[]) {
+    if (!files.length) return;
     setError(null);
     setIsUploading(true);
     try {
-      const uploaded: EditableImage[] = [];
-      for (const file of Array.from(files).slice(0, 8 - images.length)) {
+      for (const file of files.slice(0, 8 - images.length)) {
+        if (file.size > 8 * 1024 * 1024) throw new Error(`Файл «${file.name}» больше 8 МБ`);
         const formData = new FormData();
         formData.set("file", file);
         formData.set("ownerType", "ITEM");
         const response = await fetch("/api/media", { method: "POST", body: formData });
-        const body = await response.json();
+        const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(body.error ?? "Не удалось загрузить фото");
-        uploaded.push(body.data);
+        const uploaded = { ...body.data, isNew: true } as EditableImage;
+        setImages((current) =>
+          current.some((image) => image.id === uploaded.id)
+            ? current
+            : [...current, uploaded].slice(0, 8),
+        );
       }
-      setImages((current) => [...current, ...uploaded].slice(0, 8));
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить фото");
     } finally {
       setIsUploading(false);
+    }
+  }
+
+  async function removeImage(image: EditableImage) {
+    if (!image.id) return;
+    setError(null);
+    setRemovingImageId(image.id);
+    try {
+      if (image.isNew) {
+        const response = await fetch(`/api/media?id=${encodeURIComponent(image.id)}`, {
+          method: "DELETE",
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error ?? "Не удалось удалить фото");
+      }
+      setImages((current) => current.filter((entry) => entry.id !== image.id));
+    } catch (removeError) {
+      setError(removeError instanceof Error ? removeError.message : "Не удалось удалить фото");
+    } finally {
+      setRemovingImageId(null);
     }
   }
 
@@ -114,8 +140,13 @@ export function EditItemForm({ item }: { item: PublicItem }) {
           type="file"
           accept="image/png,image/jpeg,image/webp,image/gif"
           multiple
+          disabled={isUploading || images.length >= 8}
           className="sr-only"
-          onChange={(event) => uploadFiles(event.target.files)}
+          onChange={(event) => {
+            const files = Array.from(event.currentTarget.files ?? []);
+            event.currentTarget.value = "";
+            void uploadFiles(files);
+          }}
         />
         <label htmlFor="item-edit-images" className="block cursor-pointer">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-teal-500/20 to-purple-500/20">
@@ -130,15 +161,21 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </label>
         {images.length > 0 ? (
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {images.map((image) => (
+            {images.map((image, index) => (
               <div key={`${image.id ?? image.url}`} className="relative h-28 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                <Image src={image.url} alt="" fill className="object-cover" />
+                <Image src={image.url} alt={`Фото объявления ${index + 1}`} fill className="object-cover" />
                 <button
                   type="button"
-                  onClick={() => setImages((current) => current.filter((entry) => entry !== image))}
-                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-xl bg-black/60 text-red-200 backdrop-blur-xl"
+                  aria-label={`Удалить фото ${index + 1}`}
+                  onClick={() => void removeImage(image)}
+                  disabled={removingImageId === image.id || isSubmitting}
+                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-xl transition hover:bg-red-500/70 disabled:opacity-50"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  {removingImageId === image.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             ))}

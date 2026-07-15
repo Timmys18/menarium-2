@@ -36,7 +36,7 @@ const sentryEnabled = Boolean(process.env.SENTRY_DSN);
 export default sentryEnabled
   ? withSentryConfig(nextConfig, {
       silent: true,
-      disableLogger: true,
+      webpack: { treeshake: { removeDebugLogging: true } },
       widenClientFileUpload: false,
     })
   : nextConfig;

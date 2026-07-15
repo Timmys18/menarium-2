@@ -7,6 +7,9 @@ import { requireUserId } from "@/server/session";
 import { serializeItemThreadMessage } from "@/features/chat/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
 import { publishUserEvents } from "@/lib/realtime";
+import { runSerializableTransaction } from "@/lib/transactions";
+import { loadItemThreadMessagePage } from "@/features/chat/message-pages";
+import { markItemThreadRead } from "@/features/chat/read-state";
 
 type Context = { params: Promise<{ threadId: string }> };
 
@@ -21,23 +24,19 @@ export async function GET(req: NextRequest, context: Context) {
   const isParticipant = thread.buyerId === auth.userId || thread.ownerId === auth.userId;
   if (!isParticipant) return errorResponse("Нет доступа к этому чату", 403);
 
-  await prisma.itemThreadMessage.updateMany({
-    where: { threadId, senderId: { not: auth.userId }, isRead: false },
-    data: { isRead: true },
-  });
+  await markItemThreadRead(auth.userId, threadId);
 
-  const { limit, offset } = getPaging(req, 50, 100);
-  const [messages, total] = await Promise.all([
-    prisma.itemThreadMessage.findMany({
-      where: { threadId },
-      orderBy: { createdAt: "asc" },
-      skip: offset,
-      take: limit,
-    }),
+  const { limit } = getPaging(req, 40, 100);
+  const before = req.nextUrl.searchParams.get("before");
+  const [page, total] = await Promise.all([
+    loadItemThreadMessagePage({ threadId, before, limit }),
     prisma.itemThreadMessage.count({ where: { threadId } }),
   ]);
 
-  return listResponse(messages.map(serializeItemThreadMessage), { limit, offset }, total);
+  return listResponse(page.messages.map(serializeItemThreadMessage), { limit, offset: 0 }, total, {
+    hasMore: page.hasOlder,
+    nextCursor: page.nextCursor,
+  });
 }
 
 export async function POST(req: Request, context: Context) {
@@ -54,7 +53,7 @@ export async function POST(req: Request, context: Context) {
   if (text.length > 2000) return errorResponse("Сообщение слишком длинное", 400);
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await runSerializableTransaction(async (tx) => {
       const thread = await tx.itemThread.findUnique({
         where: { id: threadId },
         include: { item: { select: { id: true, title: true, status: true } } },
@@ -80,7 +79,10 @@ export async function POST(req: Request, context: Context) {
       const created = await tx.itemThreadMessage.create({
         data: { threadId, senderId: auth.userId, text },
       });
-      await tx.itemThread.update({ where: { id: threadId }, data: { updatedAt: new Date() } });
+      await tx.itemThread.update({
+        where: { id: threadId },
+        data: { updatedAt: created.createdAt },
+      });
 
       await createNotification(tx, {
         userId: recipientId,

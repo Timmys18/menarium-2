@@ -33,7 +33,7 @@ const itemFixtures = [
     description: "Флагманские наушники в отличном состоянии. Полный комплект, бережное использование.",
     city: "Москва",
     desired: ["Механическая клавиатура", "AirPods Pro"],
-    image: "/demo/items/sony.jpg",
+    image: "/demo/items/sony.png",
   },
   {
     ownerEmail: "dmitry@menarium.ru",
@@ -43,7 +43,7 @@ const itemFixtures = [
     description: "Пленочная камера Canon AE-1. Подойдет для тех, кто хочет начать с аналоговой фотографии.",
     city: "Санкт-Петербург",
     desired: ["Винтажные часы", "Объектив"],
-    image: "/demo/items/canon.jpg",
+    image: "/demo/items/canon.png",
   },
   {
     ownerEmail: "maria@menarium.ru",
@@ -53,7 +53,7 @@ const itemFixtures = [
     description: "Помогу собрать визуальную концепцию комнаты, подобрать референсы и список покупок.",
     city: "Москва",
     desired: ["Фотосъемка", "Книги по дизайну"],
-    image: "/demo/items/interior.jpg",
+    image: "/demo/items/interior.png",
   },
   {
     ownerEmail: "dmitry@menarium.ru",
@@ -63,7 +63,7 @@ const itemFixtures = [
     description: "Небольшая коллекция пластинок в хорошем состоянии. Готов обсуждать обмен комплектом.",
     city: "Санкт-Петербург",
     desired: ["Проигрыватель", "Аудиотехника"],
-    image: "/demo/items/vinyl.jpg",
+    image: "/demo/items/vinyl.png",
   },
 ];
 
@@ -119,7 +119,7 @@ async function upsertItem(fixture, owners) {
     if (existing.images[0]) {
       await prisma.mediaAsset.update({
         where: { id: existing.images[0].id },
-        data: { url: fixture.image, contentType: "image/jpeg" },
+        data: { url: fixture.image, contentType: "image/png" },
       });
     } else {
       await prisma.mediaAsset.create({
@@ -128,7 +128,7 @@ async function upsertItem(fixture, owners) {
           ownerType: MediaOwnerType.ITEM,
           itemId: existing.id,
           url: fixture.image,
-          contentType: "image/jpeg",
+          contentType: "image/png",
           sizeBytes: 1,
         },
       });
@@ -152,7 +152,7 @@ async function upsertItem(fixture, owners) {
           ownerId: owner.id,
           ownerType: MediaOwnerType.ITEM,
           url: fixture.image,
-          contentType: "image/jpeg",
+          contentType: "image/png",
           sizeBytes: 1,
         },
       },

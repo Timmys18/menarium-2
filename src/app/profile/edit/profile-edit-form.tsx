@@ -25,6 +25,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   const [newPassword, setNewPassword] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadedAvatarId, setUploadedAvatarId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -40,13 +41,37 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       formData.set("file", file);
       formData.set("ownerType", "USER");
       const response = await fetch("/api/media", { method: "POST", body: formData });
-      const body = await response.json();
+      const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error ?? "Не удалось загрузить аватар");
+      const previousUploadId = uploadedAvatarId;
       setImage(body.data.url);
+      setUploadedAvatarId(body.data.id);
+      if (previousUploadId) {
+        void fetch(`/api/media?id=${encodeURIComponent(previousUploadId)}`, {
+          method: "DELETE",
+        });
+      }
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить аватар");
     } finally {
       setIsUploading(false);
+    }
+  }
+
+  async function removeAvatar() {
+    setError(null);
+    try {
+      if (uploadedAvatarId) {
+        const response = await fetch(`/api/media?id=${encodeURIComponent(uploadedAvatarId)}`, {
+          method: "DELETE",
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error ?? "Не удалось удалить аватар");
+      }
+      setImage("");
+      setUploadedAvatarId(null);
+    } catch (removeError) {
+      setError(removeError instanceof Error ? removeError.message : "Не удалось удалить аватар");
     }
   }
 
@@ -127,8 +152,13 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               id="avatar-upload"
               type="file"
               accept="image/png,image/jpeg,image/webp,image/gif"
+              disabled={isUploading}
               className="sr-only"
-              onChange={(event) => uploadAvatar(event.target.files?.[0])}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = "";
+                void uploadAvatar(file);
+              }}
             />
             <label
               htmlFor="avatar-upload"
@@ -138,6 +168,16 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               Загрузить аватар
             </label>
             <p className="mt-2 text-xs text-white/40">PNG, JPG, WEBP или GIF до 8 МБ.</p>
+            {image ? (
+              <button
+                type="button"
+                onClick={() => void removeAvatar()}
+                className="mt-2 inline-flex items-center gap-1.5 text-xs text-red-200/80 transition hover:text-red-100"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Удалить аватар
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -151,7 +191,18 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
             Сохранить
           </MenariumButton>
-          <MenariumLinkButton href="/profile" variant="secondary">
+          <MenariumLinkButton
+            href="/profile"
+            variant="secondary"
+            onClick={() => {
+              if (uploadedAvatarId) {
+                void fetch(`/api/media?id=${encodeURIComponent(uploadedAvatarId)}`, {
+                  method: "DELETE",
+                  keepalive: true,
+                });
+              }
+            }}
+          >
             Отмена
           </MenariumLinkButton>
         </div>

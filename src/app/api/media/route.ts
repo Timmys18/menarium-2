@@ -1,44 +1,126 @@
+import { MediaOwnerType } from "@prisma/client";
+import { NextRequest } from "next/server";
 import { actionResponse, errorResponse } from "@/lib/api";
-import { checkActionRateLimit } from "@/lib/rate-limit";
+import { checkMediaDeleteRateLimit, checkMediaUploadRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
-import { storeImageUpload } from "@/lib/storage";
+import { deleteStoredUpload, storeImageUpload } from "@/lib/storage";
+import { runSerializableTransaction } from "@/lib/transactions";
 import { requireUserId } from "@/server/session";
+
+const MAX_MULTIPART_REQUEST_BYTES = 8 * 1024 * 1024 + 128 * 1024;
+const MAX_UNATTACHED_ASSETS = 32;
+const MAX_UNATTACHED_BYTES = 128 * 1024 * 1024;
+const STALE_UPLOAD_AGE_MS = 24 * 60 * 60 * 1000;
+
+async function cleanupStaleItemUploads(userId: string) {
+  const stale = await prisma.mediaAsset.findMany({
+    where: {
+      ownerId: userId,
+      ownerType: MediaOwnerType.ITEM,
+      itemId: null,
+      createdAt: { lt: new Date(Date.now() - STALE_UPLOAD_AGE_MS) },
+    },
+    select: { id: true, key: true },
+    take: 50,
+  });
+
+  for (const asset of stale) {
+    const deleted = await prisma.mediaAsset.deleteMany({
+      where: {
+        id: asset.id,
+        ownerId: userId,
+        ownerType: MediaOwnerType.ITEM,
+        itemId: null,
+      },
+    });
+    if (deleted.count && asset.key) {
+      await deleteStoredUpload(asset.key).catch((error) => {
+        console.error("[media] stale object cleanup failed:", error);
+      });
+    }
+  }
+}
 
 export async function POST(req: Request) {
   const auth = await requireUserId();
   if (!auth.ok) return auth.response;
 
-  const rate = await checkActionRateLimit(auth.userId, "media:upload");
+  const rate = await checkMediaUploadRateLimit(auth.userId);
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
-  const formData = await req.formData();
+  const contentLength = Number(req.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > MAX_MULTIPART_REQUEST_BYTES) {
+    return errorResponse("Файл слишком большой. Максимум 8 МБ", 413);
+  }
+
+  const formData = await req.formData().catch(() => null);
+  if (!formData) return errorResponse("Не удалось прочитать загружаемый файл", 400);
   const file = formData.get("file");
-  const ownerType = formData.get("ownerType") === "USER" ? "USER" : "ITEM";
-  const itemId = typeof formData.get("itemId") === "string" ? String(formData.get("itemId")) : undefined;
+  const rawOwnerType = formData.get("ownerType");
+  const ownerType =
+    rawOwnerType === MediaOwnerType.USER || rawOwnerType === MediaOwnerType.ITEM
+      ? rawOwnerType
+      : null;
+  const rawItemId = formData.get("itemId");
 
   if (!(file instanceof File)) return errorResponse("Передайте файл в поле file", 400);
-
-  // Разрешаем привязку медиа только к собственному объявлению — иначе это IDOR:
-  // чужую картинку нельзя прикрепить к чужому объявлению.
-  if (itemId) {
-    const item = await prisma.item.findUnique({ where: { id: itemId }, select: { ownerId: true } });
-    if (!item) return errorResponse("Объявление не найдено", 404);
-    if (item.ownerId !== auth.userId) return errorResponse("Нет доступа к этому объявлению", 403);
+  if (!ownerType) return errorResponse("Укажите корректный тип загружаемого изображения", 400);
+  if (typeof rawItemId === "string" && rawItemId.trim()) {
+    return errorResponse("Изображение привязывается к объявлению только при его сохранении", 400);
   }
 
   try {
+    await cleanupStaleItemUploads(auth.userId);
+
+    const [unattachedCount, unattachedSize] = await Promise.all([
+      prisma.mediaAsset.count({ where: { ownerId: auth.userId, itemId: null } }),
+      prisma.mediaAsset.aggregate({
+        where: { ownerId: auth.userId, itemId: null },
+        _sum: { sizeBytes: true },
+      }),
+    ]);
+    if (unattachedCount >= MAX_UNATTACHED_ASSETS) {
+      return errorResponse("Слишком много незавершённых загрузок. Удалите лишние фото", 409);
+    }
+    if ((unattachedSize._sum.sizeBytes ?? 0) + file.size > MAX_UNATTACHED_BYTES) {
+      return errorResponse("Превышен лимит незавершённых загрузок", 413);
+    }
+
     const stored = await storeImageUpload(file, auth.userId);
-    const asset = await prisma.mediaAsset.create({
-      data: {
-        ownerId: auth.userId,
-        ownerType,
-        itemId,
-        url: stored.url,
-        key: stored.key,
-        contentType: stored.contentType,
-        sizeBytes: stored.sizeBytes,
-      },
-    });
+    let asset;
+    try {
+      asset = await runSerializableTransaction(async (tx) => {
+        const [currentCount, currentSize] = await Promise.all([
+          tx.mediaAsset.count({ where: { ownerId: auth.userId, itemId: null } }),
+          tx.mediaAsset.aggregate({
+            where: { ownerId: auth.userId, itemId: null },
+            _sum: { sizeBytes: true },
+          }),
+        ]);
+        if (currentCount >= MAX_UNATTACHED_ASSETS) throw new Error("UNATTACHED_ASSET_LIMIT");
+        if ((currentSize._sum.sizeBytes ?? 0) + stored.sizeBytes > MAX_UNATTACHED_BYTES) {
+          throw new Error("UNATTACHED_BYTES_LIMIT");
+        }
+
+        return tx.mediaAsset.create({
+          data: {
+            ownerId: auth.userId,
+            ownerType,
+            url: stored.url,
+            key: stored.key,
+            contentType: stored.contentType,
+            sizeBytes: stored.sizeBytes,
+            width: stored.width,
+            height: stored.height,
+          },
+        });
+      });
+    } catch (error) {
+      await deleteStoredUpload(stored.key).catch((cleanupError) => {
+        console.error("[media] upload compensation failed:", cleanupError);
+      });
+      throw error;
+    }
 
     return actionResponse(
       {
@@ -47,16 +129,74 @@ export async function POST(req: Request) {
         key: asset.key,
         contentType: asset.contentType,
         sizeBytes: asset.sizeBytes,
+        width: asset.width,
+        height: asset.height,
       },
       {},
       201,
     );
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === "UNSUPPORTED_CONTENT_TYPE") return errorResponse("Поддерживаются только изображения", 400);
+      if (error.message === "EMPTY_FILE") return errorResponse("Файл пуст", 400);
+      if (error.message === "INVALID_IMAGE_CONTENT") {
+        return errorResponse("Файл повреждён или не является поддерживаемым изображением", 400);
+      }
+      if (error.message === "CONTENT_TYPE_MISMATCH") {
+        return errorResponse("Формат файла не соответствует его содержимому", 400);
+      }
+      if (error.message === "IMAGE_DIMENSIONS_TOO_LARGE") {
+        return errorResponse("Слишком большое разрешение изображения", 413);
+      }
+      if (error.message === "UNATTACHED_ASSET_LIMIT") {
+        return errorResponse("Слишком много незавершённых загрузок. Удалите лишние фото", 409);
+      }
+      if (error.message === "UNATTACHED_BYTES_LIMIT") {
+        return errorResponse("Превышен лимит незавершённых загрузок", 413);
+      }
       if (error.message === "FILE_TOO_LARGE") return errorResponse("Файл слишком большой. Максимум 8 МБ", 413);
       if (error.message === "STORAGE_NOT_CONFIGURED") return errorResponse("Хранилище не настроено", 500);
     }
+    console.error("[media] upload failed:", error);
     return errorResponse("Не удалось загрузить файл", 500);
   }
+}
+
+export async function DELETE(req: NextRequest) {
+  const auth = await requireUserId();
+  if (!auth.ok) return auth.response;
+
+  const rate = await checkMediaDeleteRateLimit(auth.userId);
+  if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
+
+  const id = req.nextUrl.searchParams.get("id")?.trim();
+  if (!id) return errorResponse("Укажите id изображения", 400);
+
+  const asset = await prisma.mediaAsset.findFirst({
+    where: { id, ownerId: auth.userId, itemId: null },
+    select: { id: true, key: true, url: true, ownerType: true },
+  });
+  if (!asset) return errorResponse("Изображение не найдено или уже используется", 404);
+
+  if (asset.ownerType === MediaOwnerType.USER) {
+    const user = await prisma.user.findUnique({
+      where: { id: auth.userId },
+      select: { image: true },
+    });
+    if (user?.image === asset.url) {
+      return errorResponse("Сначала выберите другой аватар или удалите его в профиле", 409);
+    }
+  }
+
+  const deleted = await prisma.mediaAsset.deleteMany({
+    where: { id: asset.id, ownerId: auth.userId, itemId: null },
+  });
+  if (!deleted.count) return errorResponse("Изображение уже используется", 409);
+
+  if (asset.key) {
+    await deleteStoredUpload(asset.key).catch((error) => {
+      console.error("[media] object deletion failed:", error);
+    });
+  }
+
+  return actionResponse({ deleted: true, id: asset.id });
 }

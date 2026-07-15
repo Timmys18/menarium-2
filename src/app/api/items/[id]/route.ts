@@ -8,6 +8,9 @@ import { serializeItem } from "@/features/items/serializers";
 import { itemPayloadSchema } from "@/features/items/validation";
 import { visibleItemWhere } from "@/features/items/visibility";
 import { isAdminEmail } from "@/server/admin";
+import { claimItemMedia, INVALID_ITEM_MEDIA } from "@/features/media/item-media";
+import { deleteMediaObjects } from "@/features/media/cleanup";
+import { runSerializableTransaction } from "@/lib/transactions";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -44,48 +47,70 @@ export async function PATCH(req: Request, context: Context) {
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
   const data = parsed.data;
-  const updated = await prisma.$transaction(async (tx) => {
-    const submittedImageIds = data.images.map((image) => image.id);
-    await tx.mediaAsset.deleteMany({
-      where: {
-        itemId: id,
-        ...(submittedImageIds.length ? { id: { notIn: submittedImageIds } } : {}),
-      },
-    });
-
-    await tx.item.update({
-      where: { id },
-      data: {
-        title: data.title,
-        type: data.type,
-        category: data.category,
-        description: data.description,
-        city: data.city,
-        isOnline: data.isOnline,
-        desired: data.desired,
-        acceptsAnything: data.acceptsAnything,
-        extraOfferText: data.extraOfferText || null,
-      },
-    });
-
-    if (submittedImageIds.length) {
-      await tx.mediaAsset.updateMany({
+  try {
+    const result = await runSerializableTransaction(async (tx) => {
+      const current = await tx.item.findFirst({
         where: {
-          id: { in: submittedImageIds },
+          id,
           ownerId: auth.userId,
-          OR: [{ itemId: null }, { itemId: id }],
+          status: ItemStatus.ACTIVE,
         },
-        data: { itemId: id, ownerType: "ITEM" },
+        include: { images: true },
       });
-    }
+      if (!current) throw new Error("ITEM_NOT_EDITABLE");
 
-    return tx.item.findUniqueOrThrow({
-      where: { id },
-      include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      const submittedImageIds = data.images.map((image) => image.id);
+      await claimItemMedia(tx, {
+        imageIds: submittedImageIds,
+        userId: auth.userId,
+        itemId: id,
+        allowCurrentItem: true,
+      });
+
+      const removedAssets = current.images.filter(
+        (image) => !submittedImageIds.includes(image.id),
+      );
+      if (removedAssets.length) {
+        await tx.mediaAsset.deleteMany({
+          where: { id: { in: removedAssets.map((image) => image.id) }, itemId: id },
+        });
+      }
+
+      const changed = await tx.item.updateMany({
+        where: { id, ownerId: auth.userId, status: ItemStatus.ACTIVE },
+        data: {
+          title: data.title,
+          type: data.type,
+          category: data.category,
+          description: data.description,
+          city: data.city,
+          isOnline: data.isOnline,
+          desired: data.desired,
+          acceptsAnything: data.acceptsAnything,
+          extraOfferText: data.extraOfferText || null,
+        },
+      });
+      if (changed.count !== 1) throw new Error("ITEM_NOT_EDITABLE");
+
+      const updated = await tx.item.findUniqueOrThrow({
+        where: { id },
+        include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      });
+      return { updated, removedKeys: removedAssets.map((image) => image.key) };
     });
-  });
 
-  return actionResponse(serializeItem(updated), serializeItem(updated));
+    await deleteMediaObjects(result.removedKeys);
+    return actionResponse(serializeItem(result.updated), serializeItem(result.updated));
+  } catch (error) {
+    if (error instanceof Error && error.message === INVALID_ITEM_MEDIA) {
+      return errorResponse("Одно или несколько изображений недоступны. Загрузите их заново", 400);
+    }
+    if (error instanceof Error && error.message === "ITEM_NOT_EDITABLE") {
+      return errorResponse("Объявление изменилось и больше недоступно для редактирования", 409);
+    }
+    console.error("[items] update failed:", error);
+    return errorResponse("Не удалось сохранить объявление", 500);
+  }
 }
 
 export async function DELETE(_: Request, context: Context) {
@@ -93,7 +118,7 @@ export async function DELETE(_: Request, context: Context) {
   if (!auth.ok) return auth.response;
 
   const { id } = await context.params;
-  const existing = await prisma.item.findUnique({ where: { id } });
+  const existing = await prisma.item.findUnique({ where: { id }, include: { images: true } });
   if (!existing) return errorResponse("Объявление не найдено", 404);
   if (existing.ownerId !== auth.userId) return errorResponse("Вы не можете удалить чужое объявление", 403);
 
@@ -124,5 +149,6 @@ export async function DELETE(_: Request, context: Context) {
   }
 
   await prisma.item.delete({ where: { id } });
+  await deleteMediaObjects(existing.images.map((image) => image.key));
   return actionResponse({ deleted: true });
 }
