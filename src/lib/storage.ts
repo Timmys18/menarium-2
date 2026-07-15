@@ -2,8 +2,8 @@ import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client
 import { nanoid } from "nanoid";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { inspectImage } from "@/features/media/image-metadata";
 
-const allowedContentTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const maxUploadBytes = 8 * 1024 * 1024;
 
 export type StoredUpload = {
@@ -11,14 +11,9 @@ export type StoredUpload = {
   key: string;
   contentType: string;
   sizeBytes: number;
+  width: number;
+  height: number;
 };
-
-function safeExtension(contentType: string) {
-  if (contentType === "image/png") return "png";
-  if (contentType === "image/webp") return "webp";
-  if (contentType === "image/gif") return "gif";
-  return "jpg";
-}
 
 function getS3Client() {
   return new S3Client({
@@ -36,36 +31,38 @@ function getS3Client() {
 }
 
 export async function storeImageUpload(file: File, ownerId: string): Promise<StoredUpload> {
-  if (!allowedContentTypes.has(file.type)) {
-    throw new Error("UNSUPPORTED_CONTENT_TYPE");
-  }
+  if (file.size <= 0) throw new Error("EMPTY_FILE");
   if (file.size > maxUploadBytes) {
     throw new Error("FILE_TOO_LARGE");
   }
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  const extension = safeExtension(file.type);
-  const key = `uploads/${ownerId}/${Date.now()}-${nanoid(10)}.${extension}`;
+  const metadata = inspectImage(bytes, file.type);
+  const key = `uploads/${ownerId}/${Date.now()}-${nanoid(10)}.${metadata.extension}`;
 
   if (process.env.STORAGE_PROVIDER === "s3") {
     const bucket = process.env.STORAGE_BUCKET;
-    if (!bucket) throw new Error("STORAGE_NOT_CONFIGURED");
+    const publicBaseUrl = process.env.STORAGE_PUBLIC_BASE_URL;
+    if (!bucket || !publicBaseUrl) throw new Error("STORAGE_NOT_CONFIGURED");
 
     await getS3Client().send(
       new PutObjectCommand({
         Bucket: bucket,
         Key: key,
         Body: bytes,
-        ContentType: file.type,
+        ContentType: metadata.contentType,
+        CacheControl: "public, max-age=31536000, immutable",
+        ContentDisposition: "inline",
       }),
     );
 
-    const publicBaseUrl = process.env.STORAGE_PUBLIC_BASE_URL;
     return {
       key,
-      url: publicBaseUrl ? `${publicBaseUrl.replace(/\/$/, "")}/${key}` : key,
-      contentType: file.type,
+      url: `${publicBaseUrl.replace(/\/$/, "")}/${key}`,
+      contentType: metadata.contentType,
       sizeBytes: file.size,
+      width: metadata.width,
+      height: metadata.height,
     };
   }
 
@@ -78,8 +75,10 @@ export async function storeImageUpload(file: File, ownerId: string): Promise<Sto
   return {
     key,
     url: `${publicBase.replace(/\/$/, "")}/${key.replace(/^uploads\//, "")}`,
-    contentType: file.type,
+    contentType: metadata.contentType,
     sizeBytes: file.size,
+    width: metadata.width,
+    height: metadata.height,
   };
 }
 

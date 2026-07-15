@@ -18,13 +18,8 @@ jobs:
       ADMIN_EMAILS: admin@menarium.test
       SMTP_HOST: localhost
       SMTP_FROM: Menarium CI <noreply@menarium.test>
-      STORAGE_PROVIDER: s3
-      STORAGE_ENDPOINT: https://storage.example.test
-      STORAGE_BUCKET: menarium-ci
-      STORAGE_REGION: test-1
-      STORAGE_ACCESS_KEY_ID: ci-access-key
-      STORAGE_SECRET_ACCESS_KEY: ci-secret-key
-      STORAGE_PUBLIC_BASE_URL: https://storage.example.test/menarium-ci
+      STORAGE_PROVIDER: local
+      STORAGE_PUBLIC_BASE_URL: /uploads
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,13 +53,8 @@ jobs:
       SMTP_FROM: Menarium CI <noreply@menarium.test>
       SENTRY_DSN: https://ci@example.test/1
       NEXT_PUBLIC_SENTRY_DSN: https://ci@example.test/1
-      STORAGE_PROVIDER: s3
-      STORAGE_ENDPOINT: https://storage.example.test
-      STORAGE_BUCKET: menarium-ci
-      STORAGE_REGION: test-1
-      STORAGE_ACCESS_KEY_ID: ci-access-key
-      STORAGE_SECRET_ACCESS_KEY: ci-secret-key
-      STORAGE_PUBLIC_BASE_URL: https://storage.example.test/menarium-ci
+      STORAGE_PROVIDER: local
+      STORAGE_PUBLIC_BASE_URL: /uploads
       PLAYWRIGHT_BASE_URL: http://localhost:3000
       CI: true
     services:

@@ -51,4 +51,13 @@ describe("itemPayloadSchema", () => {
 
     expect(parsed.success).toBe(false);
   });
+
+  it("rejects duplicate media asset ids", () => {
+    const parsed = itemPayloadSchema.safeParse({
+      ...validPayload,
+      images: [{ id: "asset-1" }, { id: "asset-1" }],
+    });
+
+    expect(parsed.success).toBe(false);
+  });
 });

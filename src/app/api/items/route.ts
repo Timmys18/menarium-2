@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeItem } from "@/features/items/serializers";
 import { itemPayloadSchema } from "@/features/items/validation";
+import { claimItemMedia, INVALID_ITEM_MEDIA } from "@/features/media/item-media";
+import { runSerializableTransaction } from "@/lib/transactions";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -63,35 +65,42 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
-  const item = await prisma.$transaction(async (tx) => {
-    const created = await tx.item.create({
-      data: {
-        title: data.title,
-        type: data.type,
-        category: data.category,
-        description: data.description,
-        city: data.city,
-        isOnline: data.isOnline,
-        desired: data.desired,
-        acceptsAnything: data.acceptsAnything,
-        extraOfferText: data.extraOfferText || null,
-        ownerId: auth.userId,
-      },
-    });
-
-    const imageIds = data.images.map((image) => image.id);
-    if (imageIds.length) {
-      await tx.mediaAsset.updateMany({
-        where: { id: { in: imageIds }, ownerId: auth.userId, itemId: null },
-        data: { itemId: created.id, ownerType: "ITEM" },
+  try {
+    const item = await runSerializableTransaction(async (tx) => {
+      const created = await tx.item.create({
+        data: {
+          title: data.title,
+          type: data.type,
+          category: data.category,
+          description: data.description,
+          city: data.city,
+          isOnline: data.isOnline,
+          desired: data.desired,
+          acceptsAnything: data.acceptsAnything,
+          extraOfferText: data.extraOfferText || null,
+          ownerId: auth.userId,
+        },
       });
-    }
 
-    return tx.item.findUniqueOrThrow({
-      where: { id: created.id },
-      include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      await claimItemMedia(tx, {
+        imageIds: data.images.map((image) => image.id),
+        userId: auth.userId,
+        itemId: created.id,
+        allowCurrentItem: false,
+      });
+
+      return tx.item.findUniqueOrThrow({
+        where: { id: created.id },
+        include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      });
     });
-  });
 
-  return actionResponse(serializeItem(item), {}, 201);
+    return actionResponse(serializeItem(item), {}, 201);
+  } catch (error) {
+    if (error instanceof Error && error.message === INVALID_ITEM_MEDIA) {
+      return errorResponse("Одно или несколько изображений недоступны. Загрузите их заново", 400);
+    }
+    console.error("[items] create failed:", error);
+    return errorResponse("Не удалось создать объявление", 500);
+  }
 }

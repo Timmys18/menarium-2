@@ -21,5 +21,8 @@ export const itemPayloadSchema = z.object({
       }),
     )
     .max(8)
+    .refine((images) => new Set(images.map((image) => image.id)).size === images.length, {
+      message: "Изображения не должны повторяться",
+    })
     .default([]),
 });

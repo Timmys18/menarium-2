@@ -87,6 +87,29 @@ export function checkActionRateLimit(userId: string, action: string) {
   });
 }
 
+export async function checkMediaUploadRateLimit(userId: string) {
+  const burst = await checkRateLimit(`media:${userId}:minute`, {
+    limit: 16,
+    windowSec: 60,
+    error: "Слишком много загрузок. Подождите минуту и попробуйте снова.",
+  });
+  if (!burst.ok) return burst;
+
+  return checkRateLimit(`media:${userId}:day`, {
+    limit: 120,
+    windowSec: 24 * 60 * 60,
+    error: "Дневной лимит загрузок исчерпан. Попробуйте завтра.",
+  });
+}
+
+export function checkMediaDeleteRateLimit(userId: string) {
+  return checkRateLimit(`media-delete:${userId}:minute`, {
+    limit: 30,
+    windowSec: 60,
+    error: "Слишком много операций с файлами. Подождите минуту.",
+  });
+}
+
 /** Достаёт IP клиента из заголовков прокси (Nginx ставит x-forwarded-for). */
 export function getClientIp(headers: Headers): string {
   const forwarded = headers.get("x-forwarded-for");
@@ -101,6 +124,19 @@ export function checkLoginRateLimit(email: string, ip: string) {
     windowSec: 10 * 60,
     error: "Слишком много попыток входа. Попробуйте через несколько минут.",
   });
+}
+
+export async function resetLoginRateLimit(email: string, ip: string) {
+  const fullKey = `rate:login:${email}:${ip}`;
+  devMemory.delete(fullKey);
+
+  try {
+    const redis = getRedis();
+    if (redis) await redis.del(fullKey);
+  } catch (error) {
+    // A cleanup failure must not turn valid credentials into a failed login.
+    console.error("[rate-limit] Failed to reset successful login bucket:", error);
+  }
 }
 
 /** Лимит на регистрацию: защита от массового создания аккаунтов (по IP). */
