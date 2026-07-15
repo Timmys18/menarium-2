@@ -141,7 +141,12 @@ test.describe("chat history and media hardening", () => {
       const messageLog = main.getByRole("log", { name: "Сообщения чата" });
       await expect(messageLog.getByText(message.text, { exact: true })).toHaveCount(1);
       await expect(messageLog.getByText(message.text, { exact: true })).toBeVisible();
-      await expect(main.getByPlaceholder("Переписка закрыта для новых сообщений")).toBeDisabled();
+      const composer = main.getByRole("textbox", { name: "Текст сообщения" });
+      await expect(composer).toHaveAttribute(
+        "placeholder",
+        "Переписка закрыта для новых сообщений",
+      );
+      await expect(composer).toBeDisabled();
 
       const post = await context.request.post(`/api/items/chat/${thread.id}/messages`, {
         data: { text: "Это сообщение не должно отправиться" },
