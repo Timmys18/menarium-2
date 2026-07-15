@@ -85,11 +85,13 @@ test.describe("chat history and media hardening", () => {
       const page = await context.newPage();
       await page.goto(`/exchange?swap=${swap.id}`);
       const main = page.locator("main");
+      const messageLog = main.getByRole("log", { name: "Сообщения чата" });
 
-      await expect(main.getByText("[E2E history] 45", { exact: true })).toBeVisible();
-      await expect(main.getByText("[E2E history] 01", { exact: true })).toHaveCount(0);
-      await main.getByRole("button", { name: "Показать ранние сообщения" }).click();
-      await expect(main.getByText("[E2E history] 01", { exact: true })).toBeVisible();
+      await expect(messageLog.getByText("[E2E history] 45", { exact: true })).toHaveCount(1);
+      await expect(messageLog.getByText("[E2E history] 45", { exact: true })).toBeVisible();
+      await expect(messageLog.getByText("[E2E history] 01", { exact: true })).toHaveCount(0);
+      await messageLog.getByRole("button", { name: "Показать ранние сообщения" }).click();
+      await expect(messageLog.getByText("[E2E history] 01", { exact: true })).toBeVisible();
 
       const sentText = "[E2E history] Отправлено без перезагрузки";
       const input = main.getByRole("textbox", { name: "Текст сообщения" });
@@ -102,7 +104,7 @@ test.describe("chat history and media hardening", () => {
       await input.press("Enter");
       const response = await responsePromise;
       expect(response.status(), await response.text()).toBe(201);
-      await expect(main.getByText(sentText, { exact: true })).toBeVisible();
+      await expect(messageLog.getByText(sentText, { exact: true })).toBeVisible();
 
       await expect.poll(async () => {
         return (await prisma.notification.findUniqueOrThrow({ where: { id: notification.id } })).isRead;
@@ -136,8 +138,15 @@ test.describe("chat history and media hardening", () => {
       const page = await context.newPage();
       await page.goto(`/item/${item.id}?thread=${thread.id}`);
       const main = page.locator("main");
-      await expect(main.getByText(message.text, { exact: true })).toBeVisible();
-      await expect(main.getByPlaceholder("Переписка закрыта для новых сообщений")).toBeDisabled();
+      const messageLog = main.getByRole("log", { name: "Сообщения чата" });
+      await expect(messageLog.getByText(message.text, { exact: true })).toHaveCount(1);
+      await expect(messageLog.getByText(message.text, { exact: true })).toBeVisible();
+      const composer = main.getByRole("textbox", { name: "Текст сообщения" });
+      await expect(composer).toHaveAttribute(
+        "placeholder",
+        "Переписка закрыта для новых сообщений",
+      );
+      await expect(composer).toBeDisabled();
 
       const post = await context.request.post(`/api/items/chat/${thread.id}/messages`, {
         data: { text: "Это сообщение не должно отправиться" },

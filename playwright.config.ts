@@ -8,6 +8,7 @@ export default defineConfig({
   fullyParallel: false,
   timeout: 60_000,
   forbidOnly: Boolean(process.env.CI),
+  failOnFlakyTests: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   // E2E specs reset the same deterministic database fixtures.
   workers: 1,
