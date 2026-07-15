@@ -1,3 +1,4 @@
+import { ItemStatus } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { actionResponse, errorResponse } from "@/lib/api";
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
   });
   if (!item) return errorResponse("Объявление не найдено", 404);
   if (item.ownerId === auth.userId) return errorResponse("Нельзя пропустить своё объявление", 400);
+  if (item.status !== ItemStatus.ACTIVE) return errorResponse("Объявление больше недоступно", 409);
 
   await prisma.swipePass.upsert({
     where: {

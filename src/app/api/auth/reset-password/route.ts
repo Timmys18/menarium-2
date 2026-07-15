@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { consumeAuthToken, passwordResetIdentifier } from "@/lib/auth-tokens";
-import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
@@ -31,14 +30,15 @@ export async function POST(req: Request) {
   if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? "Некорректные данные", 400);
 
   const { email, token, password } = parsed.data;
-  const valid = await consumeAuthToken(passwordResetIdentifier(email), token);
-  if (!valid) return errorResponse("Ссылка недействительна или устарела", 400);
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return errorResponse("Пользователь не найден", 404);
-
   const passwordHash = await bcrypt.hash(password, 12);
-  await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
+  const consumed = await consumeAuthToken(passwordResetIdentifier(email), token, (tx) =>
+    tx.user.update({
+      where: { email },
+      data: { passwordHash, sessionVersion: { increment: 1 } },
+      select: { id: true },
+    }),
+  );
+  if (!consumed.ok) return errorResponse("Ссылка недействительна или устарела", 400);
 
   return actionResponse({ reset: true });
 }

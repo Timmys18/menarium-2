@@ -11,12 +11,15 @@ export async function GET(req: NextRequest) {
 
   const { limit, offset } = getPaging(req, 12, 30);
 
-  const { getSwipeExcludedItemIds } = await import("@/features/items/swipe-exclusions");
-  const excludedItemIds = await getSwipeExcludedItemIds(auth.userId);
+  const { getSwipeExclusions } = await import("@/features/items/swipe-exclusions");
+  const exclusions = await getSwipeExclusions(auth.userId);
   const where = {
     status: ItemStatus.ACTIVE,
-    ownerId: { not: auth.userId },
-    ...(excludedItemIds.length ? { id: { notIn: excludedItemIds } } : {}),
+    ownerId: {
+      not: auth.userId,
+      ...(exclusions.ownerIds.length ? { notIn: exclusions.ownerIds } : {}),
+    },
+    ...(exclusions.itemIds.length ? { id: { notIn: exclusions.itemIds } } : {}),
   };
 
   const [items, total] = await Promise.all([

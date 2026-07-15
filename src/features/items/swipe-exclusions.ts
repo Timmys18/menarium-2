@@ -1,8 +1,8 @@
 import { SwapStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-export async function getSwipeExcludedItemIds(userId: string) {
-  const [swaps, passes] = await Promise.all([
+export async function getSwipeExclusions(userId: string) {
+  const [swaps, passes, blocks] = await Promise.all([
     prisma.swapRequest.findMany({
       where: { senderId: userId, status: SwapStatus.PENDING },
       select: { receiverItemId: true },
@@ -11,7 +11,18 @@ export async function getSwipeExcludedItemIds(userId: string) {
       where: { userId },
       select: { itemId: true },
     }),
+    prisma.userBlock.findMany({
+      where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
+      select: { blockerId: true, blockedId: true },
+    }),
   ]);
 
-  return [...new Set([...swaps.map((s) => s.receiverItemId), ...passes.map((p) => p.itemId)])];
+  return {
+    itemIds: [...new Set([...swaps.map((swap) => swap.receiverItemId), ...passes.map((pass) => pass.itemId)])],
+    ownerIds: [
+      ...new Set(
+        blocks.map((block) => (block.blockerId === userId ? block.blockedId : block.blockerId)),
+      ),
+    ],
+  };
 }

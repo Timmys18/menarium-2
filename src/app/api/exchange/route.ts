@@ -2,13 +2,14 @@ import { ItemStatus, NotificationType, SwapStatus } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { actionResponse, errorResponse, getPaging, listResponse, parseJson } from "@/lib/api";
-import { canonicalSwapPairKey } from "@/lib/domain";
+import { pendingSwapOfferKey } from "@/lib/domain";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeSwap } from "@/features/exchange/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
 import { publishUserEvents } from "@/lib/realtime";
+import { isPrismaError, runSerializableTransaction } from "@/lib/transactions";
 
 const swapInclude = {
   sender: { select: { id: true, name: true, city: true, image: true } },
@@ -67,10 +68,10 @@ export async function POST(req: Request) {
   if (!parsed.success) return errorResponse("Укажите объявления для обмена", 400);
 
   const { senderItemId, receiverItemId } = parsed.data;
-  const pairKey = canonicalSwapPairKey(senderItemId, receiverItemId);
+  const pairKey = pendingSwapOfferKey(senderItemId, receiverItemId);
 
   try {
-    const swap = await prisma.$transaction(async (tx) => {
+    const swap = await runSerializableTransaction(async (tx) => {
       const [senderItem, receiverItem] = await Promise.all([
         tx.item.findUnique({ where: { id: senderItemId } }),
         tx.item.findUnique({ where: { id: receiverItemId } }),
@@ -138,8 +139,9 @@ export async function POST(req: Request) {
       if (error.message === "SELF_SWAP") return errorResponse("Нельзя обмениваться с самим собой", 400);
       if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Одно из объявлений недоступно для обмена", 409);
       if (error.message === "USER_BLOCKED") return errorResponse("Предложение этому пользователю недоступно", 403);
-      if (error.message.includes("Unique constraint")) return errorResponse("Такое предложение обмена уже существует", 409);
     }
+    if (isPrismaError(error, "P2002")) return errorResponse("Такое предложение обмена уже существует", 409);
+    if (isPrismaError(error, "P2034")) return errorResponse("Данные изменились. Повторите предложение ещё раз", 409);
     return errorResponse("Не удалось создать обмен", 500);
   }
 }
@@ -164,7 +166,9 @@ export async function PATCH(req: Request) {
 
   try {
     const realtimeUserIds = new Set<string>();
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await runSerializableTransaction(async (tx) => {
+      // A serialization retry must publish only the events from the committed attempt.
+      realtimeUserIds.clear();
       const swap = await tx.swapRequest.findUnique({
         where: { id: swapId },
         include: { senderItem: true, receiverItem: true },
@@ -225,11 +229,13 @@ export async function PATCH(req: Request) {
         });
 
         if (competing.length) {
-          await tx.swapRequest.updateMany({
-            where: { id: { in: competing.map((entry) => entry.id) } },
-            data: { status: SwapStatus.DECLINED, pendingPairKey: null },
-          });
           for (const entry of competing) {
+            const declined = await tx.swapRequest.updateMany({
+              where: { id: entry.id, status: SwapStatus.PENDING },
+              data: { status: SwapStatus.DECLINED, pendingPairKey: null },
+            });
+            if (declined.count !== 1) continue;
+
             realtimeUserIds.add(entry.senderId);
             await createNotification(tx, {
               userId: entry.senderId,
@@ -264,9 +270,14 @@ export async function PATCH(req: Request) {
       if (action === "decline") {
         if (!isReceiver) throw new Error("ONLY_RECEIVER");
         if (swap.status !== SwapStatus.PENDING) throw new Error("INVALID_STATUS");
-        const updated = await tx.swapRequest.update({
-          where: { id: swapId },
+        const declined = await tx.swapRequest.updateMany({
+          where: { id: swapId, status: SwapStatus.PENDING },
           data: { status: SwapStatus.DECLINED, pendingPairKey: null },
+        });
+        if (declined.count !== 1) throw new Error("INVALID_STATUS");
+
+        const updated = await tx.swapRequest.findUniqueOrThrow({
+          where: { id: swapId },
           include: swapInclude,
         });
         await createNotification(tx, {
@@ -284,9 +295,14 @@ export async function PATCH(req: Request) {
       if (action === "revoke") {
         if (!isSender) throw new Error("ONLY_SENDER");
         if (swap.status !== SwapStatus.PENDING) throw new Error("INVALID_STATUS");
-        const updated = await tx.swapRequest.update({
-          where: { id: swapId },
+        const revoked = await tx.swapRequest.updateMany({
+          where: { id: swapId, status: SwapStatus.PENDING },
           data: { status: SwapStatus.CANCELLED, pendingPairKey: null },
+        });
+        if (revoked.count !== 1) throw new Error("INVALID_STATUS");
+
+        const updated = await tx.swapRequest.findUniqueOrThrow({
+          where: { id: swapId },
           include: swapInclude,
         });
         await createNotification(tx, {
@@ -311,24 +327,43 @@ export async function PATCH(req: Request) {
           return tx.swapRequest.findUniqueOrThrow({ where: { id: swapId }, include: swapInclude });
         }
 
-        const senderCompleted = isSender ? true : swap.senderCompleted;
-        const receiverCompleted = isReceiver ? true : swap.receiverCompleted;
-        const shouldComplete = senderCompleted && receiverCompleted;
+        const confirmation = await tx.swapRequest.updateMany({
+          where: {
+            id: swapId,
+            status: SwapStatus.ACCEPTED,
+            ...(isSender ? { senderCompleted: false } : { receiverCompleted: false }),
+          },
+          data: isSender ? { senderCompleted: true } : { receiverCompleted: true },
+        });
+        if (confirmation.count !== 1) throw new Error("INVALID_STATUS");
+
+        const confirmed = await tx.swapRequest.findUniqueOrThrow({ where: { id: swapId } });
+        const shouldComplete = confirmed.senderCompleted && confirmed.receiverCompleted;
 
         if (shouldComplete) {
-          await tx.item.updateMany({
-            where: { id: { in: [swap.senderItemId, swap.receiverItemId] } },
+          const completed = await tx.swapRequest.updateMany({
+            where: {
+              id: swapId,
+              status: SwapStatus.ACCEPTED,
+              senderCompleted: true,
+              receiverCompleted: true,
+            },
+            data: { status: SwapStatus.COMPLETED },
+          });
+          if (completed.count !== 1) throw new Error("INVALID_STATUS");
+
+          const archivedItems = await tx.item.updateMany({
+            where: {
+              id: { in: [swap.senderItemId, swap.receiverItemId] },
+              status: ItemStatus.IN_DEAL,
+            },
             data: { status: ItemStatus.ARCHIVED },
           });
+          if (archivedItems.count !== 2) throw new Error("ITEM_STATE_INVALID");
         }
 
-        const updated = await tx.swapRequest.update({
+        const updated = await tx.swapRequest.findUniqueOrThrow({
           where: { id: swapId },
-          data: {
-            senderCompleted,
-            receiverCompleted,
-            status: shouldComplete ? SwapStatus.COMPLETED : SwapStatus.ACCEPTED,
-          },
           include: swapInclude,
         });
 
@@ -348,11 +383,11 @@ export async function PATCH(req: Request) {
 
       if (action === "cancel") {
         if (swap.status !== SwapStatus.ACCEPTED) throw new Error("INVALID_STATUS");
-        const updated = await tx.swapRequest.update({
-          where: { id: swapId },
+        const cancelled = await tx.swapRequest.updateMany({
+          where: { id: swapId, status: SwapStatus.ACCEPTED },
           data: { status: SwapStatus.CANCELLED },
-          include: swapInclude,
         });
+        if (cancelled.count !== 1) throw new Error("INVALID_STATUS");
 
         const itemIds = [swap.senderItemId, swap.receiverItemId];
         for (const itemId of itemIds) {
@@ -364,9 +399,17 @@ export async function PATCH(req: Request) {
             },
           });
           if (otherAccepted === 0) {
-            await tx.item.update({ where: { id: itemId }, data: { status: ItemStatus.ACTIVE } });
+            await tx.item.updateMany({
+              where: { id: itemId, status: ItemStatus.IN_DEAL },
+              data: { status: ItemStatus.ACTIVE },
+            });
           }
         }
+
+        const updated = await tx.swapRequest.findUniqueOrThrow({
+          where: { id: swapId },
+          include: swapInclude,
+        });
 
         await createNotification(tx, {
           userId: isSender ? swap.receiverId : swap.senderId,
@@ -396,8 +439,10 @@ export async function PATCH(req: Request) {
       if (error.message === "ONLY_RECEIVER") return errorResponse("Это действие доступно только получателю", 403);
       if (error.message === "ONLY_SENDER") return errorResponse("Это действие доступно только отправителю", 403);
       if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Одно из объявлений уже участвует в другой сделке", 409);
+      if (error.message === "ITEM_STATE_INVALID") return errorResponse("Состояние объявлений изменилось. Обновите страницу", 409);
       if (error.message === "INVALID_STATUS") return errorResponse("Действие недоступно в текущем статусе обмена", 409);
     }
+    if (isPrismaError(error, "P2034")) return errorResponse("Обмен изменился параллельно. Повторите действие", 409);
     return errorResponse("Не удалось обновить обмен", 500);
   }
 }

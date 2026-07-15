@@ -12,6 +12,7 @@ import { safeCallbackUrl } from "@/lib/utils";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const passwordChanged = searchParams.get("passwordChanged") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +45,11 @@ export function LoginForm() {
 
   return (
     <div className="space-y-4">
+      {passwordChanged ? (
+        <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100">
+          Пароль изменён. Войдите заново, чтобы продолжить.
+        </div>
+      ) : null}
       <MenariumInput type="email" placeholder="Электронная почта" value={email} onChange={(event) => setEmail(event.target.value)} />
       <MenariumInput
         type="password"
