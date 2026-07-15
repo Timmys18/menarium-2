@@ -4,16 +4,20 @@ import { authOptions } from "@/lib/auth";
 import { errorResponse } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 
-export async function getCurrentUserId() {
+export async function getCurrentUserIdentity() {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
   if (!userId) return null;
 
   const user = await prisma.user.findFirst({
     where: { id: userId, status: UserStatus.ACTIVE },
-    select: { id: true },
+    select: { id: true, email: true },
   });
-  return user?.id ?? null;
+  return user ?? null;
+}
+
+export async function getCurrentUserId() {
+  return (await getCurrentUserIdentity())?.id ?? null;
 }
 
 export async function requireUserId() {

@@ -1,3 +1,4 @@
+import { ItemStatus } from "@prisma/client";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState } from "@/components/menarium/empty-state";
@@ -13,14 +14,16 @@ export const dynamic = "force-dynamic";
 export default async function EditItemPage({ params }: Props) {
   const { id } = await params;
   const userId = await getCurrentUserId();
-  const item = await prisma.item.findUnique({
-    where: { id },
-    include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
-  });
+  const item = userId
+    ? await prisma.item.findFirst({
+        where: { id, ownerId: userId },
+        include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      })
+    : null;
 
-  if (!item) notFound();
-  const publicItem = serializeItem(item);
-  const canEdit = Boolean(userId && item.ownerId === userId);
+  if (userId && !item) notFound();
+  const publicItem = item ? serializeItem(item) : null;
+  const canEdit = item?.status === ItemStatus.ACTIVE;
 
   return (
     <AppShell>
@@ -34,12 +37,12 @@ export default async function EditItemPage({ params }: Props) {
               actionHref="/auth/login"
               actionLabel="Войти"
             />
-          ) : canEdit ? (
+          ) : canEdit && publicItem ? (
             <EditItemForm item={publicItem} />
           ) : (
             <EmptyState
-              title="Это не ваше объявление"
-              description="Вы можете редактировать только объявления, созданные вашим профилем."
+              title="Объявление нельзя редактировать"
+              description="Объявление уже участвует в обмене или снято с публикации. Его данные сохранены в истории."
               actionHref={`/item/${id}`}
               actionLabel="Вернуться к объявлению"
             />

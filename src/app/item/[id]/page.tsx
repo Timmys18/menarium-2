@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ItemStatus } from "@prisma/client";
+import { ItemStatus, UserStatus } from "@prisma/client";
 import { ArrowLeft, ArrowRightLeft, MessageCircle, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
@@ -8,8 +8,10 @@ import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { serializeItem } from "@/features/items/serializers";
 import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
+import { canInteractWithItem, visibleItemWhere } from "@/features/items/visibility";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUserId } from "@/server/session";
+import { isAdminEmail } from "@/server/admin";
+import { getCurrentUserIdentity } from "@/server/session";
 import { loginHref } from "@/lib/utils";
 import { ExchangeProposal } from "./exchange-proposal";
 import { ItemChatPanel } from "./item-chat-panel";
@@ -25,7 +27,10 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
-  const item = await prisma.item.findUnique({ where: { id }, select: { title: true, description: true } });
+  const item = await prisma.item.findFirst({
+    where: { id, status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
+    select: { title: true, description: true },
+  });
   if (!item) return { title: "Объявление не найдено" };
   return {
     title: item.title,
@@ -38,8 +43,11 @@ export const dynamic = "force-dynamic";
 export default async function ItemPage({ params, searchParams }: Props) {
   const { id } = await params;
   const query = await searchParams;
-  const item = await prisma.item.findUnique({
-    where: { id },
+  const identity = await getCurrentUserIdentity();
+  const viewerIsAdmin = Boolean(identity && isAdminEmail(identity.email));
+  const viewer = identity ? { id: identity.id, isAdmin: viewerIsAdmin } : null;
+  const item = await prisma.item.findFirst({
+    where: visibleItemWhere(id, viewer),
     include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
   });
 
@@ -48,11 +56,12 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const publicItem = serializeItem(item);
   const card = toItemCardView(publicItem);
   const wanted = itemWantedLabel(publicItem);
-  const userId = await getCurrentUserId();
+  const userId = identity?.id ?? null;
   const isOwner = Boolean(userId && publicItem.owner?.id === userId);
+  const canInteract = canInteractWithItem(item.status, viewerIsAdmin);
   const ownerId = publicItem.owner?.id;
   const blocks =
-    userId && ownerId && !isOwner
+    userId && ownerId && !isOwner && canInteract
       ? await prisma.userBlock.findMany({
           where: {
             OR: [
@@ -66,7 +75,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const communicationBlocked = blocks.length > 0;
   const viewerBlockedOwner = blocks.some((block) => block.blockerId === userId);
   const userItems =
-    userId && !isOwner && !communicationBlocked
+    userId && !isOwner && canInteract && !communicationBlocked
       ? await prisma.item.findMany({
           where: { ownerId: userId, status: ItemStatus.ACTIVE, id: { not: publicItem.id } },
           select: { id: true, title: true },
@@ -76,7 +85,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
   // Чат по объявлению доступен и покупателю, и владельцу.
   // - thread=open: покупатель начинает диалог (владельцу с самим собой нельзя);
   // - thread=<id>: открытие конкретной ветки — доступно обоим участникам.
-  const chatViewerId = query.thread && userId ? userId : null;
+  const chatViewerId = query.thread && userId && (canInteract || isOwner) ? userId : null;
   const thread = chatViewerId
     ? query.thread === "open"
       ? isOwner
@@ -150,11 +159,21 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   {isOwner ? (
-                    <div className="flex-1 space-y-3">
-                      <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="w-full">
-                        Редактировать объявление
-                      </MenariumLinkButton>
-                      <DeleteItemButton itemId={publicItem.id} />
+                    item.status === ItemStatus.ACTIVE ? (
+                      <div className="flex-1 space-y-3">
+                        <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="w-full">
+                          Редактировать объявление
+                        </MenariumLinkButton>
+                        <DeleteItemButton itemId={publicItem.id} />
+                      </div>
+                    ) : (
+                      <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/60">
+                        Объявление не опубликовано. Оно доступно вам для просмотра, но обмен и редактирование закрыты.
+                      </div>
+                    )
+                  ) : !canInteract ? (
+                    <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/60">
+                      Объявление снято с публикации и недоступно для новых контактов.
                     </div>
                   ) : userId && !communicationBlocked ? (
                     <ExchangeProposal receiverItemId={publicItem.id} userItems={userItems} />
@@ -167,7 +186,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                       Войти и предложить обмен
                     </MenariumLinkButton>
                   )}
-                  {!isOwner && !communicationBlocked ? (
+                  {!isOwner && canInteract && !communicationBlocked ? (
                     <MenariumLinkButton
                       href={
                         userId
@@ -201,7 +220,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   </div>
                   <div className="flex justify-between"><span>Статус</span><span className="text-teal-300">{itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}</span></div>
                 </div>
-                {userId && !isOwner && ownerId ? (
+                {userId && !isOwner && ownerId && canInteract ? (
                   <div className="mt-5 border-t border-white/10 pt-5">
                     <TrustActions
                       targetType="ITEM"

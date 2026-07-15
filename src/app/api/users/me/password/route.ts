@@ -39,7 +39,10 @@ export async function PATCH(req: Request) {
   if (!valid) return errorResponse("Неверный текущий пароль", 403);
 
   const passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
-  await prisma.user.update({ where: { id: auth.userId }, data: { passwordHash } });
+  await prisma.user.update({
+    where: { id: auth.userId },
+    data: { passwordHash, sessionVersion: { increment: 1 } },
+  });
 
-  return actionResponse({ ok: true }, { ok: true });
+  return actionResponse({ ok: true, reauthenticate: true }, { ok: true });
 }

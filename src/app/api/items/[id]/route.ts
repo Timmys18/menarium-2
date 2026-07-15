@@ -3,16 +3,20 @@ import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
-import { requireUserId } from "@/server/session";
+import { getCurrentUserIdentity, requireUserId } from "@/server/session";
 import { serializeItem } from "@/features/items/serializers";
 import { itemPayloadSchema } from "@/features/items/validation";
+import { visibleItemWhere } from "@/features/items/visibility";
+import { isAdminEmail } from "@/server/admin";
 
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(_: Request, context: Context) {
   const { id } = await context.params;
-  const item = await prisma.item.findUnique({
-    where: { id },
+  const identity = await getCurrentUserIdentity();
+  const viewer = identity ? { id: identity.id, isAdmin: isAdminEmail(identity.email) } : null;
+  const item = await prisma.item.findFirst({
+    where: visibleItemWhere(id, viewer),
     include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
   });
 

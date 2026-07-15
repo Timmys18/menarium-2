@@ -3,7 +3,6 @@ import { AppShell } from "@/components/layout/app-shell";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { consumeAuthToken, emailVerifyIdentifier } from "@/lib/auth-tokens";
-import { prisma } from "@/lib/prisma";
 
 type Props = {
   searchParams: Promise<{ email?: string; token?: string }>;
@@ -31,8 +30,14 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     );
   }
 
-  const valid = await consumeAuthToken(emailVerifyIdentifier(email), token);
-  if (!valid) {
+  const consumed = await consumeAuthToken(emailVerifyIdentifier(email), token, (tx) =>
+    tx.user.update({
+      where: { email },
+      data: { emailVerified: new Date() },
+      select: { id: true },
+    }),
+  );
+  if (!consumed.ok) {
     return (
       <AppShell>
         <AuthShell title="Подтверждение email" subtitle="Ссылка не сработала.">
@@ -47,14 +52,6 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </AuthShell>
       </AppShell>
     );
-  }
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (user) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { emailVerified: new Date() },
-    });
   }
 
   return (

@@ -30,7 +30,6 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
 
   async function uploadAvatar(file: File | undefined) {
     if (!file) return;
@@ -53,7 +52,6 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
   async function saveProfile() {
     setError(null);
-    setMessage(null);
     setIsSaving(true);
     try {
       const response = await fetch("/api/users/me", {
@@ -74,7 +72,6 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
   async function changePassword() {
     setError(null);
-    setMessage(null);
     setIsChangingPassword(true);
     try {
       const response = await fetch("/api/users/me/password", {
@@ -86,7 +83,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       if (!response.ok) throw new Error(body.error ?? "Не удалось сменить пароль");
       setCurrentPassword("");
       setNewPassword("");
-      setMessage("Пароль успешно изменён");
+      await signOut({ callbackUrl: "/auth/login?passwordChanged=1" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось сменить пароль");
     } finally {
@@ -96,7 +93,6 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
   async function deleteAccount() {
     setError(null);
-    setMessage(null);
     setIsDeleting(true);
     try {
       const response = await fetch("/api/users/me", {
@@ -149,7 +145,6 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
         <MenariumInput placeholder="Город" value={city} onChange={(event) => setCity(event.target.value)} />
 
         {error ? <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">{error}</div> : null}
-        {message ? <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-200">{message}</div> : null}
 
         <div className="flex gap-3">
           <MenariumButton onClick={saveProfile} disabled={isSaving || isUploading}>

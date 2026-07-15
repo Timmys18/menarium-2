@@ -17,16 +17,14 @@ export async function POST(req: Request) {
   if (!parsed.success) return errorResponse("Некорректная ссылка подтверждения", 400);
 
   const { email, token } = parsed.data;
-  const valid = await consumeAuthToken(emailVerifyIdentifier(email), token);
-  if (!valid) return errorResponse("Ссылка недействительна или устарела", 400);
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return errorResponse("Пользователь не найден", 404);
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { emailVerified: new Date() },
-  });
+  const consumed = await consumeAuthToken(emailVerifyIdentifier(email), token, (tx) =>
+    tx.user.update({
+      where: { email },
+      data: { emailVerified: new Date() },
+      select: { id: true },
+    }),
+  );
+  if (!consumed.ok) return errorResponse("Ссылка недействительна или устарела", 400);
 
   return actionResponse({ verified: true });
 }
