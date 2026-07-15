@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
@@ -48,10 +48,10 @@ export function MenariumLinkButton({
   className,
   variant = "primary",
   size = "md",
-}: {
+  ...props
+}: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   href: string;
   children: ReactNode;
-  className?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
 }) {
@@ -64,6 +64,7 @@ export function MenariumLinkButton({
         sizes[size],
         className,
       )}
+      {...props}
     >
       {children}
     </Link>

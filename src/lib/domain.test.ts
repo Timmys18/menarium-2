@@ -5,6 +5,7 @@ import {
   canWriteDealChat,
   canonicalSwapPairKey,
   isActiveItemStatus,
+  pendingSwapOfferKey,
   terminalSwapStatuses,
 } from "./domain";
 
@@ -12,6 +13,11 @@ describe("domain helpers", () => {
   it("builds the same pair key regardless of item order", () => {
     expect(canonicalSwapPairKey("item-b", "item-a")).toBe("item-a:item-b");
     expect(canonicalSwapPairKey("item-a", "item-b")).toBe("item-a:item-b");
+  });
+
+  it("keeps pending offer direction so reciprocal offers can coexist", () => {
+    expect(pendingSwapOfferKey("item-a", "item-b")).toBe("item-a->item-b");
+    expect(pendingSwapOfferKey("item-b", "item-a")).toBe("item-b->item-a");
   });
 
   it("keeps only final swap states in the terminal set", () => {

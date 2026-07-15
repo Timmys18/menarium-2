@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/menarium/empty-state";
 import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
-import { getSwipeExcludedItemIds } from "@/features/items/swipe-exclusions";
+import { getSwipeExclusions } from "@/features/items/swipe-exclusions";
 import { loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { SwipeCardStack } from "./swipe-card-stack";
@@ -13,14 +13,17 @@ export const dynamic = "force-dynamic";
 
 export default async function SwipePage() {
   const userId = await getCurrentUserId();
-  const excludedItemIds = userId ? await getSwipeExcludedItemIds(userId) : [];
+  const exclusions = userId ? await getSwipeExclusions(userId) : { itemIds: [], ownerIds: [] };
   const [item, userItems] = userId
     ? await Promise.all([
         prisma.item.findFirst({
           where: {
             status: ItemStatus.ACTIVE,
-            ownerId: { not: userId },
-            ...(excludedItemIds.length ? { id: { notIn: excludedItemIds } } : {}),
+            ownerId: {
+              not: userId,
+              ...(exclusions.ownerIds.length ? { notIn: exclusions.ownerIds } : {}),
+            },
+            ...(exclusions.itemIds.length ? { id: { notIn: exclusions.itemIds } } : {}),
           },
           include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
           orderBy: { createdAt: "desc" },

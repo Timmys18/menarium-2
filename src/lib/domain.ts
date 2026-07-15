@@ -10,6 +10,10 @@ export function canonicalSwapPairKey(senderItemId: string, receiverItemId: strin
   return [senderItemId, receiverItemId].sort().join(":");
 }
 
+export function pendingSwapOfferKey(senderItemId: string, receiverItemId: string) {
+  return `${senderItemId}->${receiverItemId}`;
+}
+
 export function canOpenDealChat(status: SwapStatus) {
   return status !== SwapStatus.PENDING && status !== SwapStatus.DECLINED;
 }

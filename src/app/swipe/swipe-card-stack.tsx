@@ -36,42 +36,41 @@ export function SwipeCardStack({
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -40], [1, 0]);
   const [loading, setLoading] = useState(false);
   const [likeOpen, setLikeOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const exiting = useRef(false);
 
-  async function passCard() {
-    if (loading || exiting.current) return;
-    exiting.current = true;
-    setLoading(true);
-    try {
-      const res = await fetch("/api/items/swipe/pass", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId: card.id }),
-      });
-      if (!res.ok) throw new Error("pass failed");
-      router.refresh();
-    } finally {
-      setLoading(false);
-      exiting.current = false;
-    }
+  async function recordPass() {
+    const response = await fetch("/api/items/swipe/pass", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: card.id }),
+    });
+    const body = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(body?.error ?? "Не удалось пропустить карточку");
   }
 
   async function animateExit(direction: "left" | "right", then: () => void | Promise<void>) {
     if (exiting.current) return;
     exiting.current = true;
     setLoading(true);
-    if (reducedMotion) {
+    setError(null);
+    try {
+      if (!reducedMotion) {
+        await animate(x, direction === "left" ? -420 : 420, { duration: 0.28, ease: "easeIn" });
+      }
       await then();
       router.refresh();
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Не удалось выполнить действие");
+      await animate(x, 0, { duration: 0.2, type: "spring", stiffness: 400, damping: 30 });
+    } finally {
       exiting.current = false;
       setLoading(false);
-      return;
     }
-    await animate(x, direction === "left" ? -420 : 420, { duration: 0.28, ease: "easeIn" });
-    await then();
-    router.refresh();
-    exiting.current = false;
-    setLoading(false);
+  }
+
+  function passCard() {
+    return animateExit("left", recordPass);
   }
 
   function onDragEnd(_: unknown, info: { offset: { x: number } }) {
@@ -89,7 +88,7 @@ export function SwipeCardStack({
       return;
     }
     if (info.offset.x < -SWIPE_THRESHOLD) {
-      void animateExit("left", passCard);
+      void passCard();
       return;
     }
     animate(x, 0, { duration: 0.25, type: "spring", stiffness: 400, damping: 30 });
@@ -112,7 +111,7 @@ export function SwipeCardStack({
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.9}
           onDragEnd={onDragEnd}
-          className="relative z-10 w-full max-w-[450px] touch-none"
+          className="relative z-10 w-full max-w-[450px] touch-pan-y"
         >
           <GlassCard className="relative overflow-hidden rounded-3xl">
             <motion.div style={{ opacity: likeOpacity }} className="pointer-events-none absolute left-6 top-6 z-20 rounded-2xl border-2 border-teal-400 bg-teal-500/20 px-4 py-2 text-sm font-bold text-teal-300">
@@ -140,7 +139,7 @@ export function SwipeCardStack({
         <button
           type="button"
           disabled={loading}
-          onClick={() => void animateExit("left", passCard)}
+          onClick={() => void passCard()}
           className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:bg-white/10 disabled:opacity-50"
           aria-label="Пропустить"
         >
@@ -166,6 +165,12 @@ export function SwipeCardStack({
         </button>
       </div>
 
+      {error ? (
+        <p role="alert" className="mx-auto mt-4 max-w-md text-center text-sm text-red-300">
+          {error}
+        </p>
+      ) : null}
+
       <SwipeLikeModal
         open={likeOpen}
         receiverItemId={card.id}
@@ -174,13 +179,7 @@ export function SwipeCardStack({
         onClose={() => setLikeOpen(false)}
         onSuccess={() => {
           setLikeOpen(false);
-          void animateExit("right", async () => {
-            await fetch("/api/items/swipe/pass", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ itemId: card.id }),
-            });
-          });
+          void animateExit("right", recordPass);
         }}
       />
     </>
