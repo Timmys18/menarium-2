@@ -20,9 +20,11 @@ function resetSeedData() {
 
 async function login(page: Page) {
   await page.goto("/auth/login");
-  await page.locator('input[type="email"]').fill(MARIA.email);
-  await page.locator('input[type="password"]').fill(MARIA.password);
-  await page.locator('input[type="password"]').press("Enter");
+  const content = page.locator("main");
+  await content.locator('input[type="email"]').filter({ visible: true }).first().fill(MARIA.email);
+  const password = content.locator('input[type="password"]').filter({ visible: true }).first();
+  await password.fill(MARIA.password);
+  await password.press("Enter");
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
 }
 

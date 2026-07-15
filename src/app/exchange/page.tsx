@@ -11,8 +11,7 @@ import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { loginHref } from "@/lib/utils";
-import { DealMessageForm, ExchangeActionPanel } from "./exchange-controls";
-import { ExchangeChatRefresh } from "./exchange-chat-refresh";
+import { ExchangeDealPanel } from "./exchange-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -348,40 +347,36 @@ export default async function ExchangePage({ searchParams }: Props) {
                 </div>
               </div>
               {selectedSwap ? (
-                <ExchangeActionPanel
+                <ExchangeDealPanel
+                  key={`${selectedSwap.id}:${selectedSwap.status}:${selectedSwap.senderCompleted}:${selectedSwap.receiverCompleted}`}
                   swapId={selectedSwap.id}
                   status={selectedSwap.status}
                   isSender={selectedSwap.senderId === userId}
                   isReceiver={selectedSwap.receiverId === userId}
                   senderCompleted={selectedSwap.senderCompleted}
                   receiverCompleted={selectedSwap.receiverCompleted}
-                />
-              ) : null}
-              <div className="space-y-3">
-                {selectedMessages.length > 0 ? (
-                  selectedMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`rounded-2xl p-4 text-sm ${
-                        message.senderId === userId
-                          ? "ml-8 bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white/80"
-                          : "bg-white/5 text-white/70"
-                      }`}
-                    >
-                      {message.text}
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl bg-white/5 p-4 text-sm text-white/55">
-                    Сообщений по этой сделке пока нет.
+                >
+                  <div className="space-y-3">
+                    {selectedMessages.length > 0 ? (
+                      selectedMessages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`rounded-2xl p-4 text-sm ${
+                            message.senderId === userId
+                              ? "ml-8 bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white/80"
+                              : "bg-white/5 text-white/70"
+                          }`}
+                        >
+                          {message.text}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl bg-white/5 p-4 text-sm text-white/55">
+                        Сообщений по этой сделке пока нет.
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              {selectedSwap ? (
-                <DealMessageForm swapId={selectedSwap.id} disabled={selectedSwap.status !== SwapStatus.ACCEPTED} />
-              ) : null}
-              {selectedSwap && userId ? (
-                <ExchangeChatRefresh enabled={selectedSwap.status === SwapStatus.ACCEPTED} />
+                </ExchangeDealPanel>
               ) : null}
             </GlassCard>
           </div>

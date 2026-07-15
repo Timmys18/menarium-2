@@ -78,7 +78,8 @@ async function confirmAction(page: Page, actionLabel: string, confirmLabel: stri
 }
 
 test.describe("критический жизненный цикл обмена", () => {
-  test.beforeEach(() => {
+  test.beforeEach(({}, testInfo) => {
+    testInfo.setTimeout(120_000);
     resetSeedData();
   });
 

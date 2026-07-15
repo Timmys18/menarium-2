@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, Send, XCircle } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { MenariumInput } from "@/components/menarium/input";
+import { ExchangeChatRefresh } from "./exchange-chat-refresh";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
+type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED";
+type ExchangeSnapshot = {
+  status: ExchangeStatus;
+  senderCompleted: boolean;
+  receiverCompleted: boolean;
+};
 
 const confirmMessages: Record<ExchangeAction, string> = {
   accept: "Принять предложение обмена? Объявления перейдут в статус «В сделке».",
@@ -29,13 +36,15 @@ export function ExchangeActionPanel({
   isReceiver,
   senderCompleted,
   receiverCompleted,
+  onSwapUpdated,
 }: {
   swapId: string;
-  status: "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED";
+  status: ExchangeStatus;
   isSender: boolean;
   isReceiver: boolean;
   senderCompleted: boolean;
   receiverCompleted: boolean;
+  onSwapUpdated?: (snapshot: ExchangeSnapshot) => void;
 }) {
   const router = useRouter();
   const [pendingAction, setPendingAction] = useState<ExchangeAction | null>(null);
@@ -51,7 +60,12 @@ export function ExchangeActionPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ swapId, action }),
       });
-      if (!response.ok) throw new Error(await readApiError(response));
+      const body = (await response.json().catch(() => ({}))) as {
+        data?: ExchangeSnapshot;
+        error?: string;
+      };
+      if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
+      if (body.data) onSwapUpdated?.(body.data);
       setConfirmAction(null);
       router.refresh();
     } catch (actionError) {
@@ -128,6 +142,44 @@ export function ExchangeActionPanel({
         danger={confirmAction === "decline" || confirmAction === "revoke" || confirmAction === "cancel"}
       />
     </div>
+  );
+}
+
+export function ExchangeDealPanel({
+  swapId,
+  status,
+  isSender,
+  isReceiver,
+  senderCompleted,
+  receiverCompleted,
+  children,
+}: ExchangeSnapshot & {
+  swapId: string;
+  isSender: boolean;
+  isReceiver: boolean;
+  children: ReactNode;
+}) {
+  const [snapshot, setSnapshot] = useState<ExchangeSnapshot>({
+    status,
+    senderCompleted,
+    receiverCompleted,
+  });
+
+  return (
+    <>
+      <ExchangeActionPanel
+        swapId={swapId}
+        status={snapshot.status}
+        isSender={isSender}
+        isReceiver={isReceiver}
+        senderCompleted={snapshot.senderCompleted}
+        receiverCompleted={snapshot.receiverCompleted}
+        onSwapUpdated={setSnapshot}
+      />
+      {children}
+      <DealMessageForm swapId={swapId} disabled={snapshot.status !== "ACCEPTED"} />
+      <ExchangeChatRefresh enabled={snapshot.status === "ACCEPTED"} />
+    </>
   );
 }
 
