@@ -154,7 +154,7 @@ test.describe("privacy-first product analytics", () => {
       const adminPage = await login(adminContext, ADMIN);
       await adminPage.goto("/admin/analytics");
       await expect(adminPage.getByRole("heading", { name: "Пульс Menarium" })).toBeVisible();
-      await expect(adminPage.getByText("North star · 30 дней")).toBeVisible();
+      await expect(adminPage.getByText("North star · 30 дней").filter({ visible: true })).toBeVisible();
     } finally {
       await adminContext.close();
     }
