@@ -55,7 +55,7 @@ async function gotoAndWaitForPageView(page: Page, url: string, expectedPath: str
     { timeout: 20_000 },
   );
 
-  await page.goto(url);
+  await page.goto(url, { waitUntil: "domcontentloaded" });
   expect((await analyticsResponse).status()).toBe(202);
 }
 
