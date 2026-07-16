@@ -4,6 +4,7 @@ import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { createAuthToken, emailVerifyIdentifier } from "@/lib/auth-tokens";
 import { sendEmailVerification } from "@/lib/auth-emails";
 import { prisma } from "@/lib/prisma";
+import { trackProductEvent } from "@/lib/product-analytics";
 import { checkRegisterRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
@@ -56,6 +57,13 @@ export async function POST(req: Request) {
 
   const verifyToken = await createAuthToken(emailVerifyIdentifier(email), 24);
   await sendEmailVerification(email, verifyToken);
+  await trackProductEvent({
+    name: "user_registered",
+    actorId: user.id,
+    entityType: "User",
+    entityId: user.id,
+    dedupeKey: `user:${user.id}:registered`,
+  });
 
   return actionResponse(user, { verifyEmailSent: true }, 201);
 }

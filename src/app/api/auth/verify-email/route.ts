@@ -3,6 +3,7 @@ import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { consumeAuthToken, createAuthToken, emailVerifyIdentifier } from "@/lib/auth-tokens";
 import { sendEmailVerification } from "@/lib/auth-emails";
 import { prisma } from "@/lib/prisma";
+import { trackProductEvent } from "@/lib/product-analytics";
 import { requireUserId } from "@/server/session";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -25,6 +26,14 @@ export async function POST(req: Request) {
     }),
   );
   if (!consumed.ok) return errorResponse("Ссылка недействительна или устарела", 400);
+
+  await trackProductEvent({
+    name: "email_verified",
+    actorId: consumed.value.id,
+    entityType: "User",
+    entityId: consumed.value.id,
+    dedupeKey: `user:${consumed.value.id}:email-verified`,
+  });
 
   return actionResponse({ verified: true });
 }

@@ -8,6 +8,7 @@ import { requireUserId } from "@/server/session";
 import { serializeItem } from "@/features/items/serializers";
 import { itemPayloadSchema } from "@/features/items/validation";
 import { claimItemMedia, INVALID_ITEM_MEDIA } from "@/features/media/item-media";
+import { trackProductEvent } from "@/lib/product-analytics";
 import { runSerializableTransaction } from "@/lib/transactions";
 
 export async function GET(req: NextRequest) {
@@ -93,6 +94,14 @@ export async function POST(req: Request) {
         where: { id: created.id },
         include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
       });
+    });
+
+    await trackProductEvent({
+      name: "item_created",
+      actorId: auth.userId,
+      entityType: "Item",
+      entityId: item.id,
+      dedupeKey: `item:${item.id}:created`,
     });
 
     return actionResponse(serializeItem(item), {}, 201);

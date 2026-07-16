@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Camera, Check, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/menarium/badge";
 import { MenariumButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { MenariumInput, MenariumTextarea } from "@/components/menarium/input";
+import { trackClientProductEvent } from "@/lib/product-analytics-client";
 
 type UploadedImage = {
   id: string;
@@ -21,6 +22,7 @@ const quickWants = ["iPhone 15", "MacBook Pro", "PlayStation 5", "AirPods Pro", 
 
 export function NewItemForm() {
   const router = useRouter();
+  const hasTrackedStart = useRef(false);
   const [title, setTitle] = useState("");
   const [type, setType] = useState<"THING" | "SERVICE">("THING");
   const [category, setCategory] = useState(categories[0]);
@@ -120,7 +122,14 @@ export function NewItemForm() {
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      onFocusCapture={() => {
+        if (hasTrackedStart.current) return;
+        hasTrackedStart.current = true;
+        void trackClientProductEvent({ name: "item_creation_started", path: "/new" });
+      }}
+    >
       <GlassCard className="rounded-3xl border-2 border-dashed border-white/20 p-8 text-center transition-colors hover:border-purple-500/50">
         <input
           id="item-images"

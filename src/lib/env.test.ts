@@ -12,6 +12,7 @@ const productionEnv: NodeJS.ProcessEnv = {
   ADMIN_EMAILS: "admin@menarium.ru",
   SMTP_HOST: "smtp.example.test",
   SMTP_FROM: "Menarium <noreply@menarium.ru>",
+  PRODUCT_ANALYTICS_ENABLED: "true",
 };
 
 describe("validateProductionEnv", () => {
@@ -58,5 +59,25 @@ describe("validateProductionEnv", () => {
         STORAGE_PUBLIC_BASE_URL: "https://cdn.example.test",
       }),
     ).not.toThrow();
+  });
+
+  it("requires an explicit analytics mode and valid retention", () => {
+    expect(() =>
+      validateProductionEnv({
+        ...productionEnv,
+        PRODUCT_ANALYTICS_ENABLED: "yes",
+        CI: "true",
+        STORAGE_PROVIDER: "local",
+      }),
+    ).toThrow("PRODUCT_ANALYTICS_ENABLED");
+
+    expect(() =>
+      validateProductionEnv({
+        ...productionEnv,
+        PRODUCT_ANALYTICS_RETENTION_DAYS: "7",
+        CI: "true",
+        STORAGE_PROVIDER: "local",
+      }),
+    ).toThrow("PRODUCT_ANALYTICS_RETENTION_DAYS");
   });
 });

@@ -6,11 +6,12 @@ import {
   SwapStatus,
   UserStatus,
 } from "@prisma/client";
-import { Activity, Archive, CheckCircle2, Flag, Shield, Tag, Users } from "lucide-react";
+import { Activity, Archive, BarChart3, CheckCircle2, Flag, Shield, Tag, Users } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { GlassCard } from "@/components/menarium/card";
+import { MenariumLinkButton } from "@/components/menarium/button";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAdmin } from "@/server/admin";
 import { ItemModerationActions } from "./item-moderation-actions";
@@ -124,14 +125,22 @@ export default async function AdminPage() {
     <AppShell>
       <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500/70 to-purple-500/70">
-              <Shield className="h-6 w-6" />
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500/70 to-purple-500/70">
+                <Shield className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold">Админ-панель</h1>
+                <p className="mt-1 text-white/55">Базовый production-контур модерации Menarium.</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold">Админ-панель</h1>
-              <p className="mt-1 text-white/55">Базовый production-контур модерации Menarium.</p>
-            </div>
+            {admin ? (
+              <MenariumLinkButton href="/admin/analytics" variant="secondary" size="sm">
+                <BarChart3 className="h-4 w-4" />
+                Пульс продукта
+              </MenariumLinkButton>
+            ) : null}
           </div>
 
           {!admin ? (

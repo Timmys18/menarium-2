@@ -23,6 +23,7 @@ jobs:
       SMTP_FROM: Menarium CI <noreply@menarium.test>
       STORAGE_PROVIDER: local
       STORAGE_PUBLIC_BASE_URL: /uploads
+      PRODUCT_ANALYTICS_ENABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -58,6 +59,7 @@ jobs:
       NEXT_PUBLIC_SENTRY_DSN: https://ci@example.test/1
       STORAGE_PROVIDER: local
       STORAGE_PUBLIC_BASE_URL: /uploads
+      PRODUCT_ANALYTICS_ENABLED: "true"
       PLAYWRIGHT_BASE_URL: http://localhost:3000
       CI: true
     services:

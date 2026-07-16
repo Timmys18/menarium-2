@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
+import { trackClientProductEvent } from "@/lib/product-analytics-client";
 
 export function RegisterForm() {
   const router = useRouter();
+  const hasTrackedStart = useRef(false);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
@@ -46,7 +48,14 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      onFocusCapture={() => {
+        if (hasTrackedStart.current) return;
+        hasTrackedStart.current = true;
+        void trackClientProductEvent({ name: "registration_started", path: "/auth/register" });
+      }}
+    >
       <MenariumInput placeholder="Имя" value={name} onChange={(event) => setName(event.target.value)} />
       <MenariumInput placeholder="Город" value={city} onChange={(event) => setCity(event.target.value)} />
       <MenariumInput type="email" placeholder="Электронная почта" value={email} onChange={(event) => setEmail(event.target.value)} />

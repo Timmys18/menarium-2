@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { onest, spaceGrotesk } from "./fonts";
+import { ProductAnalytics } from "@/components/analytics/product-analytics";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import "./globals.css";
 
@@ -37,7 +38,10 @@ export default function RootLayout({
       className={`${onest.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <ProductAnalytics />
+        </AuthProvider>
       </body>
     </html>
   );
