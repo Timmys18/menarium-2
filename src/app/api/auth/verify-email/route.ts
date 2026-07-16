@@ -57,7 +57,10 @@ export async function PUT() {
   if (user.emailVerified) return actionResponse({ alreadyVerified: true });
 
   const token = await createAuthToken(emailVerifyIdentifier(user.email), 24);
-  await sendEmailVerification(user.email, token);
+  const sent = await sendEmailVerification(user.email, token);
+  if (!sent) {
+    return errorResponse("Сейчас не получилось отправить письмо. Попробуйте ещё раз через несколько минут.", 503);
+  }
 
   return actionResponse({ sent: true });
 }

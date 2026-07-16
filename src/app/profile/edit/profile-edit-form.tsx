@@ -138,6 +138,11 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
   return (
     <div className="space-y-6">
+      {error ? (
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          {error}
+        </div>
+      ) : null}
       <GlassCard className="space-y-5 p-8">
         <div className="flex items-center gap-4">
           <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-teal-500 to-purple-600">
@@ -181,10 +186,33 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           </div>
         </div>
 
-        <MenariumInput placeholder="Имя" value={name} onChange={(event) => setName(event.target.value)} />
-        <MenariumInput placeholder="Город" value={city} onChange={(event) => setCity(event.target.value)} />
-
-        {error ? <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">{error}</div> : null}
+        <div className="space-y-2">
+          <label htmlFor="profile-name" className="block text-sm font-medium text-white/75">
+            Имя
+          </label>
+          <MenariumInput
+            id="profile-name"
+            name="name"
+            autoComplete="name"
+            placeholder="Как к вам обращаться"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="profile-city" className="block text-sm font-medium text-white/75">
+            Город
+          </label>
+          <MenariumInput
+            id="profile-city"
+            name="city"
+            autoComplete="address-level2"
+            placeholder="Например, Москва"
+            value={city}
+            onChange={(event) => setCity(event.target.value)}
+          />
+          <p className="text-xs leading-5 text-white/40">Помогает находить удобные обмены рядом.</p>
+        </div>
 
         <div className="flex gap-3">
           <MenariumButton onClick={saveProfile} disabled={isSaving || isUploading}>
@@ -210,18 +238,31 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
       <GlassCard className="space-y-4 p-8">
         <h2 className="text-lg font-semibold">Смена пароля</h2>
-        <MenariumInput
-          type="password"
-          placeholder="Текущий пароль"
-          value={currentPassword}
-          onChange={(event) => setCurrentPassword(event.target.value)}
-        />
-        <MenariumInput
-          type="password"
-          placeholder="Новый пароль (мин. 8 символов, буквы и цифры)"
-          value={newPassword}
-          onChange={(event) => setNewPassword(event.target.value)}
-        />
+        <div className="space-y-2">
+          <label htmlFor="current-password" className="block text-sm font-medium text-white/75">
+            Текущий пароль
+          </label>
+          <MenariumInput
+            id="current-password"
+            type="password"
+            autoComplete="current-password"
+            value={currentPassword}
+            onChange={(event) => setCurrentPassword(event.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="new-password" className="block text-sm font-medium text-white/75">
+            Новый пароль
+          </label>
+          <MenariumInput
+            id="new-password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Минимум 8 символов, буквы и цифры"
+            value={newPassword}
+            onChange={(event) => setNewPassword(event.target.value)}
+          />
+        </div>
         <MenariumButton
           variant="secondary"
           onClick={changePassword}
@@ -238,12 +279,18 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           Личные данные будут удалены, объявления сняты с публикации. История завершённых сделок
           сохранится у участников в обезличенном виде.
         </p>
-        <MenariumInput
-          type="password"
-          placeholder="Пароль для подтверждения"
-          value={deletePassword}
-          onChange={(event) => setDeletePassword(event.target.value)}
-        />
+        <div className="space-y-2">
+          <label htmlFor="delete-password" className="block text-sm font-medium text-white/75">
+            Пароль для подтверждения
+          </label>
+          <MenariumInput
+            id="delete-password"
+            type="password"
+            autoComplete="current-password"
+            value={deletePassword}
+            onChange={(event) => setDeletePassword(event.target.value)}
+          />
+        </div>
         <MenariumButton
           variant="danger"
           onClick={() => setDeleteDialogOpen(true)}

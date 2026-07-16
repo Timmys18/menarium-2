@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ItemStatus, SwapStatus } from "@prisma/client";
-import { ArrowRightLeft, CheckCircle2, MessageCircle, Sparkles, Tag } from "lucide-react";
+import { ArrowRightLeft, CheckCircle2, MessageCircle, Tag } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
@@ -10,8 +10,11 @@ import { EmptyState } from "@/components/menarium/empty-state";
 import { loginHref } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
+import { buildProfileActivation } from "@/features/profile/activation";
 import { SignOutButton } from "./profile-actions";
 import { EmailVerifyBanner } from "./email-verify-banner";
+import { ActivationPanel } from "./activation-panel";
+import { ProfileNotice } from "./profile-notice";
 import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +29,12 @@ function getInitials(name: string | null, email: string) {
     .join("");
 }
 
-export default async function ProfilePage() {
+type ProfilePageProps = {
+  searchParams: Promise<{ welcome?: string; emailSent?: string; verified?: string }>;
+};
+
+export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+  const params = await searchParams;
   const userId = await getCurrentUserId();
   const user = userId
     ? await prisma.user.findUnique({
@@ -43,6 +51,8 @@ export default async function ProfilePage() {
     itemChats,
     incomingSwaps,
     outgoingSwaps,
+    sentProposals,
+    acceptedSwaps,
     matchSwaps,
     recentIncoming,
     recentNotifications,
@@ -68,6 +78,13 @@ export default async function ProfilePage() {
         prisma.itemThread.count({ where: { OR: [{ buyerId: userId }, { ownerId: userId }] } }),
         prisma.swapRequest.count({ where: { receiverId: userId, status: SwapStatus.PENDING } }),
         prisma.swapRequest.count({ where: { senderId: userId, status: SwapStatus.PENDING } }),
+        prisma.swapRequest.count({ where: { senderId: userId } }),
+        prisma.swapRequest.count({
+          where: {
+            status: SwapStatus.ACCEPTED,
+            OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+        }),
         prisma.swapRequest.count({
           where: {
             status: { in: [SwapStatus.ACCEPTED, SwapStatus.COMPLETED] },
@@ -101,17 +118,23 @@ export default async function ProfilePage() {
           take: 3,
         }),
       ])
-    : [0, 0, 0, 0, 0, 0, 0, 0, [], [], []];
+    : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], []];
 
-  const isNewUser = user && activeItems === 0 && activeSwaps === 0;
-  const onboardingSteps = user
-    ? [
-        { done: Boolean(user.name && user.city), label: "Заполнить профиль", href: "/profile/edit" },
-        { done: activeItems > 0, label: "Создать первое объявление", href: "/new" },
-        { done: outgoingSwaps > 0, label: "Предложить обмен", href: "/swipe" },
-        { done: completedSwaps > 0, label: "Завершить первую сделку", href: "/exchange?tab=matches" },
-      ]
-    : [];
+  const activation = user
+    ? buildProfileActivation({
+        emailVerified: Boolean(user.emailVerified),
+        hasProfileBasics: Boolean(user.name?.trim() && user.city?.trim()),
+        activeItems,
+        sentProposals,
+        outgoingPending: outgoingSwaps,
+        completedSwaps,
+        incomingPending: incomingSwaps,
+        acceptedSwaps,
+      })
+    : null;
+  const welcomeEmailSent =
+    params.welcome === "1" ? (params.emailSent === "1" ? true : params.emailSent === "0" ? false : null) : null;
+  const initialEmailDeliveryState = welcomeEmailSent === true ? "sent" : welcomeEmailSent === false ? "failed" : "unknown";
 
   const stats = [
     { label: "Активных объявлений", value: activeItems, icon: Tag, color: "text-teal-400", href: "/my-items" },
@@ -133,7 +156,14 @@ export default async function ProfilePage() {
             />
           ) : (
             <>
-              {!user.emailVerified ? <EmailVerifyBanner email={user.email} /> : null}
+              {params.verified === "1" && user.emailVerified ? (
+                <ProfileNotice kind="verified" />
+              ) : params.welcome === "1" ? (
+                <ProfileNotice kind="welcome" />
+              ) : null}
+              {!user.emailVerified ? (
+                <EmailVerifyBanner email={user.email} initialDeliveryState={initialEmailDeliveryState} />
+              ) : null}
               <GlassCard className="rounded-3xl p-8">
                 <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-5">
@@ -155,7 +185,9 @@ export default async function ProfilePage() {
                     </div>
                     <div>
                       <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-white/30">Личный кабинет</p>
-                      <h1 className="mb-1 text-3xl tracking-tight">{user.name ?? "Menarium пользователь"}</h1>
+                      <h1 className="mb-1 font-display text-3xl font-semibold tracking-tight">
+                        {user.name ?? "Участник Menarium"}
+                      </h1>
                       <div className="flex flex-wrap items-center gap-3 text-xs text-white/40">
                         <span>{user.email}</span>
                         <span>{user.city ?? "Город не указан"}</span>
@@ -171,35 +203,7 @@ export default async function ProfilePage() {
                 </div>
               </GlassCard>
 
-              {isNewUser ? (
-                <GlassCard className="p-6">
-                  <div className="mb-4 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-teal-400" />
-                    <h2 className="text-xl font-semibold">Старт в Menarium</h2>
-                  </div>
-                  <p className="mb-5 text-sm text-white/55">Пройди короткий путь — и первый обмен будет близко.</p>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {onboardingSteps.map((step, index) => (
-                      <Link
-                        key={step.label}
-                        href={step.href}
-                        className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition hover:bg-white/[0.04] ${
-                          step.done ? "border-teal-500/30 bg-teal-500/5" : "border-white/10 bg-white/[0.02]"
-                        }`}
-                      >
-                        <span
-                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                            step.done ? "bg-teal-500 text-white" : "bg-white/10 text-white/50"
-                          }`}
-                        >
-                          {step.done ? "✓" : index + 1}
-                        </span>
-                        <span className={step.done ? "text-white/70 line-through" : "text-white"}>{step.label}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </GlassCard>
-              ) : null}
+              {activation ? <ActivationPanel activation={activation} /> : null}
 
               <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {stats.map((item) => {
