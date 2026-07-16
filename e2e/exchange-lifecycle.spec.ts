@@ -62,8 +62,8 @@ async function sendDealMessage(page: Page, message: string) {
 async function login(page: Page, credentials: typeof MARIA) {
   await page.goto("/auth/login");
   const content = main(page);
-  await pick(content.getByPlaceholder("Электронная почта")).fill(credentials.email);
-  await pick(content.getByPlaceholder("Пароль")).fill(credentials.password);
+  await pick(content.getByLabel("Электронная почта")).fill(credentials.email);
+  await pick(content.getByLabel("Пароль")).fill(credentials.password);
   await pick(content.getByRole("button", { name: "Войти" })).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
   await expect(page).toHaveURL(/\/(profile)?$/);

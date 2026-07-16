@@ -3,6 +3,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { consumeAuthToken, emailVerifyIdentifier } from "@/lib/auth-tokens";
+import { trackProductEvent } from "@/lib/product-analytics";
 
 type Props = {
   searchParams: Promise<{ email?: string; token?: string }>;
@@ -54,6 +55,14 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     );
   }
 
+  await trackProductEvent({
+    name: "email_verified",
+    actorId: consumed.value.id,
+    entityType: "User",
+    entityId: consumed.value.id,
+    dedupeKey: `user:${consumed.value.id}:email-verified`,
+  });
+
   return (
     <AppShell>
       <AuthShell title="Готово!" subtitle="Email подтверждён — добро пожаловать в Menarium.">
@@ -61,7 +70,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
           <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100">
             Почта {email} подтверждена. Можно обмениваться и общаться в чатах.
           </div>
-          <MenariumLinkButton href="/profile" className="w-full">
+          <MenariumLinkButton href="/profile?verified=1" className="w-full">
             Перейти в профиль
           </MenariumLinkButton>
           <Link href="/catalog" className="block text-sm text-teal-300 hover:underline">

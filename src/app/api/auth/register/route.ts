@@ -56,7 +56,7 @@ export async function POST(req: Request) {
   });
 
   const verifyToken = await createAuthToken(emailVerifyIdentifier(email), 24);
-  await sendEmailVerification(email, verifyToken);
+  const verifyEmailSent = await sendEmailVerification(email, verifyToken);
   await trackProductEvent({
     name: "user_registered",
     actorId: user.id,
@@ -65,5 +65,5 @@ export async function POST(req: Request) {
     dedupeKey: `user:${user.id}:registered`,
   });
 
-  return actionResponse(user, { verifyEmailSent: true }, 201);
+  return actionResponse(user, { verifyEmailSent }, 201);
 }
