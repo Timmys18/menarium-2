@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { actionResponse, errorResponse } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { trackProductEvent } from "@/lib/product-analytics";
 import { requireUserId } from "@/server/session";
 
 const bodySchema = z.object({
@@ -30,6 +31,14 @@ export async function POST(req: NextRequest) {
     },
     create: { userId: auth.userId, itemId: item.id },
     update: {},
+  });
+
+  await trackProductEvent({
+    name: "swipe_passed",
+    actorId: auth.userId,
+    entityType: "Item",
+    entityId: item.id,
+    dedupeKey: `swipe-pass:${auth.userId}:${item.id}`,
   });
 
   return actionResponse({ passed: true });

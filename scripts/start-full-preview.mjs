@@ -34,9 +34,12 @@ function updateEnvFile() {
   next.set("NEXTAUTH_URL", '"http://localhost:3000"');
   next.set("NEXTAUTH_SECRET", '"dev-only-replace-in-production"');
   next.set("NEXT_PUBLIC_APP_URL", '"http://localhost:3000"');
+  next.set("ADMIN_EMAILS", '"admin@menarium.ru"');
   next.set("STORAGE_PROVIDER", '"local"');
   next.set("STORAGE_LOCAL_DIR", '"./public/uploads"');
   next.set("STORAGE_PUBLIC_BASE_URL", '"/uploads"');
+  next.set("PRODUCT_ANALYTICS_ENABLED", '"true"');
+  next.set("PRODUCT_ANALYTICS_RETENTION_DAYS", '"180"');
   next.delete("REDIS_URL");
 
   const body = [

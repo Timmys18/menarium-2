@@ -17,6 +17,7 @@ This checklist is for the real `menarium.ru` launch path.
 - Generate a strong `NEXTAUTH_SECRET`.
 - Set `ADMIN_EMAILS` to real administrator email addresses.
 - Set `DATABASE_URL`, `REDIS_URL`, and all storage credentials.
+- Explicitly set `PRODUCT_ANALYTICS_ENABLED=true` and review the configured retention.
 - Do not use seed demo passwords in production.
 
 ## Release
@@ -27,6 +28,7 @@ This checklist is for the real `menarium.ru` launch path.
 - Run `npm run build`.
 - Start via PM2, Docker, or managed Node runtime.
 - Verify `GET /api/health` returns HTTP 200 with `ok: true`.
+- Schedule `npm run analytics:prune` daily and alert on failures.
 
 ## Functional Smoke
 
@@ -41,6 +43,7 @@ This checklist is for the real `menarium.ru` launch path.
 - Send item chat messages.
 - Verify notifications and unread count.
 - Verify admin can archive and restore listings.
+- Verify `/admin/analytics` records page views and the exchange funnel without personal payloads.
 
 ## Legal And Operations
 

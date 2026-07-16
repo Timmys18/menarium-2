@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeSwap } from "@/features/exchange/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
+import { trackProductEvent } from "@/lib/product-analytics";
 import { publishUserEvents } from "@/lib/realtime";
 import { isPrismaError, runSerializableTransaction } from "@/lib/transactions";
 
@@ -129,6 +130,13 @@ export async function POST(req: Request) {
     await publishUserEvents([swap.senderId, swap.receiverId], {
       type: "swap",
       entityId: swap.id,
+    });
+    await trackProductEvent({
+      name: "swap_proposed",
+      actorId: auth.userId,
+      entityType: "SwapRequest",
+      entityId: swap.id,
+      dedupeKey: `swap:${swap.id}:proposed`,
     });
 
     return actionResponse(serializeSwap(swap), {}, 201);
@@ -348,7 +356,7 @@ export async function PATCH(req: Request) {
               senderCompleted: true,
               receiverCompleted: true,
             },
-            data: { status: SwapStatus.COMPLETED },
+            data: { status: SwapStatus.COMPLETED, completedAt: new Date() },
           });
           if (completed.count !== 1) throw new Error("INVALID_STATUS");
 
@@ -430,6 +438,40 @@ export async function PATCH(req: Request) {
       type: "swap",
       entityId: result.id,
     });
+
+    if (action === "complete") {
+      await trackProductEvent({
+        name: "swap_completion_confirmed",
+        actorId: auth.userId,
+        entityType: "SwapRequest",
+        entityId: result.id,
+        dedupeKey: `swap:${result.id}:completion-confirmed:${auth.userId}`,
+      });
+      if (result.status === SwapStatus.COMPLETED) {
+        await trackProductEvent({
+          name: "swap_completed",
+          actorId: auth.userId,
+          entityType: "SwapRequest",
+          entityId: result.id,
+          dedupeKey: `swap:${result.id}:completed`,
+        });
+      }
+    } else {
+      const eventName = {
+        accept: "swap_accepted",
+        decline: "swap_declined",
+        revoke: "swap_revoked",
+        cancel: "swap_cancelled",
+      }[action] as "swap_accepted" | "swap_declined" | "swap_revoked" | "swap_cancelled";
+
+      await trackProductEvent({
+        name: eventName,
+        actorId: auth.userId,
+        entityType: "SwapRequest",
+        entityId: result.id,
+        dedupeKey: `swap:${result.id}:${action}`,
+      });
+    }
 
     return actionResponse(serializeSwap(result), serializeSwap(result));
   } catch (error) {

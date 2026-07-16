@@ -100,6 +100,7 @@ model User {
   reportsFiled Report[] @relation("ReportsFiled")
   reportsReceived Report[] @relation("ReportedUser")
   reportsResolved Report[] @relation("ReportResolver")
+  productEvents ProductEvent[]
 
   @@index([createdAt])
   @@index([status, createdAt])
@@ -197,6 +198,7 @@ model SwapRequest {
   senderCompleted   Boolean @default(false)
   receiverCompleted Boolean @default(false)
   acceptedAt     DateTime?
+  completedAt    DateTime?
   /// Directional while pending: the reverse offer is allowed and creates a match.
   pendingPairKey String? @unique
   createdAt      DateTime @default(now())
@@ -213,6 +215,7 @@ model SwapRequest {
   @@index([senderItemId, status])
   @@index([receiverItemId, status])
   @@index([status, updatedAt])
+  @@index([status, completedAt])
 }
 
 model DealMessage {
@@ -337,4 +340,27 @@ model Report {
   @@index([reporterId, createdAt])
   @@index([targetUserId, status])
   @@index([itemId, status])
+}
+
+model ProductEvent {
+  id          String   @id @default(cuid())
+  name        String
+  actorId     String?
+  anonymousId String?
+  sessionId   String?
+  entityType  String?
+  entityId    String?
+  path        String?
+  properties  Json?
+  dedupeKey   String?  @unique
+  occurredAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([name, occurredAt])
+  @@index([actorId, occurredAt])
+  @@index([anonymousId, occurredAt])
+  @@index([sessionId, occurredAt])
+  @@index([entityType, entityId])
+  @@index([occurredAt])
 }

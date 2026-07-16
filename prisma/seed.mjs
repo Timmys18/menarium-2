@@ -191,6 +191,7 @@ async function main() {
     }),
     prisma.notification.deleteMany({ where: { userId: { in: demoUserIds } } }),
     prisma.swipePass.deleteMany({ where: { userId: { in: demoUserIds } } }),
+    prisma.productEvent.deleteMany({ where: { actorId: { in: demoUserIds } } }),
     prisma.userBlock.deleteMany({
       where: {
         OR: [{ blockerId: { in: demoUserIds } }, { blockedId: { in: demoUserIds } }],

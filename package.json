@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "node prisma/seed.mjs",
+    "analytics:prune": "node scripts/prune-product-events.mjs",
     "preview:full": "node scripts/start-full-preview.mjs",
     "preview:setup": "node scripts/start-full-preview.mjs",
     "verify": "npm run lint && npm run test && npm run typecheck && npm run build",

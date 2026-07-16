@@ -14,6 +14,7 @@ export function validateProductionEnv(env: NodeJS.ProcessEnv = process.env) {
     "ADMIN_EMAILS",
     "SMTP_HOST",
     "SMTP_FROM",
+    "PRODUCT_ANALYTICS_ENABLED",
   ] as const;
   const missing = required.filter((key) => !env[key]?.trim());
 
@@ -23,6 +24,15 @@ export function validateProductionEnv(env: NodeJS.ProcessEnv = process.env) {
 
   if ((env.NEXTAUTH_SECRET?.length ?? 0) < 32) {
     throw new Error("[env] NEXTAUTH_SECRET должен содержать минимум 32 символа");
+  }
+
+  if (!new Set(["true", "false"]).has(env.PRODUCT_ANALYTICS_ENABLED ?? "")) {
+    throw new Error("[env] PRODUCT_ANALYTICS_ENABLED must be explicitly set to true or false");
+  }
+
+  const analyticsRetentionDays = Number(env.PRODUCT_ANALYTICS_RETENTION_DAYS ?? 180);
+  if (!Number.isInteger(analyticsRetentionDays) || analyticsRetentionDays < 30 || analyticsRetentionDays > 730) {
+    throw new Error("[env] PRODUCT_ANALYTICS_RETENTION_DAYS must be an integer between 30 and 730");
   }
 
   const localStorageInCi = env.CI === "true" && env.STORAGE_PROVIDER === "local";

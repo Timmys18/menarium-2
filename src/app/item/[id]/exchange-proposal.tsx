@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRightLeft, Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
+import { trackClientProductEvent } from "@/lib/product-analytics-client";
 
 type UserItemOption = {
   id: string;
@@ -24,6 +25,7 @@ export function ExchangeProposal({
 
   async function propose() {
     if (!senderItemId) return;
+    void trackClientProductEvent({ name: "exchange_proposal_started", path: "/item/[id]" });
     setError(null);
     setIsSubmitting(true);
     try {

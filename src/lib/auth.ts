@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { UserStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { trackProductEvent } from "@/lib/product-analytics";
 import { checkLoginRateLimit, getClientIp, resetLoginRateLimit } from "@/lib/rate-limit";
 
 // Заглушка-хэш для выравнивания времени ответа, когда пользователь не найден:
@@ -51,6 +52,12 @@ export const authOptions: NextAuthOptions = {
         }
 
         await resetLoginRateLimit(email, ip);
+        await trackProductEvent({
+          name: "login_succeeded",
+          actorId: user.id,
+          entityType: "User",
+          entityId: user.id,
+        });
 
         return {
           id: user.id,
