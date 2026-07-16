@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { expect, test, type BrowserContext } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { spawnSync } from "node:child_process";
 
 const prisma = new PrismaClient();
@@ -38,6 +38,27 @@ async function login(context: BrowserContext, credentials: typeof MARIA) {
   return page;
 }
 
+async function gotoAndWaitForPageView(page: Page, url: string, expectedPath: string) {
+  const analyticsResponse = page.waitForResponse(
+    (response) => {
+      if (!response.url().endsWith("/api/analytics/events") || response.request().method() !== "POST") {
+        return false;
+      }
+
+      try {
+        const payload = response.request().postDataJSON() as { name?: string; path?: string };
+        return payload.name === "page_view" && payload.path === expectedPath;
+      } catch {
+        return false;
+      }
+    },
+    { timeout: 20_000 },
+  );
+
+  await page.goto(url);
+  expect((await analyticsResponse).status()).toBe(202);
+}
+
 test.describe("privacy-first product analytics", () => {
   test.beforeEach(({}, testInfo) => {
     testInfo.setTimeout(90_000);
@@ -54,12 +75,14 @@ test.describe("privacy-first product analytics", () => {
     try {
       await expect.poll(
         () => prisma.productEvent.count({ where: { name: "login_succeeded", actorId: maria.id } }),
+        { timeout: 15_000 },
       ).toBeGreaterThan(0);
 
-      await page.goto("/catalog");
+      await gotoAndWaitForPageView(page, "/catalog", "/catalog");
       await expect(page.getByRole("heading", { name: /Каталог/i })).toBeVisible();
       await expect.poll(
         () => prisma.productEvent.count({ where: { name: "page_view", actorId: maria.id, path: "/catalog" } }),
+        { timeout: 15_000 },
       ).toBeGreaterThan(0);
 
       const visibleItems = await prisma.item.findMany({
@@ -68,12 +91,13 @@ test.describe("privacy-first product analytics", () => {
         take: 2,
       });
       expect(visibleItems).toHaveLength(2);
-      await page.goto(`/item/${visibleItems[0]!.id}`);
-      await page.goto(`/item/${visibleItems[1]!.id}`);
+      await gotoAndWaitForPageView(page, `/item/${visibleItems[0]!.id}`, "/item/[id]");
+      await gotoAndWaitForPageView(page, `/item/${visibleItems[1]!.id}`, "/item/[id]");
       await expect.poll(
         () => prisma.productEvent.count({
           where: { name: "page_view", actorId: maria.id, path: "/item/[id]" },
         }),
+        { timeout: 15_000 },
       ).toBe(2);
 
       const title = `[E2E] Analytics ${Date.now()}`;
@@ -98,6 +122,7 @@ test.describe("privacy-first product analytics", () => {
         () => prisma.productEvent.count({
           where: { name: "item_created", actorId: maria.id, entityId: createdItem.id },
         }),
+        { timeout: 15_000 },
       ).toBe(1);
 
       const targetItem = await prisma.item.findFirstOrThrow({
@@ -113,6 +138,7 @@ test.describe("privacy-first product analytics", () => {
         () => prisma.productEvent.count({
           where: { name: "swap_proposed", actorId: maria.id, entityId: swap.id },
         }),
+        { timeout: 15_000 },
       ).toBe(1);
     } finally {
       await context.close();
