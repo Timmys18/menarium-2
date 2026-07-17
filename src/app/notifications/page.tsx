@@ -158,12 +158,12 @@ export default async function NotificationsPage({ searchParams }: Props) {
                               >
                                 <Icon className="h-5 w-5" />
                               </span>
-                              <span className="min-w-0 flex-1">
-                                <span className="flex flex-wrap items-center gap-2">
-                                  <span className="font-semibold text-white">{notification.title}</span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="font-semibold text-white">{notification.title}</h3>
                                   {!notification.isRead ? <Badge variant="teal">Новое</Badge> : null}
-                                </span>
-                                <span className="mt-1 block text-sm leading-5 text-white/48">{notification.message}</span>
+                                </div>
+                                <p className="mt-1 text-sm leading-5 text-white/48">{notification.message}</p>
                                 <time
                                   dateTime={notification.createdAt.toISOString()}
                                   className="mt-2 block text-xs text-white/28"
@@ -175,7 +175,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                                     minute: "2-digit",
                                   })}
                                 </time>
-                              </span>
+                              </div>
                             </>
                           );
 

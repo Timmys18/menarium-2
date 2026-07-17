@@ -299,6 +299,7 @@ export default async function MyItemsPage({
                     return (
                       <GlassCard
                         key={item.id}
+                        role="article"
                         className="group flex h-full flex-col overflow-hidden border border-white/8"
                       >
                         <Link

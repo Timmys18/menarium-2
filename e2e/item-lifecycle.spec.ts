@@ -37,8 +37,8 @@ async function login(page: Page) {
 }
 
 function itemCard(page: Page) {
-  const heading = main(page).getByRole("heading", { name: itemTitle, exact: true });
-  return main(page).locator(".glass-card").filter({ has: heading }).first();
+  const heading = page.getByRole("heading", { name: itemTitle, exact: true });
+  return main(page).getByRole("article").filter({ has: heading }).first();
 }
 
 test.describe("жизненный цикл объявления", () => {
