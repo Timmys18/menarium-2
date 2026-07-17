@@ -9,7 +9,9 @@ export function getPreviewItemCards(): ItemCardView[] {
     image: item.image,
     wanted: item.wanted,
     city: item.city,
+    type: "THING",
+    isOnline: false,
     likes: item.likes,
-    trending: item.trending,
+    flexible: item.trending,
   }));
 }

@@ -30,7 +30,7 @@ test.describe("Мобильное открытие каталога", () => {
     await expect(
       page.getByRole("main").getByText("Найдено: 2", { exact: true }).filter({ visible: true }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: "Тренды", exact: true })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Актуальные", exact: true })).toHaveAttribute(
       "href",
       /city=.*&sort=trends/,
     );

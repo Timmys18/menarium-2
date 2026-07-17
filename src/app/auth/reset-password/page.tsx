@@ -5,7 +5,7 @@ import { ResetPasswordForm } from "./reset-password-form";
 
 export default function ResetPasswordPage() {
   return (
-    <AppShell>
+    <AppShell mode="auth">
       <AuthShell title="Новый пароль" subtitle="Задайте надёжный пароль для входа.">
         <Suspense fallback={<div className="text-sm text-white/45">Загрузка...</div>}>
           <ResetPasswordForm />

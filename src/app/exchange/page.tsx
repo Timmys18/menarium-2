@@ -125,6 +125,59 @@ function statusPresentation(
   };
 }
 
+function DealProgress({ status }: { status: SwapStatus }) {
+  if (status === SwapStatus.DECLINED || status === SwapStatus.CANCELLED) return null;
+
+  const activeIndex =
+    status === SwapStatus.COMPLETED ? 2 : status === SwapStatus.ACCEPTED ? 1 : 0;
+  const steps = [
+    { label: "Предложение", hint: "Решение" },
+    { label: "Договорённость", hint: "Передача" },
+    { label: "Завершение", hint: "Обе стороны" },
+  ];
+
+  return (
+    <ol className="my-4 grid grid-cols-3 gap-2" aria-label="Этапы обмена">
+      {steps.map((step, index) => {
+        const completed = status === SwapStatus.COMPLETED || index < activeIndex;
+        const current = status !== SwapStatus.COMPLETED && index === activeIndex;
+
+        return (
+          <li
+            key={step.label}
+            aria-current={current ? "step" : undefined}
+            className={cn(
+              "min-w-0 rounded-[14px] border px-2.5 py-3 text-center",
+              completed
+                ? "border-teal-300/18 bg-teal-300/[0.065]"
+                : current
+                  ? "border-blue-300/25 bg-blue-400/[0.08]"
+                  : "border-white/7 bg-white/[0.02]",
+            )}
+          >
+            <span
+              className={cn(
+                "mx-auto flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold",
+                completed
+                  ? "bg-teal-300/16 text-teal-200"
+                  : current
+                    ? "bg-blue-300/16 text-blue-100"
+                    : "bg-white/[0.055] text-white/28",
+              )}
+            >
+              {completed ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+            </span>
+            <span className={cn("mt-2 block truncate text-[11px] font-semibold", completed || current ? "text-white/76" : "text-white/28")}>
+              {step.label}
+            </span>
+            <span className="mt-0.5 block truncate text-[10px] text-white/28">{step.hint}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 export default async function ExchangePage({ searchParams }: Props) {
   const userId = await getCurrentUserId();
   const params = await searchParams;
@@ -286,7 +339,7 @@ export default async function ExchangePage({ searchParams }: Props) {
 
   return (
     <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
+      <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-7xl">
           <header className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
@@ -305,9 +358,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                 <div className="inline-flex items-center gap-3 self-start rounded-[18px] border border-teal-300/25 bg-teal-300/[0.08] px-4 py-3 md:self-auto">
                   <Clock3 className="h-5 w-5 text-teal-200" />
                   <div>
-                    <p className="text-sm font-semibold text-white">
-                      {needsResponseCount} {needsResponseCount === 1 ? "предложение ждёт" : "предложения ждут"} ответа
-                    </p>
+                    <p className="text-sm font-semibold text-white">Нужно ответить: {needsResponseCount}</p>
                     <Link href={exchangeHref("incoming")} className="text-xs text-teal-200/70 hover:text-teal-100">
                       Посмотреть входящие
                     </Link>
@@ -387,7 +438,13 @@ export default async function ExchangePage({ searchParams }: Props) {
               </div>
 
               <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_410px]">
-                <GlassCard id="exchange-list" className="order-2 border border-white/8 p-4 sm:p-5 lg:order-1">
+                <GlassCard
+                  id="exchange-list"
+                  className={cn(
+                    "border border-white/8 p-4 sm:p-5 lg:order-1",
+                    params.swap ? "order-2" : "order-1",
+                  )}
+                >
                   <div className="mb-4 flex items-end justify-between gap-4 px-1">
                     <div>
                       <h2 className="text-lg font-semibold">
@@ -436,7 +493,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                         return (
                           <Link
                             key={swap.id}
-                            href={exchangeHref(activeTab, swap.id, activeFilter, page)}
+                            href={`${exchangeHref(activeTab, swap.id, activeFilter, page)}#exchange-detail`}
                             aria-current={selected ? "true" : undefined}
                             className={cn(
                               "group block rounded-[20px] border p-3.5 transition sm:p-4",
@@ -521,7 +578,13 @@ export default async function ExchangePage({ searchParams }: Props) {
                   ) : null}
                 </GlassCard>
 
-                <GlassCard className="order-1 border border-white/10 p-4 sm:p-5 lg:order-2 lg:sticky lg:top-24">
+                <GlassCard
+                  id="exchange-detail"
+                  className={cn(
+                    "scroll-mt-24 border border-white/10 p-4 sm:p-5 lg:order-2 lg:sticky lg:top-24",
+                    params.swap ? "order-1" : "order-2",
+                  )}
+                >
                   {selectedSwap && selectedTheirItem && selectedYourItem && selectedTheirCard && selectedYourCard && selectedStatus ? (
                     <>
                       <div className="mb-4 flex items-start justify-between gap-3">
@@ -571,6 +634,8 @@ export default async function ExchangePage({ searchParams }: Props) {
                         {selectedStatus.description}
                       </p>
 
+                      <DealProgress status={selectedSwap.status} />
+
                       <ExchangeDealPanel
                         key={`${selectedSwap.id}:${selectedSwap.status}:${selectedSwap.senderCompleted}:${selectedSwap.receiverCompleted}`}
                         swapId={selectedSwap.id}
@@ -585,7 +650,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                       />
 
                       <a href="#exchange-list" className="mt-4 block text-center text-xs text-white/35 hover:text-white/65 lg:hidden">
-                        Посмотреть все предложения ↓
+                        Вернуться к списку ↑
                       </a>
                     </>
                   ) : (

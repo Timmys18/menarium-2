@@ -35,11 +35,13 @@ function CountBadge({ count, compact = false }: { count: number; compact?: boole
     <span
       className={cn(
         "flex items-center justify-center rounded-full bg-amber-300 font-bold text-[#151008] shadow-[0_0_18px_rgba(255,188,114,0.3)]",
-        compact ? "absolute right-1 top-0.5 h-2.5 w-2.5" : "min-w-5 px-1.5 py-0.5 text-[10px]",
+        compact
+          ? "absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[9px] leading-none"
+          : "min-w-5 px-1.5 py-0.5 text-[10px]",
       )}
       aria-label={`${count} новых`}
     >
-      {compact ? null : count > 9 ? "9+" : count}
+      {count > 9 ? "9+" : count}
     </span>
   );
 }
@@ -142,14 +144,14 @@ export function Navigation({
       </nav>
 
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden">
-        <div className="mx-auto flex max-w-lg items-center justify-between rounded-[20px] border border-white/10 bg-[#0a0e16]/90 px-3 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+        <div className="mx-auto flex max-w-lg items-center justify-between rounded-[20px] border border-white/10 bg-[#090d14]/82 px-3 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
           <Link
             href="/"
             aria-label="Menarium — главная"
             aria-current={pathname === "/" ? "page" : undefined}
             className="flex items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 shadow-[0_8px_20px_rgba(77,141,255,0.22)]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-gradient-to-br from-blue-500 to-teal-400 shadow-[0_8px_20px_rgba(77,141,255,0.22)]">
               <Repeat2 className="h-4.5 w-4.5" />
             </span>
             <span className="gradient-text font-display text-lg font-bold tracking-[-0.03em]">MENARIUM</span>
@@ -159,7 +161,7 @@ export function Navigation({
             aria-label="Уведомления"
             aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
             className={cn(
-              "relative flex h-10 w-10 items-center justify-center rounded-xl border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+              "relative flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
               isActivePath(pathname, "/notifications")
                 ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
                 : "border-white/[0.08] bg-white/[0.04] text-white/58",
@@ -173,11 +175,11 @@ export function Navigation({
 
       <nav aria-label="Мобильная навигация" className="fixed inset-x-0 bottom-0 z-50 md:hidden">
         <div
-          className="px-3 pt-2"
+          className="px-2.5 pt-5"
           style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
         >
-          <div className="mx-auto max-w-lg rounded-[24px] border border-white/12 bg-[#090d14]/92 px-1.5 py-1.5 shadow-[0_-12px_50px_rgba(0,0,0,0.38)] backdrop-blur-2xl">
-            <div className="grid grid-cols-5 gap-0.5">
+          <div className="mx-auto max-w-lg rounded-[24px] border border-white/12 bg-[#080c13]/90 px-1.5 py-1.5 shadow-[0_-14px_54px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
+            <div className="grid grid-cols-5 items-end gap-0.5">
               {mobileItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActivePath(pathname, item.href);
@@ -188,24 +190,25 @@ export function Navigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] px-0.5 py-1.5 text-[9px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 min-[360px]:text-[10px]",
-                      active ? "text-white" : "text-white/48",
+                      "relative flex min-h-[54px] min-w-0 flex-col items-center justify-end gap-1 rounded-[18px] px-0.5 pb-1.5 text-[10px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                      active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/48",
+                      item.primary && "text-white/78",
                     )}
                   >
                     <span
                       className={cn(
-                        "relative flex h-8 w-10 items-center justify-center rounded-xl transition",
+                        "relative flex items-center justify-center transition",
                         item.primary
-                          ? "bg-gradient-to-br from-blue-500 to-teal-400 text-white shadow-[0_8px_22px_rgba(77,141,255,0.25)]"
+                          ? "-mt-5 h-12 w-12 rounded-[17px] border border-white/20 bg-gradient-to-br from-blue-500 to-teal-400 text-white shadow-[0_12px_30px_rgba(77,141,255,0.34)] ring-4 ring-[#080c13]"
                           : active
-                            ? "bg-white/[0.1] text-teal-200"
-                            : "text-white/48",
+                            ? "h-8 w-10 rounded-xl bg-white/[0.1] text-teal-200"
+                            : "h-8 w-10 rounded-xl text-white/48",
                       )}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className={cn(item.primary ? "h-5.5 w-5.5" : "h-5 w-5")} />
                       <CountBadge count={count} compact />
                     </span>
-                    <span className="whitespace-nowrap">{item.label}</span>
+                    <span className={cn("whitespace-nowrap", active && "font-semibold text-white")}>{item.label}</span>
                   </Link>
                 );
               })}

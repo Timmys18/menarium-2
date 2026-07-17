@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCatalogHref, parseCatalogSort } from "./catalog-url";
+import { buildCatalogHref, parseCatalogReturnHref, parseCatalogSort } from "./catalog-url";
 
 describe("buildCatalogHref", () => {
   it("returns plain catalog path without filters", () => {
@@ -36,5 +36,22 @@ describe("parseCatalogSort", () => {
   it("accepts supported sort keys", () => {
     expect(parseCatalogSort("trends")).toBe("trends");
     expect(parseCatalogSort("popular")).toBe("popular");
+  });
+});
+
+describe("parseCatalogReturnHref", () => {
+  it("preserves a valid catalog context", () => {
+    expect(parseCatalogReturnHref("/catalog?q=camera&city=Москва&sort=popular&page=2")).toBe(
+      "/catalog?q=camera&city=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0&sort=popular&page=2",
+    );
+  });
+
+  it("rejects external and unrelated paths", () => {
+    expect(parseCatalogReturnHref("//example.com/catalog")).toBeNull();
+    expect(parseCatalogReturnHref("/profile")).toBeNull();
+  });
+
+  it("drops unsupported catalog parameters", () => {
+    expect(parseCatalogReturnHref("/catalog?admin=1&type=UNKNOWN")).toBe("/catalog");
   });
 });

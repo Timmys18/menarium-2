@@ -1,11 +1,22 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ItemStatus, UserStatus } from "@prisma/client";
-import { ArrowLeft, ArrowRightLeft, MessageCircle, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRightLeft,
+  ChevronRight,
+  Globe2,
+  MapPin,
+  MessageCircle,
+  Package,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { parseCatalogReturnHref } from "@/features/items/catalog-url";
 import { serializeItem } from "@/features/items/serializers";
 import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
 import { canInteractWithItem, visibleItemWhere } from "@/features/items/visibility";
@@ -24,7 +35,7 @@ import { markItemThreadRead } from "@/features/chat/read-state";
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ thread?: string }>;
+  searchParams: Promise<{ thread?: string | string[]; from?: string | string[] }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -45,6 +56,8 @@ export const dynamic = "force-dynamic";
 export default async function ItemPage({ params, searchParams }: Props) {
   const { id } = await params;
   const query = await searchParams;
+  const requestedThread = Array.isArray(query.thread) ? query.thread[0] : query.thread;
+  const returnHref = parseCatalogReturnHref(query.from) ?? "/catalog";
   const identity = await getCurrentUserIdentity();
   const userId = identity?.id ?? null;
   const viewerIsAdmin = Boolean(identity && isAdminEmail(identity.email));
@@ -60,13 +73,13 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
   // Участник существующего чата сохраняет доступ к истории после архивации
   // объявления, но не получает права на новые действия с ним.
-  if (!item && userId && query.thread && query.thread !== "open") {
+  if (!item && userId && requestedThread && requestedThread !== "open") {
     item = await prisma.item.findFirst({
       where: {
         id,
         threads: {
           some: {
-            id: query.thread,
+            id: requestedThread,
             OR: [{ buyerId: userId }, { ownerId: userId }],
           },
         },
@@ -80,6 +93,11 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const publicItem = serializeItem(item);
   const card = toItemCardView(publicItem);
   const wanted = itemWantedLabel(publicItem);
+  const itemHref =
+    returnHref === "/catalog"
+      ? `/item/${publicItem.id}`
+      : `/item/${publicItem.id}?from=${encodeURIComponent(returnHref)}`;
+  const chatHref = `${itemHref}${itemHref.includes("?") ? "&" : "?"}thread=open`;
   const isOwner = Boolean(userId && publicItem.owner?.id === userId);
   const canInteract = canInteractWithItem(item.status, viewerIsAdmin);
   const ownerId = publicItem.owner?.id;
@@ -109,17 +127,17 @@ export default async function ItemPage({ params, searchParams }: Props) {
   // - thread=open: покупатель начинает диалог (владельцу с самим собой нельзя);
   // - thread=<id>: открытие конкретной ветки — доступно обоим участникам.
   const chatViewerId =
-    query.thread && userId && (query.thread !== "open" || (canInteract && !isOwner))
+    requestedThread && userId && (requestedThread !== "open" || (canInteract && !isOwner))
       ? userId
       : null;
   const thread = chatViewerId
-    ? query.thread === "open"
+    ? requestedThread === "open"
       ? await prisma.itemThread.findUnique({
             where: { itemId_buyerId: { itemId: publicItem.id, buyerId: chatViewerId } },
           })
       : await prisma.itemThread.findFirst({
           where: {
-            id: query.thread,
+            id: requestedThread,
             itemId: publicItem.id,
             OR: [{ buyerId: chatViewerId }, { ownerId: chatViewerId }],
           },
@@ -128,7 +146,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
   const showChatPanel = Boolean(
     chatViewerId &&
-      (thread || (query.thread === "open" && canInteract && !isOwner && !communicationBlocked)),
+      (thread || (requestedThread === "open" && canInteract && !isOwner && !communicationBlocked)),
   );
   const canWriteItemChat = canInteract && !communicationBlocked;
 
@@ -152,42 +170,77 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
+      <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-6xl">
-          <MenariumLinkButton href="/catalog" variant="ghost" size="sm" className="mb-6">
+          <MenariumLinkButton href={returnHref} variant="ghost" size="sm" className="mb-4 sm:mb-6">
             <ArrowLeft className="h-4 w-4" />
             Назад в каталог
           </MenariumLinkButton>
 
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-            <GlassCard className="overflow-hidden rounded-[32px]">
-              <div className="relative">
-                <ItemImageGallery
-                  images={publicItem.images.length > 0 ? publicItem.images : [{ id: "placeholder", url: card.image }]}
-                  title={publicItem.title}
-                />
-                <div className="absolute left-5 top-5 z-10">
-                  <Badge>{publicItem.category}</Badge>
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-7">
+            <div className="lg:sticky lg:top-28">
+              <GlassCard className="overflow-hidden rounded-[24px] sm:rounded-[32px]">
+                <div className="relative">
+                  <ItemImageGallery
+                    images={publicItem.images.length > 0 ? publicItem.images : [{ id: "placeholder", url: card.image }]}
+                    title={publicItem.title}
+                  />
                 </div>
-              </div>
-            </GlassCard>
+              </GlassCard>
+            </div>
 
-            <div className="space-y-6">
-              <GlassCard className="p-8">
-                <h1 className="mb-4 text-4xl font-bold tracking-tight">{publicItem.title}</h1>
-                <p className="mb-6 whitespace-pre-line text-white/60">{publicItem.description}</p>
-                <div className="mb-6 flex items-center gap-2 text-white/60">
-                  <ArrowRightLeft className="h-5 w-5 text-purple-400" />
-                  Хочет: <span className="text-white">{wanted}</span>
+            <div className="space-y-5">
+              <GlassCard className="p-5 sm:p-7">
+                <div className="mb-5 flex flex-wrap gap-2">
+                  <Badge variant="gradient">{publicItem.category}</Badge>
+                  <Badge variant="glass">
+                    <Package className="h-3 w-3" />
+                    {publicItem.type === "SERVICE" ? "Услуга" : "Предмет"}
+                  </Badge>
+                  {publicItem.isOnline ? (
+                    <Badge variant="teal">
+                      <Globe2 className="h-3 w-3" />
+                      Онлайн
+                    </Badge>
+                  ) : null}
                 </div>
-                <div className="mb-8 flex items-center gap-2 text-white/60">
-                  <ShieldCheck className="h-5 w-5 text-teal-400" />
-                  Безопасная сделка через статусы Menarium
+
+                <h1 className="text-3xl font-bold leading-[1.08] tracking-[-0.035em] sm:text-4xl">
+                  {publicItem.title}
+                </h1>
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/52">
+                  <span className="inline-flex items-center gap-1.5">
+                    {publicItem.isOnline ? <Globe2 className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+                    {publicItem.isOnline ? `Онлайн · ${publicItem.city}` : publicItem.city}
+                  </span>
+                  {publicItem.owner?.id ? (
+                    <Link
+                      href={`/user/${publicItem.owner.id}`}
+                      className="inline-flex items-center gap-1.5 text-white/66 transition hover:text-teal-200"
+                    >
+                      <UserRound className="h-4 w-4" />
+                      {publicItem.owner.name ?? "Пользователь Menarium"}
+                    </Link>
+                  ) : null}
                 </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
+
+                <div className="my-6 rounded-[20px] border border-blue-300/[0.16] bg-gradient-to-br from-blue-400/[0.10] to-teal-300/[0.045] p-4 sm:p-5">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-100/58">
+                    <ArrowRightLeft className="h-4 w-4 text-teal-200/78" />
+                    В обмен рассматривает
+                  </div>
+                  <p className="text-base font-medium leading-relaxed text-white/88 sm:text-lg">{wanted}</p>
+                </div>
+
+                <div className="flex flex-col gap-3">
                   {isOwner ? (
-                    item.status === ItemStatus.ACTIVE ? (
+                    item.status === ItemStatus.ACTIVE || item.status === ItemStatus.PAUSED ? (
                       <div className="flex-1 space-y-3">
+                        {item.status === ItemStatus.PAUSED ? (
+                          <div className="rounded-[16px] border border-amber-300/15 bg-amber-300/[0.07] px-4 py-3 text-sm text-amber-50/72">
+                            Объявление на паузе: его видите только вы. Измените его здесь или верните в каталог из раздела «Мои вещи».
+                          </div>
+                        ) : null}
                         <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="w-full">
                           Редактировать объявление
                         </MenariumLinkButton>
@@ -203,23 +256,23 @@ export default async function ItemPage({ params, searchParams }: Props) {
                       Объявление снято с публикации и недоступно для новых контактов.
                     </div>
                   ) : userId && !communicationBlocked ? (
-                    <ExchangeProposal receiverItemId={publicItem.id} userItems={userItems} />
+                    <ExchangeProposal
+                      receiverItemId={publicItem.id}
+                      receiverTitle={publicItem.title}
+                      userItems={userItems}
+                    />
                   ) : userId ? (
                     <div className="flex-1 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100/80">
                       Контакт с этим пользователем ограничен.
                     </div>
                   ) : (
-                    <MenariumLinkButton href={loginHref(`/item/${publicItem.id}`)} className="flex-1">
+                    <MenariumLinkButton href={loginHref(itemHref)} className="flex-1">
                       Войти и предложить обмен
                     </MenariumLinkButton>
                   )}
                   {!isOwner && canInteract && !communicationBlocked ? (
                     <MenariumLinkButton
-                      href={
-                        userId
-                          ? `/item/${publicItem.id}?thread=open`
-                          : loginHref(`/item/${publicItem.id}?thread=open`)
-                      }
+                      href={userId ? chatHref : loginHref(chatHref)}
                       variant="secondary"
                       className="flex-1"
                     >
@@ -228,24 +281,63 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     </MenariumLinkButton>
                   ) : null}
                 </div>
+
+                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/44">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-300/72" />
+                  Договорённости и завершение обмена фиксируются в Menarium. Не передавайте коды и данные банковских карт в сообщениях.
+                </div>
+
+                <section className="mt-6 border-t border-white/8 pt-6" aria-labelledby="item-description-title">
+                  <h2 id="item-description-title" className="text-lg font-semibold text-white/92">
+                    Об объявлении
+                  </h2>
+                  <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-white/58">
+                    {publicItem.description}
+                  </p>
+                </section>
               </GlassCard>
 
-              <GlassCard className="p-6">
-                <h2 className="mb-3 text-xl font-semibold">Детали</h2>
-                <div className="grid gap-3 text-sm text-white/55">
-                  <div className="flex justify-between"><span>Город</span><span className="text-white">{publicItem.city}</span></div>
-                  <div className="flex justify-between"><span>Категория</span><span className="text-white">{publicItem.category}</span></div>
-                  <div className="flex justify-between"><span>Тип</span><span className="text-white">{publicItem.type === "SERVICE" ? "Услуга" : "Предмет"}</span></div>
-                  <div className="flex justify-between"><span>Владелец</span>
-                    {publicItem.owner?.id ? (
-                      <Link href={`/user/${publicItem.owner.id}`} className="text-teal-300 hover:underline">
+              <GlassCard className="p-5 sm:p-6">
+                {publicItem.owner?.id ? (
+                  <Link
+                    href={`/user/${publicItem.owner.id}`}
+                    className="group mb-5 flex items-center gap-3 rounded-[18px] border border-white/8 bg-white/[0.025] p-3.5 transition hover:border-teal-300/18 hover:bg-teal-300/[0.04]"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-blue-400/18 to-teal-300/12 text-teal-100/80">
+                      <UserRound className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-xs text-white/40">Владелец</span>
+                      <span className="block truncate text-sm font-semibold text-white/86">
                         {publicItem.owner.name ?? "Пользователь Menarium"}
-                      </Link>
-                    ) : (
-                      <span className="text-white">Пользователь Menarium</span>
-                    )}
+                      </span>
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-white/28 transition group-hover:translate-x-0.5 group-hover:text-teal-200/70" />
+                  </Link>
+                ) : null}
+
+                <h2 className="mb-4 text-lg font-semibold">Детали</h2>
+                <div className="divide-y divide-white/7 text-sm">
+                  <div className="flex items-center justify-between gap-4 py-3 first:pt-0">
+                    <span className="text-white/42">Город</span>
+                    <span className="text-right text-white/82">{publicItem.city}</span>
                   </div>
-                  <div className="flex justify-between"><span>Статус</span><span className="text-teal-300">{itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}</span></div>
+                  <div className="flex items-center justify-between gap-4 py-3">
+                    <span className="text-white/42">Категория</span>
+                    <span className="text-right text-white/82">{publicItem.category}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 py-3">
+                    <span className="text-white/42">Формат</span>
+                    <span className="text-right text-white/82">
+                      {publicItem.isOnline ? "Можно онлайн" : `Лично · ${publicItem.city}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 py-3 last:pb-0">
+                    <span className="text-white/42">Статус</span>
+                    <span className="text-right font-medium text-teal-200/82">
+                      {itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}
+                    </span>
+                  </div>
                 </div>
                 {userId && !isOwner && ownerId && canInteract ? (
                   <div className="mt-5 border-t border-white/10 pt-5">

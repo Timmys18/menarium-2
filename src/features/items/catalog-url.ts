@@ -25,3 +25,25 @@ export function buildCatalogHref(params: {
   const query = search.toString();
   return query ? `/catalog?${query}` : "/catalog";
 }
+
+export function parseCatalogReturnHref(value: string | string[] | undefined) {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  if (!candidate?.startsWith("/") || candidate.startsWith("//")) return null;
+
+  try {
+    const url = new URL(candidate, "https://menarium.internal");
+    if (url.origin !== "https://menarium.internal" || url.pathname !== "/catalog") return null;
+
+    const type = url.searchParams.get("type");
+    return buildCatalogHref({
+      q: url.searchParams.get("q") ?? undefined,
+      category: url.searchParams.get("category") ?? undefined,
+      city: url.searchParams.get("city") ?? undefined,
+      type: type === "THING" || type === "SERVICE" ? type : undefined,
+      sort: parseCatalogSort(url.searchParams.get("sort") ?? undefined),
+      page: Math.max(1, Number(url.searchParams.get("page")) || 1),
+    });
+  } catch {
+    return null;
+  }
+}
