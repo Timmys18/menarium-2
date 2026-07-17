@@ -36,7 +36,11 @@ export const clientProductEventSchema = z.discriminatedUnion("name", [
     .object({ name: z.literal("item_creation_started"), path: z.literal("/new"), eventId: eventIdSchema })
     .strict(),
   z
-    .object({ name: z.literal("exchange_proposal_started"), path: z.literal("/item/[id]"), eventId: eventIdSchema })
+    .object({
+      name: z.literal("exchange_proposal_started"),
+      path: z.union([z.literal("/item/[id]"), z.literal("/swipe")]),
+      eventId: eventIdSchema,
+    })
     .strict(),
 ]);
 
@@ -44,7 +48,7 @@ export type ClientProductEvent =
   | { name: "page_view"; path: string }
   | { name: "registration_started"; path: "/auth/register" }
   | { name: "item_creation_started"; path: "/new" }
-  | { name: "exchange_proposal_started"; path: "/item/[id]" };
+  | { name: "exchange_proposal_started"; path: "/item/[id]" | "/swipe" };
 
 export function normalizeAnalyticsPath(pathname: string | null | undefined) {
   if (!pathname?.startsWith("/")) return "/other";

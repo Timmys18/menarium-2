@@ -99,10 +99,12 @@ test.describe("критический жизненный цикл обмена",
         await maria.goto("/new");
         const mariaMain = main(maria);
         await pick(mariaMain.getByRole("textbox", { name: "Название" })).fill(createdItemTitle);
+        await pick(mariaMain.getByRole("button", { name: "Продолжить" })).click();
         await pick(mariaMain.getByRole("textbox", { name: "Описание" })).fill(
           "Новая клавиатура с тихими переключателями и полным комплектом.",
         );
-        await pick(mariaMain.getByRole("textbox", { name: "Что хотите взамен" })).fill("Пленочная камера");
+        await pick(mariaMain.getByRole("button", { name: "Продолжить" })).click();
+        await pick(mariaMain.getByRole("textbox", { name: "Что интересно получить" })).fill("Пленочная камера");
         await pick(mariaMain.getByRole("button", { name: "Создать объявление" })).click();
         await expect(maria).toHaveURL(/\/item\/[^/?]+$/);
         await expect(mariaMain.getByRole("heading", { name: createdItemTitle })).toBeVisible();
@@ -116,7 +118,7 @@ test.describe("критический жизненный цикл обмена",
         await pick(mariaMain.locator("select")).selectOption({ label: createdItemTitle });
         await pick(mariaMain.getByRole("button", { name: "Предложить обмен" })).click();
         await expect(maria).toHaveURL(/\/exchange\?swap=[^&]+/);
-        await expect(mariaMain.getByText("Ожидает", { exact: true }).first()).toBeVisible();
+        await expect(mariaMain.getByText("Ждём ответа", { exact: true }).first()).toBeVisible();
       });
 
       await test.step("Дмитрий получает предложение и принимает его", async () => {
@@ -156,7 +158,7 @@ test.describe("критический жизненный цикл обмена",
         await maria.goto("/exchange?tab=outgoing&filter=history");
         const mariaMain = main(maria);
         await expect(mariaMain.getByText(targetItemTitle, { exact: true }).first()).toBeVisible();
-        await expect(mariaMain.getByText("Завершен", { exact: true }).first()).toBeVisible();
+        await expect(mariaMain.getByText("Обмен завершён", { exact: true }).first()).toBeVisible();
         await expect(mariaMain.getByText(senderMessage).first()).toBeVisible();
         await expect(mariaMain.getByText(receiverMessage).first()).toBeVisible();
       });

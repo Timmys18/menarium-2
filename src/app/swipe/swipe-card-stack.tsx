@@ -2,11 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Info, Loader2, X } from "lucide-react";
-import { motion, useMotionValue, useTransform, animate, useReducedMotion } from "motion/react";
-import { ItemCoverImage } from "@/components/menarium/item-cover-image";
+import {
+  ArrowRight,
+  Heart,
+  Info,
+  Loader2,
+  MapPin,
+  UserRound,
+  Wifi,
+  X,
+} from "lucide-react";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
-import { MenariumLinkButton } from "@/components/menarium/button";
+import { MenariumDialog } from "@/components/menarium/dialog";
+import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { SwipeLikeModal } from "./swipe-like-modal";
 
 type SwipeCardData = {
@@ -15,6 +25,9 @@ type SwipeCardData = {
   category: string;
   wanted: string;
   image: string;
+  city: string;
+  ownerName: string;
+  isOnline: boolean;
 };
 
 type UserItem = { id: string; title: string };
@@ -31,11 +44,12 @@ export function SwipeCardStack({
   const router = useRouter();
   const reducedMotion = useReducedMotion();
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
+  const rotate = useTransform(x, [-200, 0, 200], [-10, 0, 10]);
   const likeOpacity = useTransform(x, [40, SWIPE_THRESHOLD], [0, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -40], [1, 0]);
   const [loading, setLoading] = useState(false);
   const [likeOpen, setLikeOpen] = useState(false);
+  const [createPromptOpen, setCreatePromptOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const exiting = useRef(false);
 
@@ -49,19 +63,20 @@ export function SwipeCardStack({
     if (!response.ok) throw new Error(body?.error ?? "Не удалось пропустить карточку");
   }
 
-  async function animateExit(direction: "left" | "right", then: () => void | Promise<void>) {
+  async function passCard() {
     if (exiting.current) return;
     exiting.current = true;
     setLoading(true);
     setError(null);
+
     try {
       if (!reducedMotion) {
-        await animate(x, direction === "left" ? -420 : 420, { duration: 0.28, ease: "easeIn" });
+        await animate(x, -420, { duration: 0.28, ease: "easeIn" });
       }
-      await then();
+      await recordPass();
       router.refresh();
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Не удалось выполнить действие");
+      setError(actionError instanceof Error ? actionError.message : "Не удалось пропустить карточку");
       await animate(x, 0, { duration: 0.2, type: "spring", stiffness: 400, damping: 30 });
     } finally {
       exiting.current = false;
@@ -69,29 +84,26 @@ export function SwipeCardStack({
     }
   }
 
-  function passCard() {
-    return animateExit("left", recordPass);
+  function openExchangeFlow() {
+    setError(null);
+    void animate(x, 0, { duration: 0.2, type: "spring", stiffness: 400, damping: 30 });
+    if (userItems.length === 0) {
+      setCreatePromptOpen(true);
+      return;
+    }
+    setLikeOpen(true);
   }
 
   function onDragEnd(_: unknown, info: { offset: { x: number } }) {
     if (info.offset.x > SWIPE_THRESHOLD) {
-      if (userItems.length === 0) {
-        void animateExit("right", async () => {
-          router.push(`/item/${card.id}`);
-        });
-        return;
-      }
-      setLikeOpen(true);
-      animate(x, 0, { duration: 0.2 });
-      exiting.current = false;
-      setLoading(false);
+      openExchangeFlow();
       return;
     }
     if (info.offset.x < -SWIPE_THRESHOLD) {
       void passCard();
       return;
     }
-    animate(x, 0, { duration: 0.25, type: "spring", stiffness: 400, damping: 30 });
+    void animate(x, 0, { duration: 0.25, type: "spring", stiffness: 400, damping: 30 });
   }
 
   useEffect(() => {
@@ -99,71 +111,113 @@ export function SwipeCardStack({
     exiting.current = false;
   }, [card.id, x]);
 
+  const createHref = `/new?returnTo=${encodeURIComponent(`/item/${card.id}`)}`;
+
   return (
     <>
-      <div className="relative flex min-h-[min(640px,78vh)] items-center justify-center">
-        <GlassCard className="absolute h-[min(600px,74vh)] w-[min(420px,92vw)] translate-y-8 scale-90 rounded-3xl opacity-40" />
-        <GlassCard className="absolute h-[min(600px,74vh)] w-[min(420px,92vw)] translate-y-4 scale-95 rounded-3xl opacity-60" />
+      <div className="relative flex min-h-[min(610px,70vh)] items-center justify-center">
+        <GlassCard className="absolute h-[min(570px,66vh)] w-[min(430px,91vw)] translate-y-7 scale-[0.91] border border-white/5 opacity-35" />
+        <GlassCard className="absolute h-[min(570px,66vh)] w-[min(430px,91vw)] translate-y-3 scale-[0.96] border border-white/7 opacity-55" />
 
         <motion.div
           style={{ x, rotate }}
           drag={loading ? false : "x"}
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.9}
+          dragElastic={0.85}
           onDragEnd={onDragEnd}
-          className="relative z-10 w-full max-w-[450px] touch-pan-y"
+          className="relative z-10 w-full max-w-[460px] touch-pan-y"
         >
-          <GlassCard className="relative overflow-hidden rounded-3xl">
-            <motion.div style={{ opacity: likeOpacity }} className="pointer-events-none absolute left-6 top-6 z-20 rounded-2xl border-2 border-teal-400 bg-teal-500/20 px-4 py-2 text-sm font-bold text-teal-300">
-              ХОЧУ
+          <GlassCard className="relative overflow-hidden border border-white/12 shadow-[0_30px_80px_rgba(0,0,0,0.36)]">
+            <motion.div
+              style={{ opacity: likeOpacity }}
+              className="pointer-events-none absolute left-5 top-5 z-20 rotate-[-5deg] rounded-[14px] border-2 border-teal-300 bg-[#07110f]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-teal-200 backdrop-blur-xl"
+            >
+              ОБМЕН
             </motion.div>
-            <motion.div style={{ opacity: passOpacity }} className="pointer-events-none absolute right-6 top-6 z-20 rounded-2xl border-2 border-red-400 bg-red-500/20 px-4 py-2 text-sm font-bold text-red-300">
+            <motion.div
+              style={{ opacity: passOpacity }}
+              className="pointer-events-none absolute right-5 top-5 z-20 rotate-[5deg] rounded-[14px] border-2 border-red-300 bg-[#16090b]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-red-200 backdrop-blur-xl"
+            >
               МИМО
             </motion.div>
-            <div className="relative h-[min(480px,58vh)]">
-              <ItemCoverImage src={card.image} alt={card.title} />
-              <div className="absolute left-4 top-4 rounded-xl border border-white/10 bg-black/40 px-3 py-1.5 backdrop-blur-xl">
-                <span className="text-xs tracking-wide text-white/90">{card.category}</span>
+
+            <div className="relative h-[min(400px,47vh)] min-h-72">
+              <ItemCoverImage
+                src={card.image}
+                alt={card.title}
+                priority
+                sizes="(max-width: 520px) 94vw, 460px"
+              />
+              <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+                <span className="rounded-full border border-white/12 bg-black/50 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-xl">
+                  {card.category}
+                </span>
+                {card.isOnline ? (
+                  <span className="flex items-center gap-1.5 rounded-full border border-teal-300/20 bg-[#07110f]/70 px-3 py-1.5 text-xs font-medium text-teal-100 backdrop-blur-xl">
+                    <Wifi className="h-3.5 w-3.5" />
+                    Онлайн
+                  </span>
+                ) : null}
               </div>
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/70 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0b1019] to-transparent" />
             </div>
-            <div className="px-6 py-5">
-              <h2 className="mb-2 text-xl font-semibold tracking-tight">{card.title}</h2>
-              <p className="text-sm text-white/55">Хочет: {card.wanted}</p>
+
+            <div className="px-5 pb-5 pt-4 sm:px-6">
+              <h2 className="text-xl font-bold tracking-tight sm:text-2xl">{card.title}</h2>
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/42">
+                <span className="flex items-center gap-1.5">
+                  <UserRound className="h-3.5 w-3.5" />
+                  {card.ownerName}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {card.city}
+                </span>
+              </div>
+              <div className="mt-4 rounded-[16px] border border-teal-300/15 bg-teal-300/[0.055] px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-teal-200/60">Интересно взамен</p>
+                <p className="mt-1 line-clamp-2 text-sm leading-5 text-white/75">{card.wanted}</p>
+              </div>
             </div>
           </GlassCard>
         </motion.div>
       </div>
 
-      <div className="mt-8 flex items-center justify-center gap-6">
+      <div className="mx-auto mt-6 grid max-w-[460px] grid-cols-3 gap-3">
         <button
           type="button"
           disabled={loading}
           onClick={() => void passCard()}
-          className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:bg-white/10 disabled:opacity-50"
+          className="flex min-h-16 flex-col items-center justify-center gap-1 rounded-[18px] border border-red-300/15 bg-red-300/[0.045] px-2 py-3 text-xs font-semibold text-red-200 transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:opacity-50"
           aria-label="Пропустить"
         >
-          {loading ? <Loader2 className="h-7 w-7 animate-spin text-white/60" /> : <X className="h-8 w-8 text-red-400" />}
+          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <X className="h-5 w-5" />}
+          <span>Пропустить</span>
         </button>
-        <MenariumLinkButton href={`/item/${card.id}`} variant="secondary" className="h-16 w-16 rounded-full p-0" aria-label="Подробнее">
-          <Info className="h-7 w-7 text-blue-400" />
+        <MenariumLinkButton
+          href={`/item/${card.id}`}
+          variant="secondary"
+          className="min-h-16 flex-col gap-1 rounded-[18px] px-2 py-3 text-xs"
+          aria-label="Подробнее"
+        >
+          <Info className="h-5 w-5 text-blue-200" />
+          Подробнее
         </MenariumLinkButton>
         <button
           type="button"
           disabled={loading}
-          onClick={() => {
-            if (userItems.length === 0) {
-              router.push(`/item/${card.id}`);
-              return;
-            }
-            setLikeOpen(true);
-          }}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-purple-500 transition hover:scale-105 disabled:opacity-50"
+          onClick={openExchangeFlow}
+          className="flex min-h-16 flex-col items-center justify-center gap-1 rounded-[18px] border border-teal-200/20 bg-gradient-to-br from-blue-500 to-teal-400 px-2 py-3 text-xs font-semibold text-white shadow-[0_14px_34px_rgba(56,189,180,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/80 disabled:opacity-50"
           aria-label="Предложить обмен"
         >
-          <Heart className="h-8 w-8 text-white" />
+          <Heart className="h-5 w-5" />
+          <span>Обменять</span>
         </button>
       </div>
+
+      <p className="mx-auto mt-3 max-w-[460px] text-center text-xs text-white/30">
+        Можно тянуть карточку влево или вправо
+      </p>
 
       {error ? (
         <p role="alert" className="mx-auto mt-4 max-w-md text-center text-sm text-red-300">
@@ -177,10 +231,29 @@ export function SwipeCardStack({
         receiverTitle={card.title}
         userItems={userItems}
         onClose={() => setLikeOpen(false)}
-        onSuccess={() => {
+        onSuccess={(swapId) => {
           setLikeOpen(false);
-          void animateExit("right", recordPass);
+          router.push(`/exchange?tab=outgoing&swap=${encodeURIComponent(swapId)}`);
+          router.refresh();
         }}
+      />
+
+      <MenariumDialog
+        open={createPromptOpen}
+        onClose={() => setCreatePromptOpen(false)}
+        title="Сначала добавим твоё предложение"
+        description={`Чтобы предложить обмен на «${card.title}», нужно показать, что ты отдаёшь. После публикации мы вернём тебя к этой карточке.`}
+        footer={
+          <>
+            <MenariumButton variant="secondary" onClick={() => setCreatePromptOpen(false)}>
+              Не сейчас
+            </MenariumButton>
+            <MenariumLinkButton href={createHref}>
+              Создать и вернуться
+              <ArrowRight className="h-4 w-4" />
+            </MenariumLinkButton>
+          </>
+        }
       />
     </>
   );

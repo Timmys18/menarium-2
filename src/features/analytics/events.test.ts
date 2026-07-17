@@ -23,6 +23,7 @@ describe("clientProductEventSchema", () => {
   it("accepts only allowlisted event payloads", () => {
     const eventId = "d2bbcb60-3d8d-4f3d-9e0a-228e8a907ccc";
     expect(clientProductEventSchema.safeParse({ name: "page_view", path: "/catalog", eventId }).success).toBe(true);
+    expect(clientProductEventSchema.safeParse({ name: "exchange_proposal_started", path: "/swipe", eventId }).success).toBe(true);
     expect(clientProductEventSchema.safeParse({ name: "page_view", path: "/catalog", eventId, email: "x@y.z" }).success).toBe(false);
     expect(clientProductEventSchema.safeParse({ name: "message_sent", path: "/exchange", eventId }).success).toBe(false);
   });
