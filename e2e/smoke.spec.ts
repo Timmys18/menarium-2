@@ -8,7 +8,7 @@ test.describe("Menarium smoke", () => {
 
   test("каталог открывается", async ({ page }) => {
     await page.goto("/catalog");
-    await expect(page.getByRole("heading", { name: /Каталог/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Найди встречный вариант" })).toBeVisible();
   });
 
   test("страница входа открывается", async ({ page }) => {

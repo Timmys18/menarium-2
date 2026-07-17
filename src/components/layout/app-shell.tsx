@@ -18,12 +18,15 @@ export async function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <RealtimeProvider enabled={Boolean(userId)}>
-      <div className="relative min-h-screen overflow-hidden">
-        <div className="dot-grid-bg pointer-events-none fixed inset-0 opacity-60" />
-        <div className="pointer-events-none fixed left-1/4 top-0 h-96 w-96 rounded-full bg-teal-500/20 blur-[128px]" />
-        <div className="pointer-events-none fixed bottom-0 right-1/4 h-96 w-96 rounded-full bg-purple-500/20 blur-[128px]" />
+      <div className="relative min-h-screen overflow-x-clip">
+        <a href="#main-content" className="skip-link">
+          К содержимому
+        </a>
+        <div aria-hidden="true" className="dot-grid-bg pointer-events-none fixed inset-0 opacity-50" />
+        <div aria-hidden="true" className="pointer-events-none fixed -left-40 -top-52 h-[34rem] w-[34rem] rounded-full bg-teal-400/[0.12] blur-[150px]" />
+        <div aria-hidden="true" className="pointer-events-none fixed -right-48 top-10 h-[38rem] w-[38rem] rounded-full bg-blue-500/[0.12] blur-[160px]" />
         <NavigationWithPolling initialUnreadCount={unreadCount} initialPendingSwaps={pendingSwaps} />
-        <main className="relative z-10">{children}</main>
+        <main id="main-content" className="relative z-10">{children}</main>
         <SiteFooter />
       </div>
     </RealtimeProvider>

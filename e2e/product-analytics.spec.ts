@@ -79,7 +79,7 @@ test.describe("privacy-first product analytics", () => {
       ).toBeGreaterThan(0);
 
       await gotoAndWaitForPageView(page, "/catalog", "/catalog");
-      await expect(page.getByRole("heading", { name: /Каталог/i })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Найди встречный вариант" })).toBeVisible();
       await expect.poll(
         () => prisma.productEvent.count({ where: { name: "page_view", actorId: maria.id, path: "/catalog" } }),
         { timeout: 15_000 },

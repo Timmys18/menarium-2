@@ -46,7 +46,7 @@ export function ItemCoverImage({
       src={src}
       alt={alt}
       fill
-      priority={priority}
+      loading={priority ? "eager" : undefined}
       sizes={sizes ?? "(max-width: 768px) 100vw, 33vw"}
       className={cn("object-cover", imageClassName)}
     />

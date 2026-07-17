@@ -6,16 +6,16 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-gradient-to-r from-teal-500 to-purple-500 text-white font-semibold glow-purple",
-  secondary: "glass-card text-white font-semibold hover:bg-white/10",
-  ghost: "text-white/60 hover:text-white hover:bg-white/5",
+  primary: "border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow-[0_14px_34px_rgba(77,141,255,0.22)] hover:shadow-[0_18px_42px_rgba(56,214,178,0.2)]",
+  secondary: "border border-white/12 bg-white/[0.055] text-white font-semibold shadow-sm hover:border-white/20 hover:bg-white/[0.09]",
+  ghost: "text-white/60 hover:bg-white/[0.055] hover:text-white",
   danger: "bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25",
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "px-5 py-2.5 text-sm",
-  md: "px-7 py-3.5 text-base",
-  lg: "px-10 py-5 text-lg",
+  sm: "min-h-10 px-4 py-2 text-sm",
+  md: "min-h-12 px-5 py-3 text-sm sm:px-6 sm:text-base",
+  lg: "min-h-14 px-7 py-3.5 text-base sm:px-8",
 };
 
 export type MenariumButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -32,7 +32,7 @@ export function MenariumButton({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]",
+        "inline-flex items-center justify-center gap-2 rounded-[14px] transition duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070a10]",
         variants[variant],
         sizes[size],
         className,
@@ -59,7 +59,7 @@ export function MenariumLinkButton({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0f]",
+        "inline-flex items-center justify-center gap-2 rounded-[14px] transition duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070a10]",
         variants[variant],
         sizes[size],
         className,

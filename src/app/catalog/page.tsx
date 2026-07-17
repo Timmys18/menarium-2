@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Clock, Heart, Search, TrendingUp } from "lucide-react";
+import { Check, Clock, Heart, Search, SlidersHorizontal, TrendingUp, X } from "lucide-react";
 import { ItemType } from "@prisma/client";
 import { AppShell } from "@/components/layout/app-shell";
 import { PreviewUiNotice } from "@/components/preview-ui-notice";
@@ -9,6 +9,7 @@ import { ItemCard } from "@/components/menarium/item-card";
 import { categories } from "@/features/items/sample-data";
 import { buildCatalogHref, parseCatalogSort, type CatalogSort, CATALOG_PAGE_SIZE } from "@/features/items/catalog-url";
 import { loadCatalogItemCards } from "@/features/items/load-item-cards";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,22 @@ const sortOptions: { id: CatalogSort; label: string; icon: typeof TrendingUp }[]
   { id: "popular", label: "Популярные", icon: Heart },
 ];
 
+const typeOptions = [
+  { id: undefined, label: "Все" },
+  { id: ItemType.THING, label: "Предметы" },
+  { id: ItemType.SERVICE, label: "Услуги" },
+] as const;
+
+function filterLinkClass(active: boolean, compact = false) {
+  return cn(
+    "flex items-center justify-between gap-2 rounded-[13px] text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65",
+    compact ? "shrink-0 px-3.5 py-2.5" : "w-full px-3 py-2.5",
+    active
+      ? "border border-teal-300/18 bg-teal-300/[0.085] text-white"
+      : "border border-transparent text-white/52 hover:bg-white/[0.045] hover:text-white",
+  );
+}
+
 export default async function CatalogPage({ searchParams }: Props) {
   const params = await searchParams;
   const q = params.q?.trim();
@@ -43,7 +60,7 @@ export default async function CatalogPage({ searchParams }: Props) {
   const sort = parseCatalogSort(params.sort);
   const page = Math.max(1, Number(params.page) || 1);
   const selectedCategory = category && category !== "Все" ? category : undefined;
-  const catalogBase = { q, city, type: parsedType, sort };
+  const catalogBase = { q, city, category: selectedCategory, type: parsedType, sort };
 
   const { cards, preview, categoryList, cityList, total, hasMore } = await loadCatalogItemCards({
     q,
@@ -55,169 +72,285 @@ export default async function CatalogPage({ searchParams }: Props) {
     page,
   });
   const totalPages = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));
+  const activeFilterCount = [selectedCategory, city, parsedType].filter(Boolean).length;
+  const typeLabel = typeOptions.find((entry) => entry.id === parsedType)?.label;
 
   return (
     <AppShell>
       {preview ? <PreviewUiNotice /> : null}
-      <div className={`min-h-screen px-6 pb-32 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
+      <div className={`min-h-screen px-4 pb-32 sm:px-6 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <div className="mx-auto max-w-[1600px]">
-          <div className="mb-10">
-            <h1 className="text-4xl font-bold md:text-5xl">
-              Каталог <span className="gradient-text">обменов</span>
-            </h1>
+          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/70">Вещи и услуги рядом</p>
+              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+                Найди встречный <span className="gradient-text">вариант</span>
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/48 sm:text-base">
+                Ищи по названию, городу и категории. Каждый результат уже открыт к обмену.
+              </p>
+            </div>
+            <div className="self-start rounded-full border border-white/[0.075] bg-white/[0.035] px-4 py-2 text-sm text-white/45 lg:self-auto">
+              Найдено: <span className="font-semibold text-white/85">{total}</span>
+            </div>
           </div>
 
-          <form action="/catalog">
-            <GlassCard className="mb-8 flex flex-col gap-4 rounded-2xl p-4 md:flex-row md:items-center">
-              <div className="flex min-w-0 flex-1 items-center gap-4">
-                <Search className="h-6 w-6 shrink-0 text-white/40" />
-                <input
-                  defaultValue={q}
-                  name="q"
-                  placeholder="Найти обмен..."
-                  className="flex-1 bg-transparent text-lg text-white outline-none placeholder:text-white/40"
-                />
-              </div>
+          <form action="/catalog" className="mb-6">
+            <GlassCard className="flex items-center gap-2 rounded-[18px] p-2 sm:gap-3 sm:p-2.5">
+              <Search className="ml-2 h-5 w-5 shrink-0 text-white/36 sm:ml-3" />
+              <label htmlFor="catalog-search" className="sr-only">
+                Найти вещь или услугу
+              </label>
+              <input
+                id="catalog-search"
+                defaultValue={q}
+                name="q"
+                placeholder="Что хочешь найти?"
+                className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-white/32 sm:text-lg"
+              />
               {city ? <input type="hidden" name="city" value={city} /> : null}
               {selectedCategory ? <input type="hidden" name="category" value={selectedCategory} /> : null}
               {parsedType ? <input type="hidden" name="type" value={parsedType} /> : null}
               {sort !== "new" ? <input type="hidden" name="sort" value={sort} /> : null}
+              <button
+                type="submit"
+                aria-label="Найти"
+                className="flex min-h-11 items-center justify-center rounded-[13px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(77,141,255,0.18)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75 sm:px-6"
+              >
+                <span className="hidden sm:inline">Найти</span>
+                <Search className="h-4 w-4 sm:hidden" />
+              </button>
             </GlassCard>
           </form>
 
+          <div className="mb-6 space-y-3 lg:hidden">
+            <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+              {sortOptions.map((item) => {
+                const Icon = item.icon;
+                const active = sort === item.id;
+                return (
+                  <a
+                    key={item.id}
+                    href={buildCatalogHref({ ...catalogBase, sort: item.id })}
+                    aria-current={active ? "page" : undefined}
+                    className={filterLinkClass(active, true)}
+                  >
+                    <Icon className={cn("h-4 w-4", active ? "text-teal-200" : "text-white/35")} />
+                    {item.label}
+                  </a>
+                );
+              })}
+            </div>
+
+            <details className="glass-card overflow-hidden rounded-[18px]">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/65 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-2 text-sm font-medium">
+                  <SlidersHorizontal className="h-4 w-4 text-teal-200" />
+                  Фильтры
+                </span>
+                <span className="text-xs text-white/42">
+                  {activeFilterCount > 0 ? `Выбрано: ${activeFilterCount}` : "Категория, тип, город"}
+                </span>
+              </summary>
+              <div className="border-t border-white/[0.065] p-4">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Тип предложения</p>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {typeOptions.map((entry) => {
+                      const active = (entry.id === undefined && !parsedType) || entry.id === parsedType;
+                      return (
+                        <a
+                          key={entry.label}
+                          href={buildCatalogHref({ ...catalogBase, type: entry.id })}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(filterLinkClass(active), "justify-center px-2 text-center")}
+                        >
+                          {entry.label}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Категория</p>
+                  <div className="grid max-h-64 grid-cols-2 gap-1 overflow-y-auto pr-1">
+                    {categoryList.map((entry) => {
+                      const active = (entry === "Все" && !selectedCategory) || entry === selectedCategory;
+                      return (
+                        <a
+                          key={entry}
+                          href={buildCatalogHref({ ...catalogBase, category: entry === "Все" ? undefined : entry })}
+                          aria-current={active ? "page" : undefined}
+                          className={filterLinkClass(active)}
+                        >
+                          <span className="truncate">{entry}</span>
+                          {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {cityList.length > 0 ? (
+                  <div className="mt-5">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Город</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      <a
+                        href={buildCatalogHref({ ...catalogBase, city: undefined })}
+                        aria-current={!city ? "page" : undefined}
+                        className={filterLinkClass(!city)}
+                      >
+                        Все города
+                        {!city ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
+                      </a>
+                      {cityList.map((entry) => {
+                        const active = city?.toLowerCase() === entry.toLowerCase();
+                        return (
+                          <a
+                            key={entry}
+                            href={buildCatalogHref({ ...catalogBase, city: entry })}
+                            aria-current={active ? "page" : undefined}
+                            className={filterLinkClass(active)}
+                          >
+                            <span className="truncate">{entry}</span>
+                            {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+
+                {activeFilterCount > 0 ? (
+                  <a
+                    href={buildCatalogHref({ q, sort })}
+                    className="mt-5 flex items-center justify-center gap-2 rounded-[13px] border border-white/[0.075] bg-white/[0.035] px-4 py-3 text-sm text-white/55"
+                  >
+                    <X className="h-4 w-4" />
+                    Сбросить фильтры
+                  </a>
+                ) : null}
+              </div>
+            </details>
+
+            {activeFilterCount > 0 ? (
+              <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 text-xs">
+                {selectedCategory ? (
+                  <a href={buildCatalogHref({ ...catalogBase, category: undefined })} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/62">
+                    {selectedCategory} <X className="h-3 w-3" />
+                  </a>
+                ) : null}
+                {parsedType ? (
+                  <a href={buildCatalogHref({ ...catalogBase, type: undefined })} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/62">
+                    {typeLabel} <X className="h-3 w-3" />
+                  </a>
+                ) : null}
+                {city ? (
+                  <a href={buildCatalogHref({ ...catalogBase, city: undefined })} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/62">
+                    {city} <X className="h-3 w-3" />
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
           <div className="flex gap-8">
             <aside className="hidden w-72 shrink-0 lg:block">
-              <GlassCard className="sticky top-32 p-6">
-                <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
-                  Сортировка
-                </h3>
-                <div className="mb-6 space-y-1.5">
+              <GlassCard className="sticky top-28 p-5">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold">Настроить выдачу</h2>
+                  {activeFilterCount > 0 ? (
+                    <a href={buildCatalogHref({ q, sort })} className="text-xs text-teal-200/75 hover:text-teal-200">
+                      Сбросить
+                    </a>
+                  ) : null}
+                </div>
+
+                <p className="mb-2 mt-6 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Сортировка</p>
+                <div className="space-y-1">
                   {sortOptions.map((item) => {
                     const Icon = item.icon;
                     const active = sort === item.id;
                     return (
-                      <a
-                        key={item.id}
-                        href={buildCatalogHref({ ...catalogBase, sort: item.id })}
-                        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
-                          active
-                            ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
-                            : "text-white/60 hover:bg-white/5 hover:text-white"
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
+                      <a key={item.id} href={buildCatalogHref({ ...catalogBase, sort: item.id })} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
+                        <span className="flex items-center gap-2"><Icon className="h-4 w-4" />{item.label}</span>
+                        {active ? <Check className="h-3.5 w-3.5 text-teal-200" /> : null}
                       </a>
                     );
                   })}
                 </div>
 
-                <div className="mb-6 h-px bg-white/10" />
-
-                <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
-                  Тип
-                </h3>
-                <div className="mb-6 space-y-1.5">
-                  {[
-                    { id: undefined, label: "Все" },
-                    { id: ItemType.THING, label: "Предметы" },
-                    { id: ItemType.SERVICE, label: "Услуги" },
-                  ].map((entry) => (
-                    <a
-                      key={entry.label}
-                      href={buildCatalogHref({ ...catalogBase, type: entry.id })}
-                      className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
-                        (entry.id === undefined && !parsedType) || entry.id === parsedType
-                          ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
-                          : "text-white/60 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      {entry.label}
-                    </a>
-                  ))}
+                <div className="my-5 h-px bg-white/[0.065]" />
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Тип</p>
+                <div className="space-y-1">
+                  {typeOptions.map((entry) => {
+                    const active = (entry.id === undefined && !parsedType) || entry.id === parsedType;
+                    return (
+                      <a key={entry.label} href={buildCatalogHref({ ...catalogBase, type: entry.id })} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
+                        {entry.label}
+                        {active ? <Check className="h-3.5 w-3.5 text-teal-200" /> : null}
+                      </a>
+                    );
+                  })}
                 </div>
 
-                <div className="mb-6 h-px bg-white/10" />
-
-                <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
-                  Категории
-                </h3>
-                <div className="space-y-1.5">
-                  {categoryList.map((entry) => (
-                    <a
-                      key={entry}
-                      href={buildCatalogHref({ ...catalogBase, category: entry === "Все" ? undefined : entry })}
-                      className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
-                        (entry === "Все" && !selectedCategory) || entry === selectedCategory
-                          ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
-                          : "text-white/60 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      {entry}
-                    </a>
-                  ))}
+                <div className="my-5 h-px bg-white/[0.065]" />
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Категории</p>
+                <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
+                  {categoryList.map((entry) => {
+                    const active = (entry === "Все" && !selectedCategory) || entry === selectedCategory;
+                    return (
+                      <a key={entry} href={buildCatalogHref({ ...catalogBase, category: entry === "Все" ? undefined : entry })} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
+                        <span className="truncate">{entry}</span>
+                        {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
+                      </a>
+                    );
+                  })}
                 </div>
 
                 {cityList.length > 0 ? (
                   <>
-                    <div className="mb-6 mt-6 h-px bg-white/10" />
-                    <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
-                      Города
-                    </h3>
-                    <div className="space-y-1.5">
-                      <a
-                        href={buildCatalogHref({ ...catalogBase, city: undefined })}
-                        className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
-                          !city ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
-                        }`}
-                      >
+                    <div className="my-5 h-px bg-white/[0.065]" />
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Города</p>
+                    <div className="space-y-1">
+                      <a href={buildCatalogHref({ ...catalogBase, city: undefined })} aria-current={!city ? "page" : undefined} className={filterLinkClass(!city)}>
                         Все города
+                        {!city ? <Check className="h-3.5 w-3.5 text-teal-200" /> : null}
                       </a>
-                      {cityList.map((entry) => (
-                        <a
-                          key={entry}
-                          href={buildCatalogHref({ ...catalogBase, city: entry })}
-                          className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
-                            city?.toLowerCase() === entry.toLowerCase()
-                              ? "bg-gradient-to-r from-teal-500/20 to-purple-500/20 text-white"
-                              : "text-white/60 hover:bg-white/5 hover:text-white"
-                          }`}
-                        >
-                          {entry}
-                        </a>
-                      ))}
+                      {cityList.map((entry) => {
+                        const active = city?.toLowerCase() === entry.toLowerCase();
+                        return (
+                          <a key={entry} href={buildCatalogHref({ ...catalogBase, city: entry })} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
+                            <span className="truncate">{entry}</span>
+                            {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
+                          </a>
+                        );
+                      })}
                     </div>
                   </>
                 ) : null}
               </GlassCard>
             </aside>
 
-            <section className="flex-1">
+            <section className="min-w-0 flex-1" aria-label="Результаты каталога">
               {cards.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {cards.map((item) => (
-                      <ItemCard key={item.id} {...item} />
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 2xl:grid-cols-3">
+                    {cards.map((item, index) => (
+                      <ItemCard key={item.id} {...item} priority={index < 2} />
                     ))}
                   </div>
                   {totalPages > 1 ? (
                     <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                       {page > 1 ? (
-                        <a
-                          href={buildCatalogHref({ ...catalogBase, category: selectedCategory, page: page - 1 })}
-                          className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
-                        >
+                        <a href={buildCatalogHref({ ...catalogBase, page: page - 1 })} className="rounded-[14px] border border-white/10 bg-white/[0.045] px-5 py-3 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white">
                           ← Назад
                         </a>
                       ) : null}
-                      <span className="text-sm text-white/45">
-                        Страница {page} из {totalPages}
-                      </span>
+                      <span className="text-sm text-white/42">Страница {page} из {totalPages}</span>
                       {hasMore ? (
-                        <a
-                          href={buildCatalogHref({ ...catalogBase, category: selectedCategory, page: page + 1 })}
-                          className="rounded-2xl bg-gradient-to-r from-teal-500 to-purple-500 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
-                        >
+                        <a href={buildCatalogHref({ ...catalogBase, page: page + 1 })} className="rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.18)]">
                           Показать ещё →
                         </a>
                       ) : null}
@@ -226,10 +359,10 @@ export default async function CatalogPage({ searchParams }: Props) {
                 </>
               ) : (
                 <EmptyState
-                  title="Пока нет подходящих объявлений"
-                  description="Каталог уже подключен к базе. Как только появятся активные объявления, они будут здесь."
-                  actionHref="/new"
-                  actionLabel="Создать объявление"
+                  title="Пока нет подходящих предложений"
+                  description="Измени фильтры или создай собственное объявление — встречный вариант может найтись с другой стороны."
+                  actionHref={activeFilterCount > 0 || q ? "/catalog" : "/new"}
+                  actionLabel={activeFilterCount > 0 || q ? "Сбросить поиск" : "Создать объявление"}
                 />
               )}
             </section>
