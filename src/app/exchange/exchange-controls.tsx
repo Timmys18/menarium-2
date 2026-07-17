@@ -8,7 +8,7 @@ import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
-type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED";
+type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
 type ExchangeSnapshot = {
   status: ExchangeStatus;
   senderCompleted: boolean;
@@ -30,6 +30,7 @@ export function ExchangeActionPanel({
   isReceiver,
   senderCompleted,
   receiverCompleted,
+  handoffReady = false,
   onSwapUpdated,
 }: {
   swapId: string;
@@ -38,6 +39,7 @@ export function ExchangeActionPanel({
   isReceiver: boolean;
   senderCompleted: boolean;
   receiverCompleted: boolean;
+  handoffReady?: boolean;
   onSwapUpdated?: (snapshot: ExchangeSnapshot) => void;
 }) {
   const router = useRouter();
@@ -84,7 +86,9 @@ export function ExchangeActionPanel({
       ? isReceiver
         ? "Сначала сверьте обе вещи. После принятия откроется чат для договорённостей."
         : "Партнёр увидит предложение и примет решение. До этого его можно отозвать."
-      : "Подтверждайте завершение только после того, как обмен действительно состоялся.";
+      : handoffReady
+        ? "Подтверждайте завершение только после того, как обмен действительно состоялся."
+        : "Сначала обе стороны должны согласовать и подтвердить передачу.";
 
   if (!hasActions) return null;
 
@@ -135,9 +139,18 @@ export function ExchangeActionPanel({
 
       {status === "ACCEPTED" ? (
         <div className="space-y-2">
-          <MenariumButton size="sm" className="w-full" onClick={() => setConfirmAction("complete")} disabled={Boolean(pendingAction) || alreadyCompleted}>
+          {!handoffReady ? (
+            <p className="rounded-xl border border-amber-300/14 bg-amber-300/[0.06] px-3.5 py-3 text-xs leading-5 text-amber-50/65">
+              Завершение откроется, когда вы оба подтвердите способ и время передачи.
+            </p>
+          ) : null}
+          <MenariumButton size="sm" className="w-full" onClick={() => setConfirmAction("complete")} disabled={Boolean(pendingAction) || alreadyCompleted || !handoffReady}>
             {pendingAction === "complete" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            {alreadyCompleted ? "Вы подтвердили завершение" : "Подтвердить завершение"}
+            {alreadyCompleted
+              ? "Вы подтвердили завершение"
+              : handoffReady
+                ? "Подтвердить завершение"
+                : "Сначала подтвердите передачу"}
           </MenariumButton>
           <MenariumButton
             size="sm"
@@ -182,6 +195,7 @@ export function ExchangeDealPanel({
   isReceiver,
   senderCompleted,
   receiverCompleted,
+  handoffReady,
   currentUserId,
   messages,
   nextCursor,
@@ -192,6 +206,7 @@ export function ExchangeDealPanel({
   currentUserId: string;
   messages: ChatMessageView[];
   nextCursor: string | null;
+  handoffReady: boolean;
 }) {
   const [snapshot, setSnapshot] = useState<ExchangeSnapshot>({
     status,
@@ -214,6 +229,7 @@ export function ExchangeDealPanel({
         isReceiver={isReceiver}
         senderCompleted={snapshot.senderCompleted}
         receiverCompleted={snapshot.receiverCompleted}
+        handoffReady={handoffReady}
         onSwapUpdated={setSnapshot}
       />
       <div className="mb-3 flex items-end justify-between gap-3">

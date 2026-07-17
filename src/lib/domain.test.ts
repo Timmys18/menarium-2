@@ -25,6 +25,7 @@ describe("domain helpers", () => {
       SwapStatus.DECLINED,
       SwapStatus.COMPLETED,
       SwapStatus.CANCELLED,
+      SwapStatus.EXPIRED,
     ]);
     expect(terminalSwapStatuses).not.toContain(SwapStatus.PENDING);
     expect(terminalSwapStatuses).not.toContain(SwapStatus.ACCEPTED);
@@ -36,10 +37,12 @@ describe("domain helpers", () => {
     expect(canOpenDealChat(SwapStatus.ACCEPTED)).toBe(true);
     expect(canOpenDealChat(SwapStatus.COMPLETED)).toBe(true);
     expect(canOpenDealChat(SwapStatus.CANCELLED)).toBe(true);
+    expect(canOpenDealChat(SwapStatus.EXPIRED)).toBe(false);
 
     expect(canWriteDealChat(SwapStatus.ACCEPTED)).toBe(true);
     expect(canWriteDealChat(SwapStatus.COMPLETED)).toBe(false);
     expect(canWriteDealChat(SwapStatus.CANCELLED)).toBe(false);
+    expect(canWriteDealChat(SwapStatus.EXPIRED)).toBe(false);
   });
 
   it("treats only active items as exchangeable", () => {

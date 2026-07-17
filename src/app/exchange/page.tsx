@@ -9,6 +9,7 @@ import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { loadDealMessagePage } from "@/features/chat/message-pages";
 import { markDealChatRead } from "@/features/chat/read-state";
 import { pickMutualPendingSwapIds } from "@/features/exchange/matches";
+import { expirePendingSwapOffers } from "@/features/exchange/expiration";
 import { serializeDealMessage } from "@/features/exchange/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { serializeItem } from "@/features/items/serializers";
@@ -16,6 +17,8 @@ import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { ExchangeDealPanel } from "./exchange-controls";
+import { ExchangeHandoffPanel } from "./exchange-handoff-panel";
+import { ExchangeReviewPanel } from "./exchange-review-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +32,12 @@ type StatusVariant = "glass" | "teal" | "purple" | "danger";
 
 const EXCHANGE_PAGE_SIZE = 30;
 const ACTIVE_STATUSES: SwapStatus[] = [SwapStatus.PENDING, SwapStatus.ACCEPTED];
-const HISTORY_STATUSES: SwapStatus[] = [SwapStatus.DECLINED, SwapStatus.CANCELLED, SwapStatus.COMPLETED];
+const HISTORY_STATUSES: SwapStatus[] = [
+  SwapStatus.DECLINED,
+  SwapStatus.CANCELLED,
+  SwapStatus.COMPLETED,
+  SwapStatus.EXPIRED,
+];
 
 const swapInclude = {
   sender: { select: { id: true, name: true, city: true, image: true } },
@@ -118,6 +126,14 @@ function statusPresentation(
     };
   }
 
+  if (swap.status === SwapStatus.EXPIRED) {
+    return {
+      label: "Срок истёк",
+      description: "На предложение не ответили за семь дней. Вещи остаются доступны для новых вариантов.",
+      variant: "glass",
+    };
+  }
+
   return {
     label: "Обмен отменён",
     description: "Сделка закрыта, объявления снова доступны для других предложений.",
@@ -125,11 +141,23 @@ function statusPresentation(
   };
 }
 
-function DealProgress({ status }: { status: SwapStatus }) {
-  if (status === SwapStatus.DECLINED || status === SwapStatus.CANCELLED) return null;
+function DealProgress({ status, handoffReady }: { status: SwapStatus; handoffReady: boolean }) {
+  if (
+    status === SwapStatus.DECLINED ||
+    status === SwapStatus.CANCELLED ||
+    status === SwapStatus.EXPIRED
+  ) {
+    return null;
+  }
 
   const activeIndex =
-    status === SwapStatus.COMPLETED ? 2 : status === SwapStatus.ACCEPTED ? 1 : 0;
+    status === SwapStatus.COMPLETED
+      ? 2
+      : status === SwapStatus.ACCEPTED
+        ? handoffReady
+          ? 2
+          : 1
+        : 0;
   const steps = [
     { label: "Предложение", hint: "Решение" },
     { label: "Договорённость", hint: "Передача" },
@@ -181,6 +209,7 @@ function DealProgress({ status }: { status: SwapStatus }) {
 export default async function ExchangePage({ searchParams }: Props) {
   const userId = await getCurrentUserId();
   const params = await searchParams;
+  if (userId) await expirePendingSwapOffers(prisma, { userId });
   const requestedPage = Math.max(1, Math.floor(Number(params.page) || 1));
   const participantWhere: Prisma.SwapRequestWhereInput = userId
     ? { OR: [{ senderId: userId }, { receiverId: userId }] }
@@ -309,15 +338,27 @@ export default async function ExchangePage({ searchParams }: Props) {
     swapsPage[0];
   const exchangeHasMore = page * EXCHANGE_PAGE_SIZE < tabCounts[activeTab];
 
-  const selectedMessagePage =
+  const selectedContext =
     selectedSwap && userId
-      ? (
-          await Promise.all([
-            loadDealMessagePage({ swapId: selectedSwap.id }),
-            markDealChatRead(userId, selectedSwap.id),
-          ])
-        )[0]
-      : { messages: [], nextCursor: null };
+      ? await Promise.all([
+          (async () => {
+            const [messagePage] = await Promise.all([
+              loadDealMessagePage({ swapId: selectedSwap.id }),
+              markDealChatRead(userId, selectedSwap.id),
+            ]);
+            return messagePage;
+          })(),
+          prisma.review.findUnique({
+            where: { swapId_reviewerId: { swapId: selectedSwap.id, reviewerId: userId } },
+            select: { id: true, rating: true, comment: true, visibleAt: true, createdAt: true },
+          }),
+          prisma.review.findFirst({
+            where: { swapId: selectedSwap.id, revieweeId: userId, visibleAt: { lte: new Date() } },
+            select: { id: true, rating: true, comment: true, visibleAt: true, createdAt: true },
+          }),
+        ])
+      : [{ messages: [], nextCursor: null }, null, null] as const;
+  const [selectedMessagePage, selectedOwnReview, selectedReceivedReview] = selectedContext;
   const selectedMessages = selectedMessagePage.messages.map(serializeDealMessage);
 
   const selectedIsIncoming = selectedSwap ? selectedSwap.receiverId === userId : false;
@@ -336,6 +377,11 @@ export default async function ExchangePage({ searchParams }: Props) {
     : null;
   const selectedStatus =
     selectedSwap && userId ? statusPresentation(selectedSwap, userId) : null;
+  const selectedHandoffReady = Boolean(
+    selectedSwap?.handoffMode &&
+      selectedSwap.senderHandoffConfirmed &&
+      selectedSwap.receiverHandoffConfirmed,
+  );
 
   return (
     <AppShell>
@@ -634,7 +680,58 @@ export default async function ExchangePage({ searchParams }: Props) {
                         {selectedStatus.description}
                       </p>
 
-                      <DealProgress status={selectedSwap.status} />
+                      {selectedSwap.status === SwapStatus.PENDING ? (
+                        <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-white/38">
+                          <Clock3 className="h-3.5 w-3.5 text-amber-200/65" />
+                          Ответ до {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(selectedSwap.expiresAt)}
+                        </p>
+                      ) : null}
+
+                      <DealProgress status={selectedSwap.status} handoffReady={selectedHandoffReady} />
+
+                      {selectedSwap.status === SwapStatus.ACCEPTED || selectedSwap.status === SwapStatus.COMPLETED ? (
+                        <ExchangeHandoffPanel
+                          swapId={selectedSwap.id}
+                          initialPlan={{
+                            handoffMode: selectedSwap.handoffMode,
+                            handoffScheduledAt: selectedSwap.handoffScheduledAt?.toISOString() ?? null,
+                            handoffDetails: selectedSwap.handoffDetails,
+                            handoffRevision: selectedSwap.handoffRevision,
+                            senderHandoffConfirmed: selectedSwap.senderHandoffConfirmed,
+                            receiverHandoffConfirmed: selectedSwap.receiverHandoffConfirmed,
+                          }}
+                          isSender={selectedSwap.senderId === userId}
+                          partnerName={selectedPartner?.name ?? "партнёра"}
+                          readOnly={selectedSwap.status === SwapStatus.COMPLETED}
+                        />
+                      ) : null}
+
+                      {selectedSwap.status === SwapStatus.COMPLETED ? (
+                        <ExchangeReviewPanel
+                          swapId={selectedSwap.id}
+                          partnerName={selectedPartner?.name ?? "партнёром"}
+                          initialReview={
+                            selectedOwnReview
+                              ? {
+                                  ...selectedOwnReview,
+                                  visibleAt: selectedOwnReview.visibleAt.toISOString(),
+                                  createdAt: selectedOwnReview.createdAt.toISOString(),
+                                  isVisible: selectedOwnReview.visibleAt <= new Date(),
+                                }
+                              : null
+                          }
+                          receivedReview={
+                            selectedReceivedReview
+                              ? {
+                                  ...selectedReceivedReview,
+                                  visibleAt: selectedReceivedReview.visibleAt.toISOString(),
+                                  createdAt: selectedReceivedReview.createdAt.toISOString(),
+                                  isVisible: true,
+                                }
+                              : null
+                          }
+                        />
+                      ) : null}
 
                       <ExchangeDealPanel
                         key={`${selectedSwap.id}:${selectedSwap.status}:${selectedSwap.senderCompleted}:${selectedSwap.receiverCompleted}`}
@@ -644,6 +741,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                         isReceiver={selectedSwap.receiverId === userId}
                         senderCompleted={selectedSwap.senderCompleted}
                         receiverCompleted={selectedSwap.receiverCompleted}
+                        handoffReady={selectedHandoffReady}
                         currentUserId={userId}
                         messages={selectedMessages}
                         nextCursor={selectedMessagePage.nextCursor}

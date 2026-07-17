@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeSwap } from "@/features/exchange/serializers";
 import { pickMutualPendingSwapIds } from "@/features/exchange/matches";
+import { expirePendingSwapOffers } from "@/features/exchange/expiration";
 
 const swapInclude = {
   sender: { select: { id: true, name: true, city: true, image: true } },
@@ -26,6 +27,8 @@ const swapInclude = {
 export async function GET(req: NextRequest) {
   const auth = await requireUserId();
   if (!auth.ok) return auth.response;
+
+  await expirePendingSwapOffers(prisma, { userId: auth.userId });
 
   const { limit, offset } = getPaging(req, 50, 80);
   const where = {

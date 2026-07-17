@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ItemStatus, SwapStatus, UserStatus } from "@prisma/client";
 import type { Metadata } from "next";
-import { CalendarDays, ShieldCheck } from "lucide-react";
+import { CalendarDays, MessageSquareQuote, ShieldCheck, Star } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
@@ -11,6 +11,7 @@ import { ItemCard } from "@/components/menarium/item-card";
 import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
+import { loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { TrustActions } from "@/components/trust/trust-actions";
 
@@ -41,6 +42,19 @@ function getInitials(name: string | null, email: string) {
     .join("");
 }
 
+function ReviewStars({ rating }: { rating: number }) {
+  return (
+    <span className="inline-flex gap-0.5" role="img" aria-label={`Оценка ${rating} из 5`}>
+      {Array.from({ length: 5 }, (_, index) => (
+        <Star
+          key={index}
+          className={index < rating ? "h-3.5 w-3.5 fill-amber-300 text-amber-300" : "h-3.5 w-3.5 text-white/16"}
+        />
+      ))}
+    </span>
+  );
+}
+
 export default async function PublicUserPage({ params }: Props) {
   const { id } = await params;
   const viewerId = await getCurrentUserId();
@@ -59,10 +73,15 @@ export default async function PublicUserPage({ params }: Props) {
   });
   if (!user) notFound();
 
-  const [items, completedSwaps, block] = await Promise.all([
+  const now = new Date();
+  const [items, completedSwaps, block, reviewSummary, reviews] = await Promise.all([
     prisma.item.findMany({
       where: { ownerId: id, status: ItemStatus.ACTIVE },
-      include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
+      include: {
+        owner: { select: { id: true, name: true, city: true, image: true } },
+        images: true,
+        _count: { select: { favorites: true } },
+      },
       orderBy: { createdAt: "desc" },
       take: 24,
     }),
@@ -78,10 +97,37 @@ export default async function PublicUserPage({ params }: Props) {
           select: { blockerId: true },
         })
       : null,
+    prisma.review.aggregate({
+      where: { revieweeId: id, visibleAt: { lte: now } },
+      _avg: { rating: true },
+      _count: { _all: true },
+    }),
+    prisma.review.findMany({
+      where: { revieweeId: id, visibleAt: { lte: now } },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        createdAt: true,
+        reviewer: { select: { id: true, name: true, image: true } },
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: 12,
+    }),
   ]);
 
-  const cards = items.map((item) => toItemCardView(serializeItem(item)));
+  const favoriteRows =
+    viewerId && viewerId !== id && items.length > 0
+      ? await prisma.favorite.findMany({
+          where: { userId: viewerId, itemId: { in: items.map((item) => item.id) } },
+          select: { itemId: true },
+        })
+      : [];
+  const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
+  const cards = items.map((item) => toItemCardView(serializeItem(item), item._count.favorites));
   const isSelf = viewerId === id;
+  const reviewCount = reviewSummary._count._all;
+  const averageRating = reviewSummary._avg.rating;
 
   return (
     <AppShell>
@@ -107,6 +153,14 @@ export default async function PublicUserPage({ params }: Props) {
                 <p className="mt-2 text-white/55">{user.city ?? "Город не указан"}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge variant="teal">{completedSwaps} завершённых обменов</Badge>
+                  {reviewCount > 0 && averageRating ? (
+                    <Badge variant="gold">
+                      <Star className="h-3.5 w-3.5 fill-current" />
+                      {averageRating.toFixed(1)} · {reviewCount} отзывов
+                    </Badge>
+                  ) : (
+                    <Badge>Репутация формируется</Badge>
+                  )}
                   <Badge>{cards.length} активных объявлений</Badge>
                   {user.emailVerified ? (
                     <Badge variant="teal">
@@ -140,12 +194,72 @@ export default async function PublicUserPage({ params }: Props) {
             </div>
           </GlassCard>
 
+          {reviews.length > 0 ? (
+            <section aria-labelledby="public-reviews-title">
+              <div className="mb-4 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200/60">
+                    Только завершённые сделки
+                  </p>
+                  <h2 id="public-reviews-title" className="mt-2 text-2xl font-semibold">
+                    Отзывы партнёров
+                  </h2>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-white">{averageRating?.toFixed(1)}</p>
+                  <p className="text-xs text-white/35">из 5</p>
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                {reviews.map((review) => (
+                  <GlassCard key={review.id} className="p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        {review.reviewer.image ? (
+                          <Image
+                            src={review.reviewer.image}
+                            alt=""
+                            width={40}
+                            height={40}
+                            className="h-10 w-10 shrink-0 rounded-[13px] object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-white/[0.055] text-white/50">
+                            <MessageSquareQuote className="h-4 w-4" />
+                          </span>
+                        )}
+                        <div className="min-w-0">
+                          <Link href={`/user/${review.reviewer.id}`} className="block truncate text-sm font-semibold text-white/82 hover:text-teal-200">
+                            {review.reviewer.name ?? "Участник Menarium"}
+                          </Link>
+                          <time dateTime={review.createdAt.toISOString()} className="mt-0.5 block text-xs text-white/32">
+                            {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(review.createdAt)}
+                          </time>
+                        </div>
+                      </div>
+                      <ReviewStars rating={review.rating} />
+                    </div>
+                    <p className="mt-4 text-sm leading-6 text-white/58">
+                      {review.comment || "Обмен завершён без дополнительного комментария."}
+                    </p>
+                  </GlassCard>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <div>
             <h2 className="mb-4 text-2xl font-semibold">Объявления</h2>
             {cards.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {cards.map((card) => (
-                  <ItemCard key={card.id} {...card} />
+                  <ItemCard
+                    key={card.id}
+                    {...card}
+                    isFavorite={favoriteIds.has(card.id)}
+                    canFavorite={Boolean(viewerId && viewerId !== id && !block)}
+                    favoriteLoginHref={!viewerId ? loginHref(`/user/${id}`) : undefined}
+                  />
                 ))}
               </div>
             ) : (

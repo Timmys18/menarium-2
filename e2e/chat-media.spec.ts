@@ -56,6 +56,7 @@ test.describe("chat history and media hardening", () => {
         senderItemId: mariaItem.id,
         receiverItemId: dmitryItem.id,
         acceptedAt: oldActivity,
+        expiresAt: new Date(oldActivity.getTime() + 7 * 24 * 60 * 60 * 1000),
         updatedAt: oldActivity,
       },
     });

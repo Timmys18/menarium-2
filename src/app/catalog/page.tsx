@@ -11,7 +11,9 @@ import { ItemCard } from "@/components/menarium/item-card";
 import { categories } from "@/features/items/sample-data";
 import { buildCatalogHref, parseCatalogSort, type CatalogSort, CATALOG_PAGE_SIZE } from "@/features/items/catalog-url";
 import { loadCatalogItemCards } from "@/features/items/load-item-cards";
-import { cn } from "@/lib/utils";
+import { prisma } from "@/lib/prisma";
+import { cn, loginHref } from "@/lib/utils";
+import { getCurrentUserId } from "@/server/session";
 
 export const dynamic = "force-dynamic";
 
@@ -65,15 +67,26 @@ export default async function CatalogPage({ searchParams }: Props) {
   const catalogBase = { q, city, category: selectedCategory, type: parsedType, sort };
   const currentCatalogHref = buildCatalogHref({ ...catalogBase, page });
 
-  const { cards, preview, categoryList, cityList, total, hasMore } = await loadCatalogItemCards({
-    q,
-    category: selectedCategory,
-    city,
-    type: parsedType,
-    sort,
-    fallbackCategories: categories,
-    page,
-  });
+  const [{ cards, preview, categoryList, cityList, total, hasMore }, userId] = await Promise.all([
+    loadCatalogItemCards({
+      q,
+      category: selectedCategory,
+      city,
+      type: parsedType,
+      sort,
+      fallbackCategories: categories,
+      page,
+    }),
+    getCurrentUserId(),
+  ]);
+  const favoriteRows =
+    userId && !preview && cards.length > 0
+      ? await prisma.favorite.findMany({
+          where: { userId, itemId: { in: cards.map((card) => card.id) } },
+          select: { itemId: true },
+        })
+      : [];
+  const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
   const totalPages = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));
   const activeFilterCount = [selectedCategory, city, parsedType].filter(Boolean).length;
   const typeLabel = typeOptions.find((entry) => entry.id === parsedType)?.label;
@@ -372,7 +385,15 @@ export default async function CatalogPage({ searchParams }: Props) {
                 <>
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 2xl:grid-cols-3">
                     {cards.map((item, index) => (
-                      <ItemCard key={item.id} {...item} priority={index < 2} returnHref={currentCatalogHref} />
+                      <ItemCard
+                        key={item.id}
+                        {...item}
+                        priority={index < 2}
+                        returnHref={currentCatalogHref}
+                        isFavorite={favoriteIds.has(item.id)}
+                        canFavorite={Boolean(userId && item.ownerId !== userId)}
+                        favoriteLoginHref={!userId ? loginHref(currentCatalogHref) : undefined}
+                      />
                     ))}
                   </div>
                   {totalPages > 1 ? (

@@ -8,11 +8,25 @@ import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { loadHomeItemCards } from "@/features/items/load-item-cards";
+import { prisma } from "@/lib/prisma";
+import { loginHref } from "@/lib/utils";
+import { getCurrentUserId } from "@/server/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { cards, preview } = await loadHomeItemCards();
+  const [{ cards, preview }, userId] = await Promise.all([
+    loadHomeItemCards(),
+    getCurrentUserId(),
+  ]);
+  const favoriteRows =
+    userId && !preview && cards.length > 0
+      ? await prisma.favorite.findMany({
+          where: { userId, itemId: { in: cards.map((card) => card.id) } },
+          select: { itemId: true },
+        })
+      : [];
+  const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
   const heroPair = cards.slice(0, 2);
 
   return (
@@ -127,7 +141,14 @@ export default async function Home() {
           {cards.length > 0 ? (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {cards.map((item, index) => (
-                <ItemCard key={item.id} {...item} priority={index < 2} />
+                <ItemCard
+                  key={item.id}
+                  {...item}
+                  priority={index < 2}
+                  isFavorite={favoriteIds.has(item.id)}
+                  canFavorite={Boolean(userId && item.ownerId !== userId)}
+                  favoriteLoginHref={!userId ? loginHref("/") : undefined}
+                />
               ))}
             </div>
           ) : (

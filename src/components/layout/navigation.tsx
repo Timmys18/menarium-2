@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeftRight, Bell, Compass, Plus, Repeat2, Search, UserRound } from "lucide-react";
+import { ArrowLeftRight, Bell, Compass, Heart, Plus, Repeat2, Search, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const desktopItems = [
   { href: "/catalog", label: "Каталог", icon: Compass },
+  { href: "/favorites", label: "Избранное", icon: Heart },
   { href: "/swipe", label: "Свайп", icon: Repeat2 },
   { href: "/exchange", label: "Обмены", icon: ArrowLeftRight },
 ];

@@ -2,6 +2,7 @@ import type { PublicItem } from "@/features/items/serializers";
 
 export type ItemCardView = {
   id: string;
+  ownerId?: string;
   title: string;
   category: string;
   image: string;
@@ -20,9 +21,10 @@ export function itemWantedLabel(item: Pick<PublicItem, "desired" | "acceptsAnyth
   return "Рассмотрит хороший обмен";
 }
 
-export function toItemCardView(item: PublicItem): ItemCardView {
+export function toItemCardView(item: PublicItem, likes?: number): ItemCardView {
   return {
     id: item.id,
+    ownerId: item.owner?.id,
     title: item.title,
     category: item.category,
     image: item.images[0]?.url ?? "/menarium-placeholder.svg",
@@ -30,6 +32,7 @@ export function toItemCardView(item: PublicItem): ItemCardView {
     city: item.city,
     type: item.type,
     isOnline: item.isOnline,
+    likes,
     flexible: item.acceptsAnything,
   };
 }

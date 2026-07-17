@@ -7,6 +7,8 @@ export const SERVER_PRODUCT_EVENT_NAMES = [
   "email_verified",
   "login_succeeded",
   "item_created",
+  "item_favorited",
+  "item_unfavorited",
   "swipe_passed",
   "swap_proposed",
   "swap_accepted",
@@ -15,6 +17,9 @@ export const SERVER_PRODUCT_EVENT_NAMES = [
   "swap_completion_confirmed",
   "swap_completed",
   "swap_cancelled",
+  "review_submitted",
+  "handoff_plan_saved",
+  "handoff_plan_confirmed",
 ] as const;
 
 export type ServerProductEventName = (typeof SERVER_PRODUCT_EVENT_NAMES)[number];

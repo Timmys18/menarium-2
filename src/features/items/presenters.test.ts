@@ -38,6 +38,7 @@ describe("item presenters", () => {
   it("maps public items to card view", () => {
     expect(toItemCardView(item)).toMatchObject({
       id: "item-1",
+      ownerId: "user-1",
       title: "Sony WH-1000XM5",
       category: "Техника",
       image: "https://example.com/image.jpg",
@@ -47,6 +48,10 @@ describe("item presenters", () => {
       isOnline: false,
       flexible: false,
     });
+  });
+
+  it("adds the verified favorite count when supplied", () => {
+    expect(toItemCardView(item, 12).likes).toBe(12);
   });
 
   it("uses branded placeholder when item has no images", () => {

@@ -16,6 +16,7 @@ import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { toItemCardView } from "@/features/items/presenters";
+import { expirePendingSwapOffers } from "@/features/exchange/expiration";
 import { serializeItem } from "@/features/items/serializers";
 import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
@@ -118,7 +119,10 @@ function itemSwapHref({
   if (status === SwapStatus.ACCEPTED) {
     return `/exchange?tab=matches&swap=${encodeURIComponent(id)}`;
   }
-  return `/exchange?tab=${direction}&swap=${encodeURIComponent(id)}`;
+  if (status === SwapStatus.PENDING) {
+    return `/exchange?tab=${direction}&swap=${encodeURIComponent(id)}`;
+  }
+  return `/exchange?tab=${direction}&filter=history&swap=${encodeURIComponent(id)}`;
 }
 
 export default async function MyItemsPage({
@@ -128,6 +132,7 @@ export default async function MyItemsPage({
 }) {
   const params = await searchParams;
   const userId = await getCurrentUserId();
+  if (userId) await expirePendingSwapOffers(prisma, { userId });
   const groupedCounts = userId
     ? await prisma.item.groupBy({
         by: ["status"],
@@ -289,6 +294,7 @@ export default async function MyItemsPage({
                         [SwapStatus.COMPLETED]: 2,
                         [SwapStatus.DECLINED]: 3,
                         [SwapStatus.CANCELLED]: 3,
+                        [SwapStatus.EXPIRED]: 3,
                       } satisfies Record<SwapStatus, number>;
                       const byPriority = priority[left.status] - priority[right.status];
                       return byPriority || right.updatedAt.getTime() - left.updatedAt.getTime();
