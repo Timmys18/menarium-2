@@ -1,19 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0f;
-  --foreground: #ffffff;
-  --brand-blue-primary: #3b7fff;
-  --brand-blue-light: #5a9bff;
-  --brand-blue-purple: #7b5fff;
-  --brand-purple-dark: #bb3fff;
-  --accent-teal: #14b8a6;
-  --accent-cyan: #06b6d4;
-  --accent-purple: #a855f7;
-  --accent-fuchsia: #d946ef;
-  --surface-glass: rgba(255, 255, 255, 0.04);
-  --surface-glass-hover: rgba(255, 255, 255, 0.08);
-  --border-glass: rgba(255, 255, 255, 0.12);
+  --background: #070a10;
+  --foreground: #f7f9fc;
+  --brand-blue-primary: #4d8dff;
+  --brand-blue-light: #78aaff;
+  --brand-blue-purple: #7d7aff;
+  --brand-purple-dark: #8b73ff;
+  --accent-teal: #38d6b2;
+  --accent-cyan: #39c7e8;
+  --accent-purple: #8177ff;
+  --accent-fuchsia: #bb74ff;
+  --accent-amber: #ffbc72;
+  --surface-glass: rgba(15, 21, 31, 0.74);
+  --surface-glass-hover: rgba(22, 30, 43, 0.86);
+  --surface-soft: rgba(255, 255, 255, 0.045);
+  --border-glass: rgba(255, 255, 255, 0.105);
+  --border-strong: rgba(255, 255, 255, 0.17);
+  --text-muted: rgba(230, 236, 247, 0.58);
+  --text-subtle: rgba(230, 236, 247, 0.38);
+  --shadow-card: 0 22px 70px rgba(0, 0, 0, 0.3);
 }
 
 @theme inline {
@@ -35,14 +41,16 @@
 
 html {
   background: var(--background);
+  scroll-behavior: smooth;
 }
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
   background:
-    radial-gradient(circle at 20% 0%, rgba(20, 184, 166, 0.18), transparent 32rem),
-    radial-gradient(circle at 80% 12%, rgba(168, 85, 247, 0.16), transparent 30rem),
-    radial-gradient(circle at 50% 100%, rgba(59, 127, 255, 0.14), transparent 34rem),
+    radial-gradient(circle at 12% -8%, rgba(56, 214, 178, 0.15), transparent 34rem),
+    radial-gradient(circle at 88% 4%, rgba(77, 141, 255, 0.16), transparent 36rem),
+    radial-gradient(circle at 55% 110%, rgba(125, 122, 255, 0.1), transparent 38rem),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-onest), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -51,12 +59,22 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+::selection {
+  background: rgba(77, 141, 255, 0.42);
+  color: white;
+}
+
 button,
 a,
 input,
 textarea,
 select {
   font: inherit;
+}
+
+button,
+a {
+  touch-action: manipulation;
 }
 
 /* Латинский дисплейный акцент (логотип, латинские заголовки бренда). */
@@ -76,43 +94,48 @@ select {
 }
 
 .dot-grid-bg {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.075) 0.8px, transparent 0.8px);
+  background-size: 30px 30px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent 82%);
 }
 
 .glass-card {
-  background: var(--surface-glass);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 46%),
+    var(--surface-glass);
+  backdrop-filter: blur(20px) saturate(145%);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
   border: 1px solid var(--border-glass);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    var(--shadow-card),
+    inset 0 1px 0 rgba(255, 255, 255, 0.065);
 }
 
 .glass-card-hover {
-  transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  transition: border-color 220ms ease, background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
 }
 
-.glass-card-hover:hover {
-  background: var(--surface-glass-hover);
-  border-color: rgba(59, 127, 255, 0.4);
-  box-shadow:
-    0 20px 60px rgba(59, 127, 255, 0.3),
-    0 0 0 1px rgba(59, 127, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+@media (hover: hover) {
+  .glass-card-hover:hover {
+    background: var(--surface-glass-hover);
+    border-color: rgba(77, 141, 255, 0.3);
+    box-shadow:
+      0 24px 70px rgba(0, 0, 0, 0.38),
+      0 0 0 1px rgba(77, 141, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+  }
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--brand-blue-primary), var(--brand-blue-light));
+  background: linear-gradient(120deg, var(--brand-blue-light), var(--accent-teal));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-text-accent {
-  background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+  background: linear-gradient(120deg, var(--accent-teal), var(--brand-blue-light));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -120,12 +143,47 @@ select {
 
 .glow-purple {
   box-shadow:
-    0 0 40px rgba(59, 127, 255, 0.5),
-    0 0 80px rgba(59, 127, 255, 0.2);
+    0 0 30px rgba(77, 141, 255, 0.3),
+    0 0 70px rgba(77, 141, 255, 0.12);
 }
 
 .glow-teal {
   box-shadow:
-    0 0 40px rgba(20, 184, 166, 0.5),
-    0 0 80px rgba(20, 184, 166, 0.2);
+    0 0 30px rgba(56, 214, 178, 0.28),
+    0 0 70px rgba(56, 214, 178, 0.1);
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -5rem;
+  z-index: 100;
+  border-radius: 0.875rem;
+  background: white;
+  color: #070a10;
+  padding: 0.75rem 1rem;
+  font-weight: 650;
+  transition: top 160ms ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .glass-card {
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    box-shadow:
+      0 16px 44px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  }
 }

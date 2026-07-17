@@ -35,6 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
+      data-scroll-behavior="smooth"
       className={`${onest.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full">
