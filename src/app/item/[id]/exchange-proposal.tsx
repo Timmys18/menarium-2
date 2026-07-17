@@ -46,9 +46,11 @@ export function ExchangeProposal({
   }
 
   if (userItems.length === 0) {
+    const returnTo = encodeURIComponent(`/item/${receiverItemId}`);
+
     return (
-      <MenariumLinkButton href="/new" className="flex-1">
-        Создать свое объявление
+      <MenariumLinkButton href={`/new?returnTo=${returnTo}`} className="flex-1">
+        Создать объявление и продолжить
       </MenariumLinkButton>
     );
   }

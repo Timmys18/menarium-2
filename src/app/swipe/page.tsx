@@ -35,7 +35,8 @@ export default async function SwipePage() {
         }),
       ])
     : [null, []];
-  const card = item ? toItemCardView(serializeItem(item)) : null;
+  const serializedItem = item ? serializeItem(item) : null;
+  const card = serializedItem ? toItemCardView(serializedItem) : null;
 
   return (
     <AppShell>
@@ -65,6 +66,9 @@ export default async function SwipePage() {
                 category: card.category,
                 wanted: card.wanted,
                 image: card.image,
+                city: card.city,
+                ownerName: serializedItem?.owner?.name ?? "Участник Menarium",
+                isOnline: serializedItem?.isOnline ?? false,
               }}
               userItems={userItems}
             />
