@@ -30,6 +30,7 @@ export type ProfileActivationInput = {
   emailVerified: boolean;
   hasProfileBasics: boolean;
   activeItems: number;
+  pausedItems?: number;
   sentProposals: number;
   outgoingPending: number;
   completedSwaps: number;
@@ -91,6 +92,7 @@ function actionForStep(step: ActivationStep, outgoingPending: number): ProfileNe
 }
 
 export function buildProfileActivation(input: ProfileActivationInput): ProfileActivation {
+  const pausedItems = input.pausedItems ?? 0;
   const hasExchangeActivity =
     input.sentProposals > 0 ||
     input.outgoingPending > 0 ||
@@ -118,7 +120,7 @@ export function buildProfileActivation(input: ProfileActivationInput): ProfileAc
       label: "Создать объявление",
       description: "Опубликовать вещь, навык или услугу",
       href: "/new",
-      done: input.activeItems > 0 || hasExchangeActivity,
+      done: input.activeItems > 0 || pausedItems > 0 || hasExchangeActivity,
     },
     {
       id: "proposal",
@@ -158,6 +160,15 @@ export function buildProfileActivation(input: ProfileActivationInput): ProfileAc
       href: "/exchange?tab=matches",
       label: "Продолжить обмен",
       kind: "urgent",
+    };
+  } else if (input.activeItems === 0 && pausedItems > 0) {
+    nextAction = {
+      eyebrow: "Готово к возвращению",
+      title: pausedItems === 1 ? "Верните объявление в каталог" : `На паузе: ${pausedItems}`,
+      description: "Данные и фотографии сохранены. Возобновите публикацию, чтобы снова получать предложения.",
+      href: "/my-items?status=paused",
+      label: "Открыть объявления на паузе",
+      kind: "progress",
     };
   } else if (nextStep) {
     nextAction = actionForStep(nextStep, input.outgoingPending);

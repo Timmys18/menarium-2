@@ -89,7 +89,7 @@ export async function POST(req: Request, context: Context) {
         type: NotificationType.ITEM_MESSAGE_RECEIVED,
         title: "Новое сообщение",
         message: `Вам написали по объявлению «${thread.item.title}».`,
-        href: `/item/${thread.itemId}?thread=${thread.id}`,
+        href: `/profile/chats/item/${thread.id}`,
         entityType: "ItemThread",
         entityId: thread.id,
       });

@@ -52,7 +52,7 @@ export function Navigation({
   pendingSwaps?: number;
 }) {
   const pathname = usePathname();
-  const inboxBadge = unreadCount + pendingSwaps;
+  const inboxBadge = unreadCount;
 
   return (
     <>

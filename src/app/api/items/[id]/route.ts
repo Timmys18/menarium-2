@@ -35,8 +35,8 @@ export async function PATCH(req: Request, context: Context) {
   const existing = await prisma.item.findUnique({ where: { id }, include: { images: true } });
   if (!existing) return errorResponse("Объявление не найдено", 404);
   if (existing.ownerId !== auth.userId) return errorResponse("Вы не можете редактировать чужое объявление", 403);
-  if (existing.status !== ItemStatus.ACTIVE) {
-    return errorResponse("Редактировать можно только активное объявление", 409);
+  if (existing.status !== ItemStatus.ACTIVE && existing.status !== ItemStatus.PAUSED) {
+    return errorResponse("Редактировать можно опубликованное или приостановленное объявление", 409);
   }
 
   const body = await parseJson(req);
@@ -53,7 +53,7 @@ export async function PATCH(req: Request, context: Context) {
         where: {
           id,
           ownerId: auth.userId,
-          status: ItemStatus.ACTIVE,
+          status: { in: [ItemStatus.ACTIVE, ItemStatus.PAUSED] },
         },
         include: { images: true },
       });
@@ -77,7 +77,7 @@ export async function PATCH(req: Request, context: Context) {
       }
 
       const changed = await tx.item.updateMany({
-        where: { id, ownerId: auth.userId, status: ItemStatus.ACTIVE },
+        where: { id, ownerId: auth.userId, status: current.status },
         data: {
           title: data.title,
           type: data.type,

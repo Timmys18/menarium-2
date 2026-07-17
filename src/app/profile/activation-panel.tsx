@@ -14,6 +14,52 @@ const stepIcons = {
 
 export function ActivationPanel({ activation }: { activation: ProfileActivation }) {
   const { nextAction } = activation;
+  const compact = activation.complete || activation.completedCount >= 4;
+
+  if (compact) {
+    return (
+      <GlassCard className="relative overflow-hidden border border-white/8 p-5 sm:p-6">
+        <div
+          className={cn(
+            "pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full blur-3xl",
+            nextAction.kind === "urgent" ? "bg-amber-400/10" : "bg-teal-400/10",
+          )}
+        />
+        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-4">
+            <span
+              className={cn(
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
+                nextAction.kind === "urgent"
+                  ? "bg-amber-300/12 text-amber-200"
+                  : "bg-teal-300/10 text-teal-200",
+              )}
+            >
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <div>
+              <p
+                className={cn(
+                  "text-xs font-semibold uppercase tracking-[0.16em]",
+                  nextAction.kind === "urgent" ? "text-amber-200/75" : "text-teal-200/70",
+                )}
+              >
+                {nextAction.eyebrow}
+              </p>
+              <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                {nextAction.title}
+              </h2>
+              <p className="mt-1.5 max-w-2xl text-sm leading-5 text-white/48">{nextAction.description}</p>
+            </div>
+          </div>
+          <MenariumLinkButton href={nextAction.href} className="shrink-0">
+            {nextAction.label}
+            <ArrowRight className="h-4 w-4" />
+          </MenariumLinkButton>
+        </div>
+      </GlassCard>
+    );
+  }
 
   return (
     <GlassCard className="relative overflow-hidden p-6 sm:p-8">

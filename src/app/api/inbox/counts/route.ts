@@ -12,5 +12,5 @@ export async function GET() {
     prisma.swapRequest.count({ where: { receiverId: auth.userId, status: SwapStatus.PENDING } }),
   ]);
 
-  return actionResponse({ unreadCount, pendingSwaps, inboxBadge: unreadCount + pendingSwaps });
+  return actionResponse({ unreadCount, pendingSwaps, inboxBadge: unreadCount });
 }

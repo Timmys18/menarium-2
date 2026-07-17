@@ -2,6 +2,7 @@ import { ItemStatus, SwapStatus } from "@prisma/client";
 
 export const itemStatusLabels: Record<ItemStatus, string> = {
   ACTIVE: "Активно",
+  PAUSED: "На паузе",
   IN_DEAL: "В сделке",
   ARCHIVED: "Архив",
 };

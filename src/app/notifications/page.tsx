@@ -1,16 +1,24 @@
+import Link from "next/link";
 import { Bell, MessageCircle, Repeat, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
+import { getSafeNotificationHref } from "@/features/notifications/href";
 import { prisma } from "@/lib/prisma";
+import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
-import { loginHref } from "@/lib/utils";
 import { MarkAllNotificationsRead, MarkNotificationRead } from "./notification-actions";
 import { NotificationLink } from "./notification-link";
 
 export const dynamic = "force-dynamic";
 
+type NotificationFilter = "unread" | "all";
+type Props = {
+  searchParams: Promise<{ filter?: string | string[]; page?: string | string[] }>;
+};
+
+const PAGE_SIZE = 30;
 const typeIcons = {
   SWAP_RECEIVED: Repeat,
   SWAP_ACCEPTED: Repeat,
@@ -21,35 +29,75 @@ const typeIcons = {
   ITEM_MESSAGE_RECEIVED: MessageCircle,
 } as const;
 
-export default async function NotificationsPage() {
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function notificationsHref(filter: NotificationFilter, page?: number) {
+  const search = new URLSearchParams({ filter });
+  if (page && page > 1) search.set("page", String(page));
+  return `/notifications?${search.toString()}`;
+}
+
+function dayLabel(value: Date) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (value >= today) return "Сегодня";
+  if (value >= yesterday) return "Вчера";
+  return "Ранее";
+}
+
+export default async function NotificationsPage({ searchParams }: Props) {
+  const params = await searchParams;
   const userId = await getCurrentUserId();
-  const [notifications, unreadCount] = userId
+  const [totalCount, unreadCount] = userId
     ? await Promise.all([
-        prisma.notification.findMany({
-          where: { userId },
-          orderBy: { createdAt: "desc" },
-          take: 80,
-        }),
+        prisma.notification.count({ where: { userId } }),
         prisma.notification.count({ where: { userId, isRead: false } }),
       ])
-    : [[], 0];
+    : [0, 0];
+  const requestedFilter = firstParam(params.filter);
+  const activeFilter: NotificationFilter =
+    requestedFilter === "all" || requestedFilter === "unread"
+      ? requestedFilter
+      : unreadCount > 0
+        ? "unread"
+        : "all";
+  const filteredTotal = activeFilter === "unread" ? unreadCount : totalCount;
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
+  const requestedPage = Math.max(1, Math.floor(Number(firstParam(params.page)) || 1));
+  const page = Math.min(requestedPage, totalPages);
+  const notifications = userId
+    ? await prisma.notification.findMany({
+        where: { userId, ...(activeFilter === "unread" ? { isRead: false } : {}) },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+      })
+    : [];
+  const groups = ["Сегодня", "Вчера", "Ранее"]
+    .map((label) => ({
+      label,
+      notifications: notifications.filter((notification) => dayLabel(notification.createdAt) === label),
+    }))
+    .filter((group) => group.notifications.length > 0);
 
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
+      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <header className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
-              <h1 className="text-4xl font-bold md:text-5xl">
-                Центр <span className="gradient-text">уведомлений</span>
-              </h1>
-              <p className="mt-3 text-white/60">События по обменам, сообщениям и статусам сделок.</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
+                Все события
+              </p>
+              <h1 className="text-4xl font-bold md:text-5xl">Уведомления</h1>
+              <p className="mt-3 text-white/55">Ответы, сообщения и изменения в ваших обменах.</p>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge variant={unreadCount > 0 ? "purple" : "glass"}>Новых {unreadCount}</Badge>
-              {userId ? <MarkAllNotificationsRead disabled={unreadCount === 0} /> : null}
-            </div>
-          </div>
+            {userId && unreadCount > 0 ? <MarkAllNotificationsRead disabled={false} /> : null}
+          </header>
 
           {!userId ? (
             <EmptyState
@@ -58,51 +106,147 @@ export default async function NotificationsPage() {
               actionHref={loginHref("/notifications")}
               actionLabel="Войти"
             />
-          ) : notifications.length > 0 ? (
-            <GlassCard className="overflow-hidden">
-              {notifications.map((notification) => {
-                const Icon = typeIcons[notification.type] ?? Bell;
-                const content = (
-                  <div className="flex items-start gap-4 border-b border-white/[0.04] px-5 py-4 transition-colors hover:bg-white/[0.04] last:border-b-0">
-                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${notification.isRead ? "bg-white/5 text-white/45" : "bg-gradient-to-br from-teal-500/60 to-purple-500/60 text-white"}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <h2 className="font-medium">{notification.title}</h2>
-                        {!notification.isRead ? <Badge variant="teal">Новое</Badge> : null}
-                      </div>
-                      <p className="text-sm text-white/55">{notification.message}</p>
-                      <p className="mt-2 text-xs text-white/30">
-                        {notification.createdAt.toLocaleString("ru-RU", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                    {!notification.isRead ? <MarkNotificationRead id={notification.id} /> : null}
-                  </div>
-                );
-
-                return notification.href ? (
-                  <NotificationLink key={notification.id} id={notification.id} href={notification.href} isRead={notification.isRead}>
-                    {content}
-                  </NotificationLink>
-                ) : (
-                  <div key={notification.id}>{content}</div>
-                );
-              })}
-            </GlassCard>
           ) : (
-            <EmptyState
-              icon={<Sparkles className="h-12 w-12" />}
-              title="Уведомлений пока нет"
-              description="Когда появятся предложения обмена, сообщения или изменения статусов, они будут здесь."
-              actionHref="/catalog"
-              actionLabel="Открыть каталог"
-            />
+            <>
+              <nav aria-label="Фильтр уведомлений" className="mb-5 flex gap-2 rounded-[20px] border border-white/8 bg-white/[0.025] p-2">
+                {([
+                  ["unread", "Новые", unreadCount],
+                  ["all", "Все", totalCount],
+                ] as const).map(([filter, label, count]) => (
+                  <Link
+                    key={filter}
+                    href={notificationsHref(filter)}
+                    aria-current={activeFilter === filter ? "page" : undefined}
+                    className={cn(
+                      "rounded-[14px] px-4 py-2.5 text-sm font-medium transition",
+                      activeFilter === filter
+                        ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
+                        : "text-white/45 hover:bg-white/[0.055] hover:text-white",
+                    )}
+                  >
+                    {label}
+                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/75" : "text-white/28")}>
+                      {count}
+                    </span>
+                  </Link>
+                ))}
+              </nav>
+
+              {groups.length > 0 ? (
+                <div className="space-y-5">
+                  {groups.map((group) => (
+                    <section key={group.label} aria-labelledby={`notifications-${group.label}`}>
+                      <h2
+                        id={`notifications-${group.label}`}
+                        className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/35"
+                      >
+                        {group.label}
+                      </h2>
+                      <GlassCard className="overflow-hidden border border-white/8">
+                        {group.notifications.map((notification) => {
+                          const Icon = typeIcons[notification.type] ?? Bell;
+                          const safeHref = getSafeNotificationHref(notification.href);
+                          const content = (
+                            <>
+                              <span
+                                className={cn(
+                                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
+                                  notification.isRead
+                                    ? "bg-white/[0.045] text-white/35"
+                                    : "bg-gradient-to-br from-blue-500/55 to-teal-400/45 text-white",
+                                )}
+                              >
+                                <Icon className="h-5 w-5" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="font-semibold text-white">{notification.title}</h3>
+                                  {!notification.isRead ? <Badge variant="teal">Новое</Badge> : null}
+                                </div>
+                                <p className="mt-1 text-sm leading-5 text-white/48">{notification.message}</p>
+                                <time
+                                  dateTime={notification.createdAt.toISOString()}
+                                  className="mt-2 block text-xs text-white/28"
+                                >
+                                  {notification.createdAt.toLocaleString("ru-RU", {
+                                    day: "numeric",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </time>
+                              </div>
+                            </>
+                          );
+
+                          return (
+                            <div
+                              key={notification.id}
+                              className={cn(
+                                "flex items-start gap-2 border-b border-white/[0.05] p-2 last:border-b-0",
+                                !notification.isRead && "bg-blue-400/[0.025]",
+                              )}
+                            >
+                              {safeHref ? (
+                                <NotificationLink
+                                  id={notification.id}
+                                  href={safeHref}
+                                  isRead={notification.isRead}
+                                  className="flex min-w-0 flex-1 items-start gap-3 rounded-[16px] px-3 py-3 transition hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/60"
+                                >
+                                  {content}
+                                </NotificationLink>
+                              ) : (
+                                <div className="flex min-w-0 flex-1 items-start gap-3 px-3 py-3">{content}</div>
+                              )}
+                              {!notification.isRead ? (
+                                <div className="shrink-0 pt-2">
+                                  <MarkNotificationRead id={notification.id} />
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </GlassCard>
+                    </section>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={<Sparkles className="h-12 w-12" />}
+                  title={activeFilter === "unread" ? "Новых уведомлений нет" : "Уведомлений пока нет"}
+                  description={
+                    activeFilter === "unread"
+                      ? "Всё прочитано. Можно посмотреть предыдущие события."
+                      : "Когда появятся предложения, сообщения или изменения статусов, они будут здесь."
+                  }
+                  actionHref={activeFilter === "unread" ? notificationsHref("all") : "/catalog"}
+                  actionLabel={activeFilter === "unread" ? "Открыть все" : "Открыть каталог"}
+                />
+              )}
+
+              {totalPages > 1 ? (
+                <nav aria-label="Страницы уведомлений" className="mt-8 flex items-center justify-center gap-3">
+                  {page > 1 ? (
+                    <Link
+                      href={notificationsHref(activeFilter, page - 1)}
+                      className="rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                    >
+                      ← Назад
+                    </Link>
+                  ) : null}
+                  <span className="text-xs text-white/35">{page} из {totalPages}</span>
+                  {page < totalPages ? (
+                    <Link
+                      href={notificationsHref(activeFilter, page + 1)}
+                      className="rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
+                    >
+                      Дальше →
+                    </Link>
+                  ) : null}
+                </nav>
+              ) : null}
+            </>
           )}
         </div>
       </div>

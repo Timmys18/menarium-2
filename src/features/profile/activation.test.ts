@@ -34,6 +34,18 @@ describe("buildProfileActivation", () => {
     expect(activation.complete).toBe(false);
   });
 
+  it("offers to resume a paused listing instead of creating a duplicate", () => {
+    const activation = buildProfileActivation({
+      ...emptyProfile,
+      emailVerified: true,
+      hasProfileBasics: true,
+      pausedItems: 1,
+    });
+
+    expect(activation.nextStep?.id).toBe("proposal");
+    expect(activation.nextAction.href).toBe("/my-items?status=paused");
+  });
+
   it("prioritizes a proposal that needs the user's answer", () => {
     const activation = buildProfileActivation({ ...emptyProfile, incomingPending: 2 });
 
