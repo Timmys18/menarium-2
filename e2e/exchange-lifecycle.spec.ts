@@ -147,7 +147,7 @@ test.describe("критический жизненный цикл обмена",
 
         await openNotification(dmitry, "Партнёр подтвердил завершение");
         await confirmAction(dmitry, "Подтвердить завершение", "Подтвердить завершение");
-        await expect(pick(main(dmitry).getByPlaceholder("Чат закрыт для новых сообщений"))).toBeDisabled({
+        await expect(pick(main(dmitry).getByPlaceholder("Обмен завершён, чат доступен только для чтения"))).toBeDisabled({
           timeout: 20_000,
         });
       });

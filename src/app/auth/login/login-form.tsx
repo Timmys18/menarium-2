@@ -107,7 +107,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((visible) => !visible)}
-            aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+            aria-label={showPassword ? "Скрыть введённые символы" : "Показать введённые символы"}
             aria-pressed={showPassword}
             className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/38 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70"
           >
