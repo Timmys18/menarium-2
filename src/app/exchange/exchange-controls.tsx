@@ -73,23 +73,47 @@ export function ExchangeActionPanel({
   const alreadyCompleted = (isSender && senderCompleted) || (isReceiver && receiverCompleted);
   const waitingForPartner =
     status === "ACCEPTED" && alreadyCompleted && !(senderCompleted && receiverCompleted);
+  const actionTitle =
+    status === "PENDING"
+      ? isReceiver
+        ? "Ваше решение"
+        : "Предложение отправлено"
+      : "После передачи вещи";
+  const actionDescription =
+    status === "PENDING"
+      ? isReceiver
+        ? "Сначала сверьте обе вещи. После принятия откроется чат для договорённостей."
+        : "Партнёр увидит предложение и примет решение. До этого его можно отозвать."
+      : "Подтверждайте завершение только после того, как обмен действительно состоялся.";
 
   if (!hasActions) return null;
 
   return (
-    <div className="mb-5 space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+    <section className="mb-5 space-y-3 rounded-[18px] border border-white/10 bg-white/[0.03] p-4" aria-labelledby="exchange-actions-title">
+      <div>
+        <h3 id="exchange-actions-title" className="text-sm font-semibold text-white/88">
+          {actionTitle}
+        </h3>
+        <p className="mt-1 text-xs leading-5 text-white/38">{actionDescription}</p>
+      </div>
       {waitingForPartner ? (
-        <p className="rounded-xl border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm text-teal-200">
+        <p aria-live="polite" className="rounded-xl border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm text-teal-200">
           Вы подтвердили завершение. Ожидаем подтверждения от партнёра — ему придёт уведомление.
         </p>
       ) : null}
       {status === "PENDING" && isReceiver ? (
-        <div className="grid grid-cols-2 gap-2">
-          <MenariumButton size="sm" onClick={() => setConfirmAction("accept")} disabled={Boolean(pendingAction)}>
+        <div className="space-y-2">
+          <MenariumButton className="w-full" size="sm" onClick={() => setConfirmAction("accept")} disabled={Boolean(pendingAction)}>
             {pendingAction === "accept" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             Принять
           </MenariumButton>
-          <MenariumButton size="sm" variant="danger" onClick={() => setConfirmAction("decline")} disabled={Boolean(pendingAction)}>
+          <MenariumButton
+            className="w-full text-red-200/60 hover:bg-red-400/[0.07] hover:text-red-200"
+            size="sm"
+            variant="ghost"
+            onClick={() => setConfirmAction("decline")}
+            disabled={Boolean(pendingAction)}
+          >
             {pendingAction === "decline" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
             Отклонить
           </MenariumButton>
@@ -97,7 +121,13 @@ export function ExchangeActionPanel({
       ) : null}
 
       {status === "PENDING" && isSender ? (
-        <MenariumButton size="sm" variant="danger" className="w-full" onClick={() => setConfirmAction("revoke")} disabled={Boolean(pendingAction)}>
+        <MenariumButton
+          size="sm"
+          variant="ghost"
+          className="w-full text-red-200/60 hover:bg-red-400/[0.07] hover:text-red-200"
+          onClick={() => setConfirmAction("revoke")}
+          disabled={Boolean(pendingAction)}
+        >
           {pendingAction === "revoke" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
           Отозвать предложение
         </MenariumButton>
@@ -109,14 +139,20 @@ export function ExchangeActionPanel({
             {pendingAction === "complete" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             {alreadyCompleted ? "Вы подтвердили завершение" : "Подтвердить завершение"}
           </MenariumButton>
-          <MenariumButton size="sm" variant="danger" className="w-full" onClick={() => setConfirmAction("cancel")} disabled={Boolean(pendingAction)}>
+          <MenariumButton
+            size="sm"
+            variant="ghost"
+            className="w-full text-red-200/60 hover:bg-red-400/[0.07] hover:text-red-200"
+            onClick={() => setConfirmAction("cancel")}
+            disabled={Boolean(pendingAction)}
+          >
             {pendingAction === "cancel" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
             Отменить обмен
           </MenariumButton>
         </div>
       ) : null}
 
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-red-300">{error}</p> : null}
       <ConfirmDialog
         open={Boolean(confirmAction)}
         onClose={() => setConfirmAction(null)}
@@ -135,7 +171,7 @@ export function ExchangeActionPanel({
         pending={Boolean(pendingAction)}
         danger={confirmAction === "decline" || confirmAction === "revoke" || confirmAction === "cancel"}
       />
-    </div>
+    </section>
   );
 }
 
@@ -162,6 +198,12 @@ export function ExchangeDealPanel({
     senderCompleted,
     receiverCompleted,
   });
+  const disabledPlaceholder =
+    snapshot.status === "PENDING"
+      ? "Чат откроется после принятия предложения"
+      : snapshot.status === "COMPLETED"
+        ? "Обмен завершён, чат доступен только для чтения"
+        : "Обмен закрыт, чат доступен только для чтения";
 
   return (
     <>
@@ -174,6 +216,14 @@ export function ExchangeDealPanel({
         receiverCompleted={snapshot.receiverCompleted}
         onSwapUpdated={setSnapshot}
       />
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-semibold text-white/88">Чат сделки</h3>
+          <p className="mt-1 text-xs text-white/35">
+            {snapshot.status === "ACCEPTED" ? "Согласуйте место, время и способ передачи." : "История договорённостей хранится здесь."}
+          </p>
+        </div>
+      </div>
       <ChatConversation
         target={{ endpoint: `/api/exchange/${swapId}/messages`, entityId: swapId }}
         currentUserId={currentUserId}
@@ -182,7 +232,7 @@ export function ExchangeDealPanel({
         realtimeTypes={["deal-message", "swap"]}
         canWrite={snapshot.status === "ACCEPTED"}
         placeholder="Сообщение..."
-        disabledPlaceholder="Чат закрыт для новых сообщений"
+        disabledPlaceholder={disabledPlaceholder}
         emptyMessage="Сообщений по этой сделке пока нет."
       />
     </>

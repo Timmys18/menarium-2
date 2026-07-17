@@ -13,9 +13,11 @@ type UserItemOption = {
 
 export function ExchangeProposal({
   receiverItemId,
+  receiverTitle,
   userItems,
 }: {
   receiverItemId: string;
+  receiverTitle: string;
   userItems: UserItemOption[];
 }) {
   const router = useRouter();
@@ -56,11 +58,24 @@ export function ExchangeProposal({
   }
 
   return (
-    <div className="flex-1 space-y-3">
+    <div className="flex-1 space-y-3 rounded-[18px] border border-teal-300/[0.12] bg-teal-300/[0.035] p-3.5">
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-teal-100/60">
+            Вы отдаёте
+          </label>
+          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-white/34">
+            Получаете: {receiverTitle}
+          </p>
+        </div>
+        <ArrowRightLeft className="h-4 w-4 shrink-0 text-teal-200/70" />
+      </div>
       <select
+        id="exchange-sender-item"
         value={senderItemId}
         onChange={(event) => setSenderItemId(event.target.value)}
-        className="glass-card w-full rounded-2xl px-4 py-3 text-sm text-white outline-none"
+        aria-describedby="exchange-receiver-item"
+        className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#0d131d] px-4 py-3 text-sm text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50"
       >
         {userItems.map((item) => (
           <option key={item.id} value={item.id}>
@@ -72,7 +87,7 @@ export function ExchangeProposal({
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRightLeft className="h-5 w-5" />}
         Предложить обмен
       </MenariumButton>
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-red-300">{error}</p> : null}
     </div>
   );
 }

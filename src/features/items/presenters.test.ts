@@ -43,6 +43,9 @@ describe("item presenters", () => {
       image: "https://example.com/image.jpg",
       wanted: "Клавиатура, AirPods",
       city: "Москва",
+      type: "THING",
+      isOnline: false,
+      flexible: false,
     });
   });
 

@@ -16,7 +16,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   if (!email || !token) {
     return (
-      <AppShell>
+      <AppShell mode="auth">
         <AuthShell title="Подтверждение email" subtitle="Ссылка неполная или устарела.">
           <div className="space-y-4 text-center">
             <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
@@ -40,7 +40,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   );
   if (!consumed.ok) {
     return (
-      <AppShell>
+      <AppShell mode="auth">
         <AuthShell title="Подтверждение email" subtitle="Ссылка не сработала.">
           <div className="space-y-4 text-center">
             <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
@@ -64,7 +64,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   });
 
   return (
-    <AppShell>
+    <AppShell mode="auth">
       <AuthShell title="Готово!" subtitle="Email подтверждён — добро пожаловать в Menarium.">
         <div className="space-y-4 text-center">
           <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100">

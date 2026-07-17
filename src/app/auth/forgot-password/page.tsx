@@ -4,7 +4,7 @@ import { ForgotPasswordForm } from "./forgot-password-form";
 
 export default function ForgotPasswordPage() {
   return (
-    <AppShell>
+    <AppShell mode="auth">
       <AuthShell title="Забыли пароль?" subtitle="Восстановим доступ за пару минут.">
         <ForgotPasswordForm />
       </AuthShell>

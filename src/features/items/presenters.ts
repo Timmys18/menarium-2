@@ -7,8 +7,10 @@ export type ItemCardView = {
   image: string;
   wanted: string;
   city: string;
+  type: string;
+  isOnline: boolean;
   likes?: number;
-  trending?: boolean;
+  flexible?: boolean;
 };
 
 export function itemWantedLabel(item: Pick<PublicItem, "desired" | "acceptsAnything" | "extraOfferText">) {
@@ -26,6 +28,8 @@ export function toItemCardView(item: PublicItem): ItemCardView {
     image: item.images[0]?.url ?? "/menarium-placeholder.svg",
     wanted: itemWantedLabel(item),
     city: item.city,
-    trending: item.acceptsAnything,
+    type: item.type,
+    isOnline: item.isOnline,
+    flexible: item.acceptsAnything,
   };
 }

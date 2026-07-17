@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRightLeft, Heart, MapPin, TrendingUp } from "lucide-react";
+import { ArrowRightLeft, Globe2, Heart, MapPin, Sparkles } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
 import { HoverCard } from "@/components/menarium/card";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
@@ -11,9 +11,12 @@ export type ItemCardProps = {
   image: string;
   wanted: string;
   city?: string;
+  type: string;
+  isOnline: boolean;
   likes?: number;
-  trending?: boolean;
+  flexible?: boolean;
   priority?: boolean;
+  returnHref?: string;
 };
 
 export function ItemCard({
@@ -23,28 +26,40 @@ export function ItemCard({
   image,
   wanted,
   city,
+  type,
+  isOnline,
   likes,
-  trending,
+  flexible,
   priority,
+  returnHref,
 }: ItemCardProps) {
+  const itemHref = returnHref
+    ? `/item/${id}?from=${encodeURIComponent(returnHref)}`
+    : `/item/${id}`;
+
   return (
-    <Link href={`/item/${id}`} className="block h-full rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 sm:rounded-[28px]">
+    <Link href={itemHref} className="block h-full rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 sm:rounded-[28px]">
       <HoverCard className="group flex h-full flex-col overflow-hidden">
-        <div className="relative h-64 overflow-hidden sm:h-72 xl:h-64 2xl:h-72">
+        <div className="relative aspect-[4/3] overflow-hidden">
           <ItemCoverImage
             src={image}
             alt={title}
             priority={priority}
-            sizes="(max-width: 768px) 100vw, 33vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1535px) 50vw, 33vw"
             imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d131d] to-transparent" />
-          <div className="absolute left-4 top-4">
-            <Badge className="bg-[#090d14]/72">{category}</Badge>
+          <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
+            <Badge className="bg-[#090d14]/78">{category}</Badge>
+            <Badge variant={isOnline ? "teal" : "glass"} className="bg-[#090d14]/78">
+              {isOnline ? <Globe2 className="h-3 w-3" /> : null}
+              {isOnline ? "Онлайн" : type === "SERVICE" ? "Услуга" : "Предмет"}
+            </Badge>
           </div>
-          {trending ? (
-            <div className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-blue-500/85 shadow-lg backdrop-blur-xl">
-              <TrendingUp className="h-4 w-4 text-blue-50" />
+          {flexible ? (
+            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#090d14]/78 px-3 py-1.5 text-[11px] font-medium text-white/76 backdrop-blur-xl">
+              <Sparkles className="h-3 w-3 text-teal-200" />
+              Открыт к вариантам
             </div>
           ) : null}
         </div>
@@ -58,16 +73,19 @@ export function ItemCard({
               </span>
             ) : null}
           </div>
-          <div className="mt-auto flex items-start gap-2 rounded-[14px] border border-white/[0.065] bg-white/[0.035] px-3 py-2.5 text-sm text-white/52">
+          <div className="mt-auto flex items-start gap-2 rounded-[15px] border border-teal-300/[0.11] bg-teal-300/[0.045] px-3.5 py-3 text-sm text-white/58">
             <ArrowRightLeft className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
             <span className="line-clamp-2 leading-5">Ищу: {wanted}</span>
           </div>
-          {city ? (
-            <p className="mt-3 flex items-center gap-1.5 text-xs text-white/35">
-              <MapPin className="h-3.5 w-3.5" />
-              {city}
-            </p>
-          ) : null}
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/35">
+            {city ? (
+              <span className="flex min-w-0 items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{city}</span>
+              </span>
+            ) : <span />}
+            <span className="shrink-0 text-teal-200/65">Посмотреть →</span>
+          </div>
         </div>
       </HoverCard>
     </Link>
