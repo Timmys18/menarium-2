@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ItemStatus } from "@prisma/client";
 import { Archive, Loader2, RotateCcw } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 
@@ -10,7 +11,7 @@ export function ItemModerationActions({
   status,
 }: {
   itemId: string;
-  status: "ACTIVE" | "IN_DEAL" | "ARCHIVED";
+  status: ItemStatus;
 }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);

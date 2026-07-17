@@ -1,23 +1,41 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { ItemStatus, SwapStatus } from "@prisma/client";
-import { ArrowRightLeft, CheckCircle2, MessageCircle, Tag } from "lucide-react";
+import {
+  ArrowRight,
+  Bell,
+  CheckCircle2,
+  CirclePause,
+  Clock3,
+  Eye,
+  MapPin,
+  MessageCircle,
+  PackageCheck,
+  Repeat2,
+} from "lucide-react";
+import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
-import { loginHref } from "@/lib/utils";
-import { prisma } from "@/lib/prisma";
-import { getCurrentUserId } from "@/server/session";
 import { buildProfileActivation } from "@/features/profile/activation";
-import { SignOutButton } from "./profile-actions";
-import { EmailVerifyBanner } from "./email-verify-banner";
+import { getSafeNotificationHref } from "@/features/notifications/href";
+import { prisma } from "@/lib/prisma";
+import { cn, loginHref } from "@/lib/utils";
+import { getCurrentUserId } from "@/server/session";
 import { ActivationPanel } from "./activation-panel";
+import { EmailVerifyBanner } from "./email-verify-banner";
+import { SignOutButton } from "./profile-actions";
 import { ProfileNotice } from "./profile-notice";
-import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 
 export const dynamic = "force-dynamic";
+
+const DEAL_CHAT_STATUSES: SwapStatus[] = [
+  SwapStatus.ACCEPTED,
+  SwapStatus.COMPLETED,
+  SwapStatus.CANCELLED,
+];
 
 function getInitials(name: string | null, email: string) {
   const source = name?.trim() || email;
@@ -27,6 +45,35 @@ function getInitials(name: string | null, email: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+}
+
+function formatChatTime(value: Date) {
+  const now = new Date();
+  const sameDay =
+    value.getFullYear() === now.getFullYear() &&
+    value.getMonth() === now.getMonth() &&
+    value.getDate() === now.getDate();
+  return sameDay
+    ? value.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+    : value.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+}
+
+function exchangeChatHref({
+  id,
+  status,
+  isSender,
+}: {
+  id: string;
+  status: SwapStatus;
+  isSender: boolean;
+}) {
+  if (status === SwapStatus.ACCEPTED) {
+    return `/exchange?tab=matches&swap=${encodeURIComponent(id)}`;
+  }
+  if (status === SwapStatus.COMPLETED) {
+    return `/exchange?tab=matches&filter=history&swap=${encodeURIComponent(id)}`;
+  }
+  return `/exchange?tab=${isSender ? "outgoing" : "incoming"}&filter=history&swap=${encodeURIComponent(id)}`;
 }
 
 type ProfilePageProps = {
@@ -39,45 +86,46 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const user = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
-        select: { id: true, email: true, name: true, city: true, image: true, createdAt: true, emailVerified: true },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          city: true,
+          image: true,
+          createdAt: true,
+          emailVerified: true,
+        },
       })
     : null;
 
   const [
-    activeItems,
-    activeSwaps,
-    completedSwaps,
-    dealChats,
-    itemChats,
-    incomingSwaps,
-    outgoingSwaps,
+    itemGroups,
+    incomingPending,
+    outgoingPending,
     sentProposals,
     acceptedSwaps,
-    matchSwaps,
+    completedSwaps,
+    unreadNotifications,
+    unreadDealMessages,
+    unreadItemMessages,
     recentIncoming,
+    recentAccepted,
     recentNotifications,
-    recentChats,
+    recentDealChats,
+    recentItemChats,
   ] = userId
     ? await Promise.all([
-        prisma.item.count({ where: { ownerId: userId, status: ItemStatus.ACTIVE } }),
-        prisma.swapRequest.count({
-          where: {
-            status: { in: [SwapStatus.PENDING, SwapStatus.ACCEPTED] },
-            OR: [{ senderId: userId }, { receiverId: userId }],
-          },
+        prisma.item.groupBy({
+          by: ["status"],
+          where: { ownerId: userId },
+          _count: { _all: true },
         }),
         prisma.swapRequest.count({
-          where: {
-            status: SwapStatus.COMPLETED,
-            OR: [{ senderId: userId }, { receiverId: userId }],
-          },
+          where: { receiverId: userId, status: SwapStatus.PENDING },
         }),
         prisma.swapRequest.count({
-          where: { OR: [{ senderId: userId }, { receiverId: userId }], messages: { some: {} } },
+          where: { senderId: userId, status: SwapStatus.PENDING },
         }),
-        prisma.itemThread.count({ where: { OR: [{ buyerId: userId }, { ownerId: userId }] } }),
-        prisma.swapRequest.count({ where: { receiverId: userId, status: SwapStatus.PENDING } }),
-        prisma.swapRequest.count({ where: { senderId: userId, status: SwapStatus.PENDING } }),
         prisma.swapRequest.count({ where: { senderId: userId } }),
         prisma.swapRequest.count({
           where: {
@@ -87,8 +135,23 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         }),
         prisma.swapRequest.count({
           where: {
-            status: { in: [SwapStatus.ACCEPTED, SwapStatus.COMPLETED] },
+            status: SwapStatus.COMPLETED,
             OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+        }),
+        prisma.notification.count({ where: { userId, isRead: false } }),
+        prisma.dealMessage.count({
+          where: {
+            senderId: { not: userId },
+            isRead: false,
+            swap: { OR: [{ senderId: userId }, { receiverId: userId }] },
+          },
+        }),
+        prisma.itemThreadMessage.count({
+          where: {
+            senderId: { not: userId },
+            isRead: false,
+            thread: { OR: [{ buyerId: userId }, { ownerId: userId }] },
           },
         }),
         prisma.swapRequest.findMany({
@@ -99,12 +162,46 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             receiverItem: { select: { title: true } },
           },
           orderBy: { createdAt: "desc" },
-          take: 3,
+          take: 2,
+        }),
+        prisma.swapRequest.findMany({
+          where: {
+            status: SwapStatus.ACCEPTED,
+            OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+          include: {
+            sender: { select: { name: true } },
+            receiver: { select: { name: true } },
+            senderItem: { select: { title: true } },
+            receiverItem: { select: { title: true } },
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 2,
         }),
         prisma.notification.findMany({
           where: { userId, isRead: false },
           orderBy: { createdAt: "desc" },
           take: 3,
+        }),
+        prisma.swapRequest.findMany({
+          where: {
+            status: { in: DEAL_CHAT_STATUSES },
+            OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+          include: {
+            sender: { select: { name: true } },
+            receiver: { select: { name: true } },
+            senderItem: { select: { title: true } },
+            receiverItem: { select: { title: true } },
+            messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: {
+              select: {
+                messages: { where: { senderId: { not: userId }, isRead: false } },
+              },
+            },
+          },
+          orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+          take: 4,
         }),
         prisma.itemThread.findMany({
           where: { OR: [{ buyerId: userId }, { ownerId: userId }] },
@@ -113,40 +210,126 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             buyer: { select: { name: true } },
             owner: { select: { name: true } },
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
+            _count: {
+              select: {
+                messages: { where: { senderId: { not: userId }, isRead: false } },
+              },
+            },
           },
-          orderBy: { updatedAt: "desc" },
-          take: 3,
+          orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+          take: 4,
         }),
       ])
-    : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], []];
+    : [[], 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], []];
+
+  const itemCounts: Record<ItemStatus, number> = {
+    [ItemStatus.ACTIVE]: 0,
+    [ItemStatus.PAUSED]: 0,
+    [ItemStatus.IN_DEAL]: 0,
+    [ItemStatus.ARCHIVED]: 0,
+  };
+  for (const entry of itemGroups) itemCounts[entry.status] = entry._count._all;
+
+  const activeItems = itemCounts[ItemStatus.ACTIVE];
+  const pausedItems = itemCounts[ItemStatus.PAUSED];
+  const inDealItems = itemCounts[ItemStatus.IN_DEAL];
+  const archivedItems = itemCounts[ItemStatus.ARCHIVED];
+  const unreadMessages = unreadDealMessages + unreadItemMessages;
+  const activeSwaps = incomingPending + outgoingPending + acceptedSwaps;
 
   const activation = user
     ? buildProfileActivation({
         emailVerified: Boolean(user.emailVerified),
         hasProfileBasics: Boolean(user.name?.trim() && user.city?.trim()),
         activeItems,
+        pausedItems,
         sentProposals,
-        outgoingPending: outgoingSwaps,
+        outgoingPending,
         completedSwaps,
-        incomingPending: incomingSwaps,
+        incomingPending,
         acceptedSwaps,
       })
     : null;
-  const welcomeEmailSent =
-    params.welcome === "1" ? (params.emailSent === "1" ? true : params.emailSent === "0" ? false : null) : null;
-  const initialEmailDeliveryState = welcomeEmailSent === true ? "sent" : welcomeEmailSent === false ? "failed" : "unknown";
 
-  const stats = [
-    { label: "Активных объявлений", value: activeItems, icon: Tag, color: "text-teal-400", href: "/my-items" },
-    { label: "Активных обменов", value: activeSwaps, icon: ArrowRightLeft, color: "text-purple-400", href: "/exchange?tab=matches" },
-    { label: "Завершённых обменов", value: completedSwaps, icon: CheckCircle2, color: "text-green-400", href: "/exchange?tab=matches" },
-    { label: "Чатов", value: dealChats + itemChats, icon: MessageCircle, color: "text-blue-400", href: "/profile/chats" },
+  const chats = [
+    ...recentDealChats.map((swap) => {
+      const isSender = swap.senderId === userId;
+      const partner = isSender ? swap.receiver : swap.sender;
+      const contextItem = isSender ? swap.receiverItem : swap.senderItem;
+      const lastMessage = swap.messages[0];
+      return {
+        id: `deal-${swap.id}`,
+        title: partner.name ?? "Участник Menarium",
+        context: `Обмен · ${contextItem.title}`,
+        preview: lastMessage?.text ?? "Обмен принят. Договоритесь о деталях.",
+        href: exchangeChatHref({ id: swap.id, status: swap.status, isSender }),
+        unread: swap._count.messages,
+        at: lastMessage?.createdAt ?? swap.updatedAt,
+      };
+    }),
+    ...recentItemChats.map((thread) => {
+      const partner = thread.buyerId === userId ? thread.owner : thread.buyer;
+      const lastMessage = thread.messages[0];
+      return {
+        id: `item-${thread.id}`,
+        title: partner.name ?? "Участник Menarium",
+        context: `Объявление · ${thread.item.title}`,
+        preview: lastMessage?.text ?? "Диалог создан, сообщений пока нет.",
+        href: `/profile/chats/item/${thread.id}`,
+        unread: thread._count.messages,
+        at: lastMessage?.createdAt ?? thread.updatedAt,
+      };
+    }),
+  ]
+    .sort((left, right) => right.at.getTime() - left.at.getTime())
+    .slice(0, 4);
+
+  const welcomeEmailSent =
+    params.welcome === "1"
+      ? params.emailSent === "1"
+        ? true
+        : params.emailSent === "0"
+          ? false
+          : null
+      : null;
+  const initialEmailDeliveryState =
+    welcomeEmailSent === true ? "sent" : welcomeEmailSent === false ? "failed" : "unknown";
+
+  const metrics = [
+    {
+      label: "Нужно ответить",
+      value: incomingPending,
+      href: "/exchange?tab=incoming",
+      icon: Clock3,
+      urgent: incomingPending > 0,
+    },
+    {
+      label: "Новых сообщений",
+      value: unreadMessages,
+      href: "/profile/chats",
+      icon: MessageCircle,
+      urgent: unreadMessages > 0,
+    },
+    {
+      label: "Опубликовано",
+      value: activeItems,
+      href: "/my-items?status=active",
+      icon: PackageCheck,
+      urgent: false,
+    },
+    {
+      label: "Активных обменов",
+      value: activeSwaps,
+      href: "/exchange",
+      icon: Repeat2,
+      urgent: false,
+    },
   ];
 
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-28">
-        <div className="mx-auto max-w-[1400px] space-y-6">
+      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
+        <div className="mx-auto max-w-[1360px] space-y-5">
           {!user ? (
             <EmptyState
               title="Войдите в личный кабинет"
@@ -161,42 +344,71 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               ) : params.welcome === "1" ? (
                 <ProfileNotice kind="welcome" />
               ) : null}
+
               {!user.emailVerified ? (
-                <EmailVerifyBanner email={user.email} initialDeliveryState={initialEmailDeliveryState} />
+                <EmailVerifyBanner
+                  email={user.email}
+                  initialDeliveryState={initialEmailDeliveryState}
+                />
               ) : null}
-              <GlassCard className="rounded-3xl p-8">
-                <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-                  <div className="flex items-center gap-5">
-                    <div className="relative">
+
+              <GlassCard className="overflow-hidden border border-white/8 p-5 sm:p-6">
+                <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+                  <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+                    <div className="relative shrink-0">
                       {user.image ? (
                         <Image
                           src={user.image}
                           alt={user.name ?? "Аватар"}
-                          width={80}
-                          height={80}
-                          className="h-20 w-20 rounded-2xl object-cover shadow-lg shadow-teal-500/20"
+                          width={72}
+                          height={72}
+                          className="h-16 w-16 rounded-[20px] object-cover shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px]"
                         />
                       ) : (
-                        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-purple-600 shadow-lg shadow-teal-500/20">
-                          <span className="text-2xl font-bold">{getInitials(user.name, user.email)}</span>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-blue-500 to-teal-400 shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px]">
+                          <span className="text-xl font-bold">{getInitials(user.name, user.email)}</span>
                         </div>
                       )}
-                      <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-[#0a0a0f] bg-teal-500" />
+                      <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[#0a0e16] bg-teal-400" />
                     </div>
-                    <div>
-                      <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-white/30">Личный кабинет</p>
-                      <h1 className="mb-1 font-display text-3xl font-semibold tracking-tight">
+
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                        Личный кабинет
+                      </p>
+                      <h1 className="mt-1 truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
                         {user.name ?? "Участник Menarium"}
                       </h1>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-white/40">
-                        <span>{user.email}</span>
-                        <span>{user.city ?? "Город не указан"}</span>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {user.emailVerified ? (
+                          <Badge variant="teal">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Почта подтверждена
+                          </Badge>
+                        ) : (
+                          <Badge variant="gold">Подтвердите почту</Badge>
+                        )}
+                        <Badge variant="glass">
+                          <MapPin className="h-3 w-3" />
+                          {user.city ?? "Город не указан"}
+                        </Badge>
+                        <span className="text-xs text-white/30">
+                          С нами с {new Intl.DateTimeFormat("ru-RU", {
+                            month: "long",
+                            year: "numeric",
+                          }).format(user.createdAt)}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <MenariumLinkButton href="/profile/edit" variant="secondary">
-                      Редактировать профиль
+
+                  <div className="flex flex-wrap gap-2">
+                    <MenariumLinkButton href={`/user/${user.id}`} variant="ghost" size="sm">
+                      <Eye className="h-4 w-4" />
+                      Публичный профиль
+                    </MenariumLinkButton>
+                    <MenariumLinkButton href="/profile/edit" variant="secondary" size="sm">
+                      Настройки
                     </MenariumLinkButton>
                     <SignOutButton />
                   </div>
@@ -205,51 +417,76 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
               {activation ? <ActivationPanel activation={activation} /> : null}
 
-              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                {stats.map((item) => {
-                  const Icon = item.icon;
+              <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Сводка профиля">
+                {metrics.map((metric) => {
+                  const Icon = metric.icon;
                   return (
-                    <Link key={item.label} href={item.href}>
-                      <GlassCard className="glass-card-hover p-5 transition-transform hover:scale-[1.02]">
-                        <Icon className={`mb-3 h-5 w-5 ${item.color}`} />
-                        <div className="text-3xl font-semibold">{item.value}</div>
-                        <p className="mt-1 text-xs text-white/40">{item.label}</p>
+                    <Link key={metric.label} href={metric.href}>
+                      <GlassCard
+                        className={cn(
+                          "h-full border p-4 transition hover:-translate-y-0.5 hover:bg-white/[0.055] sm:p-5",
+                          metric.urgent
+                            ? "border-amber-300/20 bg-amber-300/[0.055]"
+                            : "border-white/8 bg-white/[0.025]",
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <Icon
+                            className={cn(
+                              "h-5 w-5",
+                              metric.urgent ? "text-amber-200" : "text-teal-200/75",
+                            )}
+                          />
+                          {metric.urgent ? <span className="h-2 w-2 rounded-full bg-amber-300" /> : null}
+                        </div>
+                        <p className="mt-4 text-2xl font-semibold sm:text-3xl">{metric.value}</p>
+                        <p className="mt-1 text-xs text-white/40">{metric.label}</p>
                       </GlassCard>
                     </Link>
                   );
                 })}
-              </div>
+              </section>
 
-              <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-                <div className="space-y-6">
-                  <GlassCard className="p-6">
-                    <div className="mb-4 flex items-center justify-between">
+              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+                <div className="space-y-5">
+                  <GlassCard className="border border-white/8 p-5 sm:p-6">
+                    <div className="mb-5 flex items-end justify-between gap-4">
                       <div>
-                        <h2 className="text-xl tracking-tight">Входящие предложения</h2>
-                        <p className="text-xs text-white/35">Требуют вашего решения</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200/65">
+                          Сейчас
+                        </p>
+                        <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
+                          Требует внимания
+                        </h2>
                       </div>
-                      <MenariumLinkButton href="/exchange?tab=incoming" variant="ghost" size="sm">
-                        Все ({incomingSwaps})
+                      <MenariumLinkButton href="/exchange" variant="ghost" size="sm">
+                        Все обмены
                       </MenariumLinkButton>
                     </div>
+
                     {recentIncoming.length > 0 ? (
                       <div className="space-y-3">
                         {recentIncoming.map((swap) => (
                           <div
                             key={swap.id}
-                            className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                            className="rounded-[20px] border border-amber-300/16 bg-amber-300/[0.045] p-4"
                           >
                             <Link
                               href={`/exchange?tab=incoming&swap=${swap.id}`}
-                              className="mb-3 flex items-center justify-between rounded-xl transition hover:text-teal-200"
+                              className="mb-3 flex items-start justify-between gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70"
                             >
                               <div>
-                                <p className="font-medium">{swap.sender.name ?? "Пользователь"}</p>
-                                <p className="text-sm text-white/45">
-                                  {swap.senderItem.title} → {swap.receiverItem.title}
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-semibold">{swap.sender.name ?? "Участник Menarium"}</p>
+                                  <Badge variant="gold">Нужно ответить</Badge>
+                                </div>
+                                <p className="mt-1 text-sm text-white/48">
+                                  {swap.receiverItem.title}
+                                  <span className="mx-2 text-teal-200/55">↔</span>
+                                  {swap.senderItem.title}
                                 </p>
                               </div>
-                              <Badge variant="teal">Подробнее</Badge>
+                              <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-white/35" />
                             </Link>
                             <ExchangeActionPanel
                               swapId={swap.id}
@@ -261,108 +498,211 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                             />
                           </div>
                         ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-white/45">Новых предложений нет. Откройте свайп или каталог.</p>
-                    )}
-                  </GlassCard>
-
-                  <GlassCard className="p-6">
-                    <div className="mb-4 flex items-center justify-between">
-                      <h2 className="text-xl tracking-tight">Непрочитанное</h2>
-                      <MenariumLinkButton href="/notifications" variant="ghost" size="sm">
-                        Все уведомления
-                      </MenariumLinkButton>
-                    </div>
-                    {recentNotifications.length > 0 ? (
-                      <div className="space-y-3">
-                        {recentNotifications.map((n) => (
-                          <Link
-                            key={n.id}
-                            href={n.href ?? "/notifications"}
-                            className="block rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:bg-white/[0.06]"
+                        {incomingPending > recentIncoming.length ? (
+                          <MenariumLinkButton
+                            href="/exchange?tab=incoming"
+                            variant="secondary"
+                            size="sm"
+                            className="w-full"
                           >
-                            <p className="font-medium">{n.title}</p>
-                            <p className="text-sm text-white/45">{n.message}</p>
-                          </Link>
-                        ))}
+                            Ещё предложений: {incomingPending - recentIncoming.length}
+                          </MenariumLinkButton>
+                        ) : null}
                       </div>
-                    ) : (
-                      <p className="text-sm text-white/45">Всё прочитано — отличная работа.</p>
-                    )}
-                  </GlassCard>
-                </div>
-
-                <div className="space-y-6">
-                  <GlassCard className="p-6">
-                    <div className="mb-4 flex items-center justify-between">
-                      <h2 className="text-xl tracking-tight">Центр обменов</h2>
-                      <MenariumLinkButton href="/exchange" variant="ghost" size="sm">
-                        Открыть
-                      </MenariumLinkButton>
-                    </div>
-                    <div className="grid gap-3">
-                      {[
-                        { title: "Вам предложили", count: incomingSwaps, href: "/exchange?tab=incoming" },
-                        { title: "Вы предложили", count: outgoingSwaps, href: "/exchange?tab=outgoing" },
-                        { title: "Матчи", count: matchSwaps, href: "/exchange?tab=matches" },
-                      ].map((entry) => (
-                        <Link
-                          key={entry.title}
-                          href={entry.href}
-                          className="flex items-center justify-between rounded-2xl border border-white/10 px-4 py-3 transition hover:bg-white/[0.04]"
-                        >
-                          <span className="text-sm text-white/70">{entry.title}</span>
-                          <span className="text-lg font-semibold">{entry.count}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </GlassCard>
-
-                  <GlassCard className="p-6">
-                    <div className="mb-4 flex items-center justify-between">
-                      <h2 className="text-xl tracking-tight">Последние чаты</h2>
-                      <MenariumLinkButton href="/profile/chats" variant="ghost" size="sm">
-                        Все
-                      </MenariumLinkButton>
-                    </div>
-                    {recentChats.length > 0 ? (
+                    ) : recentAccepted.length > 0 ? (
                       <div className="space-y-3">
-                        {recentChats.map((thread) => {
-                          const partner = thread.buyerId === userId ? thread.owner : thread.buyer;
-                          const preview = thread.messages[0]?.text ?? "Начните диалог";
+                        {recentAccepted.map((swap) => {
+                          const isSender = swap.senderId === userId;
+                          const partner = isSender ? swap.receiver : swap.sender;
+                          const yourItem = isSender ? swap.senderItem : swap.receiverItem;
+                          const theirItem = isSender ? swap.receiverItem : swap.senderItem;
                           return (
                             <Link
-                              key={thread.id}
-                              href={`/item/${thread.item.id}?thread=${thread.id}`}
-                              className="block rounded-2xl border border-white/10 px-4 py-3 transition hover:bg-white/[0.04]"
+                              key={swap.id}
+                              href={`/exchange?tab=matches&swap=${swap.id}`}
+                              className="flex items-center justify-between gap-4 rounded-[20px] border border-teal-300/16 bg-teal-300/[0.045] p-4 transition hover:bg-teal-300/[0.075]"
                             >
-                              <p className="font-medium">{partner.name ?? "Пользователь"}</p>
-                              <p className="truncate text-sm text-white/45">{thread.item.title} · {preview}</p>
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-semibold">{partner.name ?? "Участник Menarium"}</p>
+                                  <Badge variant="teal">Договоритесь о передаче</Badge>
+                                </div>
+                                <p className="mt-1 text-sm text-white/48">
+                                  {yourItem.title}
+                                  <span className="mx-2 text-teal-200/55">↔</span>
+                                  {theirItem.title}
+                                </p>
+                              </div>
+                              <ArrowRight className="h-4 w-4 shrink-0 text-teal-200/70" />
                             </Link>
                           );
                         })}
                       </div>
+                    ) : unreadMessages > 0 ? (
+                      <Link
+                        href="/profile/chats"
+                        className="flex items-center justify-between gap-4 rounded-[20px] border border-blue-300/16 bg-blue-400/[0.05] p-4 transition hover:bg-blue-400/[0.08]"
+                      >
+                        <div>
+                          <p className="font-semibold">Есть непрочитанные сообщения</p>
+                          <p className="mt-1 text-sm text-white/45">Ответь людям, чтобы обмен не потерял темп.</p>
+                        </div>
+                        <Badge variant="purple">{unreadMessages}</Badge>
+                      </Link>
                     ) : (
-                      <p className="text-sm text-white/45">Чатов пока нет.</p>
+                      <div className="flex flex-col items-start justify-between gap-4 rounded-[20px] border border-teal-300/12 bg-teal-300/[0.035] p-5 sm:flex-row sm:items-center">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-300" />
+                          <div>
+                            <p className="font-semibold">Всё под контролем</p>
+                            <p className="mt-1 text-sm text-white/43">Новых решений и непрочитанных сообщений сейчас нет.</p>
+                          </div>
+                        </div>
+                        <MenariumLinkButton href="/swipe" variant="secondary" size="sm">
+                          Найти обмен
+                        </MenariumLinkButton>
+                      </div>
                     )}
                   </GlassCard>
 
-                  <GlassCard className="p-6">
-                    <h2 className="mb-4 text-xl tracking-tight">Быстрые действия</h2>
-                    <div className="space-y-3">
-                      <MenariumLinkButton href="/new" className="w-full">
-                        Создать объявление
+                  <GlassCard className="border border-white/8 p-5 sm:p-6">
+                    <div className="mb-4 flex items-end justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-200/60">
+                          Диалоги
+                        </p>
+                        <h2 className="mt-1 text-xl font-semibold tracking-tight">Последние сообщения</h2>
+                      </div>
+                      <MenariumLinkButton href="/profile/chats" variant="ghost" size="sm">
+                        Все чаты
                       </MenariumLinkButton>
-                      <MenariumLinkButton href="/swipe" variant="secondary" className="w-full">
-                        Свайп
-                      </MenariumLinkButton>
-                      <MenariumLinkButton href="/my-items" variant="secondary" className="w-full">
-                        Мои объявления
+                    </div>
+
+                    {chats.length > 0 ? (
+                      <div className="divide-y divide-white/[0.055]">
+                        {chats.map((chat) => (
+                          <Link
+                            key={chat.id}
+                            href={chat.href}
+                            className="flex items-start gap-3 rounded-[16px] px-2 py-3.5 transition hover:bg-white/[0.035] sm:items-center"
+                          >
+                            <span
+                              className={cn(
+                                "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
+                                chat.unread
+                                  ? "bg-gradient-to-br from-blue-500/55 to-teal-400/45 text-white"
+                                  : "bg-white/[0.055] text-white/38",
+                              )}
+                            >
+                              <MessageCircle className="h-5 w-5" />
+                              {chat.unread ? (
+                                <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-amber-300 px-1 text-[9px] font-bold text-[#171008]">
+                                  {chat.unread > 9 ? "9+" : chat.unread}
+                                </span>
+                              ) : null}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-center gap-2">
+                                <span className="truncate text-sm font-semibold text-white">{chat.title}</span>
+                                {chat.unread ? <span className="h-1.5 w-1.5 rounded-full bg-amber-300" /> : null}
+                              </span>
+                              <span className="mt-0.5 block truncate text-xs text-white/35">{chat.context}</span>
+                              <span className="mt-1 block truncate text-sm text-white/58">{chat.preview}</span>
+                            </span>
+                            <time className="shrink-0 pt-1 text-xs text-white/28" dateTime={chat.at.toISOString()}>
+                              {formatChatTime(chat.at)}
+                            </time>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="rounded-[18px] border border-white/7 bg-white/[0.02] px-4 py-5 text-sm text-white/40">
+                        Диалогов пока нет. Они появятся после вопроса по объявлению или принятого обмена.
+                      </p>
+                    )}
+                  </GlassCard>
+                </div>
+
+                <aside className="space-y-5">
+                  <GlassCard className="border border-white/8 p-5">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-teal-200/60">Ваши вещи</p>
+                        <h2 className="mt-1 text-lg font-semibold">Мои объявления</h2>
+                      </div>
+                      <MenariumLinkButton href="/new" size="sm">Добавить</MenariumLinkButton>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: "Опубликовано", value: activeItems, href: "/my-items?status=active", icon: PackageCheck },
+                        { label: "В сделке", value: inDealItems, href: "/my-items?status=deal", icon: Repeat2 },
+                        { label: "На паузе", value: pausedItems, href: "/my-items?status=paused", icon: CirclePause },
+                        { label: "История", value: archivedItems, href: "/my-items?status=history", icon: CheckCircle2 },
+                      ].map((entry) => {
+                        const Icon = entry.icon;
+                        return (
+                          <Link
+                            key={entry.label}
+                            href={entry.href}
+                            className="rounded-[16px] border border-white/7 bg-white/[0.025] p-3 transition hover:bg-white/[0.055]"
+                          >
+                            <Icon className="h-4 w-4 text-teal-200/65" />
+                            <span className="mt-3 block text-xl font-semibold">{entry.value}</span>
+                            <span className="mt-0.5 block text-[11px] text-white/35">{entry.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                    <MenariumLinkButton href="/my-items" variant="secondary" size="sm" className="mt-3 w-full">
+                      Управлять объявлениями
+                    </MenariumLinkButton>
+                  </GlassCard>
+
+                  <GlassCard className="border border-white/8 p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Bell className="h-4 w-4 text-blue-200/70" />
+                        <h2 className="font-semibold">Непрочитанное</h2>
+                      </div>
+                      {unreadNotifications > 0 ? <Badge variant="purple">{unreadNotifications}</Badge> : null}
+                    </div>
+                    {recentNotifications.length > 0 ? (
+                      <div className="space-y-2">
+                        {recentNotifications.map((notification) => (
+                          <Link
+                            key={notification.id}
+                            href={getSafeNotificationHref(notification.href) ?? "/notifications"}
+                            className="block rounded-[15px] border border-white/7 bg-white/[0.025] px-3.5 py-3 transition hover:bg-white/[0.055]"
+                          >
+                            <p className="line-clamp-1 text-sm font-medium">{notification.title}</p>
+                            <p className="mt-1 line-clamp-2 text-xs leading-4 text-white/38">{notification.message}</p>
+                          </Link>
+                        ))}
+                        <MenariumLinkButton href="/notifications" variant="ghost" size="sm" className="w-full">
+                          Все уведомления
+                        </MenariumLinkButton>
+                      </div>
+                    ) : (
+                      <div className="rounded-[16px] border border-teal-300/10 bg-teal-300/[0.03] p-4">
+                        <p className="text-sm font-medium text-white/70">Всё прочитано</p>
+                        <p className="mt-1 text-xs leading-4 text-white/35">Новые события появятся здесь и в верхней панели.</p>
+                      </div>
+                    )}
+                  </GlassCard>
+
+                  <GlassCard className="border border-white/8 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/30">История</p>
+                    <div className="mt-3 flex items-end justify-between gap-4">
+                      <div>
+                        <p className="text-3xl font-semibold">{completedSwaps}</p>
+                        <p className="mt-1 text-xs text-white/38">завершённых обменов</p>
+                      </div>
+                      <MenariumLinkButton href="/exchange?tab=matches&filter=history" variant="secondary" size="sm">
+                        Открыть
                       </MenariumLinkButton>
                     </div>
                   </GlassCard>
-                </div>
+                </aside>
               </div>
             </>
           )}

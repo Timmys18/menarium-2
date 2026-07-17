@@ -10,6 +10,7 @@ import { Activity, Archive, BarChart3, CheckCircle2, Flag, Shield, Tag, Users } 
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { EmptyState } from "@/components/menarium/empty-state";
+import { itemStatusLabels } from "@/features/items/status-labels";
 import { GlassCard } from "@/components/menarium/card";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { prisma } from "@/lib/prisma";
@@ -303,7 +304,7 @@ export default async function AdminPage() {
                           {item.title}
                         </Link>
                         <Badge variant={item.status === "ACTIVE" ? "teal" : item.status === "ARCHIVED" ? "glass" : "purple"}>
-                          {item.status}
+                          {itemStatusLabels[item.status]}
                         </Badge>
                       </div>
                       <p className="text-sm text-white/45">

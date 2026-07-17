@@ -23,7 +23,7 @@ export default async function EditItemPage({ params }: Props) {
 
   if (userId && !item) notFound();
   const publicItem = item ? serializeItem(item) : null;
-  const canEdit = item?.status === ItemStatus.ACTIVE;
+  const canEdit = item?.status === ItemStatus.ACTIVE || item?.status === ItemStatus.PAUSED;
 
   return (
     <AppShell>
@@ -42,7 +42,7 @@ export default async function EditItemPage({ params }: Props) {
           ) : (
             <EmptyState
               title="Объявление нельзя редактировать"
-              description="Объявление уже участвует в обмене или снято с публикации. Его данные сохранены в истории."
+              description="Объявление уже участвует в обмене или сохранено в истории. В этих состояниях данные защищены от изменений."
               actionHref={`/item/${id}`}
               actionLabel="Вернуться к объявлению"
             />
