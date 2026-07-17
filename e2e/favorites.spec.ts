@@ -55,7 +55,9 @@ test.describe("избранное", () => {
     );
     await saveButton.click();
     expect((await saveResponse).ok()).toBeTruthy();
-    await expect(saveButton).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      pick(main(page).getByRole("button", { name: `Убрать «${targetItemTitle}» из избранного` })),
+    ).toHaveAttribute("aria-pressed", "true");
 
     await page.goto("/favorites");
     await expect(main(page).getByRole("heading", { name: "Сохранённые варианты" })).toBeVisible();

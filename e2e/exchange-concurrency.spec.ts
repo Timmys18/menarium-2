@@ -1,4 +1,5 @@
 import {
+  HandoffMode,
   ItemStatus,
   PrismaClient,
   SwapStatus,
@@ -158,6 +159,17 @@ test.describe("exchange transaction invariants", () => {
       const accepted = await swapAction(dmitryContext.request, swapId, "accept");
       const acceptedBody = await accepted.json();
       expect(accepted.status(), JSON.stringify(acceptedBody)).toBe(200);
+
+      await prisma.swapRequest.update({
+        where: { id: swapId },
+        data: {
+          handoffMode: HandoffMode.IN_PERSON,
+          handoffScheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          handoffDetails: "Согласованная встреча для проверки конкурентного завершения",
+          senderHandoffConfirmed: true,
+          receiverHandoffConfirmed: true,
+        },
+      });
 
       const completed = await Promise.all([
         swapAction(mariaContext.request, swapId, "complete"),
