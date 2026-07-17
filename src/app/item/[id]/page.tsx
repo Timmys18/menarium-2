@@ -16,6 +16,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { FavoriteButton } from "@/components/menarium/favorite-button";
 import { parseCatalogReturnHref } from "@/features/items/catalog-url";
 import { serializeItem } from "@/features/items/serializers";
 import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
@@ -115,6 +116,13 @@ export default async function ItemPage({ params, searchParams }: Props) {
       : [];
   const communicationBlocked = blocks.length > 0;
   const viewerBlockedOwner = blocks.some((block) => block.blockerId === userId);
+  const favorite =
+    userId && !isOwner && canInteract && !communicationBlocked
+      ? await prisma.favorite.findUnique({
+          where: { userId_itemId: { userId, itemId: publicItem.id } },
+          select: { itemId: true },
+        })
+      : null;
   const userItems =
     userId && !isOwner && canInteract && !communicationBlocked
       ? await prisma.item.findMany({
@@ -205,9 +213,22 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <h1 className="text-3xl font-bold leading-[1.08] tracking-[-0.035em] sm:text-4xl">
-                  {publicItem.title}
-                </h1>
+                <div className="flex items-start gap-3">
+                  <h1 className="min-w-0 flex-1 text-3xl font-bold leading-[1.08] tracking-[-0.035em] sm:text-4xl">
+                    {publicItem.title}
+                  </h1>
+                  {!isOwner && canInteract && !communicationBlocked ? (
+                    <FavoriteButton
+                      itemId={publicItem.id}
+                      itemTitle={publicItem.title}
+                      initialFavorite={Boolean(favorite)}
+                      authenticated={Boolean(userId)}
+                      loginHref={!userId ? loginHref(itemHref) : undefined}
+                      showLabel
+                      className="shrink-0"
+                    />
+                  ) : null}
+                </div>
                 <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/52">
                   <span className="inline-flex items-center gap-1.5">
                     {publicItem.isOnline ? <Globe2 className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}

@@ -1,4 +1,4 @@
-import { ItemStatus, ItemType, Prisma } from "@prisma/client";
+import { ItemStatus, ItemType, Prisma, UserStatus } from "@prisma/client";
 import type { ItemCardView } from "@/features/items/presenters";
 import { getPreviewItemCards } from "@/features/items/preview-cards";
 import { serializeItem } from "@/features/items/serializers";
@@ -17,6 +17,7 @@ function canUsePreviewFallback(error: unknown): boolean {
 const itemInclude = {
   owner: { select: { id: true, name: true, city: true, image: true } },
   images: true,
+  _count: { select: { favorites: true } },
 } as const;
 
 export type ItemCardsLoadResult = {
@@ -58,13 +59,13 @@ function previewMeta() {
 export async function loadHomeItemCards(): Promise<Pick<ItemCardsLoadResult, "cards" | "preview">> {
   try {
     const items = await prisma.item.findMany({
-      where: { status: ItemStatus.ACTIVE },
+      where: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
       include: itemInclude,
       orderBy: { createdAt: "desc" },
       take: 6,
     });
     return {
-      cards: items.map((item) => toItemCardView(serializeItem(item))),
+      cards: items.map((item) => toItemCardView(serializeItem(item), item._count.favorites)),
       preview: false,
     };
   } catch (error) {
@@ -91,6 +92,7 @@ export async function loadCatalogItemCards(input: {
   try {
     const where: Prisma.ItemWhereInput = {
       status: ItemStatus.ACTIVE,
+      owner: { status: UserStatus.ACTIVE },
       ...(input.q
         ? {
             OR: [
@@ -104,24 +106,28 @@ export async function loadCatalogItemCards(input: {
       ...(input.type ? { type: input.type } : {}),
     };
 
-    const orderBy =
+    const orderBy: Prisma.ItemOrderByWithRelationInput[] =
       input.sort === "popular"
-        ? { receivedSwaps: { _count: "desc" as const } }
+        ? [
+            { favorites: { _count: "desc" } },
+            { receivedSwaps: { _count: "desc" } },
+            { createdAt: "desc" },
+          ]
         : input.sort === "trends"
-          ? { updatedAt: "desc" as const }
-          : { createdAt: "desc" as const };
+          ? [{ updatedAt: "desc" }, { createdAt: "desc" }]
+          : [{ createdAt: "desc" }];
 
     const [items, total, categoryRows, cityRows] = await Promise.all([
       prisma.item.findMany({ where, include: itemInclude, orderBy, skip: offset, take: pageSize }),
       prisma.item.count({ where }),
       prisma.item.findMany({
-        where: { status: ItemStatus.ACTIVE },
+        where: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
         distinct: ["category"],
         select: { category: true },
         orderBy: { category: "asc" },
       }),
       prisma.item.findMany({
-        where: { status: ItemStatus.ACTIVE },
+        where: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
         distinct: ["city"],
         select: { city: true },
         orderBy: { city: "asc" },
@@ -130,7 +136,7 @@ export async function loadCatalogItemCards(input: {
 
     const liveCategories = ["Все", ...categoryRows.map((entry) => entry.category)];
     return {
-      cards: items.map((item) => toItemCardView(serializeItem(item))),
+      cards: items.map((item) => toItemCardView(serializeItem(item), item._count.favorites)),
       preview: false,
       categoryList: liveCategories.length > 1 ? liveCategories : input.fallbackCategories,
       cityList: cityRows.map((entry) => entry.city),

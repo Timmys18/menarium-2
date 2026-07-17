@@ -13,4 +13,5 @@ export const swapStatusLabels: Record<SwapStatus, string> = {
   DECLINED: "Отклонён",
   COMPLETED: "Завершён",
   CANCELLED: "Отменён",
+  EXPIRED: "Срок истёк",
 };

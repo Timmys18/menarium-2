@@ -14,6 +14,8 @@ const createdItemTitle = "[E2E] Механическая клавиатура";
 const targetItemTitle = "Canon AE-1";
 const senderMessage = "Здравствуйте! Готова встретиться в субботу в 12:00.";
 const receiverMessage = "Подходит, договорились у метро.";
+const mariaReview = "Всё прошло точно по договорённости, камера в отличном состоянии.";
+const dmitryReview = "Мария приехала вовремя, вещь полностью соответствует описанию.";
 
 function resetSeedData() {
   const result = spawnSync(process.execPath, ["prisma/seed.mjs"], {
@@ -33,6 +35,13 @@ function main(page: Page) {
 
 function pick(locator: Locator) {
   return locator.filter({ visible: true }).first();
+}
+
+function futureDateTimeLocal() {
+  const date = new Date(Date.now() + 48 * 60 * 60 * 1000);
+  date.setSeconds(0, 0);
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
 }
 
 async function openNotification(page: Page, title: string) {
@@ -79,7 +88,7 @@ async function confirmAction(page: Page, actionLabel: string, confirmLabel: stri
 
 test.describe("критический жизненный цикл обмена", () => {
   test.beforeEach(({}, testInfo) => {
-    testInfo.setTimeout(120_000);
+    testInfo.setTimeout(150_000);
     resetSeedData();
   });
 
@@ -139,6 +148,34 @@ test.describe("критический жизненный цикл обмена",
         await expect(pick(main(maria).getByText(receiverMessage))).toBeVisible({ timeout: 20_000 });
       });
 
+      await test.step("стороны фиксируют и подтверждают передачу", async () => {
+        const mariaMain = main(maria);
+        await pick(mariaMain.getByLabel("Дата и время")).fill(futureDateTimeLocal());
+        await pick(mariaMain.getByLabel("Детали")).fill("Встречаемся у главного входа в метро, рядом с информационной стойкой.");
+
+        const saveResponse = maria.waitForResponse(
+          (response) =>
+            response.url().includes("/plan") && response.request().method() === "PATCH",
+          { timeout: 20_000 },
+        );
+        await pick(mariaMain.getByRole("button", { name: "Сохранить и подтвердить" })).click();
+        expect((await saveResponse).ok()).toBeTruthy();
+        await expect(pick(mariaMain.getByText("Вы подтвердили", { exact: true }))).toBeVisible();
+
+        await openNotification(dmitry, "Обновлена передача вещей");
+        const confirmResponse = dmitry.waitForResponse(
+          (response) =>
+            response.url().includes("/plan") && response.request().method() === "PATCH",
+          { timeout: 20_000 },
+        );
+        await pick(main(dmitry).getByRole("button", { name: "Подтвердить договорённость" })).click();
+        expect((await confirmResponse).ok()).toBeTruthy();
+        await expect(pick(main(dmitry).getByText("Подтверждено обоими"))).toBeVisible({ timeout: 20_000 });
+
+        await openNotification(maria, "Партнёр подтвердил передачу");
+        await expect(pick(main(maria).getByText("Подтверждено обоими"))).toBeVisible({ timeout: 20_000 });
+      });
+
       await test.step("обе стороны подтверждают завершение", async () => {
         await confirmAction(maria, "Подтвердить завершение", "Подтвердить завершение");
         await expect(pick(main(maria).getByText(/Ожидаем подтверждения от партнёра/))).toBeVisible({
@@ -161,6 +198,40 @@ test.describe("критический жизненный цикл обмена",
         await expect(mariaMain.getByText("Обмен завершён", { exact: true }).first()).toBeVisible();
         await expect(mariaMain.getByText(senderMessage).first()).toBeVisible();
         await expect(mariaMain.getByText(receiverMessage).first()).toBeVisible();
+      });
+
+      await test.step("встречные отзывы публикуются в подтверждённой репутации", async () => {
+        const mariaMain = main(maria);
+        await pick(mariaMain.getByRole("button", { name: "5 из 5 — Отлично" })).click();
+        await pick(mariaMain.getByPlaceholder("Что было особенно хорошо или что стоит улучшить?"))
+          .fill(mariaReview);
+        const mariaReviewResponse = maria.waitForResponse(
+          (response) =>
+            response.url().includes("/review") && response.request().method() === "POST",
+          { timeout: 20_000 },
+        );
+        await pick(mariaMain.getByRole("button", { name: "Опубликовать отзыв" })).click();
+        expect((await mariaReviewResponse).ok()).toBeTruthy();
+        await expect(pick(mariaMain.getByText(/Отзыв откроется после ответа партнёра/))).toBeVisible();
+
+        const dmitryMain = main(dmitry);
+        await pick(dmitryMain.getByRole("button", { name: "5 из 5 — Отлично" })).click();
+        await pick(dmitryMain.getByPlaceholder("Что было особенно хорошо или что стоит улучшить?"))
+          .fill(dmitryReview);
+        const dmitryReviewResponse = dmitry.waitForResponse(
+          (response) =>
+            response.url().includes("/review") && response.request().method() === "POST",
+          { timeout: 20_000 },
+        );
+        await pick(dmitryMain.getByRole("button", { name: "Опубликовать отзыв" })).click();
+        expect((await dmitryReviewResponse).ok()).toBeTruthy();
+        await expect(pick(dmitryMain.getByText("Отзыв опубликован в профиле партнёра."))).toBeVisible();
+
+        await maria.goto("/profile");
+        await pick(main(maria).getByRole("link", { name: "Публичный профиль" })).click();
+        await expect(pick(main(maria).getByText(dmitryReview, { exact: true }))).toBeVisible({
+          timeout: 20_000,
+        });
       });
     } finally {
       await mariaContext.close();

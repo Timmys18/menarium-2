@@ -25,6 +25,7 @@ enum SwapStatus {
   DECLINED
   COMPLETED
   CANCELLED
+  EXPIRED
 }
 
 enum NotificationType {
@@ -35,6 +36,14 @@ enum NotificationType {
   SWAP_COMPLETED
   DEAL_MESSAGE_RECEIVED
   ITEM_MESSAGE_RECEIVED
+  REVIEW_PUBLISHED
+  HANDOFF_UPDATED
+}
+
+enum HandoffMode {
+  IN_PERSON
+  DELIVERY
+  ONLINE
 }
 
 enum MediaOwnerType {
@@ -69,39 +78,42 @@ enum ReportStatus {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  name          String?
-  email         String   @unique
-  emailVerified DateTime?
-  passwordHash  String?
-  image         String?
-  city          String?
-  status        UserStatus @default(ACTIVE)
-  sessionVersion Int       @default(0)
-  deletedAt       DateTime?
-  suspendedAt     DateTime?
-  suspensionReason String? @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String     @id @default(cuid())
+  name             String?
+  email            String     @unique
+  emailVerified    DateTime?
+  passwordHash     String?
+  image            String?
+  city             String?
+  status           UserStatus @default(ACTIVE)
+  sessionVersion   Int        @default(0)
+  deletedAt        DateTime?
+  suspendedAt      DateTime?
+  suspensionReason String?    @db.Text
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  items         Item[]
-  sentSwaps     SwapRequest[] @relation("SwapSender")
-  receivedSwaps SwapRequest[] @relation("SwapReceiver")
-  dealMessages  DealMessage[]
-  itemThreadsAsBuyer  ItemThread[] @relation("ItemThreadBuyer")
-  itemThreadsAsOwner  ItemThread[] @relation("ItemThreadOwner")
-  itemMessages  ItemThreadMessage[]
-  notifications Notification[]
-  mediaAssets   MediaAsset[]
-  swipePasses   SwipePass[]
-  blocksCreated UserBlock[] @relation("Blocker")
-  blocksReceived UserBlock[] @relation("Blocked")
-  reportsFiled Report[] @relation("ReportsFiled")
-  reportsReceived Report[] @relation("ReportedUser")
-  reportsResolved Report[] @relation("ReportResolver")
-  productEvents ProductEvent[]
+  accounts           Account[]
+  sessions           Session[]
+  items              Item[]
+  sentSwaps          SwapRequest[]       @relation("SwapSender")
+  receivedSwaps      SwapRequest[]       @relation("SwapReceiver")
+  dealMessages       DealMessage[]
+  itemThreadsAsBuyer ItemThread[]        @relation("ItemThreadBuyer")
+  itemThreadsAsOwner ItemThread[]        @relation("ItemThreadOwner")
+  itemMessages       ItemThreadMessage[]
+  notifications      Notification[]
+  mediaAssets        MediaAsset[]
+  swipePasses        SwipePass[]
+  blocksCreated      UserBlock[]         @relation("Blocker")
+  blocksReceived     UserBlock[]         @relation("Blocked")
+  reportsFiled       Report[]            @relation("ReportsFiled")
+  reportsReceived    Report[]            @relation("ReportedUser")
+  reportsResolved    Report[]            @relation("ReportResolver")
+  reviewsWritten     Review[]            @relation("ReviewAuthor")
+  reviewsReceived    Review[]            @relation("ReviewRecipient")
+  favorites          Favorite[]
+  productEvents      ProductEvent[]
 
   @@index([createdAt])
   @@index([status, createdAt])
@@ -147,28 +159,29 @@ model VerificationToken {
 }
 
 model Item {
-  id          String     @id @default(cuid())
-  title       String
-  type        ItemType
-  category    String
-  description String     @db.Text
-  city        String
-  isOnline    Boolean    @default(false)
-  status      ItemStatus @default(ACTIVE)
-  desired     String[]   @default([])
-  acceptsAnything Boolean @default(false)
-  extraOfferText  String? @db.Text
-  ownerId     String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id              String     @id @default(cuid())
+  title           String
+  type            ItemType
+  category        String
+  description     String     @db.Text
+  city            String
+  isOnline        Boolean    @default(false)
+  status          ItemStatus @default(ACTIVE)
+  desired         String[]   @default([])
+  acceptsAnything Boolean    @default(false)
+  extraOfferText  String?    @db.Text
+  ownerId         String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
-  owner         User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   images        MediaAsset[]
   sentSwaps     SwapRequest[] @relation("SenderItem")
   receivedSwaps SwapRequest[] @relation("ReceiverItem")
   threads       ItemThread[]
   swipePasses   SwipePass[]
   reports       Report[]
+  favorites     Favorite[]
 
   @@index([status, createdAt])
   @@index([ownerId, status])
@@ -190,26 +203,34 @@ model SwipePass {
 }
 
 model SwapRequest {
-  id             String     @id @default(cuid())
-  status         SwapStatus @default(PENDING)
-  senderId       String
-  receiverId     String
-  senderItemId   String
-  receiverItemId String
-  senderCompleted   Boolean @default(false)
-  receiverCompleted Boolean @default(false)
-  acceptedAt     DateTime?
-  completedAt    DateTime?
+  id                       String       @id @default(cuid())
+  status                   SwapStatus   @default(PENDING)
+  senderId                 String
+  receiverId               String
+  senderItemId             String
+  receiverItemId           String
+  senderCompleted          Boolean      @default(false)
+  receiverCompleted        Boolean      @default(false)
+  acceptedAt               DateTime?
+  completedAt              DateTime?
+  expiresAt                DateTime
+  handoffMode              HandoffMode?
+  handoffScheduledAt       DateTime?
+  handoffDetails           String?      @db.Text
+  handoffRevision          Int          @default(0)
+  senderHandoffConfirmed   Boolean      @default(false)
+  receiverHandoffConfirmed Boolean      @default(false)
   /// Directional while pending: the reverse offer is allowed and creates a match.
-  pendingPairKey String? @unique
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  pendingPairKey           String?      @unique
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
 
-  sender       User @relation("SwapSender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver     User @relation("SwapReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-  senderItem   Item @relation("SenderItem", fields: [senderItemId], references: [id], onDelete: Restrict)
-  receiverItem Item @relation("ReceiverItem", fields: [receiverItemId], references: [id], onDelete: Restrict)
+  sender       User          @relation("SwapSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User          @relation("SwapReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  senderItem   Item          @relation("SenderItem", fields: [senderItemId], references: [id], onDelete: Restrict)
+  receiverItem Item          @relation("ReceiverItem", fields: [receiverItemId], references: [id], onDelete: Restrict)
   messages     DealMessage[]
+  reviews      Review[]
 
   @@index([senderId, status, updatedAt])
   @@index([receiverId, status, updatedAt])
@@ -217,6 +238,41 @@ model SwapRequest {
   @@index([receiverItemId, status])
   @@index([status, updatedAt])
   @@index([status, completedAt])
+  @@index([status, expiresAt])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  swapId     String
+  reviewerId String
+  revieweeId String
+  rating     Int
+  comment    String?  @db.Text
+  visibleAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  swap     SwapRequest @relation(fields: [swapId], references: [id], onDelete: Cascade)
+  reviewer User        @relation("ReviewAuthor", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee User        @relation("ReviewRecipient", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@unique([swapId, reviewerId])
+  @@index([revieweeId, visibleAt, createdAt])
+  @@index([reviewerId, createdAt])
+  @@index([swapId])
+}
+
+model Favorite {
+  userId    String
+  itemId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@id([userId, itemId])
+  @@index([userId, createdAt])
+  @@index([itemId, createdAt])
 }
 
 model DealMessage {
@@ -242,9 +298,9 @@ model ItemThread {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  item     Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  buyer    User @relation("ItemThreadBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
-  owner    User @relation("ItemThreadOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  item     Item                @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  buyer    User                @relation("ItemThreadBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  owner    User                @relation("ItemThreadOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   messages ItemThreadMessage[]
 
   @@unique([itemId, buyerId])
@@ -276,8 +332,8 @@ model Notification {
   href       String?
   entityType String?
   entityId   String?
-  isRead     Boolean @default(false)
-  createdAt  DateTime @default(now())
+  isRead     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -286,7 +342,7 @@ model Notification {
 }
 
 model MediaAsset {
-  id          String @id @default(cuid())
+  id          String         @id @default(cuid())
   ownerId     String?
   ownerType   MediaOwnerType
   itemId      String?
@@ -296,7 +352,7 @@ model MediaAsset {
   sizeBytes   Int
   width       Int?
   height      Int?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime       @default(now())
 
   owner User? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   item  Item? @relation(fields: [itemId], references: [id], onDelete: Cascade)

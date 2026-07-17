@@ -2,10 +2,13 @@ import Link from "next/link";
 import { ArrowRightLeft, Globe2, Heart, MapPin, Sparkles } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
 import { HoverCard } from "@/components/menarium/card";
+import { FavoriteButton } from "@/components/menarium/favorite-button";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
+import { cn } from "@/lib/utils";
 
 export type ItemCardProps = {
   id: string;
+  ownerId?: string;
   title: string;
   category: string;
   image: string;
@@ -17,6 +20,9 @@ export type ItemCardProps = {
   flexible?: boolean;
   priority?: boolean;
   returnHref?: string;
+  isFavorite?: boolean;
+  canFavorite?: boolean;
+  favoriteLoginHref?: string;
 };
 
 export function ItemCard({
@@ -32,14 +38,24 @@ export function ItemCard({
   flexible,
   priority,
   returnHref,
+  isFavorite,
+  canFavorite,
+  favoriteLoginHref,
 }: ItemCardProps) {
   const itemHref = returnHref
     ? `/item/${id}?from=${encodeURIComponent(returnHref)}`
     : `/item/${id}`;
 
+  const showFavorite = Boolean(canFavorite || favoriteLoginHref);
+
   return (
-    <Link href={itemHref} className="block h-full rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 sm:rounded-[28px]">
-      <HoverCard className="group flex h-full flex-col overflow-hidden">
+    <HoverCard className="group relative flex h-full flex-col overflow-hidden">
+      <Link
+        href={itemHref}
+        className="absolute inset-0 z-10 rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70 sm:rounded-[28px]"
+      >
+        <span className="sr-only">Открыть объявление «{title}»</span>
+      </Link>
         <div className="relative aspect-[4/3] overflow-hidden">
           <ItemCoverImage
             src={image}
@@ -49,13 +65,23 @@ export function ItemCard({
             imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d131d] to-transparent" />
-          <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
+          <div className={cn("absolute left-4 top-4 flex flex-wrap items-start gap-2", showFavorite ? "right-16" : "right-4")}>
             <Badge className="bg-[#090d14]/78">{category}</Badge>
             <Badge variant={isOnline ? "teal" : "glass"} className="bg-[#090d14]/78">
               {isOnline ? <Globe2 className="h-3 w-3" /> : null}
               {isOnline ? "Онлайн" : type === "SERVICE" ? "Услуга" : "Предмет"}
             </Badge>
           </div>
+          {showFavorite ? (
+            <FavoriteButton
+              itemId={id}
+              itemTitle={title}
+              initialFavorite={isFavorite}
+              authenticated={Boolean(canFavorite)}
+              loginHref={favoriteLoginHref}
+              className="absolute right-4 top-4 z-20"
+            />
+          ) : null}
           {flexible ? (
             <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#090d14]/78 px-3 py-1.5 text-[11px] font-medium text-white/76 backdrop-blur-xl">
               <Sparkles className="h-3 w-3 text-teal-200" />
@@ -87,7 +113,6 @@ export function ItemCard({
             <span className="shrink-0 text-teal-200/65">Посмотреть →</span>
           </div>
         </div>
-      </HoverCard>
-    </Link>
+    </HoverCard>
   );
 }

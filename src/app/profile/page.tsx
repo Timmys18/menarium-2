@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ItemStatus, SwapStatus } from "@prisma/client";
+import { ItemStatus, SwapStatus, UserStatus } from "@prisma/client";
 import {
   ArrowRight,
   Bell,
@@ -8,6 +8,7 @@ import {
   CirclePause,
   Clock3,
   Eye,
+  Heart,
   MapPin,
   MessageCircle,
   PackageCheck,
@@ -20,6 +21,7 @@ import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { buildProfileActivation } from "@/features/profile/activation";
+import { expirePendingSwapOffers } from "@/features/exchange/expiration";
 import { getSafeNotificationHref } from "@/features/notifications/href";
 import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
@@ -83,6 +85,7 @@ type ProfilePageProps = {
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const params = await searchParams;
   const userId = await getCurrentUserId();
+  if (userId) await expirePendingSwapOffers(prisma, { userId });
   const user = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
@@ -100,6 +103,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
   const [
     itemGroups,
+    favoriteCount,
     incomingPending,
     outgoingPending,
     sentProposals,
@@ -119,6 +123,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           by: ["status"],
           where: { ownerId: userId },
           _count: { _all: true },
+        }),
+        prisma.favorite.count({
+          where: {
+            userId,
+            item: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
+          },
         }),
         prisma.swapRequest.count({
           where: { receiverId: userId, status: SwapStatus.PENDING },
@@ -220,7 +230,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           take: 4,
         }),
       ])
-    : [[], 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], []];
+    : [[], 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], []];
 
   const itemCounts: Record<ItemStatus, number> = {
     [ItemStatus.ACTIVE]: 0,
@@ -403,6 +413,15 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
+                    <MenariumLinkButton href="/favorites" variant="ghost" size="sm">
+                      <Heart className="h-4 w-4" />
+                      Избранное
+                      {favoriteCount > 0 ? (
+                        <span className="rounded-full bg-rose-300/14 px-1.5 py-0.5 text-[10px] text-rose-100/80">
+                          {favoriteCount}
+                        </span>
+                      ) : null}
+                    </MenariumLinkButton>
                     <MenariumLinkButton href={`/user/${user.id}`} variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />
                       Публичный профиль
@@ -653,6 +672,19 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                         );
                       })}
                     </div>
+                    <Link
+                      href="/favorites"
+                      className="mt-3 flex items-center gap-3 rounded-[16px] border border-rose-300/12 bg-rose-300/[0.045] px-3.5 py-3 transition hover:border-rose-300/22 hover:bg-rose-300/[0.08]"
+                    >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-rose-300/10 text-rose-100/75">
+                        <Heart className="h-4 w-4" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-white/86">Избранное</span>
+                        <span className="block text-[11px] text-white/38">Сохранённые вещи и рекомендации</span>
+                      </span>
+                      <strong className="text-lg text-white/82">{favoriteCount}</strong>
+                    </Link>
                     <MenariumLinkButton href="/my-items" variant="secondary" size="sm" className="mt-3 w-full">
                       Управлять объявлениями
                     </MenariumLinkButton>
