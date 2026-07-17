@@ -26,7 +26,7 @@ export async function PATCH(request: Request, context: Context) {
   const parsed = itemLifecycleSchema.safeParse(body);
   if (!parsed.success) return errorResponse("Неизвестное действие с объявлением", 400);
 
-  const rate = await checkActionRateLimit(auth.userId, "items:update");
+  const rate = await checkActionRateLimit(auth.userId, `items:${parsed.data.action}`);
   if (!rate.ok) {
     return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
   }
