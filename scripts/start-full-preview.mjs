@@ -33,7 +33,8 @@ function updateEnvFile() {
   next.set("DATABASE_URL", `"${DATABASE_URL}"`);
   next.set("NEXTAUTH_URL", '"http://localhost:3000"');
   next.set("NEXTAUTH_SECRET", '"dev-only-replace-in-production"');
-  next.set("NEXT_PUBLIC_APP_URL", '"http://localhost:3000"');
+  next.set("APP_URL", '"http://localhost:3000"');
+  next.delete("NEXT_PUBLIC_APP_URL");
   next.set("ADMIN_EMAILS", '"admin@menarium.ru"');
   next.set("STORAGE_PROVIDER", '"local"');
   next.set("STORAGE_LOCAL_DIR", '"./public/uploads"');

@@ -11,6 +11,7 @@ const storageOrigin = storagePublicBaseUrl?.startsWith("http")
 const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 const sentryOrigin = sentryDsn?.startsWith("http") ? new URL(sentryDsn).origin : undefined;
 const isDevelopment = process.env.NODE_ENV === "development";
+const enforceHttps = new Set(["staging", "production"]).has(process.env.APP_ENVIRONMENT ?? "");
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -27,7 +28,7 @@ const contentSecurityPolicy = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  ...(!isDevelopment ? ["upgrade-insecure-requests"] : []),
+  ...(enforceHttps ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const securityHeaders = [
