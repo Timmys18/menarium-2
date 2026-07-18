@@ -1,32 +1,183 @@
-name: CD
+name: Release
 
 permissions:
   contents: read
+  packages: write
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Build only, deploy to staging, or deploy to production
+        required: true
+        default: package-only
+        type: choice
+        options:
+          - package-only
+          - staging
+          - production
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  docker:
+  package:
+    name: Build immutable images
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    timeout-minutes: 30
+    outputs:
+      app_image: ${{ steps.release.outputs.app_image }}
+      migration_image: ${{ steps.release.outputs.migration_image }}
+      release_sha: ${{ steps.release.outputs.release_sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Check rollback-safe migrations
+        run: node scripts/check-migration-safety.mjs
+
+      - name: Resolve immutable image names
+        id: release
+        shell: bash
+        run: |
+          repository="${GITHUB_REPOSITORY,,}"
+          echo "app_image=ghcr.io/${repository}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "migration_image=ghcr.io/${repository}-migrations:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "release_sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Build production image
+      - name: Sign in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build application image
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: false
-          tags: menarium:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          target: runner
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.release.outputs.app_image }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          build-args: |
+            APP_RELEASE=${{ github.sha }}
+            APP_ENVIRONMENT=${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'production' || (startsWith(github.ref, 'refs/tags/v') && 'production' || 'staging') }}
+            APP_URL=${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && vars.PRODUCTION_APP_URL || (startsWith(github.ref, 'refs/tags/v') && vars.PRODUCTION_APP_URL || vars.STAGING_APP_URL) || 'https://menarium.ru' }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_SENTRY_ENVIRONMENT=${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'production' || (startsWith(github.ref, 'refs/tags/v') && 'production' || 'staging') }}
+            STORAGE_PUBLIC_BASE_URL=${{ vars.STORAGE_PUBLIC_BASE_URL || 'https://storage.yandexcloud.net' }}
+          cache-from: type=gha,scope=application
+          cache-to: type=gha,mode=max,scope=application
+          provenance: true
+          sbom: true
 
-      - name: Image ready
-        run: echo "Docker image menarium:latest built successfully — push to your registry from your deploy pipeline."
+      - name: Build database migration image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: migrator
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.release.outputs.migration_image }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=migrations
+          cache-to: type=gha,mode=max,scope=migrations
+          provenance: true
+          sbom: true
+
+  deploy:
+    name: Deploy protected environment
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: >-
+      github.event_name != 'pull_request' &&
+      (
+        (github.event_name == 'workflow_dispatch' && inputs.target != 'package-only') ||
+        (github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.STAGING_DEPLOY_ENABLED == 'true') ||
+        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && vars.PRODUCTION_DEPLOY_ENABLED == 'true')
+      )
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.target || (startsWith(github.ref, 'refs/tags/v') && 'production' || 'staging') }}
+      url: ${{ vars.PUBLIC_URL }}
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      PUBLIC_URL: ${{ vars.PUBLIC_URL }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      APP_ENV_FILE_CONTENTS: ${{ secrets.APP_ENV_FILE_CONTENTS }}
+      PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+      GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      APP_IMAGE: ${{ needs.package.outputs.app_image }}
+      MIGRATION_IMAGE: ${{ needs.package.outputs.migration_image }}
+      RELEASE_SHA: ${{ needs.package.outputs.release_sha }}
+    steps:
+      - name: Checkout release scripts
+        uses: actions/checkout@v6
+
+      - name: Validate protected environment settings
+        shell: bash
+        run: |
+          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH PUBLIC_URL PUBLIC_SENTRY_DSN SSH_PRIVATE_KEY SSH_KNOWN_HOSTS APP_ENV_FILE_CONTENTS; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing protected environment setting: ${name}" >&2
+              exit 1
+            fi
+          done
+          if [[ "${DEPLOY_PATH}" != /* ]]; then
+            echo "DEPLOY_PATH must be an absolute server path" >&2
+            exit 1
+          fi
+
+      - name: Configure verified SSH access
+        shell: bash
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Transfer release and protected settings
+        shell: bash
+        run: |
+          remote="${DEPLOY_USER}@${DEPLOY_HOST}"
+          release_dir="${DEPLOY_PATH}/releases/${RELEASE_SHA}"
+          ssh "$remote" "install -d -m 700 '${release_dir}' '${DEPLOY_PATH}/shared' '${DEPLOY_PATH}/state'"
+          scp deploy/scripts/deploy-docker.sh deploy/scripts/rollback-docker.sh "${remote}:${release_dir}/"
+          ssh "$remote" "install -d -m 700 '${DEPLOY_PATH}/ops'"
+          scp deploy/scripts/backup-postgres.sh deploy/scripts/restore-postgres.sh "${remote}:${DEPLOY_PATH}/ops/"
+          ssh "$remote" "chmod 700 '${DEPLOY_PATH}/ops/backup-postgres.sh' '${DEPLOY_PATH}/ops/restore-postgres.sh'"
+          printf '%s\n' "$APP_ENV_FILE_CONTENTS" | ssh "$remote" "umask 077; cat > '${DEPLOY_PATH}/shared/app.env'"
+          printf '%s' "$GHCR_TOKEN" | ssh "$remote" "docker login ghcr.io --username '${GITHUB_ACTOR}' --password-stdin"
+
+      - name: Deploy candidate and cut over
+        shell: bash
+        run: |
+          remote="${DEPLOY_USER}@${DEPLOY_HOST}"
+          release_dir="${DEPLOY_PATH}/releases/${RELEASE_SHA}"
+          ssh "$remote" "chmod 700 '${release_dir}/deploy-docker.sh' '${release_dir}/rollback-docker.sh' && APP_IMAGE='${APP_IMAGE}' MIGRATION_IMAGE='${MIGRATION_IMAGE}' RELEASE_SHA='${RELEASE_SHA}' APP_ENV_FILE='${DEPLOY_PATH}/shared/app.env' DEPLOY_ROOT='${DEPLOY_PATH}' bash '${release_dir}/deploy-docker.sh'"
+
+      - name: Verify public release
+        shell: bash
+        env:
+          SMOKE_BASE_URL: ${{ env.PUBLIC_URL }}
+          EXPECTED_RELEASE: ${{ env.RELEASE_SHA }}
+          REQUIRE_EDGE_HEADERS: "true"
+        run: node scripts/release-smoke.mjs

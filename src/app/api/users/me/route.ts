@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { deleteMediaObjects } from "@/features/media/cleanup";
 import { runSerializableTransaction } from "@/lib/transactions";
+import { reportError } from "@/lib/logger";
 
 function serializeUser(user: {
   id: string;
@@ -108,7 +109,7 @@ export async function PATCH(req: Request) {
     if (error instanceof Error && error.message === "USER_NOT_FOUND") {
       return errorResponse("Пользователь не найден", 404);
     }
-    console.error("[profile] update failed:", error);
+    reportError("profile.update_failed", error);
     return errorResponse("Не удалось сохранить профиль", 500);
   }
 }

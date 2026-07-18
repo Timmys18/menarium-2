@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isPrismaError } from "@/lib/transactions";
+import { reportError } from "@/lib/logger";
 
 export const SERVER_PRODUCT_EVENT_NAMES = [
   "user_registered",
@@ -82,6 +83,6 @@ export async function trackProductEvent(input: TrackProductEventInput) {
     if (isPrismaError(error, "P2002")) return;
 
     // Product actions must remain available even when observability is degraded.
-    console.error(`[product-analytics] Failed to record ${input.name}:`, error);
+    reportError("product_analytics.record_failed", error, { productEvent: input.name });
   }
 }

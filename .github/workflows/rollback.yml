@@ -1,0 +1,73 @@
+name: Roll back release
+
+permissions:
+  contents: read
+  packages: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Protected environment to roll back
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: rollback-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Restore previous application image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: ${{ inputs.target }}
+      url: ${{ vars.PUBLIC_URL }}
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      PUBLIC_URL: ${{ vars.PUBLIC_URL }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout release scripts
+        uses: actions/checkout@v6
+
+      - name: Validate protected environment settings
+        shell: bash
+        run: |
+          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH PUBLIC_URL SSH_PRIVATE_KEY SSH_KNOWN_HOSTS; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing protected environment setting: ${name}" >&2
+              exit 1
+            fi
+          done
+
+      - name: Configure verified SSH access
+        shell: bash
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Restore previous version
+        shell: bash
+        run: |
+          remote="${DEPLOY_USER}@${DEPLOY_HOST}"
+          rollback_dir="${DEPLOY_PATH}/rollback"
+          ssh "$remote" "install -d -m 700 '${rollback_dir}'"
+          scp deploy/scripts/deploy-docker.sh deploy/scripts/rollback-docker.sh "${remote}:${rollback_dir}/"
+          printf '%s' "$GHCR_TOKEN" | ssh "$remote" "docker login ghcr.io --username '${GITHUB_ACTOR}' --password-stdin"
+          ssh "$remote" "chmod 700 '${rollback_dir}/deploy-docker.sh' '${rollback_dir}/rollback-docker.sh' && DEPLOY_ROOT='${DEPLOY_PATH}' APP_ENV_FILE='${DEPLOY_PATH}/shared/app.env' DEPLOY_SCRIPT='${rollback_dir}/deploy-docker.sh' bash '${rollback_dir}/rollback-docker.sh'"
+
+      - name: Verify restored service
+        shell: bash
+        run: curl --fail --silent --show-error --retry 10 --retry-delay 3 --retry-all-errors "${PUBLIC_URL%/}/api/health/ready" > /dev/null

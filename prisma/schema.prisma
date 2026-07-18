@@ -213,7 +213,7 @@ model SwapRequest {
   receiverCompleted        Boolean      @default(false)
   acceptedAt               DateTime?
   completedAt              DateTime?
-  expiresAt                DateTime
+  expiresAt                DateTime     @default(dbgenerated("now() + interval '7 days'"))
   handoffMode              HandoffMode?
   handoffScheduledAt       DateTime?
   handoffDetails           String?      @db.Text

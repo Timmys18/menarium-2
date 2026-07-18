@@ -14,9 +14,11 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "node prisma/seed.mjs",
     "analytics:prune": "node scripts/prune-product-events.mjs",
+    "release:check": "node scripts/check-migration-safety.mjs",
+    "release:smoke": "node scripts/release-smoke.mjs",
     "preview:full": "node scripts/start-full-preview.mjs",
     "preview:setup": "node scripts/start-full-preview.mjs",
-    "verify": "npm run lint && npm run test && npm run typecheck && npm run build",
+    "verify": "npm run release:check && npm run lint && npm run test && npm run typecheck && npm run build",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium"
   },

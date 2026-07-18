@@ -1,0 +1,16 @@
+[Unit]
+Description=Menarium encrypted off-site PostgreSQL backup
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=menarium
+Group=menarium
+EnvironmentFile=/opt/menarium/shared/backup.env
+ExecStart=/opt/menarium/ops/backup-postgres.sh
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/menarium/state/backups

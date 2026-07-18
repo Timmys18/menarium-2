@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { deleteStoredUpload, storeImageUpload } from "@/lib/storage";
 import { runSerializableTransaction } from "@/lib/transactions";
 import { requireUserId } from "@/server/session";
+import { reportError } from "@/lib/logger";
 
 const MAX_MULTIPART_REQUEST_BYTES = 8 * 1024 * 1024 + 128 * 1024;
 const MAX_UNATTACHED_ASSETS = 32;
@@ -35,7 +36,7 @@ async function cleanupStaleItemUploads(userId: string) {
     });
     if (deleted.count && asset.key) {
       await deleteStoredUpload(asset.key).catch((error) => {
-        console.error("[media] stale object cleanup failed:", error);
+        reportError("media.stale_object_cleanup_failed", error, { storageKey: asset.key });
       });
     }
   }
@@ -117,7 +118,7 @@ export async function POST(req: Request) {
       });
     } catch (error) {
       await deleteStoredUpload(stored.key).catch((cleanupError) => {
-        console.error("[media] upload compensation failed:", cleanupError);
+        reportError("media.upload_compensation_failed", cleanupError, { storageKey: stored.key });
       });
       throw error;
     }
@@ -156,7 +157,7 @@ export async function POST(req: Request) {
       if (error.message === "FILE_TOO_LARGE") return errorResponse("Файл слишком большой. Максимум 8 МБ", 413);
       if (error.message === "STORAGE_NOT_CONFIGURED") return errorResponse("Хранилище не настроено", 500);
     }
-    console.error("[media] upload failed:", error);
+    reportError("media.upload_failed", error);
     return errorResponse("Не удалось загрузить файл", 500);
   }
 }
@@ -194,7 +195,7 @@ export async function DELETE(req: NextRequest) {
 
   if (asset.key) {
     await deleteStoredUpload(asset.key).catch((error) => {
-      console.error("[media] object deletion failed:", error);
+      reportError("media.object_deletion_failed", error, { storageKey: asset.key });
     });
   }
 

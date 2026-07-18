@@ -1,95 +1,116 @@
-# Menarium 2.0 Deployment
+# Выпуск Menarium
 
-## Baseline
+Этот документ описывает единственный поддерживаемый путь выпуска `menarium.ru`: Docker, Nginx, PostgreSQL, Redis и S3-совместимое хранилище. Ручная сборка приложения на боевом сервере не используется.
 
-Production should run in Russian infrastructure to simplify 152-FZ compliance:
+## Что происходит при выпуске
 
-- PostgreSQL primary database with daily backups.
-- Redis for rate limits.
-- S3-compatible object storage in РФ, for example Yandex Object Storage.
-- Node.js LTS behind Nginx with HTTPS.
-- Domain: `menarium.ru`.
+1. Каждый pull request собирает контейнер сайта и контейнер обновления базы, но никуда их не публикует.
+2. После попадания кода в `main` GitHub сохраняет оба контейнера с неизменяемым номером коммита.
+3. Если тестовый выпуск включен, версия устанавливается в `staging`: обновляется база, рядом со старой версией запускается кандидат и проверяет PostgreSQL и Redis.
+4. Только здоровый кандидат заменяет текущую версию. При неудаче старая версия запускается автоматически.
+5. Боевой выпуск выполняется тегом `v*` или вручную через защищенную среду `production`.
+6. После установки GitHub проверяет главную, вход, health endpoints, robots, sitemap, TLS и защитные заголовки.
 
-## Environment
+Обновления базы не откатываются автоматически. Поэтому `npm run release:check` запрещает операции, несовместимые с предыдущей версией приложения.
 
-Required variables:
+## Подготовка сервера
 
-```bash
-NODE_ENV=production
-DATABASE_URL=postgresql://...
-NEXTAUTH_URL=https://menarium.ru
-NEXTAUTH_SECRET=<strong-secret>
-NEXT_PUBLIC_APP_URL=https://menarium.ru
-ADMIN_EMAILS=admin@menarium.ru
-REDIS_URL=redis://...
-STORAGE_PROVIDER=s3
-STORAGE_ENDPOINT=https://storage.yandexcloud.net
-STORAGE_BUCKET=<bucket>
-STORAGE_REGION=ru-central1
-STORAGE_ACCESS_KEY_ID=<key>
-STORAGE_SECRET_ACCESS_KEY=<secret>
-STORAGE_PUBLIC_BASE_URL=https://<bucket>.storage.yandexcloud.net
-```
+Нужен Linux-сервер с Docker Engine, Nginx, `curl` и `flock`. PostgreSQL, Redis и S3 могут быть управляемыми внешними сервисами. Если PostgreSQL или Redis находятся на том же сервере, используйте в URL имя `host.docker.internal`, а не `localhost`.
 
-Use `.env.production.example` as the production checklist. Never reuse demo passwords in production.
+Создайте отдельного пользователя `menarium`, каталог `/opt/menarium` и разрешите этому пользователю запуск Docker. SSH-вход по паролю отключите; GitHub использует отдельный ключ выпуска.
 
-## Local Infrastructure
-
-For local or staging checks with real services:
+Для Nginx:
 
 ```bash
-docker compose -f docker-compose.local.yml up -d
-npm run db:migrate
-npm run db:seed
-npm run dev
+sudo install -m 644 deploy/nginx/00-menarium-http.conf /etc/nginx/conf.d/00-menarium-http.conf
+sudo install -m 644 deploy/nginx/menarium.ru.conf /etc/nginx/sites-available/menarium.ru.conf
+sudo ln -s /etc/nginx/sites-available/menarium.ru.conf /etc/nginx/sites-enabled/menarium.ru.conf
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
-The seed script creates demo users and items for functional verification only.
+Сертификат для `menarium.ru` и `www.menarium.ru` должен существовать до включения HTTPS-конфига. После выпуска проверьте автоматическое продление Certbot командой `certbot renew --dry-run`.
 
-## Release
+## Настройки GitHub
 
-PM2 release:
+Создайте Environments `staging` и `production`. Для `production` включите обязательное ручное подтверждение.
+
+Переменные каждого Environment:
+
+- `DEPLOY_HOST`: адрес сервера.
+- `DEPLOY_USER`: пользователь выпуска, обычно `menarium`.
+- `DEPLOY_PATH`: абсолютный путь, обычно `/opt/menarium`.
+- `PUBLIC_URL`: адрес среды, например `https://staging.menarium.ru`.
+
+Защищенные Secrets каждого Environment:
+
+- `SSH_PRIVATE_KEY`: отдельный закрытый SSH-ключ выпуска.
+- `SSH_KNOWN_HOSTS`: заранее проверенная строка ключа сервера. Не получайте ее вслепую во время выпуска.
+- `APP_ENV_FILE_CONTENTS`: полное содержимое настроек по образцу `.env.production.example` с адресом именно этой среды.
+
+Переменные репозитория, нужные во время сборки:
+
+- `NEXT_PUBLIC_SENTRY_DSN`: публичный DSN Sentry для ошибок в браузере.
+- `STORAGE_PUBLIC_BASE_URL`: публичный origin S3/CDN.
+- `STAGING_APP_URL`: канонический адрес staging.
+- `PRODUCTION_APP_URL`: `https://menarium.ru`.
+- `STAGING_DEPLOY_ENABLED`: `true` только после подготовки staging.
+- `PRODUCTION_DEPLOY_ENABLED`: `true` только когда теги должны автоматически выпускаться в бой.
+- `UPTIME_MONITOR_ENABLED`: `true` после открытия сайта в интернете.
+- `PRODUCTION_PUBLIC_URL`: `https://menarium.ru`.
+
+Начните со значений `false`. Без серверных настроек workflow только собирает и сохраняет контейнеры, ничего не устанавливая.
+
+## Настройки приложения
+
+Возьмите `.env.production.example` за основу. Обязательны уникальный `APP_RELEASE`, правильные `APP_ENVIRONMENT` и `APP_URL`, PostgreSQL, Redis, S3, рабочая почта, Sentry и аналитика. Workflow сам передает настоящий номер выпуска поверх файла.
+
+Никогда не помещайте реальные секреты в репозиторий, Docker image, логи или переменные с префиксом `NEXT_PUBLIC_`.
+
+## Выпуск и возврат
+
+- `main` выпускается в staging, когда `STAGING_DEPLOY_ENABLED=true`.
+- Тег вида `v1.2.0` выпускается в production, когда `PRODUCTION_DEPLOY_ENABLED=true`.
+- Ручной запуск workflow `Release` позволяет только собрать версию либо установить ее в выбранную среду.
+- Workflow `Roll back release` поднимает предыдущий контейнер без обратного изменения базы.
+
+Автоматический возврат срабатывает, если кандидат или новая основная версия не проходят `/api/health/ready`. Ручной возврат используйте при пользовательской ошибке, которую автоматическая проверка не видит.
+
+## Состояние сервиса
+
+- `/api/health/live`: процесс приложения отвечает; используется Docker.
+- `/api/health/ready`: PostgreSQL и Redis доступны; используется выпуском и внешним мониторингом.
+- `/api/health`: совместимый псевдоним полной проверки.
+
+Ответ содержит точный `release`. Health endpoints не кэшируются.
+
+## Резервные копии
+
+Установите PostgreSQL client, AWS CLI v2 и `age`. Используйте отдельный S3 bucket или аккаунт, не тот же доступ, что у пользовательских изображений.
+
+1. Сгенерируйте ключ `age` на доверенном офлайн-устройстве.
+2. На сервер передайте только публичный recipient; закрытый ключ не должен находиться рядом с базой.
+3. Заполните `/opt/menarium/shared/backup.env` по `deploy/backup.env.example`.
+4. Установите `deploy/systemd/menarium-backup.service` и `.timer`, затем включите timer.
+5. В S3 включите versioning, server-side encryption, lifecycle и, если доступно, Object Lock.
 
 ```bash
-npm ci
-npm run db:generate
-npx prisma migrate deploy
-npm run build
-pm2 start ecosystem.config.cjs --env production
-pm2 save
+sudo systemctl daemon-reload
+sudo systemctl enable --now menarium-backup.timer
+sudo systemctl start menarium-backup.service
+sudo journalctl -u menarium-backup.service --since today
 ```
 
-Docker build smoke:
+Рекомендуемое хранение: ежедневные копии 35 дней, ежемесячные 12 месяцев. Удаление выполняет lifecycle хранилища, а не взломанный сервер.
+
+Проверка восстановления выполняется только в новую пустую базу:
 
 ```bash
-docker build -t menarium:latest .
-docker run --env-file .env.production -p 3000:3000 menarium:latest
+RESTORE_DATABASE_URL='postgresql://.../menarium_restore' \
+BACKUP_OBJECT_URI='s3://.../postgres/.../menarium-postgres-....dump.age' \
+BACKUP_AGE_IDENTITY_FILE='/secure/offline/path/identity.txt' \
+ALLOW_DATABASE_RESTORE=I_UNDERSTAND_THIS_REQUIRES_AN_EMPTY_DATABASE \
+/opt/menarium/ops/restore-postgres.sh
 ```
 
-## Nginx
-
-Use `deploy/nginx/menarium.ru.conf` as the site config. Certbot can manage TLS:
-
-```bash
-certbot --nginx -d menarium.ru -d www.menarium.ru
-```
-
-## Health Check
-
-The health endpoint is:
-
-```bash
-GET /api/health
-```
-
-Expected response has `ok: true`.
-
-## Backups
-
-Use `deploy/scripts/backup-postgres.sh` from cron on the database host or deploy host with DB access:
-
-```cron
-15 3 * * * /opt/menarium/deploy/scripts/backup-postgres.sh
-```
-
-Store backup artifacts outside the app server and verify restore monthly.
+Сценарий откажется работать с непустой базой, проверит checksum, структуру архива, примененные миграции и основные таблицы.
