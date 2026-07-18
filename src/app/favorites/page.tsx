@@ -12,6 +12,12 @@ import {
   getTopInterestLabels,
   scoreRecommendation,
 } from "@/features/favorites/recommendations";
+import {
+  FavoriteCount,
+  FavoriteItemSlot,
+  FavoritesLiveState,
+  FavoritesSavedContent,
+} from "@/features/favorites/live-state";
 import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { prisma } from "@/lib/prisma";
@@ -196,6 +202,11 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
     <AppShell>
       <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
         <div className="mx-auto max-w-[1500px]">
+          <FavoritesLiveState
+            key={`${total}:${favoriteIds.join(",")}`}
+            initialTotal={total}
+            initialFavoriteIds={favoriteIds}
+          >
           <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-rose-200/70">
@@ -211,7 +222,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
             </div>
             <div className="flex items-center gap-2 self-start sm:self-auto">
               <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/48">
-                Сохранено: <strong className="text-white/88">{total}</strong>
+                Сохранено: <FavoriteCount />
               </span>
               <MenariumLinkButton href="/catalog" variant="secondary" size="sm">
                 <ArrowLeft className="h-4 w-4" />
@@ -221,6 +232,17 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
           </header>
 
           {favoriteRows.length > 0 ? (
+            <FavoritesSavedContent
+              emptyState={
+                <EmptyState
+                  icon={<Heart className="h-7 w-7" />}
+                  title="Здесь появятся ваши находки"
+                  description="Нажмите на сердце у интересной вещи — Menarium сохранит её здесь и начнёт точнее подбирать варианты."
+                  actionHref="/catalog"
+                  actionLabel="Посмотреть каталог"
+                />
+              }
+            >
             <section aria-labelledby="saved-items-title">
               <div className="mb-4 flex items-end justify-between gap-4 px-1">
                 <div>
@@ -236,14 +258,15 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
                 {favoriteRows.map(({ item }, index) => {
                   const card = toItemCardView(serializeItem(item), item._count.favorites);
                   return (
-                    <ItemCard
-                      key={item.id}
-                      {...card}
-                      priority={index < 2}
-                      returnHref={currentHref}
-                      isFavorite
-                      canFavorite
-                    />
+                    <FavoriteItemSlot key={item.id} itemId={item.id}>
+                      <ItemCard
+                        {...card}
+                        priority={index < 2}
+                        returnHref={currentHref}
+                        isFavorite
+                        canFavorite
+                      />
+                    </FavoriteItemSlot>
                   );
                 })}
               </div>
@@ -263,6 +286,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
                 </nav>
               ) : null}
             </section>
+            </FavoritesSavedContent>
           ) : (
             <EmptyState
               icon={<Heart className="h-7 w-7" />}
@@ -317,6 +341,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
               </div>
             </section>
           ) : null}
+          </FavoritesLiveState>
         </div>
       </div>
     </AppShell>

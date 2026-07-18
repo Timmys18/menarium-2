@@ -74,6 +74,7 @@ export function ItemCard({
           </div>
           {showFavorite ? (
             <FavoriteButton
+              key={`${id}:${Boolean(isFavorite)}`}
               itemId={id}
               itemTitle={title}
               initialFavorite={isFavorite}
