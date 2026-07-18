@@ -1,4 +1,5 @@
 import { ItemStatus, UserStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { actionResponse, errorResponse } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { trackProductEvent } from "@/lib/product-analytics";
@@ -70,6 +71,7 @@ export async function PUT(
     });
   }
 
+  revalidatePath("/favorites");
   return actionResponse({ favorite: true });
 }
 
@@ -99,5 +101,6 @@ export async function DELETE(
     });
   }
 
+  revalidatePath("/favorites");
   return actionResponse({ favorite: false });
 }

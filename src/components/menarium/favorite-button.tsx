@@ -1,8 +1,9 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, LoaderCircle } from "lucide-react";
+import { useFavoritesLiveState } from "@/features/favorites/live-state";
 import { cn } from "@/lib/utils";
 
 export function FavoriteButton({
@@ -23,6 +24,7 @@ export function FavoriteButton({
   className?: string;
 }) {
   const router = useRouter();
+  const favoritesLiveState = useFavoritesLiveState();
   const [favorite, setFavorite] = useState(initialFavorite);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -49,8 +51,10 @@ export function FavoriteButton({
       };
       if (!response.ok) throw new Error(body.error || "Не удалось обновить избранное");
 
-      setFavorite(body.data?.favorite ?? nextFavorite);
-      startTransition(() => router.refresh());
+      const confirmedFavorite = body.data?.favorite ?? nextFavorite;
+      setFavorite(confirmedFavorite);
+      favoritesLiveState?.updateFavorite(itemId, confirmedFavorite);
+      router.refresh();
     } catch (requestError) {
       setFavorite(!nextFavorite);
       setError(requestError instanceof Error ? requestError.message : "Не удалось обновить избранное");

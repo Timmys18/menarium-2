@@ -1,5 +1,6 @@
 import { requireUserId } from "@/server/session";
 import { subscribeToUserEvents, type RealtimeEvent } from "@/lib/realtime";
+import { reportError } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -57,7 +58,7 @@ export async function GET(req: Request) {
         }, 15_000);
         req.signal.addEventListener("abort", onAbort, { once: true });
       } catch (error) {
-        console.error("[realtime] subscription failed:", error);
+        reportError("realtime.subscription_failed", error, { userId: auth.userId });
         controller.error(error);
       }
     },

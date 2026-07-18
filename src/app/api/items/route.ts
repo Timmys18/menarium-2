@@ -10,6 +10,7 @@ import { itemPayloadSchema } from "@/features/items/validation";
 import { claimItemMedia, INVALID_ITEM_MEDIA } from "@/features/media/item-media";
 import { trackProductEvent } from "@/lib/product-analytics";
 import { runSerializableTransaction } from "@/lib/transactions";
+import { reportError } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -109,7 +110,7 @@ export async function POST(req: Request) {
     if (error instanceof Error && error.message === INVALID_ITEM_MEDIA) {
       return errorResponse("Одно или несколько изображений недоступны. Загрузите их заново", 400);
     }
-    console.error("[items] create failed:", error);
+    reportError("item.create_failed", error);
     return errorResponse("Не удалось создать объявление", 500);
   }
 }

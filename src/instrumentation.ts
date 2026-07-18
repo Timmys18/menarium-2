@@ -18,9 +18,14 @@ export async function onRequestError(
   request: { path: string; method: string; headers: Record<string, string | string[] | undefined> },
   context: { routerKind: string; routePath: string; routeType: string },
 ) {
-  if (!process.env.SENTRY_DSN) return;
-  const Sentry = await import("@sentry/nextjs");
-  Sentry.captureException(err, {
-    extra: { path: request.path, method: request.method, ...context },
+  const { reportError } = await import("@/lib/logger");
+  const requestId = request.headers["x-request-id"];
+  reportError("request.unhandled_error", err, {
+    path: request.path,
+    method: request.method,
+    requestId: Array.isArray(requestId) ? requestId[0] : requestId,
+    routerKind: context.routerKind,
+    routePath: context.routePath,
+    routeType: context.routeType,
   });
 }

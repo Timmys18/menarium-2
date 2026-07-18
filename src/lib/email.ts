@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { reportError } from "@/lib/logger";
 
 export type SendEmailInput = {
   to: string;
@@ -49,7 +50,7 @@ export async function sendEmail(input: SendEmailInput): Promise<boolean> {
     });
     return true;
   } catch (error) {
-    console.error("[email] send failed:", error);
+    reportError("email.send_failed", error);
     return false;
   }
 }

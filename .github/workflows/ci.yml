@@ -16,7 +16,7 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/menarium2?schema=public
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: ci-only-secret-change-in-production-must-be-32-chars-min
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      APP_URL: http://localhost:3000
       REDIS_URL: redis://localhost:6379
       ADMIN_EMAILS: admin@menarium.test
       SMTP_HOST: localhost
@@ -24,6 +24,10 @@ jobs:
       STORAGE_PROVIDER: local
       STORAGE_PUBLIC_BASE_URL: /uploads
       PRODUCT_ANALYTICS_ENABLED: "true"
+      APP_RELEASE: ci-verify
+      APP_ENVIRONMENT: ci
+      SENTRY_DSN: https://ci@example.test/1
+      SENTRY_ENVIRONMENT: ci
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -50,7 +54,7 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/menarium2?schema=public
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: ci-only-secret-change-in-production-must-be-32-chars-min-must-be-32-chars-min
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      APP_URL: http://localhost:3000
       REDIS_URL: redis://localhost:6379
       ADMIN_EMAILS: admin@menarium.ru
       SMTP_HOST: localhost
@@ -62,6 +66,9 @@ jobs:
       PRODUCT_ANALYTICS_ENABLED: "true"
       PLAYWRIGHT_BASE_URL: http://localhost:3000
       CI: true
+      APP_RELEASE: ci-e2e
+      APP_ENVIRONMENT: ci
+      SENTRY_ENVIRONMENT: ci
     services:
       postgres:
         image: postgres:16-alpine
@@ -128,7 +135,7 @@ jobs:
             node server.js
           ) &
           for i in $(seq 1 60); do
-            if curl -sf http://localhost:3000/api/health > /dev/null; then
+            if curl -sf http://localhost:3000/api/health/ready > /dev/null; then
               echo "Server is ready"
               exit 0
             fi

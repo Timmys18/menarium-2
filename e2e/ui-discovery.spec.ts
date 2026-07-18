@@ -23,7 +23,7 @@ test.describe("Мобильное открытие каталога", () => {
     await page.goto("/catalog");
 
     await expect(page.getByRole("button", { name: "Найти" })).toBeVisible();
-    await page.locator("summary").click();
+    await page.locator("summary").filter({ visible: true }).click();
     await page.getByRole("link", { name: "Москва", exact: true }).click();
 
     await expect(page).toHaveURL(/city=/);

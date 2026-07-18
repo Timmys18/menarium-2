@@ -1,54 +1,74 @@
-# Menarium Production Checklist
+# Чек-лист запуска Menarium
 
-This checklist is for the real `menarium.ru` launch path.
+Пункт считается выполненным только после фактической проверки. Наличие кода или настройки без рабочего результата не засчитывается.
 
-## Infrastructure
+## Сервер и домен
 
-- Choose Russian or legally acceptable hosting.
-- Create PostgreSQL database and enable automated backups.
-- Create Redis instance for production rate limits.
-- Create S3-compatible object storage bucket for media.
-- Configure `menarium.ru` and `www.menarium.ru` DNS records.
-- Issue HTTPS certificate with Certbot or platform-managed TLS.
+- [ ] Staging и production разделены как минимум настройками, базами, Redis и S3-префиксами.
+- [ ] DNS `menarium.ru` и `www.menarium.ru` указывает на боевой сервер.
+- [ ] HTTPS работает, TLS 1.0/1.1 отключены, `certbot renew --dry-run` успешен.
+- [ ] SSH по паролю и прямой вход root отключены; ключ выпуска отдельный.
+- [ ] Firewall оставляет снаружи только 80/443 и ограниченный SSH.
+- [ ] PostgreSQL и Redis не открыты в интернет.
+- [ ] Nginx возвращает уникальный `X-Request-ID`, а журналы имеют JSON-формат.
 
-## Environment
+## GitHub и выпуск
 
-- Copy `.env.production.example` to the production environment.
-- Generate a strong `NEXTAUTH_SECRET`.
-- Set `ADMIN_EMAILS` to real administrator email addresses.
-- Set `DATABASE_URL`, `REDIS_URL`, and all storage credentials.
-- Explicitly set `PRODUCT_ANALYTICS_ENABLED=true` and review the configured retention.
-- Do not use seed demo passwords in production.
+- [ ] Environments `staging` и `production` заполнены; production требует ручного подтверждения.
+- [ ] Pull request действительно собирает оба Docker image.
+- [ ] `main` публикует image с SHA, а не только `latest`.
+- [ ] Staging принимает новую версию через кандидата и показывает тот же SHA в `/api/health/ready`.
+- [ ] Намеренно сломанный кандидат не заменяет рабочую версию.
+- [ ] Ручной workflow возврата проверен на staging.
+- [ ] Все новые миграции сохраняют работоспособность предыдущей версии приложения.
 
-## Release
+## Данные и внешние сервисы
 
-- Run `npm ci`.
-- Run `npm run db:generate`.
-- Run `npm run db:deploy`.
-- Run `npm run build`.
-- Start via PM2, Docker, or managed Node runtime.
-- Verify `GET /api/health` returns HTTP 200 with `ok: true`.
-- Schedule `npm run analytics:prune` daily and alert on failures.
+- [ ] PostgreSQL использует отдельного пользователя приложения с минимальными правами.
+- [ ] Redis защищен сетью и паролем; при его отказе опасные действия закрываются, а не остаются без лимита.
+- [ ] S3 закрыт от листинга; публично доступны только пользовательские объекты по ожидаемым URL.
+- [ ] CORS S3 разрешает загрузку только с адресов Menarium.
+- [ ] SMTP проходит SPF, DKIM и DMARC; письмо регистрации и сброса пароля доставляется в основные почтовые сервисы.
+- [ ] Sentry получает тестовую серверную и браузерную ошибку с правильными environment и release.
 
-## Functional Smoke
+## Резервирование
 
-- Register a new user.
-- Log in and log out.
-- Edit profile and upload avatar.
-- Create an item with images.
-- Edit and delete own item without active swaps.
-- Create a second user and propose an exchange.
-- Accept, decline, revoke, cancel and complete exchange flows.
-- Send deal chat messages.
-- Send item chat messages.
-- Verify notifications and unread count.
-- Verify admin can archive and restore listings.
-- Verify `/admin/analytics` records page views and the exchange funnel without personal payloads.
+- [ ] Ежедневная зашифрованная копия уходит в отдельное off-site хранилище.
+- [ ] У копии проверяются checksum и возможность чтения `pg_restore --list`.
+- [ ] Закрытый ключ `age` хранится отдельно от сервера и bucket credentials.
+- [ ] Lifecycle хранит 35 ежедневных и 12 ежемесячных копий; включены versioning/Object Lock, если доступны.
+- [ ] Пробное восстановление в чистую базу успешно завершено и зафиксировано датой, временем и объемом данных.
+- [ ] Следующая ежемесячная проверка восстановления назначена владельцу.
 
-## Legal And Operations
+## Наблюдение и реакция
 
-- Final legal review for privacy policy and user agreement.
-- Confirm personal data processing approach under 152-FZ.
-- Configure backup retention and monthly restore drill.
-- Configure server logs and error monitoring.
-- Document incident contact and support channel.
+- [ ] Sentry alerts настроены на новую ошибку, всплеск ошибок и замедление запросов.
+- [ ] `Production watch` запущен вручную и затем включен каждые пять минут.
+- [ ] Ответственный получает уведомление о падении GitHub workflow, Sentry и backup timer.
+- [ ] На дашборде видны доступность, p95 времени ответа, 5xx, состояние базы, Redis и свободное место диска.
+- [ ] Контакты ответственного и порядок действий при аварии записаны в `INCIDENT_RUNBOOK_RU.md`.
+
+## Репетиция продукта
+
+- [ ] Chrome, Safari/WebKit и Firefox проверены на desktop и mobile.
+- [ ] Регистрация, подтверждение email, вход, выход и сброс пароля пройдены реальными письмами.
+- [ ] Объявление создается, редактируется, архивируется, восстанавливается и удаляется с реальными S3-файлами.
+- [ ] Избранное, рекомендации и свайпы сохраняются после перезагрузки и понятны на пустом аккаунте.
+- [ ] Обмен пройден двумя пользователями: предложение, принятие, чат, передача, оба подтверждения, завершение и отзывы.
+- [ ] Отказ, отзыв, истечение срока, блокировка и жалоба не оставляют вещь в неправильном состоянии.
+- [ ] Все empty/loading/error состояния проверены на медленной сети и при отказе внешнего сервиса.
+- [ ] Staging выдержал не менее 72 часов без необъясненных ошибок и потери событий.
+
+## Решение о запуске
+
+- [ ] Есть свежая проверенная резервная копия непосредственно перед выпуском.
+- [ ] Все обязательные проверки текущего commit и staging зеленые.
+- [ ] Назначены человек запуска, человек наблюдения и человек, принимающий решение об откате.
+- [ ] После тега production smoke показывает правильный release, а ключевые сценарии пройдены без ошибок.
+
+## Юридический финал
+
+- [ ] Юрист утвердил политику конфиденциальности, пользовательское соглашение и согласия.
+- [ ] Подтвержден порядок обработки и локализации персональных данных.
+- [ ] Утверждены сроки хранения аккаунтов, сообщений, аналитики, логов и резервных копий.
+- [ ] Опубликованы рабочие контакты поддержки, жалоб и удаления данных.

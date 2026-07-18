@@ -5,6 +5,7 @@ import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { runSerializableTransaction } from "@/lib/transactions";
 import { requireUserId } from "@/server/session";
+import { reportError } from "@/lib/logger";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -83,7 +84,7 @@ export async function PATCH(request: Request, context: Context) {
       }
     }
 
-    console.error("[items] lifecycle update failed:", error);
+    reportError("item.lifecycle_update_failed", error);
     return errorResponse("Не удалось изменить состояние объявления", 500);
   }
 }

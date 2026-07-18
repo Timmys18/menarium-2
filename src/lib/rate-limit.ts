@@ -1,4 +1,5 @@
 import { getRedis } from "@/lib/redis";
+import { reportError } from "@/lib/logger";
 
 type RateLimitResult =
   | { ok: true }
@@ -50,7 +51,7 @@ export async function checkRateLimit(
 
     return { ok: true };
   } catch (error) {
-    console.error("[rate-limit] Redis error:", error);
+    reportError("rate_limit.redis_failed", error);
     if (process.env.NODE_ENV === "production") {
       return {
         ok: false,
@@ -135,7 +136,7 @@ export async function resetLoginRateLimit(email: string, ip: string) {
     if (redis) await redis.del(fullKey);
   } catch (error) {
     // A cleanup failure must not turn valid credentials into a failed login.
-    console.error("[rate-limit] Failed to reset successful login bucket:", error);
+    reportError("rate_limit.login_reset_failed", error);
   }
 }
 

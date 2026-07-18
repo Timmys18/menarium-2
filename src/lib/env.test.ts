@@ -4,15 +4,19 @@ import { validateProductionEnv } from "./env";
 
 const productionEnv: NodeJS.ProcessEnv = {
   NODE_ENV: "production",
+  APP_RELEASE: "abc123def456",
+  APP_ENVIRONMENT: "production",
   DATABASE_URL: "postgresql://localhost/menarium",
   NEXTAUTH_SECRET: "a-production-secret-with-32-characters",
   NEXTAUTH_URL: "https://menarium.ru",
-  NEXT_PUBLIC_APP_URL: "https://menarium.ru",
+  APP_URL: "https://menarium.ru",
   REDIS_URL: "redis://localhost:6379",
   ADMIN_EMAILS: "admin@menarium.ru",
   SMTP_HOST: "smtp.example.test",
   SMTP_FROM: "Menarium <noreply@menarium.ru>",
   PRODUCT_ANALYTICS_ENABLED: "true",
+  SENTRY_DSN: "https://public@example.test/1",
+  SENTRY_ENVIRONMENT: "production",
 };
 
 describe("validateProductionEnv", () => {
@@ -37,6 +41,34 @@ describe("validateProductionEnv", () => {
         STORAGE_PROVIDER: "local",
       }),
     ).not.toThrow();
+  });
+
+  it("requires an immutable release identifier outside CI", () => {
+    expect(() =>
+      validateProductionEnv({
+        ...productionEnv,
+        APP_RELEASE: "latest",
+        STORAGE_PROVIDER: "s3",
+      }),
+    ).toThrow("APP_RELEASE");
+  });
+
+  it("requires matching HTTPS application URLs outside CI", () => {
+    expect(() =>
+      validateProductionEnv({
+        ...productionEnv,
+        NEXTAUTH_URL: "http://menarium.ru",
+        STORAGE_PROVIDER: "s3",
+      }),
+    ).toThrow("https");
+
+    expect(() =>
+      validateProductionEnv({
+        ...productionEnv,
+        APP_URL: "https://www.menarium.ru",
+        STORAGE_PROVIDER: "s3",
+      }),
+    ).toThrow("same origin");
   });
 
   it("requires the complete S3 configuration in production", () => {

@@ -1,0 +1,29 @@
+name: Production watch
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: production-watch
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Verify public product
+    if: github.event_name == 'workflow_dispatch' || vars.UPTIME_MONITOR_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SMOKE_BASE_URL: ${{ vars.PRODUCTION_PUBLIC_URL || 'https://menarium.ru' }}
+      REQUIRE_EDGE_HEADERS: "true"
+    steps:
+      - name: Checkout smoke checks
+        uses: actions/checkout@v6
+
+      - name: Verify health, key pages, TLS, and security headers
+        run: node scripts/release-smoke.mjs

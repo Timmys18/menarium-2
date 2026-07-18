@@ -11,6 +11,7 @@ import { isAdminEmail } from "@/server/admin";
 import { claimItemMedia, INVALID_ITEM_MEDIA } from "@/features/media/item-media";
 import { deleteMediaObjects } from "@/features/media/cleanup";
 import { runSerializableTransaction } from "@/lib/transactions";
+import { reportError } from "@/lib/logger";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -108,7 +109,7 @@ export async function PATCH(req: Request, context: Context) {
     if (error instanceof Error && error.message === "ITEM_NOT_EDITABLE") {
       return errorResponse("Объявление изменилось и больше недоступно для редактирования", 409);
     }
-    console.error("[items] update failed:", error);
+    reportError("item.update_failed", error);
     return errorResponse("Не удалось сохранить объявление", 500);
   }
 }

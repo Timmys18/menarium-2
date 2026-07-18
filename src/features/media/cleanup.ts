@@ -1,4 +1,5 @@
 import { deleteStoredUpload } from "@/lib/storage";
+import { reportError } from "@/lib/logger";
 
 export async function deleteMediaObjects(keys: Array<string | null | undefined>) {
   await Promise.all(
@@ -6,7 +7,7 @@ export async function deleteMediaObjects(keys: Array<string | null | undefined>)
       try {
         await deleteStoredUpload(key);
       } catch (error) {
-        console.error(`[media] failed to delete ${key}:`, error);
+        reportError("media.object_delete_failed", error, { storageKey: key });
       }
     }),
   );
