@@ -333,13 +333,6 @@ export async function PATCH(req: Request) {
 
       if (action === "complete") {
         if (swap.status !== SwapStatus.ACCEPTED) throw new Error("INVALID_STATUS");
-        if (
-          !swap.handoffMode ||
-          !swap.senderHandoffConfirmed ||
-          !swap.receiverHandoffConfirmed
-        ) {
-          throw new Error("HANDOFF_NOT_CONFIRMED");
-        }
 
         const alreadyConfirmed = isSender ? swap.senderCompleted : swap.receiverCompleted;
         // Идемпотентность: повторное подтверждение той же стороной ничего не меняет
@@ -496,7 +489,6 @@ export async function PATCH(req: Request) {
       if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Одно из объявлений уже участвует в другой сделке", 409);
       if (error.message === "ITEM_STATE_INVALID") return errorResponse("Состояние объявлений изменилось. Обновите страницу", 409);
       if (error.message === "INVALID_STATUS") return errorResponse("Действие недоступно в текущем статусе обмена", 409);
-      if (error.message === "HANDOFF_NOT_CONFIRMED") return errorResponse("Сначала обе стороны должны подтвердить передачу", 409);
     }
     if (isPrismaError(error, "P2034")) return errorResponse("Обмен изменился параллельно. Повторите действие", 409);
     return errorResponse("Не удалось обновить обмен", 500);

@@ -2,6 +2,7 @@
 
 import {
   startTransition,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -64,6 +65,7 @@ export function ChatConversation({
   placeholder,
   disabledPlaceholder,
   emptyMessage,
+  draftKey,
 }: {
   target: ConversationTarget | null;
   resolveTarget?: () => Promise<ConversationTarget>;
@@ -75,12 +77,15 @@ export function ChatConversation({
   placeholder: string;
   disabledPlaceholder: string;
   emptyMessage: string;
+  draftKey: string;
 }) {
   const router = useRouter();
+  const draftStorageKey = `menarium:chat-draft:v1:${currentUserId}:${draftKey}`;
   const [target, setTarget] = useState(initialTarget);
   const [localMessages, setLocalMessages] = useState<ChatMessageView[]>([]);
   const [historyCursor, setHistoryCursor] = useState<string | null | undefined>(undefined);
   const [text, setText] = useState("");
+  const [draftReady, setDraftReady] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +95,33 @@ export function ChatConversation({
   const messages = mergeMessages(initialMessages, localMessages);
   const nextCursor = historyCursor === undefined ? initialNextCursor : historyCursor;
   const messageLayoutKey = `${messages.length}:${messages[0]?.id ?? ""}:${messages.at(-1)?.id ?? ""}`;
+
+  useEffect(() => {
+    const restoreDraft = window.setTimeout(() => {
+      try {
+        const saved = window.localStorage.getItem(draftStorageKey);
+        if (saved) setText(saved.slice(0, 2000));
+      } catch {
+        // Chat remains usable when browser storage is unavailable.
+      }
+      setDraftReady(true);
+    }, 0);
+
+    return () => window.clearTimeout(restoreDraft);
+  }, [draftStorageKey]);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    try {
+      if (text) {
+        window.localStorage.setItem(draftStorageKey, text);
+      } else {
+        window.localStorage.removeItem(draftStorageKey);
+      }
+    } catch {
+      // Draft persistence is an enhancement and must not block messaging.
+    }
+  }, [draftReady, draftStorageKey, text]);
 
   const connected = useAutoRefresh(Boolean(target), (event) => {
     return Boolean(
@@ -274,7 +306,13 @@ export function ChatConversation({
           </MenariumButton>
         </div>
         <div className="flex min-h-5 items-center justify-between gap-3 text-xs">
-          {error ? <p role="alert" className="text-red-300">{error}</p> : <span />}
+          {error ? (
+            <p role="alert" className="text-red-300">{error}</p>
+          ) : text.trim() ? (
+            <span className="text-white/42">Черновик сохранён</span>
+          ) : (
+            <span />
+          )}
           {target ? (
             <span className="flex shrink-0 items-center gap-1.5 text-white/56">
               <span

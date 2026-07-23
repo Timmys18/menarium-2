@@ -1,14 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Camera, Check, Loader2, Trash2, Upload } from "lucide-react";
+import { Camera, Check, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
-import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
+import { MenariumButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { MenariumInput, MenariumTextarea } from "@/components/menarium/input";
 import type { PublicItem } from "@/features/items/serializers";
+import { cn } from "@/lib/utils";
 
 type EditableImage = {
   id?: string;
@@ -43,16 +44,31 @@ export function EditItemForm({ item }: { item: PublicItem }) {
   const [isUploading, setIsUploading] = useState(false);
   const [removingImageId, setRemovingImageId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const desired = useMemo(
-    () =>
-      desiredText
-        .split(",")
-        .map((entry) => entry.trim())
-        .filter(Boolean),
-    [desiredText],
-  );
+  const desired = desiredText
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  function addQuickWant(want: string) {
+    if (desired.includes(want) || desired.length >= 12) return;
+    setDesiredText([...desired, want].join(", "));
+  }
+
+  function validate() {
+    if (title.trim().length < 2) return "Добавь понятное название длиной хотя бы в два символа.";
+    if (description.trim().length < 10) return "Расскажи о предложении чуть подробнее — минимум 10 символов.";
+    if (city.trim().length < 2) return "Укажи город, чтобы людям было проще оценить обмен.";
+    if (desired.length === 0 && !acceptsAnything) {
+      return "Напиши, что интересно получить, или отметь, что открыт к любым предложениям.";
+    }
+    if (desired.length > 12) return "Оставь не больше 12 вариантов для обмена.";
+    if (desired.some((entry) => entry.length > 80)) return "Сократи каждый вариант до 80 символов.";
+    if (extraOfferText.trim().length > 1000) return "Сократи дополнительные пожелания до 1000 символов.";
+    return null;
+  }
 
   async function uploadFiles(files: File[]) {
     if (!files.length) return;
@@ -101,7 +117,16 @@ export function EditItemForm({ item }: { item: PublicItem }) {
     }
   }
 
-  async function submit() {
+  async function submit(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
+    if (isSubmitting || isUploading || isCancelling) return;
+
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
     try {
@@ -121,7 +146,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
           images,
         }),
       });
-      const body = await response.json();
+      const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error ?? "Не удалось сохранить объявление");
       router.push(`/item/${body.data.id}`);
       router.refresh();
@@ -132,9 +157,35 @@ export function EditItemForm({ item }: { item: PublicItem }) {
     }
   }
 
+  async function cancel() {
+    if (isSubmitting || isCancelling) return;
+    setIsCancelling(true);
+    const unattachedIds = images
+      .filter((image) => image.isNew && image.id)
+      .map((image) => image.id as string);
+
+    await Promise.all(
+      unattachedIds.map((id) =>
+        fetch(`/api/media?id=${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => null),
+      ),
+    );
+    router.push(`/item/${item.id}`);
+    router.refresh();
+  }
+
   return (
-    <div className="space-y-6">
-      <GlassCard className="rounded-3xl border-2 border-dashed border-white/20 p-8 text-center transition-colors hover:border-purple-500/50">
+    <form className="space-y-6" onSubmit={submit}>
+      <GlassCard className="overflow-hidden border border-white/8 p-5 sm:p-7">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/65">Фотографии</p>
+            <h2 className="mt-1.5 text-2xl font-bold">Покажи вещь с лучшей стороны</h2>
+            <p className="mt-2 text-sm text-white/45">Первое изображение станет обложкой. Можно добавить до 8 фото.</p>
+          </div>
+          <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/45">
+            {images.length}/8
+          </span>
+        </div>
         <input
           id="item-edit-images"
           type="file"
@@ -148,22 +199,38 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             void uploadFiles(files);
           }}
         />
-        <label htmlFor="item-edit-images" className="block cursor-pointer">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-teal-500/20 to-purple-500/20">
-            {isUploading ? <Loader2 className="h-10 w-10 animate-spin text-purple-400" /> : <Upload className="h-10 w-10 text-purple-400" />}
+        <label
+          htmlFor="item-edit-images"
+          className={cn(
+            "block cursor-pointer rounded-[22px] border border-dashed border-white/15 bg-white/[0.025] p-6 text-center transition hover:border-blue-300/35 hover:bg-blue-400/[0.04]",
+            (isUploading || images.length >= 8) && "pointer-events-none opacity-60",
+          )}
+        >
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-teal-400/20">
+            {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-blue-200" /> : <Upload className="h-6 w-6 text-teal-200" />}
           </div>
-          <h3 className="mb-2 text-2xl font-bold">Фото объявления</h3>
-          <p className="mb-4 text-white/60">можно добавить до 8 изображений</p>
-          <span className="glass-card inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold">
+          <span className="inline-flex items-center gap-2 font-semibold text-white">
             <Camera className="h-5 w-5" />
-            Добавить фото
+            {images.length ? "Добавить ещё фото" : "Добавить фотографии"}
           </span>
+          <span className="mt-1 block text-xs text-white/40">PNG, JPEG, WebP или GIF, каждое до 8 МБ</span>
         </label>
         {images.length > 0 ? (
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
             {images.map((image, index) => (
-              <div key={`${image.id ?? image.url}`} className="relative h-28 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                <Image src={image.url} alt={`Фото объявления ${index + 1}`} fill className="object-cover" />
+                <div key={`${image.id ?? image.url}`} className="relative h-28 overflow-hidden rounded-[16px] border border-white/10 bg-white/5">
+                  <Image
+                    src={image.url}
+                    alt={`Фото объявления ${index + 1}`}
+                    fill
+                    sizes="(max-width: 640px) 45vw, 180px"
+                    className="object-cover"
+                  />
+                  {index === 0 ? (
+                    <span className="absolute bottom-2 left-2 rounded-full bg-black/65 px-2 py-1 text-[10px] font-medium text-white/80">
+                      Обложка
+                    </span>
+                  ) : null}
                 <button
                   type="button"
                   aria-label={`Удалить фото ${index + 1}`}
@@ -183,29 +250,46 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         ) : null}
       </GlassCard>
 
-      <GlassCard className="space-y-5 p-6">
+      <GlassCard className="space-y-6 border border-white/8 p-5 sm:p-7">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/65">Описание обмена</p>
+          <h2 className="mt-1.5 text-2xl font-bold">Обнови детали</h2>
+          <p className="mt-2 text-sm text-white/45">Изменения сразу появятся в каталоге после сохранения.</p>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-sm text-white/55">Название</span>
-            <MenariumInput value={title} onChange={(event) => setTitle(event.target.value)} />
+            <span className="text-sm font-medium text-white/70">Название</span>
+            <MenariumInput
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              maxLength={120}
+              required
+            />
+            <span className="block text-right text-xs text-white/30">{title.length}/120</span>
           </label>
           <label className="space-y-2">
-            <span className="text-sm text-white/55">Город</span>
-            <MenariumInput value={city} onChange={(event) => setCity(event.target.value)} />
+            <span className="text-sm font-medium text-white/70">Город</span>
+            <MenariumInput
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              maxLength={80}
+              autoComplete="address-level2"
+              required
+            />
           </label>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-sm text-white/55">Тип</span>
-            <select value={type} onChange={(event) => setType(event.target.value as "THING" | "SERVICE")} className="glass-card w-full rounded-2xl px-4 py-3 text-white outline-none">
+            <span className="text-sm font-medium text-white/70">Тип</span>
+            <select value={type} onChange={(event) => setType(event.target.value as "THING" | "SERVICE")} className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50">
               <option value="THING">Предмет</option>
               <option value="SERVICE">Услуга</option>
             </select>
           </label>
           <label className="space-y-2">
-            <span className="text-sm text-white/55">Категория</span>
-            <select value={category} onChange={(event) => setCategory(event.target.value)} className="glass-card w-full rounded-2xl px-4 py-3 text-white outline-none">
+            <span className="text-sm font-medium text-white/70">Категория</span>
+            <select value={category} onChange={(event) => setCategory(event.target.value)} className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50">
               {categories.map((entry) => (
                 <option key={entry} value={entry}>{entry}</option>
               ))}
@@ -215,13 +299,24 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
 
         <label className="space-y-2">
-          <span className="text-sm text-white/55">Описание</span>
-          <MenariumTextarea value={description} onChange={(event) => setDescription(event.target.value)} />
+          <span className="text-sm font-medium text-white/70">Описание</span>
+          <MenariumTextarea
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            maxLength={4000}
+            required
+          />
+          <span className="block text-right text-xs text-white/30">{description.length}/4000</span>
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm text-white/55">Что хотите взамен</span>
-          <MenariumInput value={desiredText} onChange={(event) => setDesiredText(event.target.value)} placeholder="Через запятую" />
+          <span className="text-sm font-medium text-white/70">Что интересно взамен</span>
+          <MenariumInput
+            value={desiredText}
+            onChange={(event) => setDesiredText(event.target.value)}
+            placeholder="Например: наушники, винил, камера"
+          />
+          <span className="block text-xs text-white/35">Разделяй варианты запятыми, максимум 12.</span>
         </label>
 
         <div className="flex flex-wrap gap-2">
@@ -229,7 +324,10 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             <button
               key={want}
               type="button"
-              onClick={() => setDesiredText((current) => (current ? `${current}, ${want}` : want))}
+              onClick={() => addQuickWant(want)}
+              disabled={desired.includes(want) || desired.length >= 12}
+              aria-pressed={desired.includes(want)}
+              className="disabled:opacity-45"
             >
               <Badge variant="purple">{want}</Badge>
             </button>
@@ -237,33 +335,54 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="glass-card flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-white/70">
+          <label className="flex min-h-14 items-center gap-3 rounded-[16px] border border-white/8 bg-white/[0.025] px-4 py-3 text-sm text-white/70">
             <input type="checkbox" checked={acceptsAnything} onChange={(event) => setAcceptsAnything(event.target.checked)} />
             Открыт к любым предложениям
           </label>
-          <label className="glass-card flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-white/70">
+          <label className="flex min-h-14 items-center gap-3 rounded-[16px] border border-white/8 bg-white/[0.025] px-4 py-3 text-sm text-white/70">
             <input type="checkbox" checked={isOnline} onChange={(event) => setIsOnline(event.target.checked)} />
             Можно обменяться онлайн
           </label>
         </div>
 
         <label className="space-y-2">
-          <span className="text-sm text-white/55">Дополнительные пожелания</span>
-          <MenariumInput value={extraOfferText} onChange={(event) => setExtraOfferText(event.target.value)} />
+          <span className="text-sm font-medium text-white/70">Дополнительные пожелания</span>
+          <MenariumTextarea
+            value={extraOfferText}
+            onChange={(event) => setExtraOfferText(event.target.value)}
+            maxLength={1000}
+            className="min-h-24"
+          />
+          <span className="block text-right text-xs text-white/30">{extraOfferText.length}/1000</span>
         </label>
 
-        {error ? <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">{error}</div> : null}
+        {error ? (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+            {error}
+          </div>
+        ) : null}
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <MenariumButton onClick={submit} disabled={isSubmitting || isUploading} className="flex-1">
+          <MenariumButton
+            type="submit"
+            disabled={isSubmitting || isUploading || isCancelling}
+            className="flex-1"
+          >
             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Check className="h-5 w-5" />}
             Сохранить
           </MenariumButton>
-          <MenariumLinkButton href={`/item/${item.id}`} variant="secondary" className="flex-1">
+          <MenariumButton
+            type="button"
+            variant="secondary"
+            className="flex-1"
+            onClick={() => void cancel()}
+            disabled={isSubmitting || isCancelling}
+          >
+            {isCancelling ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
             Отмена
-          </MenariumLinkButton>
+          </MenariumButton>
         </div>
       </GlassCard>
-    </div>
+    </form>
   );
 }

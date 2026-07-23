@@ -18,7 +18,7 @@ const reasons = [
 const exchangeReasons = [
   { value: "FRAUD", label: "Вещь или условия не соответствуют договорённости" },
   { value: "HARASSMENT", label: "Небезопасное поведение или давление" },
-  { value: "OTHER", label: "Неявка или другая проблема с передачей" },
+  { value: "OTHER", label: "Неявка или другая проблема с договорённостью" },
 ] as const;
 
 export function TrustActions({

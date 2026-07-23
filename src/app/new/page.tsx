@@ -46,7 +46,11 @@ export default async function NewItemPage({ searchParams }: NewItemPageProps) {
           </div>
 
           {userId ? (
-            <NewItemForm returnTo={returnTo} continuationTitle={continuation?.title ?? null} />
+            <NewItemForm
+              userId={userId}
+              returnTo={returnTo}
+              continuationTitle={continuation?.title ?? null}
+            />
           ) : (
             <EmptyState
               title="Войдите, чтобы создать объявление"

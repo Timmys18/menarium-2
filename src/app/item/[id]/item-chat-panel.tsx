@@ -72,6 +72,7 @@ export function ItemChatPanel({
         placeholder={isOwner ? "Ответьте покупателю..." : "Напишите владельцу..."}
         disabledPlaceholder="Переписка закрыта для новых сообщений"
         emptyMessage="Сообщений пока нет. Начните диалог первым сообщением."
+        draftKey={`item:${itemId}`}
       />
     </GlassCard>
   );

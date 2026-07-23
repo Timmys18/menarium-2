@@ -14,9 +14,9 @@ export const dynamic = "force-dynamic";
 export default async function SwipePage() {
   const userId = await getCurrentUserId();
   const exclusions = userId ? await getSwipeExclusions(userId) : { itemIds: [], ownerIds: [] };
-  const [item, userItems] = userId
+  const [items, userItems] = userId
     ? await Promise.all([
-        prisma.item.findFirst({
+        prisma.item.findMany({
           where: {
             status: ItemStatus.ACTIVE,
             ownerId: {
@@ -27,6 +27,7 @@ export default async function SwipePage() {
           },
           include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
           orderBy: { createdAt: "desc" },
+          take: 8,
         }),
         prisma.item.findMany({
           where: { ownerId: userId, status: ItemStatus.ACTIVE },
@@ -34,9 +35,21 @@ export default async function SwipePage() {
           orderBy: { updatedAt: "desc" },
         }),
       ])
-    : [null, []];
-  const serializedItem = item ? serializeItem(item) : null;
-  const card = serializedItem ? toItemCardView(serializedItem) : null;
+    : [[], []];
+  const cards = items.map((item) => {
+    const serializedItem = serializeItem(item);
+    const card = toItemCardView(serializedItem);
+    return {
+      id: card.id,
+      title: card.title,
+      category: card.category,
+      wanted: card.wanted,
+      image: card.image,
+      city: card.city,
+      ownerName: serializedItem.owner?.name ?? "Участник Menarium",
+      isOnline: serializedItem.isOnline,
+    };
+  });
 
   return (
     <AppShell>
@@ -61,18 +74,9 @@ export default async function SwipePage() {
               actionHref={loginHref("/swipe")}
               actionLabel="Войти"
             />
-          ) : card ? (
+          ) : cards.length > 0 ? (
             <SwipeCardStack
-              card={{
-                id: card.id,
-                title: card.title,
-                category: card.category,
-                wanted: card.wanted,
-                image: card.image,
-                city: card.city,
-                ownerName: serializedItem?.owner?.name ?? "Участник Menarium",
-                isOnline: serializedItem?.isOnline ?? false,
-              }}
+              cards={cards}
               userItems={userItems}
             />
           ) : (

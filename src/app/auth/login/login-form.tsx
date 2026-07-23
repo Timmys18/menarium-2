@@ -15,6 +15,8 @@ export function LoginForm() {
   const passwordChanged = searchParams.get("passwordChanged") === "1";
   const registered = searchParams.get("registered") === "1";
   const registrationEmailSent = searchParams.get("emailSent") === "1";
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
+  const registerHref = `/auth/register?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -130,7 +132,7 @@ export function LoginForm() {
         <span className="text-xs text-white/52">Первый раз здесь?</span>
         <span className="h-px flex-1 bg-white/8" />
       </div>
-      <MenariumLinkButton href="/auth/register" variant="secondary" className="w-full">
+      <MenariumLinkButton href={registerHref} variant="secondary" className="w-full">
         Создать аккаунт
       </MenariumLinkButton>
       <p className="flex items-center justify-center gap-2 text-center text-xs text-white/54">

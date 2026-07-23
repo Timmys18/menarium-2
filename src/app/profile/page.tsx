@@ -552,7 +552,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                               <div>
                                 <div className="flex flex-wrap items-center gap-2">
                                   <p className="font-semibold">{partner.name ?? "Участник Menarium"}</p>
-                                  <Badge variant="teal">Договоритесь о передаче</Badge>
+                                  <Badge variant="teal">Договоритесь в чате</Badge>
                                 </div>
                                 <p className="mt-1 text-sm text-white/48">
                                   {yourItem.title}

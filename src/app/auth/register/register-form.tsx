@@ -3,14 +3,17 @@
 import { useRef, useState, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Eye, EyeOff, Loader2, UserRound } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
+import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
+import { safeCallbackUrl } from "@/lib/utils";
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const hasTrackedStart = useRef(false);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
@@ -19,12 +22,8 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const passwordChecks = [
-    { label: "8+ символов", passed: password.length >= 8 },
-    { label: "есть буква", passed: /[a-zA-Zа-яА-Я]/.test(password) },
-    { label: "есть цифра", passed: /\d/.test(password) },
-  ];
-  const passwordReady = passwordChecks.every((check) => check.passed);
+  const passwordChecks = getPasswordChecks(password);
+  const passwordReady = isPasswordReady(password);
 
   async function submit(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
@@ -45,14 +44,21 @@ export function RegisterForm() {
       }
 
       const verifyEmailSent = body.verifyEmailSent === true;
+      const profileDestination = `/profile?welcome=1&emailSent=${verifyEmailSent ? "1" : "0"}`;
+      const destination = safeCallbackUrl(searchParams.get("callbackUrl"), profileDestination);
 
       const result = await signIn("credentials", { email, password, redirect: false });
       if (result?.error) {
-        router.push(`/auth/login?registered=1&emailSent=${verifyEmailSent ? "1" : "0"}`);
+        const loginSearch = new URLSearchParams({
+          registered: "1",
+          emailSent: verifyEmailSent ? "1" : "0",
+          callbackUrl: destination,
+        });
+        router.push(`/auth/login?${loginSearch.toString()}`);
         return;
       }
 
-      router.push(`/profile?welcome=1&emailSent=${verifyEmailSent ? "1" : "0"}`);
+      router.push(destination);
       router.refresh();
     } catch {
       setError("Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.");
@@ -123,7 +129,7 @@ export function RegisterForm() {
         <div id="register-password-hint" className="flex flex-wrap gap-2" aria-live="polite">
           {passwordChecks.map((check) => (
             <span
-              key={check.label}
+              key={check.id}
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition ${
                 check.passed
                   ? "border-teal-300/20 bg-teal-300/[0.08] text-teal-100"

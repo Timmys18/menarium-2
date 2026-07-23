@@ -8,6 +8,7 @@ import {
   Info,
   Loader2,
   MapPin,
+  RotateCcw,
   UserRound,
   Wifi,
   X,
@@ -35,10 +36,10 @@ type UserItem = { id: string; title: string };
 const SWIPE_THRESHOLD = 120;
 
 export function SwipeCardStack({
-  card,
+  cards,
   userItems,
 }: {
-  card: SwipeCardData;
+  cards: SwipeCardData[];
   userItems: UserItem[];
 }) {
   const router = useRouter();
@@ -47,24 +48,31 @@ export function SwipeCardStack({
   const rotate = useTransform(x, [-200, 0, 200], [-10, 0, 10]);
   const likeOpacity = useTransform(x, [40, SWIPE_THRESHOLD], [0, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -40], [1, 0]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [likeOpen, setLikeOpen] = useState(false);
   const [createPromptOpen, setCreatePromptOpen] = useState(false);
+  const [lastPassed, setLastPassed] = useState<{
+    card: SwipeCardData;
+    index: number;
+  } | null>(null);
+  const [undoing, setUndoing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const exiting = useRef(false);
+  const card = cards[currentIndex];
 
-  async function recordPass() {
+  async function recordPass(itemId: string) {
     const response = await fetch("/api/items/swipe/pass", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemId: card.id }),
+      body: JSON.stringify({ itemId }),
     });
     const body = await response.json().catch(() => null);
     if (!response.ok) throw new Error(body?.error ?? "Не удалось пропустить карточку");
   }
 
   async function passCard() {
-    if (exiting.current) return;
+    if (!card || exiting.current) return;
     exiting.current = true;
     setLoading(true);
     setError(null);
@@ -73,8 +81,9 @@ export function SwipeCardStack({
       if (!reducedMotion) {
         await animate(x, -420, { duration: 0.28, ease: "easeIn" });
       }
-      await recordPass();
-      router.refresh();
+      await recordPass(card.id);
+      setLastPassed({ card, index: currentIndex });
+      setCurrentIndex((index) => index + 1);
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Не удалось пропустить карточку");
       await animate(x, 0, { duration: 0.2, type: "spring", stiffness: 400, damping: 30 });
@@ -84,7 +93,29 @@ export function SwipeCardStack({
     }
   }
 
+  async function undoLastPass() {
+    if (!lastPassed || undoing) return;
+    setUndoing(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/items/swipe/pass", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId: lastPassed.card.id }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error ?? "Не удалось вернуть карточку");
+      setCurrentIndex(lastPassed.index);
+      setLastPassed(null);
+    } catch (undoError) {
+      setError(undoError instanceof Error ? undoError.message : "Не удалось вернуть карточку");
+    } finally {
+      setUndoing(false);
+    }
+  }
+
   function openExchangeFlow() {
+    if (!card) return;
     setError(null);
     void animate(x, 0, { duration: 0.2, type: "spring", stiffness: 400, damping: 30 });
     if (userItems.length === 0) {
@@ -109,7 +140,49 @@ export function SwipeCardStack({
   useEffect(() => {
     x.set(0);
     exiting.current = false;
-  }, [card.id, x]);
+  }, [card?.id, x]);
+
+  useEffect(() => {
+    if (!lastPassed) return;
+    const timeout = window.setTimeout(() => {
+      setLastPassed(null);
+      if (currentIndex >= cards.length) router.refresh();
+    }, 6000);
+    return () => window.clearTimeout(timeout);
+  }, [cards.length, currentIndex, lastPassed, router]);
+
+  const undoNotice = lastPassed ? (
+    <div
+      role="status"
+      className="fixed inset-x-4 bottom-28 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-[18px] border border-teal-300/20 bg-[#0b1518]/95 px-4 py-3 text-sm shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl md:static md:mt-4"
+    >
+      <span className="min-w-0 truncate text-white/72">«{lastPassed.card.title}» пропущено</span>
+      <button
+        type="button"
+        onClick={() => void undoLastPass()}
+        disabled={undoing}
+        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-3 font-semibold text-teal-200 transition hover:bg-teal-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/70 disabled:opacity-50"
+      >
+        {undoing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+        Вернуть
+      </button>
+    </div>
+  ) : null;
+
+  if (!card) {
+    return (
+      <>
+        <GlassCard className="mx-auto flex min-h-[420px] max-w-[460px] flex-col items-center justify-center border border-white/8 p-8 text-center md:min-h-[510px]">
+          <Loader2 className="mb-4 h-7 w-7 animate-spin text-teal-200" />
+          <h2 className="text-xl font-semibold">Ищем новые варианты</h2>
+          <p className="mt-2 max-w-xs text-sm leading-6 text-white/48">
+            Очередь просмотрена. Через несколько секунд проверим свежие объявления.
+          </p>
+        </GlassCard>
+        {undoNotice}
+      </>
+    );
+  }
 
   const createHref = `/new?returnTo=${encodeURIComponent(`/item/${card.id}`)}`;
 
@@ -121,7 +194,7 @@ export function SwipeCardStack({
 
         <motion.div
           style={{ x, rotate }}
-          drag={loading ? false : "x"}
+          drag={loading || undoing ? false : "x"}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.85}
           onDragEnd={onDragEnd}
@@ -183,10 +256,12 @@ export function SwipeCardStack({
         </motion.div>
       </div>
 
+      {undoNotice}
+
       <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-[22px] border border-white/12 bg-[#090e16]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
         <button
           type="button"
-          disabled={loading}
+          disabled={loading || undoing}
           onClick={() => void passCard()}
           className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[16px] border border-red-300/18 bg-red-300/[0.055] px-2 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:opacity-50 md:min-h-16 md:rounded-[18px] md:py-3"
           aria-label="Пропустить"
@@ -205,7 +280,7 @@ export function SwipeCardStack({
         </MenariumLinkButton>
         <button
           type="button"
-          disabled={loading}
+          disabled={loading || undoing}
           onClick={openExchangeFlow}
           className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[16px] border border-teal-200/24 bg-gradient-to-br from-blue-500 to-teal-400 px-2 py-2 text-xs font-semibold text-white shadow-[0_14px_34px_rgba(56,189,180,0.24)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/80 disabled:opacity-50 md:min-h-16 md:rounded-[18px] md:py-3"
           aria-label="Предложить обмен"

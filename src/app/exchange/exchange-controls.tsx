@@ -30,7 +30,6 @@ export function ExchangeActionPanel({
   isReceiver,
   senderCompleted,
   receiverCompleted,
-  handoffReady = false,
   onSwapUpdated,
 }: {
   swapId: string;
@@ -39,7 +38,6 @@ export function ExchangeActionPanel({
   isReceiver: boolean;
   senderCompleted: boolean;
   receiverCompleted: boolean;
-  handoffReady?: boolean;
   onSwapUpdated?: (snapshot: ExchangeSnapshot) => void;
 }) {
   const router = useRouter();
@@ -80,15 +78,13 @@ export function ExchangeActionPanel({
       ? isReceiver
         ? "Ваше решение"
         : "Предложение отправлено"
-      : "После передачи вещи";
+      : "Завершение обмена";
   const actionDescription =
     status === "PENDING"
       ? isReceiver
         ? "Сначала сверьте обе вещи. После принятия откроется чат для договорённостей."
         : "Партнёр увидит предложение и примет решение. До этого его можно отозвать."
-      : handoffReady
-        ? "Подтверждайте завершение только после того, как обмен действительно состоялся."
-        : "Сначала обе стороны должны согласовать и подтвердить передачу.";
+      : "Договоритесь обо всех деталях в чате. Подтверждайте завершение только после фактического обмена.";
 
   if (!hasActions) return null;
 
@@ -139,18 +135,16 @@ export function ExchangeActionPanel({
 
       {status === "ACCEPTED" ? (
         <div className="space-y-2">
-          {!handoffReady ? (
-            <p className="rounded-xl border border-amber-300/14 bg-amber-300/[0.06] px-3.5 py-3 text-xs leading-5 text-amber-50/65">
-              Завершение откроется, когда вы оба подтвердите способ и время передачи.
-            </p>
-          ) : null}
-          <MenariumButton size="sm" className="w-full" onClick={() => setConfirmAction("complete")} disabled={Boolean(pendingAction) || alreadyCompleted || !handoffReady}>
+          <MenariumButton
+            size="sm"
+            className="w-full"
+            onClick={() => setConfirmAction("complete")}
+            disabled={Boolean(pendingAction) || alreadyCompleted}
+          >
             {pendingAction === "complete" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             {alreadyCompleted
               ? "Вы подтвердили завершение"
-              : handoffReady
-                ? "Подтвердить завершение"
-                : "Сначала подтвердите передачу"}
+              : "Подтвердить завершение"}
           </MenariumButton>
           <MenariumButton
             size="sm"
@@ -195,7 +189,7 @@ export function ExchangeDealPanel({
   isReceiver,
   senderCompleted,
   receiverCompleted,
-  handoffReady,
+  communicationBlocked,
   currentUserId,
   messages,
   nextCursor,
@@ -206,7 +200,7 @@ export function ExchangeDealPanel({
   currentUserId: string;
   messages: ChatMessageView[];
   nextCursor: string | null;
-  handoffReady: boolean;
+  communicationBlocked: boolean;
 }) {
   const [snapshot, setSnapshot] = useState<ExchangeSnapshot>({
     status,
@@ -214,7 +208,9 @@ export function ExchangeDealPanel({
     receiverCompleted,
   });
   const disabledPlaceholder =
-    snapshot.status === "PENDING"
+    communicationBlocked
+      ? "Переписка недоступна из-за блокировки"
+      : snapshot.status === "PENDING"
       ? "Чат откроется после принятия предложения"
       : snapshot.status === "COMPLETED"
         ? "Обмен завершён, чат доступен только для чтения"
@@ -229,14 +225,17 @@ export function ExchangeDealPanel({
         isReceiver={isReceiver}
         senderCompleted={snapshot.senderCompleted}
         receiverCompleted={snapshot.receiverCompleted}
-        handoffReady={handoffReady}
         onSwapUpdated={setSnapshot}
       />
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-white/88">Чат сделки</h3>
           <p className="mt-1 text-xs text-white/58">
-            {snapshot.status === "ACCEPTED" ? "Согласуйте место, время и способ передачи." : "История договорённостей хранится здесь."}
+            {communicationBlocked
+              ? "История сохранена, но новые сообщения недоступны."
+              : snapshot.status === "ACCEPTED"
+              ? "Согласуйте здесь все детали обмена."
+              : "История договорённостей хранится здесь."}
           </p>
         </div>
       </div>
@@ -246,10 +245,11 @@ export function ExchangeDealPanel({
         initialMessages={messages}
         initialNextCursor={nextCursor}
         realtimeTypes={["deal-message", "swap"]}
-        canWrite={snapshot.status === "ACCEPTED"}
+        canWrite={snapshot.status === "ACCEPTED" && !communicationBlocked}
         placeholder="Сообщение..."
         disabledPlaceholder={disabledPlaceholder}
         emptyMessage="Сообщений по этой сделке пока нет."
+        draftKey={`deal:${swapId}`}
       />
     </>
   );

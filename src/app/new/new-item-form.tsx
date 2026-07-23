@@ -39,14 +39,16 @@ type NewItemDraft = {
   acceptsAnything: boolean;
   extraOfferText: string;
   isOnline: boolean;
+  images: UploadedImage[];
 };
 
 type NewItemFormProps = {
+  userId: string;
   returnTo: string | null;
   continuationTitle: string | null;
 };
 
-const DRAFT_KEY = "menarium:new-item-draft:v1";
+const DRAFT_KEY_PREFIX = "menarium:new-item-draft:v2";
 const categories = ["Техника", "Мода", "Музыка", "Спорт", "Книги", "Искусство", "Фото", "Услуги"];
 const quickWants = ["iPhone", "MacBook", "Игровая консоль", "Наушники", "Кроссовки", "Винтажная камера"];
 const steps = [
@@ -55,9 +57,9 @@ const steps = [
   { title: "Обмен", hint: "Что хочется взамен" },
 ];
 
-function readDraft(): Partial<NewItemDraft> | null {
+function readDraft(key: string): Partial<NewItemDraft> | null {
   try {
-    const value = window.localStorage.getItem(DRAFT_KEY);
+    const value = window.localStorage.getItem(key);
     if (!value) return null;
     const parsed: unknown = JSON.parse(value);
     return parsed && typeof parsed === "object" ? (parsed as Partial<NewItemDraft>) : null;
@@ -66,8 +68,9 @@ function readDraft(): Partial<NewItemDraft> | null {
   }
 }
 
-export function NewItemForm({ returnTo, continuationTitle }: NewItemFormProps) {
+export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemFormProps) {
   const router = useRouter();
+  const draftKey = `${DRAFT_KEY_PREFIX}:${userId}`;
   const hasTrackedStart = useRef(false);
   const [step, setStep] = useState(0);
   const [draftReady, setDraftReady] = useState(false);
@@ -93,7 +96,7 @@ export function NewItemForm({ returnTo, continuationTitle }: NewItemFormProps) {
 
   useEffect(() => {
     const restoreDraft = window.setTimeout(() => {
-      const draft = readDraft();
+      const draft = readDraft(draftKey);
       if (typeof draft?.title === "string") setTitle(draft.title);
       if (draft?.type === "THING" || draft?.type === "SERVICE") setType(draft.type);
       if (typeof draft?.category === "string" && categories.includes(draft.category)) setCategory(draft.category);
@@ -103,11 +106,27 @@ export function NewItemForm({ returnTo, continuationTitle }: NewItemFormProps) {
       if (typeof draft?.acceptsAnything === "boolean") setAcceptsAnything(draft.acceptsAnything);
       if (typeof draft?.extraOfferText === "string") setExtraOfferText(draft.extraOfferText);
       if (typeof draft?.isOnline === "boolean") setIsOnline(draft.isOnline);
+      if (Array.isArray(draft?.images)) {
+        setImages(
+          draft.images
+            .filter(
+              (image): image is UploadedImage =>
+                Boolean(
+                  image &&
+                    typeof image.id === "string" &&
+                    typeof image.url === "string" &&
+                    typeof image.contentType === "string" &&
+                    typeof image.sizeBytes === "number",
+                ),
+            )
+            .slice(0, 8),
+        );
+      }
       setDraftReady(true);
     }, 0);
 
     return () => window.clearTimeout(restoreDraft);
-  }, []);
+  }, [draftKey]);
 
   useEffect(() => {
     if (!draftReady) return;
@@ -122,10 +141,11 @@ export function NewItemForm({ returnTo, continuationTitle }: NewItemFormProps) {
       acceptsAnything,
       extraOfferText,
       isOnline,
+      images,
     };
 
     try {
-      window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      window.localStorage.setItem(draftKey, JSON.stringify(draft));
     } catch {
       // A private browsing mode can reject storage; form submission still works.
     }
@@ -137,7 +157,9 @@ export function NewItemForm({ returnTo, continuationTitle }: NewItemFormProps) {
     desiredText,
     draftReady,
     extraOfferText,
+    images,
     isOnline,
+    draftKey,
     title,
     type,
   ]);
@@ -273,7 +295,7 @@ export function NewItemForm({ returnTo, continuationTitle }: NewItemFormProps) {
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error ?? "Не удалось создать объявление");
-      window.localStorage.removeItem(DRAFT_KEY);
+      window.localStorage.removeItem(draftKey);
       router.push(returnTo ?? `/item/${body.data.id}`);
       router.refresh();
     } catch (submitError) {
@@ -521,7 +543,7 @@ export function NewItemForm({ returnTo, continuationTitle }: NewItemFormProps) {
                 <span>
                   <span className="block font-semibold text-white">Можно обменяться онлайн</span>
                   <span className="mt-1 block text-sm leading-5 text-white/45">
-                    Подходит для цифровых товаров, удалённых услуг или доставки.
+                    Подходит для цифровых товаров и удалённых услуг.
                   </span>
                 </span>
               </label>

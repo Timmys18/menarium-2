@@ -18,7 +18,6 @@ import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { ExchangeDealPanel } from "./exchange-controls";
-import { ExchangeHandoffPanel } from "./exchange-handoff-panel";
 import { ExchangeReviewPanel } from "./exchange-review-panel";
 
 export const dynamic = "force-dynamic";
@@ -105,8 +104,8 @@ function statusPresentation(
           variant: "teal",
         }
       : {
-          label: "Договоритесь о передаче",
-          description: "Обмен принят. Используйте чат, чтобы согласовать детали и место встречи.",
+          label: "Договоритесь в чате",
+          description: "Обмен принят. Используйте чат, чтобы согласовать все детали напрямую.",
           variant: "teal",
         };
   }
@@ -142,7 +141,7 @@ function statusPresentation(
   };
 }
 
-function DealProgress({ status, handoffReady }: { status: SwapStatus; handoffReady: boolean }) {
+function DealProgress({ status }: { status: SwapStatus }) {
   if (
     status === SwapStatus.DECLINED ||
     status === SwapStatus.CANCELLED ||
@@ -155,13 +154,11 @@ function DealProgress({ status, handoffReady }: { status: SwapStatus; handoffRea
     status === SwapStatus.COMPLETED
       ? 2
       : status === SwapStatus.ACCEPTED
-        ? handoffReady
-          ? 2
-          : 1
+        ? 1
         : 0;
   const steps = [
     { label: "Предложение", mobileLabel: "Предложение", hint: "Решение" },
-    { label: "Договорённость", mobileLabel: "Передача", hint: "Передача" },
+    { label: "Договорённость", mobileLabel: "Чат", hint: "В чате" },
     { label: "Завершение", mobileLabel: "Готово", hint: "Обе стороны" },
   ];
 
@@ -358,15 +355,24 @@ export default async function ExchangePage({ searchParams }: Props) {
             where: { swapId: selectedSwap.id, revieweeId: userId, visibleAt: { lte: new Date() } },
             select: { id: true, rating: true, comment: true, visibleAt: true, createdAt: true },
           }),
-          prisma.userBlock.findUnique({
+          prisma.userBlock.findFirst({
             where: {
-              blockerId_blockedId: {
-                blockerId: userId,
-                blockedId:
-                  selectedSwap.senderId === userId
-                    ? selectedSwap.receiverId
-                    : selectedSwap.senderId,
-              },
+              OR: [
+                {
+                  blockerId: userId,
+                  blockedId:
+                    selectedSwap.senderId === userId
+                      ? selectedSwap.receiverId
+                      : selectedSwap.senderId,
+                },
+                {
+                  blockerId:
+                    selectedSwap.senderId === userId
+                      ? selectedSwap.receiverId
+                      : selectedSwap.senderId,
+                  blockedId: userId,
+                },
+              ],
             },
             select: { blockerId: true },
           }),
@@ -391,12 +397,7 @@ export default async function ExchangePage({ searchParams }: Props) {
     : null;
   const selectedStatus =
     selectedSwap && userId ? statusPresentation(selectedSwap, userId) : null;
-  const selectedHandoffReady = Boolean(
-    selectedSwap?.handoffMode &&
-      selectedSwap.senderHandoffConfirmed &&
-      selectedSwap.receiverHandoffConfirmed,
-  );
-
+  const selectedOwnBlock = selectedBlock?.blockerId === userId;
   return (
     <AppShell>
       <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
@@ -702,24 +703,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                         </p>
                       ) : null}
 
-                      <DealProgress status={selectedSwap.status} handoffReady={selectedHandoffReady} />
-
-                      {selectedSwap.status === SwapStatus.ACCEPTED || selectedSwap.status === SwapStatus.COMPLETED ? (
-                        <ExchangeHandoffPanel
-                          swapId={selectedSwap.id}
-                          initialPlan={{
-                            handoffMode: selectedSwap.handoffMode,
-                            handoffScheduledAt: selectedSwap.handoffScheduledAt?.toISOString() ?? null,
-                            handoffDetails: selectedSwap.handoffDetails,
-                            handoffRevision: selectedSwap.handoffRevision,
-                            senderHandoffConfirmed: selectedSwap.senderHandoffConfirmed,
-                            receiverHandoffConfirmed: selectedSwap.receiverHandoffConfirmed,
-                          }}
-                          isSender={selectedSwap.senderId === userId}
-                          partnerName={selectedPartner?.name ?? "партнёра"}
-                          readOnly={selectedSwap.status === SwapStatus.COMPLETED}
-                        />
-                      ) : null}
+                      <DealProgress status={selectedSwap.status} />
 
                       {selectedSwap.status === SwapStatus.COMPLETED ? (
                         <ExchangeReviewPanel
@@ -756,7 +740,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                         isReceiver={selectedSwap.receiverId === userId}
                         senderCompleted={selectedSwap.senderCompleted}
                         receiverCompleted={selectedSwap.receiverCompleted}
-                        handoffReady={selectedHandoffReady}
+                        communicationBlocked={Boolean(selectedBlock)}
                         currentUserId={userId}
                         messages={selectedMessages}
                         nextCursor={selectedMessagePage.nextCursor}
@@ -784,7 +768,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                             targetType="USER"
                             targetId={selectedPartner.id}
                             userId={selectedPartner.id}
-                            initialBlocked={Boolean(selectedBlock)}
+                            initialBlocked={selectedOwnBlock}
                             swapId={selectedSwap.id}
                           />
                         </section>

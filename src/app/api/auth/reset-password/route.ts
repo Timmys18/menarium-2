@@ -2,6 +2,12 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { consumeAuthToken, passwordResetIdentifier } from "@/lib/auth-tokens";
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  passwordHasDigit,
+  passwordHasLetter,
+} from "@/lib/password-policy";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
@@ -9,9 +15,9 @@ const schema = z.object({
   token: z.string().min(10),
   password: z
     .string()
-    .min(8, "Пароль должен быть не короче 8 символов")
-    .max(128)
-    .refine((value) => /[a-zA-Zа-яА-Я]/.test(value) && /\d/.test(value), {
+    .min(PASSWORD_MIN_LENGTH, `Пароль должен быть не короче ${PASSWORD_MIN_LENGTH} символов`)
+    .max(PASSWORD_MAX_LENGTH)
+    .refine((value) => passwordHasLetter(value) && passwordHasDigit(value), {
       message: "Пароль должен содержать буквы и цифры",
     }),
 });

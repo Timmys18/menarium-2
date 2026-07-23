@@ -65,6 +65,18 @@ export async function POST(req: Request, context: Context) {
       if (!canOpenDealChat(swap.status)) throw new Error("CHAT_NOT_OPEN");
       if (!canWriteDealChat(swap.status)) throw new Error("CHAT_CLOSED");
 
+      const recipientId = auth.userId === swap.senderId ? swap.receiverId : swap.senderId;
+      const blocked = await tx.userBlock.findFirst({
+        where: {
+          OR: [
+            { blockerId: auth.userId, blockedId: recipientId },
+            { blockerId: recipientId, blockedId: auth.userId },
+          ],
+        },
+        select: { blockerId: true },
+      });
+      if (blocked) throw new Error("USER_BLOCKED");
+
       const created = await tx.dealMessage.create({
         data: {
           swapId,
@@ -78,7 +90,6 @@ export async function POST(req: Request, context: Context) {
         data: { updatedAt: created.createdAt },
       });
 
-      const recipientId = auth.userId === swap.senderId ? swap.receiverId : swap.senderId;
       await createNotification(tx, {
         userId: recipientId,
         type: NotificationType.DEAL_MESSAGE_RECEIVED,
@@ -108,6 +119,7 @@ export async function POST(req: Request, context: Context) {
       if (error.message === "FORBIDDEN") return errorResponse("Нет доступа к этому чату", 403);
       if (error.message === "CHAT_NOT_OPEN") return errorResponse("Чат доступен только после принятия обмена", 403);
       if (error.message === "CHAT_CLOSED") return errorResponse("Обмен завершен. Чат закрыт для новых сообщений", 409);
+      if (error.message === "USER_BLOCKED") return errorResponse("Переписка с этим пользователем недоступна", 403);
     }
     return errorResponse("Не удалось отправить сообщение", 500);
   }
