@@ -1,5 +1,6 @@
 import { ReportReason, ReportStatus, ReportTargetType, UserStatus } from "@prisma/client";
 import { z } from "zod";
+import { reportBelongsToSwap } from "@/features/trust/report-context";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { checkActionRateLimit } from "@/lib/rate-limit";
@@ -10,6 +11,7 @@ const reportSchema = z.object({
   targetId: z.string().min(1),
   reason: z.nativeEnum(ReportReason),
   details: z.string().trim().max(1000).optional().or(z.literal("")),
+  swapId: z.string().min(1).optional(),
 });
 
 export async function POST(req: Request) {
@@ -22,7 +24,7 @@ export async function POST(req: Request) {
   const parsed = reportSchema.safeParse(await parseJson(req));
   if (!parsed.success) return errorResponse("Проверьте данные жалобы", 400);
 
-  const { targetType, targetId, reason, details } = parsed.data;
+  const { targetType, targetId, reason, details, swapId } = parsed.data;
   let targetUserId: string | null = null;
   let itemId: string | null = null;
 
@@ -45,12 +47,35 @@ export async function POST(req: Request) {
     targetUserId = item.ownerId;
   }
 
+  if (swapId) {
+    const swap = await prisma.swapRequest.findUnique({
+      where: { id: swapId },
+      select: {
+        senderId: true,
+        receiverId: true,
+        senderItemId: true,
+        receiverItemId: true,
+      },
+    });
+    if (
+      !swap ||
+      !reportBelongsToSwap(
+        auth.userId,
+        { targetType, targetUserId, itemId },
+        swap,
+      )
+    ) {
+      return errorResponse("Этот обмен недоступен для обращения", 404);
+    }
+  }
+
   const duplicate = await prisma.report.findFirst({
     where: {
       reporterId: auth.userId,
       targetType,
       targetUserId,
       itemId,
+      swapId: swapId ?? null,
       status: { in: [ReportStatus.OPEN, ReportStatus.REVIEWING] },
     },
     select: { id: true },
@@ -68,6 +93,7 @@ export async function POST(req: Request) {
       targetType,
       targetUserId,
       itemId,
+      swapId,
       reason,
       details: details || null,
     },
@@ -76,7 +102,7 @@ export async function POST(req: Request) {
 
   return actionResponse(
     { ...report, createdAt: report.createdAt.toISOString() },
-    { message: "Спасибо. Модератор проверит жалобу." },
+    { message: "Обращение принято. Статус проверки появится в Центре безопасности." },
     201,
   );
 }

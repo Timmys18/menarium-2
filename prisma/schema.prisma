@@ -38,6 +38,7 @@ enum NotificationType {
   ITEM_MESSAGE_RECEIVED
   REVIEW_PUBLISHED
   HANDOFF_UPDATED
+  REPORT_UPDATED
 }
 
 enum HandoffMode {
@@ -231,6 +232,7 @@ model SwapRequest {
   receiverItem Item          @relation("ReceiverItem", fields: [receiverItemId], references: [id], onDelete: Restrict)
   messages     DealMessage[]
   reviews      Review[]
+  reports      Report[]
 
   @@index([senderId, status, updatedAt])
   @@index([receiverId, status, updatedAt])
@@ -379,6 +381,7 @@ model Report {
   targetType     ReportTargetType
   targetUserId   String?
   itemId         String?
+  swapId         String?
   reason         ReportReason
   details        String?          @db.Text
   status         ReportStatus     @default(OPEN)
@@ -388,15 +391,17 @@ model Report {
   updatedAt      DateTime         @updatedAt
   resolvedAt     DateTime?
 
-  reporter   User  @relation("ReportsFiled", fields: [reporterId], references: [id], onDelete: Cascade)
-  targetUser User? @relation("ReportedUser", fields: [targetUserId], references: [id], onDelete: SetNull)
-  item       Item? @relation(fields: [itemId], references: [id], onDelete: SetNull)
-  resolvedBy User? @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  reporter   User         @relation("ReportsFiled", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUser User?        @relation("ReportedUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  item       Item?        @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  swap       SwapRequest? @relation(fields: [swapId], references: [id], onDelete: SetNull)
+  resolvedBy User?        @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
 
   @@index([status, createdAt])
   @@index([reporterId, createdAt])
   @@index([targetUserId, status])
   @@index([itemId, status])
+  @@index([swapId, status])
 }
 
 model ProductEvent {

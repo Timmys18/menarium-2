@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, CalendarClock, MessageCircle, Repeat, Sparkles, Star } from "lucide-react";
+import { Bell, CalendarClock, MessageCircle, Repeat, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
@@ -29,6 +29,7 @@ const typeIcons = {
   ITEM_MESSAGE_RECEIVED: MessageCircle,
   REVIEW_PUBLISHED: Star,
   HANDOFF_UPDATED: CalendarClock,
+  REPORT_UPDATED: ShieldCheck,
 } as const;
 
 function firstParam(value: string | string[] | undefined) {

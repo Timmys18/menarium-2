@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ItemStatus, SwapStatus, UserStatus } from "@prisma/client";
+import { ItemStatus, ReportStatus, SwapStatus, UserStatus } from "@prisma/client";
 import {
   ArrowRight,
   Bell,
@@ -13,6 +13,7 @@ import {
   MessageCircle,
   PackageCheck,
   Repeat2,
+  ShieldCheck,
 } from "lucide-react";
 import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 import { AppShell } from "@/components/layout/app-shell";
@@ -109,6 +110,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     sentProposals,
     acceptedSwaps,
     completedSwaps,
+    activeSafetyReports,
     unreadNotifications,
     unreadDealMessages,
     unreadItemMessages,
@@ -147,6 +149,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           where: {
             status: SwapStatus.COMPLETED,
             OR: [{ senderId: userId }, { receiverId: userId }],
+          },
+        }),
+        prisma.report.count({
+          where: {
+            reporterId: userId,
+            status: { in: [ReportStatus.OPEN, ReportStatus.REVIEWING] },
           },
         }),
         prisma.notification.count({ where: { userId, isRead: false } }),
@@ -230,7 +238,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           take: 4,
         }),
       ])
-    : [[], 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], []];
+    : [[], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], []];
 
   const itemCounts: Record<ItemStatus, number> = {
     [ItemStatus.ACTIVE]: 0,
@@ -733,6 +741,28 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                         Открыть
                       </MenariumLinkButton>
                     </div>
+                  </GlassCard>
+
+                  <GlassCard className="border border-teal-300/10 bg-gradient-to-br from-teal-300/[0.055] to-blue-400/[0.035] p-5">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300/10 text-teal-200">
+                        <ShieldCheck className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold">Центр безопасности</p>
+                          {activeSafetyReports > 0 ? (
+                            <Badge variant="gold">{activeSafetyReports} в работе</Badge>
+                          ) : null}
+                        </div>
+                        <p className="mt-1 text-xs leading-4 text-white/38">
+                          Обращения, статусы проверок и защита сделок.
+                        </p>
+                      </div>
+                    </div>
+                    <MenariumLinkButton href="/profile/safety" variant="secondary" size="sm" className="mt-4 w-full">
+                      Открыть
+                    </MenariumLinkButton>
                   </GlassCard>
                 </aside>
               </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Ban, Flag, Loader2, ShieldCheck } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
@@ -14,16 +15,24 @@ const reasons = [
   { value: "OTHER", label: "Другая причина" },
 ] as const;
 
+const exchangeReasons = [
+  { value: "FRAUD", label: "Вещь или условия не соответствуют договорённости" },
+  { value: "HARASSMENT", label: "Небезопасное поведение или давление" },
+  { value: "OTHER", label: "Неявка или другая проблема с передачей" },
+] as const;
+
 export function TrustActions({
   targetType,
   targetId,
   userId,
   initialBlocked = false,
+  swapId,
 }: {
   targetType: "USER" | "ITEM";
   targetId: string;
   userId?: string;
   initialBlocked?: boolean;
+  swapId?: string;
 }) {
   const [reportOpen, setReportOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
@@ -33,6 +42,7 @@ export function TrustActions({
   const [pending, setPending] = useState<"report" | "block" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const reportReasons = swapId ? exchangeReasons : reasons;
 
   async function submitReport() {
     setPending("report");
@@ -41,7 +51,7 @@ export function TrustActions({
       const response = await fetch("/api/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetType, targetId, reason, details }),
+        body: JSON.stringify({ targetType, targetId, reason, details, swapId }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Не удалось отправить жалобу");
@@ -93,14 +103,25 @@ export function TrustActions({
           </MenariumButton>
         ) : null}
       </div>
-      {message ? <p className="text-sm text-teal-200">{message}</p> : null}
+      {message ? (
+        <p className="text-sm text-teal-200">
+          {message}{" "}
+          <Link href="/profile/safety" className="font-semibold underline underline-offset-4">
+            Открыть обращения
+          </Link>
+        </p>
+      ) : null}
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
 
       <MenariumDialog
         open={reportOpen}
         onClose={() => setReportOpen(false)}
         title="Сообщить модератору"
-        description="Жалоба конфиденциальна. Мы проверим её и примем меры, если правила нарушены."
+        description={
+          swapId
+            ? "Мы прикрепим к обращению этот обмен, чтобы модератор видел договорённость и мог разобраться быстрее."
+            : "Жалоба конфиденциальна. Мы проверим её и примем меры, если правила нарушены."
+        }
         footer={
           <>
             <MenariumButton variant="secondary" onClick={() => setReportOpen(false)} disabled={pending === "report"}>
@@ -121,7 +142,7 @@ export function TrustActions({
               onChange={(event) => setReason(event.target.value as typeof reason)}
               className="glass-card mt-2 w-full rounded-2xl px-4 py-3 text-white outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60"
             >
-              {reasons.map((entry) => (
+              {reportReasons.map((entry) => (
                 <option key={entry.value} value={entry.value} className="bg-[#11111a]">
                   {entry.label}
                 </option>

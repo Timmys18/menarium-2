@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Prisma, SwapStatus } from "@prisma/client";
-import { ArrowLeftRight, CheckCircle2, Clock3, MessageCircle, UserRound } from "lucide-react";
+import { ArrowLeftRight, CheckCircle2, Clock3, MessageCircle, ShieldCheck, UserRound } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
+import { TrustActions } from "@/components/trust/trust-actions";
 import { loadDealMessagePage } from "@/features/chat/message-pages";
 import { markDealChatRead } from "@/features/chat/read-state";
 import { pickMutualPendingSwapIds } from "@/features/exchange/matches";
@@ -357,9 +358,21 @@ export default async function ExchangePage({ searchParams }: Props) {
             where: { swapId: selectedSwap.id, revieweeId: userId, visibleAt: { lte: new Date() } },
             select: { id: true, rating: true, comment: true, visibleAt: true, createdAt: true },
           }),
+          prisma.userBlock.findUnique({
+            where: {
+              blockerId_blockedId: {
+                blockerId: userId,
+                blockedId:
+                  selectedSwap.senderId === userId
+                    ? selectedSwap.receiverId
+                    : selectedSwap.senderId,
+              },
+            },
+            select: { blockerId: true },
+          }),
         ])
-      : [{ messages: [], nextCursor: null }, null, null] as const;
-  const [selectedMessagePage, selectedOwnReview, selectedReceivedReview] = selectedContext;
+      : [{ messages: [], nextCursor: null }, null, null, null] as const;
+  const [selectedMessagePage, selectedOwnReview, selectedReceivedReview, selectedBlock] = selectedContext;
   const selectedMessages = selectedMessagePage.messages.map(serializeDealMessage);
 
   const selectedIsIncoming = selectedSwap ? selectedSwap.receiverId === userId : false;
@@ -748,6 +761,34 @@ export default async function ExchangePage({ searchParams }: Props) {
                         messages={selectedMessages}
                         nextCursor={selectedMessagePage.nextCursor}
                       />
+
+                      {selectedPartner ? (
+                        <section
+                          aria-labelledby="exchange-safety-title"
+                          className="mt-5 rounded-[18px] border border-white/8 bg-white/[0.025] p-4"
+                        >
+                          <div className="mb-3 flex items-start gap-3">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] bg-teal-400/10 text-teal-200">
+                              <ShieldCheck className="h-4.5 w-4.5" />
+                            </span>
+                            <div>
+                              <h3 id="exchange-safety-title" className="text-sm font-semibold">
+                                Безопасность сделки
+                              </h3>
+                              <p className="mt-1 text-xs leading-4 text-white/45">
+                                Если что-то пошло не по договорённости, сообщите нам прямо из этого обмена.
+                              </p>
+                            </div>
+                          </div>
+                          <TrustActions
+                            targetType="USER"
+                            targetId={selectedPartner.id}
+                            userId={selectedPartner.id}
+                            initialBlocked={Boolean(selectedBlock)}
+                            swapId={selectedSwap.id}
+                          />
+                        </section>
+                      ) : null}
 
                       <a href="#exchange-list" className="mt-4 block text-center text-xs text-white/56 hover:text-white/78 lg:hidden">
                         Вернуться к списку ↑

@@ -63,7 +63,9 @@ async function sendDealMessage(page: Page, message: string) {
   await input.fill(message);
   await input.press("Enter");
   const response = await responsePromise;
-  expect(response.ok()).toBeTruthy();
+  if (!response.ok()) {
+    throw new Error(`Message request failed (${response.status()}): ${await response.text()}`);
+  }
   await page.reload();
   await expect(pick(main(page).getByText(message))).toBeVisible({ timeout: 20_000 });
 }

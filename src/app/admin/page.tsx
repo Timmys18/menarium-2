@@ -85,6 +85,15 @@ export default async function AdminPage() {
                 owner: { select: { id: true, name: true, email: true } },
               },
             },
+            swap: {
+              select: {
+                id: true,
+                sender: { select: { id: true, name: true, email: true } },
+                receiver: { select: { id: true, name: true, email: true } },
+                senderItem: { select: { id: true, title: true } },
+                receiverItem: { select: { id: true, title: true } },
+              },
+            },
           },
           orderBy: [{ status: "asc" }, { createdAt: "asc" }],
           take: 50,
@@ -266,6 +275,45 @@ export default async function AdminPage() {
                                 {report.details || "Пользователь не добавил подробностей."}
                               </p>
                             </div>
+                            {report.swap ? (
+                              <div className="rounded-2xl border border-blue-300/12 bg-blue-400/[0.045] p-4">
+                                <p className="text-xs font-medium uppercase tracking-wide text-blue-200/55">
+                                  Контекст обмена
+                                </p>
+                                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                                  <div>
+                                    <p className="text-xs text-white/35">Отправитель</p>
+                                    <Link
+                                      href={`/user/${report.swap.sender.id}`}
+                                      className="mt-1 block text-sm font-medium hover:text-teal-200"
+                                    >
+                                      {report.swap.sender.name ?? report.swap.sender.email}
+                                    </Link>
+                                    <Link
+                                      href={`/item/${report.swap.senderItem.id}`}
+                                      className="mt-1 block text-xs text-white/48 hover:text-white/75"
+                                    >
+                                      {report.swap.senderItem.title}
+                                    </Link>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-white/35">Получатель</p>
+                                    <Link
+                                      href={`/user/${report.swap.receiver.id}`}
+                                      className="mt-1 block text-sm font-medium hover:text-teal-200"
+                                    >
+                                      {report.swap.receiver.name ?? report.swap.receiver.email}
+                                    </Link>
+                                    <Link
+                                      href={`/item/${report.swap.receiverItem.id}`}
+                                      className="mt-1 block text-xs text-white/48 hover:text-white/75"
+                                    >
+                                      {report.swap.receiverItem.title}
+                                    </Link>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : null}
                             {report.resolutionNote ? (
                               <div className="rounded-2xl border border-teal-500/15 bg-teal-500/[0.06] p-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-teal-200/60">
