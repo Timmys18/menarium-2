@@ -99,6 +99,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
       ? `/item/${publicItem.id}`
       : `/item/${publicItem.id}?from=${encodeURIComponent(returnHref)}`;
   const chatHref = `${itemHref}${itemHref.includes("?") ? "&" : "?"}thread=open`;
+  const createForExchangeHref = `/new?returnTo=${encodeURIComponent(`/item/${publicItem.id}`)}`;
   const isOwner = Boolean(userId && publicItem.owner?.id === userId);
   const canInteract = canInteractWithItem(item.status, viewerIsAdmin);
   const ownerId = publicItem.owner?.id;
@@ -178,7 +179,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
   return (
     <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
+      <div className="page-enter min-h-screen px-4 pb-40 pt-20 sm:px-6 md:pb-32 md:pt-28">
         <div className="mx-auto max-w-6xl">
           <MenariumLinkButton href={returnHref} variant="ghost" size="sm" className="mb-4 sm:mb-6">
             <ArrowLeft className="h-4 w-4" />
@@ -214,7 +215,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <h1 className="min-w-0 flex-1 text-3xl font-bold leading-[1.08] tracking-[-0.035em] sm:text-4xl">
+                  <h1 className="min-w-0 flex-1 text-2xl font-bold leading-[1.08] tracking-[-0.035em] sm:text-4xl">
                     {publicItem.title}
                   </h1>
                   {!isOwner && canInteract && !communicationBlocked ? (
@@ -229,7 +230,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     />
                   ) : null}
                 </div>
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/52">
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/66">
                   <span className="inline-flex items-center gap-1.5">
                     {publicItem.isOnline ? <Globe2 className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
                     {publicItem.isOnline ? `Онлайн · ${publicItem.city}` : publicItem.city}
@@ -303,7 +304,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/44">
+                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/60">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-300/72" />
                   Договорённости и завершение обмена фиксируются в Menarium. Не передавайте коды и данные банковских карт в сообщениях.
                 </div>
@@ -312,7 +313,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   <h2 id="item-description-title" className="text-lg font-semibold text-white/92">
                     Об объявлении
                   </h2>
-                  <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-white/58">
+                  <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-white/68">
                     {publicItem.description}
                   </p>
                 </section>
@@ -340,21 +341,21 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 <h2 className="mb-4 text-lg font-semibold">Детали</h2>
                 <div className="divide-y divide-white/7 text-sm">
                   <div className="flex items-center justify-between gap-4 py-3 first:pt-0">
-                    <span className="text-white/42">Город</span>
+                    <span className="text-white/58">Город</span>
                     <span className="text-right text-white/82">{publicItem.city}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3">
-                    <span className="text-white/42">Категория</span>
+                    <span className="text-white/58">Категория</span>
                     <span className="text-right text-white/82">{publicItem.category}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3">
-                    <span className="text-white/42">Формат</span>
+                    <span className="text-white/58">Формат</span>
                     <span className="text-right text-white/82">
                       {publicItem.isOnline ? "Можно онлайн" : `Лично · ${publicItem.city}`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3 last:pb-0">
-                    <span className="text-white/42">Статус</span>
+                    <span className="text-white/58">Статус</span>
                     <span className="text-right font-medium text-teal-200/82">
                       {itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}
                     </span>
@@ -384,6 +385,46 @@ export default async function ItemPage({ params, searchParams }: Props) {
               canWrite={canWriteItemChat}
               isOwner={isOwner}
             />
+          ) : null}
+          {!showChatPanel && isOwner && (item.status === ItemStatus.ACTIVE || item.status === ItemStatus.PAUSED) ? (
+            <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto max-w-lg rounded-[22px] border border-white/12 bg-[#090e16]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
+              <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="w-full" size="sm">
+                Редактировать объявление
+              </MenariumLinkButton>
+            </div>
+          ) : null}
+          {!showChatPanel && !isOwner && canInteract && !communicationBlocked ? (
+            <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-lg grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-[22px] border border-white/12 bg-[#090e16]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
+              <MenariumLinkButton
+                href={
+                  userId
+                    ? userItems.length > 0
+                      ? "#exchange-proposal"
+                      : createForExchangeHref
+                    : loginHref(itemHref)
+                }
+                size="sm"
+                className="min-w-0 px-3"
+              >
+                <ArrowRightLeft className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  {userId
+                    ? userItems.length > 0
+                      ? "Предложить обмен"
+                      : "Добавить и обменять"
+                    : "Войти и обменять"}
+                </span>
+              </MenariumLinkButton>
+              <MenariumLinkButton
+                href={userId ? chatHref : loginHref(chatHref)}
+                variant="secondary"
+                size="sm"
+                className="px-3"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span className="sr-only sm:not-sr-only">Написать</span>
+              </MenariumLinkButton>
+            </div>
           ) : null}
         </div>
       </div>

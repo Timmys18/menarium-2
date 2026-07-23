@@ -159,9 +159,9 @@ function DealProgress({ status, handoffReady }: { status: SwapStatus; handoffRea
           : 1
         : 0;
   const steps = [
-    { label: "Предложение", hint: "Решение" },
-    { label: "Договорённость", hint: "Передача" },
-    { label: "Завершение", hint: "Обе стороны" },
+    { label: "Предложение", mobileLabel: "Предложение", hint: "Решение" },
+    { label: "Договорённость", mobileLabel: "Передача", hint: "Передача" },
+    { label: "Завершение", mobileLabel: "Готово", hint: "Обе стороны" },
   ];
 
   return (
@@ -175,7 +175,7 @@ function DealProgress({ status, handoffReady }: { status: SwapStatus; handoffRea
             key={step.label}
             aria-current={current ? "step" : undefined}
             className={cn(
-              "min-w-0 rounded-[14px] border px-2.5 py-3 text-center",
+              "min-w-0 rounded-[14px] border px-1.5 py-3 text-center sm:px-2.5",
               completed
                 ? "border-teal-300/18 bg-teal-300/[0.065]"
                 : current
@@ -190,15 +190,16 @@ function DealProgress({ status, handoffReady }: { status: SwapStatus; handoffRea
                   ? "bg-teal-300/16 text-teal-200"
                   : current
                     ? "bg-blue-300/16 text-blue-100"
-                    : "bg-white/[0.055] text-white/28",
+                    : "bg-white/[0.07] text-white/48",
               )}
             >
               {completed ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
             </span>
-            <span className={cn("mt-2 block truncate text-[11px] font-semibold", completed || current ? "text-white/76" : "text-white/28")}>
-              {step.label}
+            <span className={cn("mt-2 block text-xs font-semibold", completed || current ? "text-white/82" : "text-white/48")}>
+              <span className="sm:hidden">{step.mobileLabel}</span>
+              <span className="hidden sm:inline">{step.label}</span>
             </span>
-            <span className="mt-0.5 block truncate text-[10px] text-white/28">{step.hint}</span>
+            <span className="mt-0.5 hidden truncate text-[11px] text-white/48 sm:block">{step.hint}</span>
           </li>
         );
       })}
@@ -385,17 +386,17 @@ export default async function ExchangePage({ searchParams }: Props) {
 
   return (
     <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
+      <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-7xl">
           <header className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
                 Личный центр
               </p>
-              <h1 className="text-4xl font-bold md:text-5xl">
+              <h1 className="text-3xl font-bold tracking-[-0.04em] sm:text-4xl md:text-5xl">
                 Мои <span className="gradient-text">обмены</span>
               </h1>
-              <p className="mt-3 max-w-2xl text-white/55">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/66 sm:text-base">
                 Здесь видно, где нужен твой ответ, где ждём партнёра и о чём уже договорились.
               </p>
             </div>
@@ -436,25 +437,26 @@ export default async function ExchangePage({ searchParams }: Props) {
           ) : (
             <>
               <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.025] p-2 sm:flex-row sm:items-center sm:justify-between">
-                <nav className="flex gap-1 overflow-x-auto" aria-label="Виды обменов">
+                <nav className="grid grid-cols-3 gap-1 sm:flex sm:overflow-x-auto" aria-label="Виды обменов">
                   {([
-                    ["incoming", "Мне предложили", incomingCount],
-                    ["outgoing", "Я предложил", outgoingCount],
-                    ["matches", "Договорились", matchesCount],
-                  ] as const).map(([tab, label, count]) => (
+                    ["incoming", "Мне предложили", "Входящие", incomingCount],
+                    ["outgoing", "Я предложил", "Исходящие", outgoingCount],
+                    ["matches", "Договорились", "Взаимно", matchesCount],
+                  ] as const).map(([tab, label, mobileLabel, count]) => (
                     <Link
                       key={tab}
                       href={exchangeHref(tab, tab === activeTab ? selectedSwap?.id : undefined, activeFilter)}
                       aria-current={tab === activeTab ? "page" : undefined}
                       className={cn(
-                        "shrink-0 rounded-[15px] px-4 py-2.5 text-sm font-medium transition",
+                        "min-w-0 overflow-hidden rounded-[15px] px-2 py-2.5 text-xs font-medium transition sm:shrink-0 sm:px-4 sm:text-sm",
                         tab === activeTab
                           ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white shadow-[0_10px_24px_rgba(77,141,255,0.18)]"
                           : "text-white/48 hover:bg-white/[0.06] hover:text-white",
                       )}
                     >
-                      {label}
-                      <span className={cn("ml-2 text-xs", tab === activeTab ? "text-white/75" : "text-white/28")}>
+                      <span className="sm:hidden">{mobileLabel}</span>
+                      <span className="hidden sm:inline">{label}</span>
+                      <span className={cn("ml-1.5 text-[11px] sm:ml-2 sm:text-xs", tab === activeTab ? "text-white/78" : "text-white/48")}>
                         {count}
                       </span>
                     </Link>
@@ -474,7 +476,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                         "rounded-[13px] px-4 py-2 text-sm transition",
                         activeFilter === filter
                           ? "bg-white/[0.11] text-white"
-                          : "text-white/38 hover:bg-white/[0.05] hover:text-white/70",
+                          : "text-white/58 hover:bg-white/[0.05] hover:text-white/80",
                       )}
                     >
                       {label}
@@ -500,11 +502,11 @@ export default async function ExchangePage({ searchParams }: Props) {
                             ? "Твои предложения"
                             : "Обмены с взаимным интересом"}
                       </h2>
-                      <p className="mt-1 text-xs text-white/35">
+                      <p className="mt-1 text-xs text-white/54">
                         {activeFilter === "active" ? "Актуальные обмены" : "Завершённые и отменённые"}
                       </p>
                     </div>
-                    <span className="text-xs text-white/30">{tabCounts[activeTab]} всего</span>
+                    <span className="text-xs text-white/50">{tabCounts[activeTab]} всего</span>
                   </div>
 
                   {swapsPage.length === 0 ? (
@@ -559,7 +561,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                                       imageClassName="transition-transform duration-500 group-hover:scale-105"
                                     />
                                   </div>
-                                  <span className="mt-1.5 block truncate text-[10px] text-white/32">Ваше</span>
+                                  <span className="mt-1.5 block truncate text-xs text-white/54">Ваше</span>
                                 </div>
                                 <ArrowLeftRight className="h-4 w-4 justify-self-center text-teal-200/70" />
                                 <div>
@@ -571,13 +573,13 @@ export default async function ExchangePage({ searchParams }: Props) {
                                       imageClassName="transition-transform duration-500 group-hover:scale-105"
                                     />
                                   </div>
-                                  <span className="mt-1.5 block truncate text-[10px] text-white/32">Предлагают</span>
+                                  <span className="mt-1.5 block truncate text-xs text-white/54">Взамен</span>
                                 </div>
                               </div>
 
                               <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <span className="flex items-center gap-1.5 text-xs text-white/42">
+                                  <span className="flex items-center gap-1.5 text-xs text-white/60">
                                     <UserRound className="h-3.5 w-3.5" />
                                     {partner?.name ?? "Участник Menarium"}
                                   </span>
@@ -588,7 +590,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                                   <span className="mx-2 text-teal-200/55">↔</span>
                                   {theirItem.title}
                                 </h3>
-                                <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-white/38">
+                                <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-white/60">
                                   {presentation.description}
                                 </p>
                               </div>
@@ -642,7 +644,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                             <h2 className="truncate font-semibold">
                               {selectedPartner?.name ?? "Участник Menarium"}
                             </h2>
-                            <p className="mt-0.5 text-xs text-white/35">Обсуждение обмена</p>
+                            <p className="mt-0.5 text-xs text-white/56">Обсуждение обмена</p>
                           </div>
                         </div>
                         <Badge variant={selectedStatus.variant} className="shrink-0">
@@ -659,7 +661,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                               sizes="160px"
                             />
                           </div>
-                          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/30">Вы отдаёте</p>
+                          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/56">Вы отдаёте</p>
                           <p className="mt-1 line-clamp-2 text-xs font-medium leading-4 text-white/75">{selectedYourItem.title}</p>
                         </div>
                         <ArrowLeftRight className="h-4 w-4 self-center justify-self-center text-teal-200/75" />
@@ -671,7 +673,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                               sizes="160px"
                             />
                           </div>
-                          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/30">Вы получаете</p>
+                          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/56">Вы получаете</p>
                           <p className="mt-1 line-clamp-2 text-xs font-medium leading-4 text-white/75">{selectedTheirItem.title}</p>
                         </div>
                       </div>
@@ -681,7 +683,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                       </p>
 
                       {selectedSwap.status === SwapStatus.PENDING ? (
-                        <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-white/38">
+                        <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-white/58">
                           <Clock3 className="h-3.5 w-3.5 text-amber-200/65" />
                           Ответ до {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(selectedSwap.expiresAt)}
                         </p>
@@ -747,15 +749,15 @@ export default async function ExchangePage({ searchParams }: Props) {
                         nextCursor={selectedMessagePage.nextCursor}
                       />
 
-                      <a href="#exchange-list" className="mt-4 block text-center text-xs text-white/35 hover:text-white/65 lg:hidden">
+                      <a href="#exchange-list" className="mt-4 block text-center text-xs text-white/56 hover:text-white/78 lg:hidden">
                         Вернуться к списку ↑
                       </a>
                     </>
                   ) : (
                     <div className="py-12 text-center">
-                      <MessageCircle className="mx-auto h-8 w-8 text-white/20" />
+                      <MessageCircle className="mx-auto h-8 w-8 text-white/38" />
                       <h2 className="mt-4 font-semibold">Выбери обмен</h2>
-                      <p className="mt-2 text-sm text-white/40">Здесь появятся детали, действия и чат.</p>
+                      <p className="mt-2 text-sm text-white/60">Здесь появятся детали, действия и чат.</p>
                     </div>
                   )}
                 </GlassCard>

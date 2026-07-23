@@ -40,13 +40,16 @@ export default async function SwipePage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
+      <div className="page-enter min-h-screen px-4 pb-52 pt-20 sm:px-6 md:pb-32 md:pt-28">
         <div className="mx-auto max-w-2xl">
-          <div className="mb-8 text-center">
-            <h1 className="mb-4 text-4xl font-bold md:text-5xl">
+          <div className="mb-4 text-center md:mb-8">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/72 md:hidden">
+              Быстрый поиск
+            </p>
+            <h1 className="mb-2 text-3xl font-bold tracking-[-0.04em] md:mb-4 md:text-5xl">
               <span className="gradient-text">Свайп</span> обмена
             </h1>
-            <p className="text-white/60">
+            <p className="mx-auto max-w-xl text-sm text-white/66 md:text-base">
               Тяни влево — пропустить, вправо — предложить обмен. Или используй кнопки ниже.
             </p>
           </div>

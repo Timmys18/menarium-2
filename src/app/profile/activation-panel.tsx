@@ -49,7 +49,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
               <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
                 {nextAction.title}
               </h2>
-              <p className="mt-1.5 max-w-2xl text-sm leading-5 text-white/48">{nextAction.description}</p>
+              <p className="mt-1.5 max-w-2xl text-sm leading-5 text-white/64">{nextAction.description}</p>
             </div>
           </div>
           <MenariumLinkButton href={nextAction.href} className="shrink-0">
@@ -62,14 +62,14 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
   }
 
   return (
-    <GlassCard className="relative overflow-hidden p-6 sm:p-8">
+    <GlassCard className="relative overflow-hidden p-5 sm:p-8">
       <div
         className={cn(
           "pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full blur-3xl",
           nextAction.kind === "urgent" ? "bg-amber-400/10" : "bg-teal-400/10",
         )}
       />
-      <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+      <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center lg:gap-8">
         <div>
           <div
             className={cn(
@@ -81,19 +81,19 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
             {nextAction.eyebrow}
           </div>
           <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{nextAction.title}</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 sm:text-base">{nextAction.description}</p>
-          <MenariumLinkButton href={nextAction.href} className="mt-6 w-full sm:w-auto">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/66 sm:mt-3 sm:text-base">{nextAction.description}</p>
+          <MenariumLinkButton href={nextAction.href} className="mt-4 w-full sm:mt-6 sm:w-auto">
             {nextAction.label}
             <ArrowRight className="h-4 w-4" />
           </MenariumLinkButton>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-black/15 p-5">
+        <div className="rounded-[20px] border border-white/10 bg-black/15 p-4 sm:rounded-3xl sm:p-5">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-white/35">Путь до первого обмена</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-white/54">Путь до первого обмена</p>
               <p className="mt-2 font-display text-2xl font-semibold">
-                {activation.completedCount} <span className="text-base text-white/35">из {activation.steps.length}</span>
+                {activation.completedCount} <span className="text-base text-white/52">из {activation.steps.length}</span>
               </p>
             </div>
             <span className="text-sm font-semibold text-teal-200">{activation.progress}%</span>
@@ -115,7 +115,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
       </div>
 
       {!activation.complete ? (
-        <ol className="relative mt-8 grid gap-3 md:grid-cols-5">
+        <ol className="relative mt-6 grid grid-cols-5 gap-1.5 sm:mt-8 md:gap-3">
           {activation.steps.map((step, index) => {
             const Icon = stepIcons[step.id];
             const current = activation.nextStep?.id === step.id;
@@ -123,31 +123,32 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
               <li
                 key={step.id}
                 className={cn(
-                  "rounded-2xl border p-4 transition-colors",
+                  "rounded-[13px] border p-2 transition-colors md:rounded-2xl md:p-4",
                   step.done && "border-teal-400/20 bg-teal-400/[0.06]",
                   current && "border-white/20 bg-white/[0.06]",
                   !step.done && !current && "border-white/[0.07] bg-white/[0.02]",
                 )}
               >
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-center gap-2 md:justify-between">
                   <span
                     className={cn(
-                      "flex h-9 w-9 items-center justify-center rounded-xl",
+                      "flex h-8 w-8 items-center justify-center rounded-[10px] md:h-9 md:w-9 md:rounded-xl",
                       step.done ? "bg-teal-400 text-[#071311]" : "bg-white/10 text-white/55",
                     )}
                   >
                     <Icon className="h-4 w-4" />
                   </span>
                   {current ? (
-                    <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                    <span className="hidden rounded-full bg-white/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/70 md:inline-flex">
                       Сейчас
                     </span>
                   ) : (
-                    <span className="text-xs text-white/25">{index + 1}</span>
+                    <span className="hidden text-xs text-white/45 md:inline">{index + 1}</span>
                   )}
                 </div>
-                <p className={cn("mt-3 text-sm font-medium", step.done ? "text-white/50" : "text-white")}>{step.label}</p>
-                <p className="mt-1 text-xs leading-5 text-white/35">{step.description}</p>
+                <p className={cn("mt-3 hidden text-sm font-medium md:block", step.done ? "text-white/62" : "text-white")}>{step.label}</p>
+                <p className="mt-1 hidden text-xs leading-5 text-white/52 md:block">{step.description}</p>
+                <span className="sr-only">{index + 1}. {step.label}. {step.description}</span>
               </li>
             );
           })}

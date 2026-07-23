@@ -48,7 +48,7 @@ const typeOptions = [
 function filterLinkClass(active: boolean, compact = false) {
   return cn(
     "flex items-center justify-between gap-2 rounded-[13px] text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65",
-    compact ? "shrink-0 px-3.5 py-2.5" : "w-full px-3 py-2.5",
+    compact ? "min-w-0 justify-center px-2.5 py-2.5" : "w-full px-3 py-2.5",
     active
       ? "border border-teal-300/18 bg-teal-300/[0.085] text-white"
       : "border border-transparent text-white/52 hover:bg-white/[0.045] hover:text-white",
@@ -94,7 +94,7 @@ export default async function CatalogPage({ searchParams }: Props) {
   return (
     <AppShell>
       {preview ? <PreviewUiNotice /> : null}
-      <div className={`min-h-screen px-4 pb-32 sm:px-6 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
+      <div className={`page-enter min-h-screen px-4 pb-32 sm:px-6 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <div className="mx-auto max-w-[1600px]">
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -102,7 +102,7 @@ export default async function CatalogPage({ searchParams }: Props) {
               <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
                 Найди встречный <span className="gradient-text">вариант</span>
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/48 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/62 sm:text-base">
                 Ищи по названию, городу и категории. Каждый результат уже открыт к обмену.
               </p>
             </div>
@@ -146,7 +146,7 @@ export default async function CatalogPage({ searchParams }: Props) {
           </form>
 
           <div className="mb-6 space-y-3 lg:hidden">
-            <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+            <div className="grid grid-cols-3 gap-1.5 rounded-[18px] border border-white/[0.075] bg-white/[0.025] p-1.5">
               {sortOptions.map((item) => {
                 const Icon = item.icon;
                 const active = sort === item.id;
@@ -156,10 +156,10 @@ export default async function CatalogPage({ searchParams }: Props) {
                     href={buildCatalogHref({ ...catalogBase, sort: item.id })}
                     scroll={false}
                     aria-current={active ? "page" : undefined}
-                    className={filterLinkClass(active, true)}
+                    className={cn(filterLinkClass(active, true), "flex-col gap-1 text-xs")}
                   >
-                    <Icon className={cn("h-4 w-4", active ? "text-teal-200" : "text-white/35")} />
-                    {item.label}
+                    <Icon className={cn("h-3.5 w-3.5", active ? "text-teal-200" : "text-white/48")} />
+                    <span className="truncate">{item.label}</span>
                   </Link>
                 );
               })}

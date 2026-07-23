@@ -51,20 +51,22 @@ export function ExchangeProposal({
     const returnTo = encodeURIComponent(`/item/${receiverItemId}`);
 
     return (
-      <MenariumLinkButton href={`/new?returnTo=${returnTo}`} className="flex-1">
-        Создать объявление и продолжить
-      </MenariumLinkButton>
+      <div id="exchange-proposal" className="flex-1 scroll-mt-28">
+        <MenariumLinkButton href={`/new?returnTo=${returnTo}`} className="w-full">
+          Создать объявление и продолжить
+        </MenariumLinkButton>
+      </div>
     );
   }
 
   return (
-    <div className="flex-1 space-y-3 rounded-[18px] border border-teal-300/[0.12] bg-teal-300/[0.035] p-3.5">
+    <div id="exchange-proposal" className="flex-1 scroll-mt-28 space-y-3 rounded-[18px] border border-teal-300/[0.16] bg-teal-300/[0.045] p-3.5">
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-teal-100/60">
+          <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-teal-100/76">
             Вы отдаёте
           </label>
-          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-white/34">
+          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-white/56">
             Получаете: {receiverTitle}
           </p>
         </div>

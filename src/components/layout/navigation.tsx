@@ -191,9 +191,9 @@ export function Navigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex min-h-[54px] min-w-0 flex-col items-center justify-end gap-1 rounded-[18px] px-0.5 pb-1.5 text-[10px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
-                      active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/48",
-                      item.primary && "text-white/78",
+                      "relative flex min-h-[54px] min-w-0 flex-col items-center justify-end gap-1 rounded-[18px] px-0.5 pb-1.5 text-[11px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                      active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/62",
+                      item.primary && "text-white/86",
                     )}
                   >
                     <span
@@ -203,7 +203,7 @@ export function Navigation({
                           ? "-mt-5 h-12 w-12 rounded-[17px] border border-white/20 bg-gradient-to-br from-blue-500 to-teal-400 text-white shadow-[0_12px_30px_rgba(77,141,255,0.34)] ring-4 ring-[#080c13]"
                           : active
                             ? "h-8 w-10 rounded-xl bg-white/[0.1] text-teal-200"
-                            : "h-8 w-10 rounded-xl text-white/48",
+                            : "h-8 w-10 rounded-xl text-white/62",
                       )}
                     >
                       <Icon className={cn(item.primary ? "h-5.5 w-5.5" : "h-5 w-5")} />

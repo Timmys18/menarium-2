@@ -231,7 +231,7 @@ export function ChatConversation({
                   <time
                     dateTime={message.createdAt}
                     suppressHydrationWarning
-                    className="mt-1.5 block text-[11px] text-white/35"
+                    className="mt-1.5 block text-[11px] text-white/52"
                   >
                     {formatMessageTime(message.createdAt)}
                   </time>
@@ -240,7 +240,7 @@ export function ChatConversation({
             );
           })
         ) : (
-          <div className="rounded-2xl border border-white/[0.06] bg-white/5 p-4 text-sm text-white/55">
+          <div className="rounded-2xl border border-white/[0.07] bg-white/5 p-4 text-sm text-white/64">
             {emptyMessage}
           </div>
         )}
@@ -261,7 +261,7 @@ export function ChatConversation({
             maxLength={2000}
             rows={1}
             aria-label="Текст сообщения"
-            className="max-h-32 min-h-11 min-w-0 flex-1 resize-y py-2.5 text-sm disabled:opacity-50"
+            className="max-h-32 min-h-11 min-w-0 flex-1 resize-y py-2.5 text-sm disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white/[0.025] disabled:text-white/55 disabled:placeholder:text-white/48"
             placeholder={canWrite ? placeholder : disabledPlaceholder}
           />
           <MenariumButton
@@ -276,7 +276,7 @@ export function ChatConversation({
         <div className="flex min-h-5 items-center justify-between gap-3 text-xs">
           {error ? <p role="alert" className="text-red-300">{error}</p> : <span />}
           {target ? (
-            <span className="flex shrink-0 items-center gap-1.5 text-white/40">
+            <span className="flex shrink-0 items-center gap-1.5 text-white/56">
               <span
                 aria-hidden="true"
                 className={`h-1.5 w-1.5 rounded-full ${connected ? "bg-teal-400" : "bg-amber-400"}`}

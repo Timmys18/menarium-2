@@ -98,7 +98,7 @@ export function ExchangeActionPanel({
         <h3 id="exchange-actions-title" className="text-sm font-semibold text-white/88">
           {actionTitle}
         </h3>
-        <p className="mt-1 text-xs leading-5 text-white/38">{actionDescription}</p>
+        <p className="mt-1 text-xs leading-5 text-white/60">{actionDescription}</p>
       </div>
       {waitingForPartner ? (
         <p aria-live="polite" className="rounded-xl border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm text-teal-200">
@@ -112,7 +112,7 @@ export function ExchangeActionPanel({
             Принять
           </MenariumButton>
           <MenariumButton
-            className="w-full text-red-200/60 hover:bg-red-400/[0.07] hover:text-red-200"
+            className="w-full text-red-200/76 hover:bg-red-400/[0.07] hover:text-red-100"
             size="sm"
             variant="ghost"
             onClick={() => setConfirmAction("decline")}
@@ -128,7 +128,7 @@ export function ExchangeActionPanel({
         <MenariumButton
           size="sm"
           variant="ghost"
-          className="w-full text-red-200/60 hover:bg-red-400/[0.07] hover:text-red-200"
+          className="w-full text-red-200/76 hover:bg-red-400/[0.07] hover:text-red-100"
           onClick={() => setConfirmAction("revoke")}
           disabled={Boolean(pendingAction)}
         >
@@ -155,7 +155,7 @@ export function ExchangeActionPanel({
           <MenariumButton
             size="sm"
             variant="ghost"
-            className="w-full text-red-200/60 hover:bg-red-400/[0.07] hover:text-red-200"
+            className="w-full text-red-200/76 hover:bg-red-400/[0.07] hover:text-red-100"
             onClick={() => setConfirmAction("cancel")}
             disabled={Boolean(pendingAction)}
           >
@@ -235,7 +235,7 @@ export function ExchangeDealPanel({
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-white/88">Чат сделки</h3>
-          <p className="mt-1 text-xs text-white/35">
+          <p className="mt-1 text-xs text-white/58">
             {snapshot.status === "ACCEPTED" ? "Согласуйте место, время и способ передачи." : "История договорённостей хранится здесь."}
           </p>
         </div>

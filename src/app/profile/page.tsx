@@ -338,7 +338,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
   return (
     <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
+      <div className="page-enter min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-[1360px] space-y-5">
           {!user ? (
             <EmptyState
@@ -355,16 +355,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <ProfileNotice kind="welcome" />
               ) : null}
 
-              {!user.emailVerified ? (
-                <EmailVerifyBanner
-                  email={user.email}
-                  initialDeliveryState={initialEmailDeliveryState}
-                />
-              ) : null}
-
-              <GlassCard className="overflow-hidden border border-white/8 p-5 sm:p-6">
-                <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
-                  <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+              <GlassCard className="overflow-hidden border border-white/8 p-4 sm:p-6">
+                <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+                  <div className="flex min-w-0 items-center gap-3.5 sm:gap-5">
                     <div className="relative shrink-0">
                       {user.image ? (
                         <Image
@@ -372,10 +365,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                           alt={user.name ?? "Аватар"}
                           width={72}
                           height={72}
-                          className="h-16 w-16 rounded-[20px] object-cover shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px]"
+                          className="h-14 w-14 rounded-[18px] object-cover shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px] sm:rounded-[20px]"
                         />
                       ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-blue-500 to-teal-400 shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px]">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-blue-500 to-teal-400 shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px] sm:rounded-[20px]">
                           <span className="text-xl font-bold">{getInitials(user.name, user.email)}</span>
                         </div>
                       )}
@@ -383,7 +376,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     </div>
 
                     <div className="min-w-0">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.17em] text-white/52">
                         Личный кабинет
                       </p>
                       <h1 className="mt-1 truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -402,7 +395,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                           <MapPin className="h-3 w-3" />
                           {user.city ?? "Город не указан"}
                         </Badge>
-                        <span className="text-xs text-white/30">
+                        <span className="text-xs text-white/50">
                           С нами с {new Intl.DateTimeFormat("ru-RU", {
                             month: "long",
                             year: "numeric",
@@ -412,8 +405,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <MenariumLinkButton href="/favorites" variant="ghost" size="sm">
+                  <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                    <MenariumLinkButton href="/favorites" variant="ghost" size="sm" className="w-full sm:w-auto">
                       <Heart className="h-4 w-4" />
                       Избранное
                       {favoriteCount > 0 ? (
@@ -422,21 +415,19 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                         </span>
                       ) : null}
                     </MenariumLinkButton>
-                    <MenariumLinkButton href={`/user/${user.id}`} variant="ghost" size="sm">
+                    <MenariumLinkButton href={`/user/${user.id}`} variant="ghost" size="sm" className="w-full sm:w-auto">
                       <Eye className="h-4 w-4" />
                       Публичный профиль
                     </MenariumLinkButton>
-                    <MenariumLinkButton href="/profile/edit" variant="secondary" size="sm">
+                    <MenariumLinkButton href="/profile/edit" variant="secondary" size="sm" className="w-full sm:w-auto">
                       Настройки
                     </MenariumLinkButton>
-                    <SignOutButton />
+                    <SignOutButton className="w-full sm:w-auto" />
                   </div>
                 </div>
               </GlassCard>
 
-              {activation ? <ActivationPanel activation={activation} /> : null}
-
-              <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Сводка профиля">
+              <section className="reveal-grid grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Сводка профиля">
                 {metrics.map((metric) => {
                   const Icon = metric.icon;
                   return (
@@ -459,12 +450,21 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                           {metric.urgent ? <span className="h-2 w-2 rounded-full bg-amber-300" /> : null}
                         </div>
                         <p className="mt-4 text-2xl font-semibold sm:text-3xl">{metric.value}</p>
-                        <p className="mt-1 text-xs text-white/40">{metric.label}</p>
+                        <p className="mt-1 text-xs text-white/58">{metric.label}</p>
                       </GlassCard>
                     </Link>
                   );
                 })}
               </section>
+
+              {!user.emailVerified ? (
+                <EmailVerifyBanner
+                  email={user.email}
+                  initialDeliveryState={initialEmailDeliveryState}
+                />
+              ) : activation ? (
+                <ActivationPanel activation={activation} />
+              ) : null}
 
               <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
                 <div className="space-y-5">

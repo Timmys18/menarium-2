@@ -13,7 +13,7 @@ export function AuthShell({
   children: ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-dvh items-center px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+    <div className="page-enter relative flex min-h-dvh items-center px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-[10%] top-0 h-56 rounded-full bg-blue-500/10 blur-[120px]"
@@ -42,7 +42,7 @@ export function AuthShell({
             <h2 className="mt-5 max-w-xl text-5xl font-semibold leading-[1.02] tracking-[-0.055em] xl:text-6xl">
               Вещи снова обретают <span className="gradient-text">ценность</span>
             </h2>
-            <p className="mt-6 max-w-lg text-base leading-7 text-white/52 xl:text-lg">
+            <p className="mt-6 max-w-lg text-base leading-7 text-white/66 xl:text-lg">
               Находи встречный интерес, договаривайся в чате и веди обмен по понятным статусам — всё в одном месте.
             </p>
 
@@ -57,7 +57,7 @@ export function AuthShell({
                   <div key={step.number} className="rounded-[20px] border border-white/8 bg-white/[0.04] p-4 backdrop-blur-xl">
                     <div className="flex items-center justify-between">
                       <Icon className="h-5 w-5 text-teal-200" />
-                      <span className="font-display text-xs font-semibold text-white/25">{step.number}</span>
+                      <span className="font-display text-xs font-semibold text-white/48">{step.number}</span>
                     </div>
                     <p className="mt-5 text-sm font-medium text-white/76">{step.label}</p>
                   </div>
@@ -66,7 +66,7 @@ export function AuthShell({
             </div>
           </div>
 
-          <p className="relative flex items-center gap-2 text-sm text-white/36">
+          <p className="relative flex items-center gap-2 text-sm text-white/56">
             <ShieldCheck className="h-4 w-4 text-teal-200/75" />
             Личные данные и история сделок доступны только вам.
           </p>
@@ -86,7 +86,7 @@ export function AuthShell({
             </Link>
             <Link
               href="/"
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm text-white/48 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm text-white/64 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
             >
               <ArrowLeft className="h-4 w-4" />
               На главную
@@ -98,7 +98,7 @@ export function AuthShell({
               Личный доступ
             </p>
             <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{title}</h1>
-            <p className="mt-3 max-w-md text-sm leading-6 text-white/52 sm:text-base">{subtitle}</p>
+            <p className="mt-3 max-w-md text-sm leading-6 text-white/66 sm:text-base">{subtitle}</p>
           </div>
 
           <GlassCard className="relative overflow-hidden rounded-[26px] p-5 sm:rounded-[30px] sm:p-7">
@@ -106,12 +106,12 @@ export function AuthShell({
             {children}
           </GlassCard>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/32">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/54">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-teal-200/65" />
               Защищённое соединение
             </span>
-            <Link href="/catalog" className="rounded-lg text-white/42 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
+            <Link href="/catalog" className="rounded-lg text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
               Сначала посмотреть каталог
             </Link>
           </div>
