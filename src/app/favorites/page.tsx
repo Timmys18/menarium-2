@@ -9,8 +9,11 @@ import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import {
   buildInterestProfile,
+  getRecommendationReasons,
+  getTopDesiredLabels,
   getTopInterestLabels,
   scoreRecommendation,
+  selectDiverseRecommendations,
 } from "@/features/favorites/recommendations";
 import {
   FavoriteCount,
@@ -85,13 +88,20 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
       where: favoriteWhere,
       select: {
         itemId: true,
-        item: { select: { category: true, type: true, city: true } },
+        item: { select: { title: true, category: true, type: true, city: true } },
       },
       orderBy: { createdAt: "desc" },
     }),
     prisma.item.findMany({
       where: { ownerId: userId, status: ItemStatus.ACTIVE },
-      select: { category: true, type: true, city: true },
+      select: {
+        title: true,
+        category: true,
+        type: true,
+        city: true,
+        desired: true,
+        acceptsAnything: true,
+      },
       orderBy: { updatedAt: "desc" },
       take: 100,
     }),
@@ -113,8 +123,16 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
 
   const recentFavoriteSignals = preferenceFavorites.slice(0, 250);
   const interestProfile = buildInterestProfile([
-    ...recentFavoriteSignals.map(({ item }) => ({ ...item, weight: 2 })),
-    ...ownItems.map((item) => ({ ...item, weight: 1 })),
+    ...recentFavoriteSignals.map(({ item }) => ({
+      ...item,
+      source: "favorite" as const,
+      weight: 2,
+    })),
+    ...ownItems.map((item) => ({
+      ...item,
+      source: "owned" as const,
+      weight: 1,
+    })),
   ]);
   const favoriteIds = preferenceFavorites.map((favorite) => favorite.itemId);
   const blockedOwnerIds = blockRows.map((block) =>
@@ -142,6 +160,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
         .concat(ownItems.map((item) => item.city)),
     ),
   ];
+  const topDesiredTerms = getTopDesiredLabels(interestProfile, 6);
   const recommendationBase: Prisma.ItemWhereInput = {
     status: ItemStatus.ACTIVE,
     owner: { status: UserStatus.ACTIVE },
@@ -151,6 +170,10 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
   const focusedPreferenceFilters: Prisma.ItemWhereInput[] = [
     ...(preferredCategories.length > 0 ? [{ category: { in: preferredCategories } }] : []),
     ...(preferredCities.length > 0 ? [{ city: { in: preferredCities } }] : []),
+    ...topDesiredTerms.flatMap((term) => [
+      { title: { contains: term, mode: "insensitive" as const } },
+      { description: { contains: term, mode: "insensitive" as const } },
+    ]),
   ];
   const preferenceFilters: Prisma.ItemWhereInput[] =
     focusedPreferenceFilters.length > 0
@@ -165,7 +188,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
           where: { ...recommendationBase, OR: preferenceFilters },
           include: itemInclude,
           orderBy: [{ favorites: { _count: "desc" } }, { updatedAt: "desc" }],
-          take: 48,
+          take: 72,
         })
       : [];
   const fallbackCandidates =
@@ -179,23 +202,24 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
           },
           include: itemInclude,
           orderBy: [{ favorites: { _count: "desc" } }, { createdAt: "desc" }],
-          take: 24,
+          take: 36,
         })
       : [];
   const recommendationMap = new Map(
     [...matchedCandidates, ...fallbackCandidates].map((item) => [item.id, item]),
   );
-  const recommendations = [...recommendationMap.values()]
-    .sort((left, right) => {
+  const rankedRecommendations = [...recommendationMap.values()].sort((left, right) => {
       const scoreDifference =
         scoreRecommendation(right, interestProfile) - scoreRecommendation(left, interestProfile);
       if (scoreDifference !== 0) return scoreDifference;
       const popularityDifference = right._count.favorites - left._count.favorites;
       if (popularityDifference !== 0) return popularityDifference;
       return right.updatedAt.getTime() - left.updatedAt.getTime();
-    })
-    .slice(0, 6);
+    });
+  const recommendations = selectDiverseRecommendations(rankedRecommendations, 6);
   const topInterests = getTopInterestLabels(interestProfile);
+  const preferenceLabels = [...new Set([...getTopDesiredLabels(interestProfile), ...topInterests])]
+    .slice(0, 4);
   const currentHref = favoritesHref(page);
 
   return (
@@ -315,9 +339,9 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
                         : "Пока знакомимся с вашими интересами — показываем свежие и популярные варианты."}
                     </p>
                   </div>
-                  {topInterests.length > 0 ? (
+                  {preferenceLabels.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                      {topInterests.map((interest) => (
+                      {preferenceLabels.map((interest) => (
                         <span key={interest} className="rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-xs text-white/58">
                           {interest}
                         </span>
@@ -329,12 +353,19 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {recommendations.map((item) => {
                   const card = toItemCardView(serializeItem(item), item._count.favorites);
+                  const reasons = getRecommendationReasons(item, interestProfile);
                   return (
                     <ItemCard
                       key={item.id}
                       {...card}
                       returnHref="/favorites"
                       canFavorite
+                      recommendationReason={
+                        reasons[0] ??
+                        (item._count.favorites > 0
+                          ? "Популярно у пользователей Menarium"
+                          : "Свежий вариант для обмена")
+                      }
                     />
                   );
                 })}

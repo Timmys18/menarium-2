@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2, Loader2, LockKeyhole, Star } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
+import { MenariumDialog } from "@/components/menarium/dialog";
 import { MenariumTextarea } from "@/components/menarium/input";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,7 @@ export function ExchangeReviewPanel({
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [pending, setPending] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function submitReview() {
@@ -69,6 +71,7 @@ export function ExchangeReviewPanel({
         throw new Error(body.error ?? "Не удалось сохранить отзыв");
       }
       setReview(body.data);
+      setConfirmOpen(false);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Не удалось сохранить отзыв");
     } finally {
@@ -152,14 +155,58 @@ export function ExchangeReviewPanel({
             type="button"
             size="sm"
             className="mt-3 w-full"
-            onClick={() => void submitReview()}
+            onClick={() => setConfirmOpen(true)}
             disabled={!rating || pending}
           >
-            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Star className="h-4 w-4" />}
-            Опубликовать отзыв
+            <Star className="h-4 w-4" />
+            Проверить и отправить
           </MenariumButton>
         </div>
       )}
+
+      <MenariumDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Проверить отзыв"
+        description="После отправки оценку и текст нельзя изменить. Партнёр не увидит их до своей оценки или окончания слепого периода."
+        footer={
+          <>
+            <MenariumButton
+              variant="secondary"
+              onClick={() => setConfirmOpen(false)}
+              disabled={pending}
+            >
+              Вернуться
+            </MenariumButton>
+            <MenariumButton onClick={() => void submitReview()} disabled={pending}>
+              {pending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Star className="h-4 w-4" />
+              )}
+              Отправить отзыв
+            </MenariumButton>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="rounded-[16px] border border-amber-300/12 bg-amber-300/[0.045] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <Stars rating={rating} label={`Ваша оценка: ${rating} из 5`} />
+              <span className="text-sm font-medium text-amber-100/70">
+                {ratingLabels[rating]}
+              </span>
+            </div>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/60">
+              {comment.trim() || "Без дополнительного комментария."}
+            </p>
+          </div>
+          <p className="flex items-start gap-2 text-xs leading-5 text-white/40">
+            <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-200/65" />
+            Слепая публикация не позволяет второй стороне подстроить свою оценку под вашу.
+          </p>
+        </div>
+      </MenariumDialog>
 
       {receivedReview ? (
         <div className="rounded-[15px] border border-teal-300/12 bg-teal-300/[0.04] p-3.5">

@@ -10,14 +10,24 @@ import { GlassCard } from "@/components/menarium/card";
 import { ItemCard } from "@/components/menarium/item-card";
 import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
+import { buildReputationSummary } from "@/features/reputation/summary";
 import { prisma } from "@/lib/prisma";
-import { loginHref } from "@/lib/utils";
+import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { TrustActions } from "@/components/trust/trust-actions";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ reviews?: string | string[] }>;
+};
+
+const REVIEWS_PAGE_SIZE = 8;
+
+function reviewsHref(userId: string, page: number) {
+  return page > 1 ? `/user/${userId}?reviews=${page}#reviews` : `/user/${userId}#reviews`;
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -55,8 +65,9 @@ function ReviewStars({ rating }: { rating: number }) {
   );
 }
 
-export default async function PublicUserPage({ params }: Props) {
+export default async function PublicUserPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const query = await searchParams;
   const viewerId = await getCurrentUserId();
 
   const user = await prisma.user.findFirst({
@@ -74,7 +85,11 @@ export default async function PublicUserPage({ params }: Props) {
   if (!user) notFound();
 
   const now = new Date();
-  const [items, completedSwaps, block, reviewSummary, reviews] = await Promise.all([
+  const requestedReviewsPage = Math.max(
+    1,
+    Math.floor(Number(Array.isArray(query.reviews) ? query.reviews[0] : query.reviews) || 1),
+  );
+  const [items, completedSwaps, block, ratingGroups] = await Promise.all([
     prisma.item.findMany({
       where: { ownerId: id, status: ItemStatus.ACTIVE },
       include: {
@@ -97,11 +112,23 @@ export default async function PublicUserPage({ params }: Props) {
           select: { blockerId: true },
         })
       : null,
-    prisma.review.aggregate({
+    prisma.review.groupBy({
+      by: ["rating"],
       where: { revieweeId: id, visibleAt: { lte: now } },
-      _avg: { rating: true },
       _count: { _all: true },
     }),
+  ]);
+
+  const reputation = buildReputationSummary(
+    completedSwaps,
+    ratingGroups.map((group) => ({ rating: group.rating, count: group._count._all })),
+  );
+  const totalReviewPages = Math.max(
+    1,
+    Math.ceil(reputation.reviewCount / REVIEWS_PAGE_SIZE),
+  );
+  const reviewsPage = Math.min(requestedReviewsPage, totalReviewPages);
+  const [reviews, favoriteRows] = await Promise.all([
     prisma.review.findMany({
       where: { revieweeId: id, visibleAt: { lte: now } },
       select: {
@@ -112,22 +139,21 @@ export default async function PublicUserPage({ params }: Props) {
         reviewer: { select: { id: true, name: true, image: true } },
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      take: 12,
+      skip: (reviewsPage - 1) * REVIEWS_PAGE_SIZE,
+      take: REVIEWS_PAGE_SIZE,
     }),
-  ]);
-
-  const favoriteRows =
     viewerId && viewerId !== id && items.length > 0
-      ? await prisma.favorite.findMany({
+      ? prisma.favorite.findMany({
           where: { userId: viewerId, itemId: { in: items.map((item) => item.id) } },
           select: { itemId: true },
         })
-      : [];
+      : Promise.resolve([]),
+  ]);
   const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
   const cards = items.map((item) => toItemCardView(serializeItem(item), item._count.favorites));
   const isSelf = viewerId === id;
-  const reviewCount = reviewSummary._count._all;
-  const averageRating = reviewSummary._avg.rating;
+  const reviewCount = reputation.reviewCount;
+  const averageRating = reputation.averageRating;
 
   return (
     <AppShell>
@@ -159,7 +185,7 @@ export default async function PublicUserPage({ params }: Props) {
                       {averageRating.toFixed(1)} · {reviewCount} отзывов
                     </Badge>
                   ) : (
-                    <Badge>Репутация формируется</Badge>
+                    <Badge>{reputation.label}</Badge>
                   )}
                   <Badge>{cards.length} активных объявлений</Badge>
                   {user.emailVerified ? (
@@ -194,8 +220,96 @@ export default async function PublicUserPage({ params }: Props) {
             </div>
           </GlassCard>
 
+          <section
+            id="reputation"
+            aria-labelledby="reputation-title"
+            className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]"
+          >
+            <GlassCard className="overflow-hidden border border-amber-300/12 bg-gradient-to-br from-amber-300/[0.075] via-white/[0.025] to-teal-300/[0.045] p-6 sm:p-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.17em] text-amber-100/55">
+                Подтверждённая история
+              </p>
+              <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className="flex items-end gap-3">
+                    <p className="text-5xl font-semibold tracking-[-0.06em] text-white">
+                      {averageRating?.toFixed(1) ?? "—"}
+                    </p>
+                    <p className="pb-1.5 text-sm text-white/38">
+                      {reviewCount > 0 ? "из 5" : "нет оценок"}
+                    </p>
+                  </div>
+                  <h2 id="reputation-title" className="mt-4 text-xl font-semibold">
+                    {reputation.label}
+                  </h2>
+                  <p className="mt-2 max-w-md text-sm leading-5 text-white/48">
+                    {reputation.description}
+                  </p>
+                </div>
+                {reviewCount > 0 ? (
+                  <ReviewStars rating={Math.round(averageRating ?? 0)} />
+                ) : (
+                  <ShieldCheck className="h-8 w-8 text-white/22" />
+                )}
+              </div>
+              <div className="mt-6 grid grid-cols-3 gap-2 border-t border-white/8 pt-5">
+                {[
+                  ["Обменов", completedSwaps],
+                  ["Отзывов", reviewCount],
+                  ["Оценок 4–5", reputation.positivePercentage !== null ? `${reputation.positivePercentage}%` : "—"],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-[15px] border border-white/7 bg-black/10 px-3 py-3">
+                    <p className="text-lg font-semibold text-white/88">{value}</p>
+                    <p className="mt-0.5 text-[11px] text-white/35">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+
+            <GlassCard className="border border-white/8 p-6 sm:p-7">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-white/32">
+                    Распределение оценок
+                  </p>
+                  <p className="mt-2 text-sm leading-5 text-white/48">
+                    Видны все опубликованные отзывы, а не только лучшие.
+                  </p>
+                </div>
+                <ShieldCheck className="h-5 w-5 shrink-0 text-teal-200/65" />
+              </div>
+              <div className="mt-5 space-y-2.5">
+                {([5, 4, 3, 2, 1] as const).map((rating) => {
+                  const count = reputation.distribution[rating];
+                  const width = reviewCount > 0 ? (count / reviewCount) * 100 : 0;
+                  return (
+                    <div key={rating} className="grid grid-cols-[28px_1fr_28px] items-center gap-3">
+                      <span className="text-xs text-white/48">{rating}</span>
+                      <span className="h-2 overflow-hidden rounded-full bg-white/[0.055]">
+                        <span
+                          className={cn(
+                            "block h-full rounded-full",
+                            rating >= 4
+                              ? "bg-gradient-to-r from-amber-300 to-teal-300"
+                              : "bg-white/25",
+                          )}
+                          style={{ width: `${width}%` }}
+                        />
+                      </span>
+                      <span className="text-right text-xs text-white/32">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="mt-5 border-t border-white/7 pt-4 text-xs leading-5 text-white/34">
+                Оценку можно оставить только после обмена, подтверждённого обеими сторонами.
+                Отзывы публикуются после ответа партнёра или окончания слепого периода.
+              </p>
+            </GlassCard>
+          </section>
+
           {reviews.length > 0 ? (
-            <section aria-labelledby="public-reviews-title">
+            <section id="reviews" aria-labelledby="public-reviews-title" className="scroll-mt-24">
               <div className="mb-4 flex items-end justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200/60">
@@ -245,6 +359,32 @@ export default async function PublicUserPage({ params }: Props) {
                   </GlassCard>
                 ))}
               </div>
+              {totalReviewPages > 1 ? (
+                <nav
+                  aria-label="Страницы отзывов"
+                  className="mt-6 flex items-center justify-center gap-3"
+                >
+                  {reviewsPage > 1 ? (
+                    <Link
+                      href={reviewsHref(id, reviewsPage - 1)}
+                      className="rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                    >
+                      ← Новее
+                    </Link>
+                  ) : null}
+                  <span className="text-xs text-white/35">
+                    {reviewsPage} из {totalReviewPages}
+                  </span>
+                  {reviewsPage < totalReviewPages ? (
+                    <Link
+                      href={reviewsHref(id, reviewsPage + 1)}
+                      className="rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                    >
+                      Старее →
+                    </Link>
+                  ) : null}
+                </nav>
+              ) : null}
             </section>
           ) : null}
 

@@ -23,6 +23,7 @@ export type ItemCardProps = {
   isFavorite?: boolean;
   canFavorite?: boolean;
   favoriteLoginHref?: string;
+  recommendationReason?: string;
 };
 
 export function ItemCard({
@@ -41,6 +42,7 @@ export function ItemCard({
   isFavorite,
   canFavorite,
   favoriteLoginHref,
+  recommendationReason,
 }: ItemCardProps) {
   const itemHref = returnHref
     ? `/item/${id}?from=${encodeURIComponent(returnHref)}`
@@ -91,6 +93,12 @@ export function ItemCard({
           ) : null}
         </div>
         <div className="flex flex-1 flex-col p-5">
+          {recommendationReason ? (
+            <div className="mb-3 flex items-start gap-2 rounded-[13px] border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">
+              <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
+              <span>{recommendationReason}</span>
+            </div>
+          ) : null}
           <div className="mb-3 flex items-start justify-between gap-3">
             <h3 className="line-clamp-2 text-lg font-semibold leading-6 tracking-[-0.02em] text-white">{title}</h3>
             {likes ? (
