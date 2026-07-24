@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/menarium/skeleton";
+import { CardGridSkeleton, Skeleton } from "@/components/menarium/skeleton";
 
 export default function ItemLoading() {
   return (
@@ -21,6 +21,12 @@ export default function ItemLoading() {
             </div>
             <Skeleton className="h-72 w-full rounded-[24px]" />
           </div>
+        </div>
+        <div className="mt-10 border-t border-white/[0.07] pt-8 sm:mt-14 sm:pt-10">
+          <Skeleton className="h-4 w-36 rounded-full" />
+          <Skeleton className="mt-3 h-9 w-64 max-w-full rounded-xl" />
+          <Skeleton className="mb-6 mt-3 h-5 w-[520px] max-w-full rounded-full" />
+          <CardGridSkeleton count={3} />
         </div>
       </div>
     </div>

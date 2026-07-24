@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildInterestProfile,
   getRecommendationReasons,
+  getRelatedItemReason,
   getTopDesiredLabels,
   getTopInterestLabels,
   scoreRecommendation,
@@ -105,5 +106,32 @@ describe("favorite recommendations", () => {
         favoritesOnly,
       ),
     ).not.toContain("Владельцу может подойти ваш вариант");
+  });
+
+  it("explains related items in plain language", () => {
+    const source = { category: "Фото", type: "THING", city: "Москва" };
+
+    expect(
+      getRelatedItemReason(
+        { category: "Фото", type: "THING", city: "Москва" },
+        source,
+      ),
+    ).toBe("Похожий вариант в том же городе");
+    expect(
+      getRelatedItemReason(
+        { category: "Фото", type: "THING", city: "Казань" },
+        source,
+      ),
+    ).toBe("Ещё в категории «Фото»");
+  });
+
+  it("puts a likely mutual exchange above generic similarity", () => {
+    expect(
+      getRelatedItemReason(
+        { category: "Дом", type: "THING", city: "Казань" },
+        { category: "Фото", type: "THING", city: "Москва" },
+        ["Владельцу может подойти ваш вариант", "Ещё одна вещь"],
+      ),
+    ).toBe("Владельцу может подойти ваш вариант");
   });
 });

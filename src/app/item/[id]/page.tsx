@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import { ItemStatus, UserStatus } from "@prisma/client";
+import { ItemStatus, Prisma, SwapStatus, UserStatus } from "@prisma/client";
 import {
   ArrowLeft,
   ArrowRightLeft,
@@ -10,6 +11,8 @@ import {
   MessageCircle,
   Package,
   ShieldCheck,
+  Sparkles,
+  Star,
   UserRound,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
@@ -17,10 +20,20 @@ import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { FavoriteButton } from "@/components/menarium/favorite-button";
+import { ItemCard } from "@/components/menarium/item-card";
+import {
+  buildInterestProfile,
+  getRecommendationReasons,
+  getRelatedItemReason,
+  getTopDesiredLabels,
+  scoreRecommendation,
+  selectDiverseRecommendations,
+} from "@/features/favorites/recommendations";
 import { parseCatalogReturnHref } from "@/features/items/catalog-url";
 import { serializeItem } from "@/features/items/serializers";
 import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
 import { canInteractWithItem, visibleItemWhere } from "@/features/items/visibility";
+import { buildReputationSummary } from "@/features/reputation/summary";
 import { prisma } from "@/lib/prisma";
 import { isAdminEmail } from "@/server/admin";
 import { getCurrentUserIdentity } from "@/server/session";
@@ -64,8 +77,18 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const viewerIsAdmin = Boolean(identity && isAdminEmail(identity.email));
   const viewer = identity ? { id: identity.id, isAdmin: viewerIsAdmin } : null;
   const itemInclude = {
-    owner: { select: { id: true, name: true, city: true, image: true } },
+    owner: {
+      select: {
+        id: true,
+        name: true,
+        city: true,
+        image: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    },
     images: true,
+    _count: { select: { favorites: true } },
   } as const;
   let item = await prisma.item.findFirst({
     where: visibleItemWhere(id, viewer),
@@ -92,7 +115,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
   if (!item) notFound();
 
   const publicItem = serializeItem(item);
-  const card = toItemCardView(publicItem);
+  const card = toItemCardView(publicItem, item._count.favorites);
   const wanted = itemWantedLabel(publicItem);
   const itemHref =
     returnHref === "/catalog"
@@ -103,9 +126,9 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const isOwner = Boolean(userId && publicItem.owner?.id === userId);
   const canInteract = canInteractWithItem(item.status, viewerIsAdmin);
   const ownerId = publicItem.owner?.id;
-  const blocks =
+  const [blocks, ownerCompletedSwaps, ownerRatingGroups] = await Promise.all([
     userId && ownerId && !isOwner
-      ? await prisma.userBlock.findMany({
+      ? prisma.userBlock.findMany({
           where: {
             OR: [
               { blockerId: userId, blockedId: ownerId },
@@ -114,24 +137,142 @@ export default async function ItemPage({ params, searchParams }: Props) {
           },
           select: { blockerId: true },
         })
-      : [];
+      : Promise.resolve([]),
+    ownerId
+      ? prisma.swapRequest.count({
+          where: {
+            status: SwapStatus.COMPLETED,
+            OR: [{ senderId: ownerId }, { receiverId: ownerId }],
+          },
+        })
+      : Promise.resolve(0),
+    ownerId
+      ? prisma.review.groupBy({
+          by: ["rating"],
+          where: { revieweeId: ownerId, visibleAt: { lte: new Date() } },
+          _count: { _all: true },
+        })
+      : Promise.resolve([]),
+  ]);
+  const ownerReputation = buildReputationSummary(
+    ownerCompletedSwaps,
+    ownerRatingGroups.map((group) => ({ rating: group.rating, count: group._count._all })),
+  );
   const communicationBlocked = blocks.length > 0;
   const viewerBlockedOwner = blocks.some((block) => block.blockerId === userId);
-  const favorite =
+  const [favorite, userItems, recentFavorites, recommendationBlockRows] = await Promise.all([
     userId && !isOwner && canInteract && !communicationBlocked
-      ? await prisma.favorite.findUnique({
+      ? prisma.favorite.findUnique({
           where: { userId_itemId: { userId, itemId: publicItem.id } },
           select: { itemId: true },
         })
-      : null;
-  const userItems =
+      : Promise.resolve(null),
     userId && !isOwner && canInteract && !communicationBlocked
-      ? await prisma.item.findMany({
+      ? prisma.item.findMany({
           where: { ownerId: userId, status: ItemStatus.ACTIVE, id: { not: publicItem.id } },
-          select: { id: true, title: true },
+          select: {
+            id: true,
+            title: true,
+            category: true,
+            type: true,
+            city: true,
+            desired: true,
+            acceptsAnything: true,
+          },
           orderBy: { updatedAt: "desc" },
+          take: 100,
         })
-      : [];
+      : Promise.resolve([]),
+    userId
+      ? prisma.favorite.findMany({
+          where: {
+            userId,
+            item: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
+          },
+          select: {
+            itemId: true,
+            item: {
+              select: { title: true, category: true, type: true, city: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 100,
+        })
+      : Promise.resolve([]),
+    userId
+      ? prisma.userBlock.findMany({
+          where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
+          select: { blockerId: true, blockedId: true },
+        })
+      : Promise.resolve([]),
+  ]);
+  const relatedProfile = buildInterestProfile([
+    {
+      title: publicItem.title,
+      category: publicItem.category,
+      type: publicItem.type,
+      city: publicItem.city,
+      source: "favorite",
+      weight: 3,
+    },
+    ...recentFavorites.map(({ item: favoriteItem }) => ({
+      ...favoriteItem,
+      source: "favorite" as const,
+      weight: 2,
+    })),
+    ...userItems.map((userItem) => ({
+      ...userItem,
+      source: "owned" as const,
+      weight: 1,
+    })),
+  ]);
+  const excludedRecommendationOwnerIds = new Set<string>();
+  if (ownerId) excludedRecommendationOwnerIds.add(ownerId);
+  if (userId) excludedRecommendationOwnerIds.add(userId);
+  for (const block of recommendationBlockRows) {
+    excludedRecommendationOwnerIds.add(
+      block.blockerId === userId ? block.blockedId : block.blockerId,
+    );
+  }
+  const desiredTerms = getTopDesiredLabels(relatedProfile, 4);
+  const relatedFilters: Prisma.ItemWhereInput[] = [
+    { category: publicItem.category },
+    { city: publicItem.city },
+    { type: item.type },
+    ...desiredTerms.flatMap((term) => [
+      { title: { contains: term, mode: "insensitive" as const } },
+      { description: { contains: term, mode: "insensitive" as const } },
+    ]),
+  ];
+  const relatedCandidates = canInteract
+    ? await prisma.item.findMany({
+        where: {
+          status: ItemStatus.ACTIVE,
+          owner: { status: UserStatus.ACTIVE },
+          id: { not: publicItem.id },
+          ...(excludedRecommendationOwnerIds.size > 0
+            ? { ownerId: { notIn: [...excludedRecommendationOwnerIds] } }
+            : {}),
+          OR: relatedFilters,
+        },
+        include: itemInclude,
+        orderBy: [{ favorites: { _count: "desc" } }, { updatedAt: "desc" }],
+        take: 36,
+      })
+    : [];
+  const relatedItems = selectDiverseRecommendations(
+    [...relatedCandidates].sort((left, right) => {
+      const scoreDifference =
+        scoreRecommendation(right, relatedProfile) -
+        scoreRecommendation(left, relatedProfile);
+      if (scoreDifference !== 0) return scoreDifference;
+      const favoriteDifference = right._count.favorites - left._count.favorites;
+      if (favoriteDifference !== 0) return favoriteDifference;
+      return right.updatedAt.getTime() - left.updatedAt.getTime();
+    }),
+    3,
+  );
+  const favoriteIds = new Set(recentFavorites.map((entry) => entry.itemId));
   // Чат по объявлению доступен и покупателю, и владельцу.
   // - thread=open: покупатель начинает диалог (владельцу с самим собой нельзя);
   // - thread=<id>: открытие конкретной ветки — доступно обоим участникам.
@@ -323,18 +464,55 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 {publicItem.owner?.id ? (
                   <Link
                     href={`/user/${publicItem.owner.id}`}
-                    className="group mb-5 flex items-center gap-3 rounded-[18px] border border-white/8 bg-white/[0.025] p-3.5 transition hover:border-teal-300/18 hover:bg-teal-300/[0.04]"
+                    className="group mb-5 block rounded-[18px] border border-white/8 bg-white/[0.025] p-3.5 transition hover:border-teal-300/18 hover:bg-teal-300/[0.04]"
                   >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-blue-400/18 to-teal-300/12 text-teal-100/80">
-                      <UserRound className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-xs text-white/40">Владелец</span>
-                      <span className="block truncate text-sm font-semibold text-white/86">
-                        {publicItem.owner.name ?? "Пользователь Menarium"}
+                    <span className="flex items-center gap-3">
+                      {publicItem.owner.image ? (
+                        <Image
+                          src={publicItem.owner.image}
+                          alt=""
+                          width={44}
+                          height={44}
+                          sizes="44px"
+                          className="h-11 w-11 shrink-0 rounded-[14px] object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-sky-400/20 to-teal-300/14 text-teal-100/80">
+                          <UserRound className="h-5 w-5" />
+                        </span>
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-xs text-white/40">Владелец</span>
+                        <span className="block truncate text-sm font-semibold text-white/86">
+                          {publicItem.owner.name ?? "Пользователь Menarium"}
+                        </span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-xs text-teal-100/54 transition group-hover:text-teal-100/82">
+                        Профиль
+                        <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                       </span>
                     </span>
-                    <ChevronRight className="h-4 w-4 text-white/28 transition group-hover:translate-x-0.5 group-hover:text-teal-200/70" />
+                    <span className="mt-3 flex flex-wrap gap-2 border-t border-white/7 pt-3">
+                      {ownerReputation.averageRating ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/12 bg-amber-300/[0.055] px-2.5 py-1 text-[11px] text-amber-100/70">
+                          <Star className="h-3 w-3 fill-current" />
+                          {ownerReputation.averageRating.toFixed(1)} · {ownerReputation.reviewCount} отзывов
+                        </span>
+                      ) : (
+                        <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/46">
+                          {ownerReputation.label}
+                        </span>
+                      )}
+                      <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/46">
+                        {ownerCompletedSwaps} завершённых обменов
+                      </span>
+                      {item.owner.emailVerified ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-300/12 bg-teal-300/[0.045] px-2.5 py-1 text-[11px] text-teal-100/65">
+                          <ShieldCheck className="h-3 w-3" />
+                          Email подтверждён
+                        </span>
+                      ) : null}
+                    </span>
                   </Link>
                 ) : null}
 
@@ -374,6 +552,63 @@ export default async function ItemPage({ params, searchParams }: Props) {
               </GlassCard>
             </div>
           </div>
+          {!showChatPanel && relatedItems.length > 0 ? (
+            <section
+              className="mt-10 border-t border-white/[0.07] pt-8 sm:mt-14 sm:pt-10"
+              aria-labelledby="related-items-title"
+            >
+              <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/62">
+                    <Sparkles className="h-4 w-4" />
+                    Продолжить поиск
+                  </p>
+                  <h2
+                    id="related-items-title"
+                    className="mt-2 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl"
+                  >
+                    Похожие варианты
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
+                    Подборка учитывает эту вещь
+                    {userId ? ", ваши сохранения и активные предложения." : " и близкие варианты в каталоге."}
+                  </p>
+                </div>
+                <MenariumLinkButton href="/catalog" variant="ghost" size="sm" className="w-full sm:w-auto">
+                  Весь каталог
+                  <ChevronRight className="h-4 w-4" />
+                </MenariumLinkButton>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {relatedItems.map((relatedItem) => {
+                  const relatedCard = toItemCardView(
+                    serializeItem(relatedItem),
+                    relatedItem._count.favorites,
+                  );
+                  const personalReasons = getRecommendationReasons(
+                    relatedItem,
+                    relatedProfile,
+                  );
+
+                  return (
+                    <ItemCard
+                      key={relatedItem.id}
+                      {...relatedCard}
+                      returnHref={itemHref}
+                      isFavorite={favoriteIds.has(relatedItem.id)}
+                      canFavorite={Boolean(userId)}
+                      favoriteLoginHref={!userId ? loginHref(itemHref) : undefined}
+                      recommendationReason={getRelatedItemReason(
+                        relatedItem,
+                        item,
+                        personalReasons,
+                      )}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
           {showChatPanel && chatViewerId ? (
             <ItemChatPanel
               key={thread?.id ?? "open"}

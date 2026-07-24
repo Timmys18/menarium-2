@@ -178,6 +178,29 @@ export function getRecommendationReasons(
   return reasons.slice(0, limit);
 }
 
+export function getRelatedItemReason(
+  item: Pick<RecommendationCandidate, "category" | "type" | "city">,
+  source: Pick<RecommendationCandidate, "category" | "type" | "city">,
+  personalReasons: string[] = [],
+) {
+  const mutualFit = personalReasons.find((reason) =>
+    reason.startsWith("Владельцу может подойти"),
+  );
+  if (mutualFit) return mutualFit;
+
+  const sameCategory = normalized(item.category) === normalized(source.category);
+  const sameCity = normalized(item.city) === normalized(source.city);
+
+  if (sameCategory && sameCity) return "Похожий вариант в том же городе";
+  if (sameCategory) return `Ещё в категории «${item.category}»`;
+  if (sameCity) return `Ещё один вариант в городе ${item.city}`;
+  if (normalized(item.type) === normalized(source.type)) {
+    return item.type === "SERVICE" ? "Ещё одна подходящая услуга" : "Ещё одна вещь для обмена";
+  }
+
+  return personalReasons[0] ?? "Свежий вариант для обмена";
+}
+
 export function selectDiverseRecommendations<T extends { ownerId: string; category: string }>(
   items: T[],
   limit: number,
