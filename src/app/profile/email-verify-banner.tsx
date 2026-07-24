@@ -53,7 +53,7 @@ export function EmailVerifyBanner({
         <div className="flex items-start gap-3">
           <Mail className="mt-0.5 h-5 w-5 shrink-0 text-amber-200" />
           <div>
-            <p className="font-medium text-amber-50">Подтвердите почту</p>
+            <h2 className="font-medium text-amber-50">Почта не подтверждена</h2>
             <p className="mt-1 text-sm text-amber-100/80">
               {deliveryState === "sent"
                 ? `Ссылка отправлена на ${email}. Проверьте почту и папку «Спам».`

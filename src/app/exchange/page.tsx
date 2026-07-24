@@ -673,6 +673,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                               src={selectedYourCard.image}
                               alt={selectedYourItem.title}
                               sizes="160px"
+                              priority
                             />
                           </div>
                           <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/56">Вы отдаёте</p>
@@ -685,6 +686,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                               src={selectedTheirCard.image}
                               alt={selectedTheirItem.title}
                               sizes="160px"
+                              priority
                             />
                           </div>
                           <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/56">Вы получаете</p>

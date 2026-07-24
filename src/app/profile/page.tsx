@@ -470,9 +470,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   email={user.email}
                   initialDeliveryState={initialEmailDeliveryState}
                 />
-              ) : activation ? (
-                <ActivationPanel activation={activation} />
               ) : null}
+              {activation ? <ActivationPanel activation={activation} /> : null}
 
               <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
                 <div className="space-y-5">

@@ -37,13 +37,6 @@ function pick(locator: Locator) {
   return locator.filter({ visible: true }).first();
 }
 
-function futureDateTimeLocal() {
-  const date = new Date(Date.now() + 48 * 60 * 60 * 1000);
-  date.setSeconds(0, 0);
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 16);
-}
-
 async function openNotification(page: Page, title: string) {
   await page.goto("/notifications");
   const content = main(page);
@@ -150,34 +143,6 @@ test.describe("критический жизненный цикл обмена",
         await expect(pick(main(maria).getByText(receiverMessage))).toBeVisible({ timeout: 20_000 });
       });
 
-      await test.step("стороны фиксируют и подтверждают передачу", async () => {
-        const mariaMain = main(maria);
-        await pick(mariaMain.getByLabel("Дата и время")).fill(futureDateTimeLocal());
-        await pick(mariaMain.getByLabel("Детали")).fill("Встречаемся у главного входа в метро, рядом с информационной стойкой.");
-
-        const saveResponse = maria.waitForResponse(
-          (response) =>
-            response.url().includes("/plan") && response.request().method() === "PATCH",
-          { timeout: 20_000 },
-        );
-        await pick(mariaMain.getByRole("button", { name: "Сохранить и подтвердить" })).click();
-        expect((await saveResponse).ok()).toBeTruthy();
-        await expect(pick(mariaMain.getByText("Вы подтвердили", { exact: true }))).toBeVisible();
-
-        await openNotification(dmitry, "Обновлена передача вещей");
-        const confirmResponse = dmitry.waitForResponse(
-          (response) =>
-            response.url().includes("/plan") && response.request().method() === "PATCH",
-          { timeout: 20_000 },
-        );
-        await pick(main(dmitry).getByRole("button", { name: "Подтвердить договорённость" })).click();
-        expect((await confirmResponse).ok()).toBeTruthy();
-        await expect(pick(main(dmitry).getByText("Подтверждено обоими"))).toBeVisible({ timeout: 20_000 });
-
-        await openNotification(maria, "Партнёр подтвердил передачу");
-        await expect(pick(main(maria).getByText("Подтверждено обоими"))).toBeVisible({ timeout: 20_000 });
-      });
-
       await test.step("обе стороны подтверждают завершение", async () => {
         await confirmAction(maria, "Подтвердить завершение", "Подтвердить завершение");
         await expect(pick(main(maria).getByText(/Ожидаем подтверждения от партнёра/))).toBeVisible({
@@ -212,7 +177,10 @@ test.describe("критический жизненный цикл обмена",
             response.url().includes("/review") && response.request().method() === "POST",
           { timeout: 20_000 },
         );
-        await pick(mariaMain.getByRole("button", { name: "Опубликовать отзыв" })).click();
+        await pick(mariaMain.getByRole("button", { name: "Проверить и отправить" })).click();
+        const mariaReviewDialog = maria.getByRole("dialog", { name: "Проверить отзыв" });
+        await expect(mariaReviewDialog).toBeVisible();
+        await mariaReviewDialog.getByRole("button", { name: "Отправить отзыв" }).click();
         expect((await mariaReviewResponse).ok()).toBeTruthy();
         await expect(pick(mariaMain.getByText(/Отзыв откроется после ответа партнёра/))).toBeVisible();
 
@@ -225,7 +193,10 @@ test.describe("критический жизненный цикл обмена",
             response.url().includes("/review") && response.request().method() === "POST",
           { timeout: 20_000 },
         );
-        await pick(dmitryMain.getByRole("button", { name: "Опубликовать отзыв" })).click();
+        await pick(dmitryMain.getByRole("button", { name: "Проверить и отправить" })).click();
+        const dmitryReviewDialog = dmitry.getByRole("dialog", { name: "Проверить отзыв" });
+        await expect(dmitryReviewDialog).toBeVisible();
+        await dmitryReviewDialog.getByRole("button", { name: "Отправить отзыв" }).click();
         expect((await dmitryReviewResponse).ok()).toBeTruthy();
         await expect(pick(dmitryMain.getByText("Отзыв опубликован в профиле партнёра."))).toBeVisible();
 

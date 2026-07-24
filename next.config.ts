@@ -53,6 +53,17 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  async redirects() {
+    return [
+      { source: "/login", destination: "/auth/login", permanent: true },
+      { source: "/register", destination: "/auth/register", permanent: true },
+      {
+        source: "/forgot-password",
+        destination: "/auth/forgot-password",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     unoptimized: process.env.NODE_ENV === "development",
     remotePatterns: [
