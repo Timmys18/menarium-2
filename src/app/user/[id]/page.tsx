@@ -3,10 +3,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ItemStatus, SwapStatus, UserStatus } from "@prisma/client";
 import type { Metadata } from "next";
-import { CalendarDays, MessageSquareQuote, ShieldCheck, Star } from "lucide-react";
+import { CalendarDays, MessageSquareQuote, PackageOpen, ShieldCheck, Star } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
+import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
+import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
@@ -157,9 +159,9 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
 
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
-        <div className="mx-auto max-w-6xl space-y-8">
-          <GlassCard className="rounded-3xl p-8">
+      <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
+        <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
+          <GlassCard className="rounded-3xl p-5 sm:p-8">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               {user.image ? (
                 <Image
@@ -167,10 +169,11 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   alt={user.name ?? "Аватар"}
                   width={96}
                   height={96}
-                  className="h-24 w-24 rounded-2xl object-cover"
+                  priority
+                  className="h-20 w-20 rounded-2xl object-cover sm:h-24 sm:w-24"
                 />
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-purple-600 text-3xl font-bold">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500 text-2xl font-bold sm:h-24 sm:w-24 sm:text-3xl">
                   {getInitials(user.name, user.email)}
                 </div>
               )}
@@ -206,9 +209,9 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 </div>
               </div>
               {isSelf ? (
-                <Link href="/profile/edit" className="text-sm text-teal-300 hover:underline">
+                <MenariumLinkButton href="/profile/edit" variant="secondary" size="sm" className="w-full sm:w-auto">
                   Редактировать
-                </Link>
+                </MenariumLinkButton>
               ) : viewerId ? (
                 <TrustActions
                   targetType="USER"
@@ -391,7 +394,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
           <div>
             <h2 className="mb-4 text-2xl font-semibold">Объявления</h2>
             {cards.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                 {cards.map((card) => (
                   <ItemCard
                     key={card.id}
@@ -403,9 +406,17 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 ))}
               </div>
             ) : (
-              <GlassCard className="p-8 text-center text-white/55">
-                {isSelf ? "У вас пока нет активных объявлений." : "У пользователя пока нет активных объявлений."}
-              </GlassCard>
+              <EmptyState
+                icon={<PackageOpen className="h-7 w-7" />}
+                title={isSelf ? "Покажите свою первую вещь" : "Активных вещей пока нет"}
+                description={
+                  isSelf
+                    ? "Добавьте вещь, которую готовы обменять. Хорошие фото и честное описание быстрее находят подходящую пару."
+                    : "Загляните позже: здесь появятся вещи, которые пользователь готов обменять."
+                }
+                actionHref={isSelf ? "/new" : undefined}
+                actionLabel={isSelf ? "Добавить вещь" : undefined}
+              />
             )}
           </div>
         </div>

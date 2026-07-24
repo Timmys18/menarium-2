@@ -4,11 +4,12 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Loader2, Trash2, Upload } from "lucide-react";
+import { Check, Eye, EyeOff, Loader2, Trash2, Upload } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { MenariumInput } from "@/components/menarium/input";
+import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 
 type ProfileFormUser = {
   name: string | null;
@@ -23,6 +24,8 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   const [image, setImage] = useState(user.image ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedAvatarId, setUploadedAvatarId] = useState<string | null>(null);
@@ -30,11 +33,15 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const passwordChecks = getPasswordChecks(newPassword);
+  const passwordReady = isPasswordReady(newPassword);
 
   async function uploadAvatar(file: File | undefined) {
     if (!file) return;
-    setError(null);
+    setProfileError(null);
     setIsUploading(true);
     try {
       const formData = new FormData();
@@ -52,14 +59,14 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
         });
       }
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить аватар");
+      setProfileError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить аватар");
     } finally {
       setIsUploading(false);
     }
   }
 
   async function removeAvatar() {
-    setError(null);
+    setProfileError(null);
     try {
       if (uploadedAvatarId) {
         const response = await fetch(`/api/media?id=${encodeURIComponent(uploadedAvatarId)}`, {
@@ -71,12 +78,12 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       setImage("");
       setUploadedAvatarId(null);
     } catch (removeError) {
-      setError(removeError instanceof Error ? removeError.message : "Не удалось удалить аватар");
+      setProfileError(removeError instanceof Error ? removeError.message : "Не удалось удалить аватар");
     }
   }
 
   async function saveProfile() {
-    setError(null);
+    setProfileError(null);
     setIsSaving(true);
     try {
       const response = await fetch("/api/users/me", {
@@ -89,14 +96,14 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       router.push("/profile");
       router.refresh();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Не удалось сохранить профиль");
+      setProfileError(saveError instanceof Error ? saveError.message : "Не удалось сохранить профиль");
     } finally {
       setIsSaving(false);
     }
   }
 
   async function changePassword() {
-    setError(null);
+    setPasswordError(null);
     setIsChangingPassword(true);
     try {
       const response = await fetch("/api/users/me/password", {
@@ -110,14 +117,14 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       setNewPassword("");
       await signOut({ callbackUrl: "/auth/login?passwordChanged=1" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось сменить пароль");
+      setPasswordError(err instanceof Error ? err.message : "Не удалось сменить пароль");
     } finally {
       setIsChangingPassword(false);
     }
   }
 
   async function deleteAccount() {
-    setError(null);
+    setDeleteError(null);
     setIsDeleting(true);
     try {
       const response = await fetch("/api/users/me", {
@@ -130,7 +137,8 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       setDeleteDialogOpen(false);
       await signOut({ callbackUrl: "/" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось удалить аккаунт");
+      setDeleteDialogOpen(false);
+      setDeleteError(err instanceof Error ? err.message : "Не удалось удалить аккаунт");
     } finally {
       setIsDeleting(false);
     }
@@ -138,16 +146,16 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
   return (
     <div className="space-y-6">
-      {error ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
-          {error}
-        </div>
-      ) : null}
-      <GlassCard className="space-y-5 p-8">
-        <div className="flex items-center gap-4">
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-teal-500 to-purple-600">
+      <GlassCard className="space-y-5 p-5 sm:p-8">
+        {profileError ? (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+            {profileError}
+          </div>
+        ) : null}
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500">
             {image ? (
-              <Image src={image} alt="Аватар" fill className="object-cover" />
+              <Image src={image} alt="Аватар" fill sizes="80px" className="object-cover" />
             ) : (
               <span className="text-2xl font-bold">{(name || "M").slice(0, 2).toUpperCase()}</span>
             )}
@@ -196,7 +204,10 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             autoComplete="name"
             placeholder="Как к вам обращаться"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              setName(event.target.value);
+              setProfileError(null);
+            }}
           />
         </div>
         <div className="space-y-2">
@@ -209,19 +220,23 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             autoComplete="address-level2"
             placeholder="Например, Москва"
             value={city}
-            onChange={(event) => setCity(event.target.value)}
+            onChange={(event) => {
+              setCity(event.target.value);
+              setProfileError(null);
+            }}
           />
           <p className="text-xs leading-5 text-white/40">Помогает находить удобные обмены рядом.</p>
         </div>
 
-        <div className="flex gap-3">
-          <MenariumButton onClick={saveProfile} disabled={isSaving || isUploading}>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <MenariumButton className="w-full sm:w-auto" onClick={saveProfile} disabled={isSaving || isUploading}>
             {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
             Сохранить
           </MenariumButton>
           <MenariumLinkButton
             href="/profile"
             variant="secondary"
+            className="w-full sm:w-auto"
             onClick={() => {
               if (uploadedAvatarId) {
                 void fetch(`/api/media?id=${encodeURIComponent(uploadedAvatarId)}`, {
@@ -236,49 +251,107 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
         </div>
       </GlassCard>
 
-      <GlassCard className="space-y-4 p-8">
+      <GlassCard className="space-y-4 p-5 sm:p-8">
         <h2 className="text-lg font-semibold">Смена пароля</h2>
+        <p className="text-sm leading-5 text-white/48">
+          После смены пароля мы завершим текущий сеанс. Войти снова можно будет уже с новым паролем.
+        </p>
+        {passwordError ? (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+            {passwordError}
+          </div>
+        ) : null}
         <div className="space-y-2">
           <label htmlFor="current-password" className="block text-sm font-medium text-white/75">
             Текущий пароль
           </label>
-          <MenariumInput
-            id="current-password"
-            type="password"
-            autoComplete="current-password"
-            value={currentPassword}
-            onChange={(event) => setCurrentPassword(event.target.value)}
-          />
+          <div className="relative">
+            <MenariumInput
+              id="current-password"
+              type={showCurrentPassword ? "text" : "password"}
+              autoComplete="current-password"
+              className="pr-12"
+              value={currentPassword}
+              onChange={(event) => {
+                setCurrentPassword(event.target.value);
+                setPasswordError(null);
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowCurrentPassword((visible) => !visible)}
+              aria-label={showCurrentPassword ? "Скрыть текущий пароль" : "Показать текущий пароль"}
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/38 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
+            >
+              {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
         <div className="space-y-2">
           <label htmlFor="new-password" className="block text-sm font-medium text-white/75">
             Новый пароль
           </label>
-          <MenariumInput
-            id="new-password"
-            type="password"
-            autoComplete="new-password"
-            placeholder="Минимум 8 символов, буквы и цифры"
-            value={newPassword}
-            onChange={(event) => setNewPassword(event.target.value)}
-          />
+          <div className="relative">
+            <MenariumInput
+              id="new-password"
+              type={showNewPassword ? "text" : "password"}
+              autoComplete="new-password"
+              aria-describedby="profile-password-hint"
+              className="pr-12"
+              placeholder="Минимум 8 символов, буквы и цифры"
+              value={newPassword}
+              onChange={(event) => {
+                setNewPassword(event.target.value);
+                setPasswordError(null);
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowNewPassword((visible) => !visible)}
+              aria-label={showNewPassword ? "Скрыть новый пароль" : "Показать новый пароль"}
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/38 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
+            >
+              {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+          <div id="profile-password-hint" className="flex flex-wrap gap-2 pt-1" aria-live="polite">
+            {passwordChecks.map((check) => (
+              <span
+                key={check.label}
+                className={
+                  check.passed
+                    ? "inline-flex items-center gap-1.5 rounded-full bg-teal-300/10 px-2.5 py-1 text-xs text-teal-200"
+                    : "inline-flex items-center gap-1.5 rounded-full bg-white/[0.045] px-2.5 py-1 text-xs text-white/38"
+                }
+              >
+                <Check className="h-3 w-3" aria-hidden="true" />
+                {check.label}
+              </span>
+            ))}
+          </div>
         </div>
         <MenariumButton
           variant="secondary"
+          className="w-full sm:w-auto"
           onClick={changePassword}
-          disabled={isChangingPassword || !currentPassword || newPassword.length < 8}
+          disabled={isChangingPassword || !currentPassword || !passwordReady}
         >
           {isChangingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Обновить пароль
         </MenariumButton>
       </GlassCard>
 
-      <GlassCard className="space-y-4 border border-red-500/20 p-8">
+      <GlassCard className="space-y-4 border border-red-500/20 p-5 sm:p-8">
         <h2 className="text-lg font-semibold text-red-200">Удаление аккаунта</h2>
         <p className="text-sm text-white/50">
           Личные данные будут удалены, объявления сняты с публикации. История завершённых сделок
           сохранится у участников в обезличенном виде.
         </p>
+        {deleteError ? (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+            {deleteError}
+          </div>
+        ) : null}
         <div className="space-y-2">
           <label htmlFor="delete-password" className="block text-sm font-medium text-white/75">
             Пароль для подтверждения
@@ -288,12 +361,19 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             type="password"
             autoComplete="current-password"
             value={deletePassword}
-            onChange={(event) => setDeletePassword(event.target.value)}
+            onChange={(event) => {
+              setDeletePassword(event.target.value);
+              setDeleteError(null);
+            }}
           />
         </div>
         <MenariumButton
           variant="danger"
-          onClick={() => setDeleteDialogOpen(true)}
+          className="w-full sm:w-auto"
+          onClick={() => {
+            setDeleteError(null);
+            setDeleteDialogOpen(true);
+          }}
           disabled={isDeleting || !deletePassword}
         >
           {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
