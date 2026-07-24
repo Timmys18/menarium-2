@@ -114,6 +114,7 @@ model User {
   reviewsWritten     Review[]            @relation("ReviewAuthor")
   reviewsReceived    Review[]            @relation("ReviewRecipient")
   favorites          Favorite[]
+  itemViews          ItemView[]
   productEvents      ProductEvent[]
 
   @@index([createdAt])
@@ -183,6 +184,7 @@ model Item {
   swipePasses   SwipePass[]
   reports       Report[]
   favorites     Favorite[]
+  views         ItemView[]
 
   @@index([status, createdAt])
   @@index([ownerId, status])
@@ -275,6 +277,19 @@ model Favorite {
   @@id([userId, itemId])
   @@index([userId, createdAt])
   @@index([itemId, createdAt])
+}
+
+model ItemView {
+  userId   String
+  itemId   String
+  viewedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@id([userId, itemId])
+  @@index([userId, viewedAt])
+  @@index([itemId, viewedAt])
 }
 
 model DealMessage {

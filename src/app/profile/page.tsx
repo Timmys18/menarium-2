@@ -9,6 +9,7 @@ import {
   Clock3,
   Eye,
   Heart,
+  History,
   MapPin,
   MessageCircle,
   PackageCheck,
@@ -21,13 +22,17 @@ import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
+import { ItemCard } from "@/components/menarium/item-card";
 import { buildProfileActivation } from "@/features/profile/activation";
 import { expirePendingSwapOffers } from "@/features/exchange/expiration";
+import { toItemCardView } from "@/features/items/presenters";
+import { serializeItem } from "@/features/items/serializers";
 import { getSafeNotificationHref } from "@/features/notifications/href";
 import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { ActivationPanel } from "./activation-panel";
+import { ClearRecentViewsButton } from "./clear-recent-views-button";
 import { EmailVerifyBanner } from "./email-verify-banner";
 import { SignOutButton } from "./profile-actions";
 import { ProfileNotice } from "./profile-notice";
@@ -59,6 +64,17 @@ function formatChatTime(value: Date) {
   return sameDay
     ? value.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
     : value.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+}
+
+function recentViewLabel(viewedAt: Date) {
+  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - viewedAt.getTime()) / 60_000));
+  if (elapsedMinutes < 60) return "Смотрели недавно";
+  if (elapsedMinutes < 24 * 60) return "Смотрели сегодня";
+  if (elapsedMinutes < 48 * 60) return "Смотрели вчера";
+  return `Смотрели ${new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "short",
+  }).format(viewedAt)}`;
 }
 
 function exchangeChatHref({
@@ -119,6 +135,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     recentNotifications,
     recentDealChats,
     recentItemChats,
+    recentViewRows,
+    profileBlockRows,
   ] = userId
     ? await Promise.all([
         prisma.item.groupBy({
@@ -237,8 +255,34 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
           take: 4,
         }),
+        prisma.itemView.findMany({
+          where: {
+            userId,
+            item: {
+              status: ItemStatus.ACTIVE,
+              ownerId: { not: userId },
+              owner: { status: UserStatus.ACTIVE },
+            },
+          },
+          include: {
+            item: {
+              include: {
+                owner: { select: { id: true, name: true, city: true, image: true } },
+                images: true,
+                favorites: { where: { userId }, select: { userId: true } },
+                _count: { select: { favorites: true } },
+              },
+            },
+          },
+          orderBy: [{ viewedAt: "desc" }, { itemId: "desc" }],
+          take: 12,
+        }),
+        prisma.userBlock.findMany({
+          where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
+          select: { blockerId: true, blockedId: true },
+        }),
       ])
-    : [[], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], []];
+    : [[], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], [], [], []];
 
   const itemCounts: Record<ItemStatus, number> = {
     [ItemStatus.ACTIVE]: 0,
@@ -254,6 +298,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const archivedItems = itemCounts[ItemStatus.ARCHIVED];
   const unreadMessages = unreadDealMessages + unreadItemMessages;
   const activeSwaps = incomingPending + outgoingPending + acceptedSwaps;
+  const blockedProfileOwnerIds = new Set(
+    profileBlockRows.map((block) =>
+      block.blockerId === userId ? block.blockedId : block.blockerId,
+    ),
+  );
+  const recentViews = recentViewRows
+    .filter(({ item }) => !blockedProfileOwnerIds.has(item.ownerId))
+    .slice(0, 4);
 
   const activation = user
     ? buildProfileActivation({
@@ -472,6 +524,57 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 />
               ) : null}
               {activation ? <ActivationPanel activation={activation} /> : null}
+
+              {recentViews.length > 0 ? (
+                <section
+                  className="border-y border-white/[0.07] py-7 sm:py-9"
+                  aria-labelledby="recently-viewed-title"
+                >
+                  <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-sky-200/62">
+                        <History className="h-4 w-4" />
+                        Вернуться к находкам
+                      </p>
+                      <h2
+                        id="recently-viewed-title"
+                        className="mt-2 text-2xl font-semibold tracking-[-0.035em]"
+                      >
+                        Продолжить просмотр
+                      </h2>
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
+                        Последние вещи, которые вы открывали. Недоступные объявления исчезнут автоматически.
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <ClearRecentViewsButton />
+                      <MenariumLinkButton href="/catalog" variant="ghost" size="sm" className="w-full sm:w-auto">
+                        Смотреть новое
+                        <ArrowRight className="h-4 w-4" />
+                      </MenariumLinkButton>
+                    </div>
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                    {recentViews.map(({ item, viewedAt }) => {
+                      const card = toItemCardView(
+                        serializeItem(item),
+                        item._count.favorites,
+                      );
+
+                      return (
+                        <ItemCard
+                          key={item.id}
+                          {...card}
+                          returnHref="/profile"
+                          isFavorite={item.favorites.length > 0}
+                          canFavorite
+                          recommendationReason={recentViewLabel(viewedAt)}
+                        />
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null}
 
               <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
                 <div className="space-y-5">

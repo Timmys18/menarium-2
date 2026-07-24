@@ -43,6 +43,7 @@ import { ItemChatPanel } from "./item-chat-panel";
 import { ItemImageGallery } from "./item-image-gallery";
 import { itemStatusLabels } from "@/features/items/status-labels";
 import { DeleteItemButton } from "./owner-actions";
+import { RecentlyViewedTracker } from "./recently-viewed-tracker";
 import { TrustActions } from "@/components/trust/trust-actions";
 import { loadItemThreadMessagePage } from "@/features/chat/message-pages";
 import { markItemThreadRead } from "@/features/chat/read-state";
@@ -320,6 +321,9 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
   return (
     <AppShell>
+      {userId && !isOwner && canInteract && !communicationBlocked ? (
+        <RecentlyViewedTracker itemId={publicItem.id} />
+      ) : null}
       <div className="page-enter min-h-screen px-4 pb-40 pt-20 sm:px-6 md:pb-32 md:pt-28">
         <div className="mx-auto max-w-6xl">
           <MenariumLinkButton href={returnHref} variant="ghost" size="sm" className="mb-4 sm:mb-6">
