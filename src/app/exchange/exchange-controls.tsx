@@ -16,7 +16,7 @@ type ExchangeSnapshot = {
 };
 
 const confirmMessages: Record<ExchangeAction, string> = {
-  accept: "Принять предложение обмена? Объявления перейдут в статус «В сделке».",
+  accept: "Принять предложение обмена? Обе вещи будут зарезервированы для этой сделки, а затем откроется чат для договорённостей.",
   decline: "Отклонить предложение? Отправитель получит уведомление.",
   revoke: "Отозвать своё предложение обмена?",
   complete: "Подтвердить завершение обмена? После подтверждения обеими сторонами объявления будут архивированы.",
@@ -30,6 +30,7 @@ export function ExchangeActionPanel({
   isReceiver,
   senderCompleted,
   receiverCompleted,
+  acceptedHref,
   onSwapUpdated,
 }: {
   swapId: string;
@@ -38,6 +39,7 @@ export function ExchangeActionPanel({
   isReceiver: boolean;
   senderCompleted: boolean;
   receiverCompleted: boolean;
+  acceptedHref?: string;
   onSwapUpdated?: (snapshot: ExchangeSnapshot) => void;
 }) {
   const router = useRouter();
@@ -61,6 +63,10 @@ export function ExchangeActionPanel({
       if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
       if (body.data) onSwapUpdated?.(body.data);
       setConfirmAction(null);
+      if (action === "accept" && acceptedHref) {
+        router.replace(acceptedHref);
+        return;
+      }
       router.refresh();
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Не удалось выполнить действие");
@@ -190,6 +196,7 @@ export function ExchangeDealPanel({
   senderCompleted,
   receiverCompleted,
   communicationBlocked,
+  acceptedHref,
   currentUserId,
   messages,
   nextCursor,
@@ -201,6 +208,7 @@ export function ExchangeDealPanel({
   messages: ChatMessageView[];
   nextCursor: string | null;
   communicationBlocked: boolean;
+  acceptedHref?: string;
 }) {
   const [snapshot, setSnapshot] = useState<ExchangeSnapshot>({
     status,
@@ -225,9 +233,10 @@ export function ExchangeDealPanel({
         isReceiver={isReceiver}
         senderCompleted={snapshot.senderCompleted}
         receiverCompleted={snapshot.receiverCompleted}
+        acceptedHref={acceptedHref}
         onSwapUpdated={setSnapshot}
       />
-      <div className="mb-3 flex items-end justify-between gap-3">
+      <div id="exchange-chat" className="mb-3 scroll-mt-24" tabIndex={-1}>
         <div>
           <h3 className="text-sm font-semibold text-white/88">Чат сделки</h3>
           <p className="mt-1 text-xs text-white/58">

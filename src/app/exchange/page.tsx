@@ -402,6 +402,10 @@ export default async function ExchangePage({ searchParams }: Props) {
     params.notice === "sent" &&
     selectedSwap?.senderId === userId &&
     selectedSwap.status === SwapStatus.PENDING;
+  const showAcceptedNotice =
+    params.notice === "accepted" &&
+    selectedSwap?.receiverId === userId &&
+    selectedSwap.status === SwapStatus.ACCEPTED;
   return (
     <AppShell>
       <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
@@ -448,6 +452,23 @@ export default async function ExchangePage({ searchParams }: Props) {
                 <p className="mt-1 text-sm leading-6 text-white/60">
                   Партнёр уже получил уведомление. До ответа вы можете отозвать предложение в карточке обмена.
                 </p>
+              </div>
+            </GlassCard>
+          ) : null}
+
+          {showAcceptedNotice ? (
+            <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300 text-[#07130f]">
+                <CheckCircle2 className="h-5 w-5" />
+              </span>
+              <div className="min-w-0">
+                <p className="font-semibold text-white">Обмен принят</p>
+                <p className="mt-1 text-sm leading-6 text-white/60">
+                  Обе вещи теперь в сделке. Чат уже открыт: напишите партнёру, чтобы согласовать детали обмена.
+                </p>
+                <a href="#exchange-chat" className="mt-3 inline-block text-sm font-semibold text-teal-200 transition hover:text-teal-100">
+                  Открыть чат ↓
+                </a>
               </div>
             </GlassCard>
           ) : null}
@@ -764,6 +785,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                         currentUserId={userId}
                         messages={selectedMessages}
                         nextCursor={selectedMessagePage.nextCursor}
+                        acceptedHref={`/exchange?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
                       />
 
                       {selectedPartner ? (
