@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ItemStatus, Prisma, UserStatus } from "@prisma/client";
-import { ArrowLeft, Heart, Sparkles } from "lucide-react";
+import { ArrowLeft, Heart, Plus, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
@@ -254,6 +254,22 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
               </MenariumLinkButton>
             </div>
           </header>
+
+          {total > 0 && ownItems.length === 0 ? (
+            <GlassCard className="mb-7 flex flex-col gap-4 border border-teal-300/18 bg-gradient-to-r from-teal-300/[0.08] via-blue-400/[0.055] to-transparent p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/70">Следующий шаг</p>
+                <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em]">Добавьте свою вещь для обмена</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">
+                  Сохранённые варианты уже показывают, что вам интересно. Опубликуйте свою вещь, чтобы отправлять предложения обмена.
+                </p>
+              </div>
+              <MenariumLinkButton href="/new" className="w-full shrink-0 sm:w-auto">
+                <Plus className="h-4 w-4" />
+                Добавить первую вещь
+              </MenariumLinkButton>
+            </GlassCard>
+          ) : null}
 
           {favoriteRows.length > 0 ? (
             <FavoritesSavedContent
