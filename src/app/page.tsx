@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ItemStatus } from "@prisma/client";
 import { ArrowRight, Check, Compass, MessageCircle, Plus, Repeat2, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PreviewUiNotice } from "@/components/preview-ui-notice";
@@ -19,15 +20,36 @@ export default async function Home() {
     loadHomeItemCards(),
     getCurrentUserId(),
   ]);
-  const favoriteRows =
+  const [favoriteRows, activeItemCount] = await Promise.all([
     userId && !preview && cards.length > 0
-      ? await prisma.favorite.findMany({
+      ? prisma.favorite.findMany({
           where: { userId, itemId: { in: cards.map((card) => card.id) } },
           select: { itemId: true },
         })
-      : [];
+      : Promise.resolve([]),
+    userId
+      ? prisma.item.count({ where: { ownerId: userId, status: ItemStatus.ACTIVE } })
+      : Promise.resolve(0),
+  ]);
   const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
   const heroPair = cards.slice(0, 2);
+  const primaryAction = !userId
+    ? {
+        href: loginHref("/new"),
+        label: "Начать обмен",
+        hint: "Создадим аккаунт и сразу перейдём к первому предложению.",
+      }
+    : activeItemCount === 0
+      ? {
+          href: "/new",
+          label: "Добавить первую вещь",
+          hint: "Достаточно одной вещи или услуги, чтобы начать получать варианты.",
+        }
+      : {
+          href: "/new",
+          label: "Добавить ещё одну вещь",
+          hint: "Больше предложений — больше шансов на удачный обмен.",
+        };
 
   return (
     <AppShell>
@@ -46,15 +68,16 @@ export default async function Home() {
               Покажи, чем готов поделиться. Menarium найдёт встречное желание и поможет договориться без денег.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <MenariumLinkButton href="/new" size="lg" className="w-full sm:w-auto">
+              <MenariumLinkButton href={primaryAction.href} size="lg" className="w-full sm:w-auto">
                 <Plus className="h-5 w-5" />
-                Разместить предложение
+                {primaryAction.label}
               </MenariumLinkButton>
               <MenariumLinkButton href="/catalog" size="lg" variant="secondary" className="w-full sm:w-auto">
                 Открыть каталог
                 <ArrowRight className="h-5 w-5" />
               </MenariumLinkButton>
             </div>
+            <p className="mt-3 text-sm text-white/42">{primaryAction.hint}</p>
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/46">
               {[
                 "Вещи и услуги",

@@ -296,7 +296,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error ?? "Не удалось создать объявление");
       window.localStorage.removeItem(draftKey);
-      router.push(returnTo ?? `/item/${body.data.id}`);
+      router.push(returnTo ?? `/item/${body.data.id}?created=1`);
       router.refresh();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Не удалось создать объявление");

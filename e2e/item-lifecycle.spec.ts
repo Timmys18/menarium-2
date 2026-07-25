@@ -59,7 +59,9 @@ test.describe("жизненный цикл объявления", () => {
       "Фотоаппарат",
     );
     await pick(content.getByRole("button", { name: "Создать объявление" })).click();
-    await expect(page).toHaveURL(/\/item\/[^/?]+$/);
+    await expect(page).toHaveURL(/\/item\/[^/?]+\?created=1$/);
+    await expect(content.getByRole("heading", { name: "Теперь найдём встречный вариант" })).toBeVisible();
+    await expect(content.getByRole("link", { name: "Найти вариант" })).toHaveAttribute("href", "/swipe");
 
     await page.goto("/my-items?status=active");
     await expect(itemCard(page)).toBeVisible();

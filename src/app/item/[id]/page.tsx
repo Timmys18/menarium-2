@@ -10,6 +10,7 @@ import {
   MapPin,
   MessageCircle,
   Package,
+  CheckCircle2,
   ShieldCheck,
   Sparkles,
   Star,
@@ -50,7 +51,11 @@ import { markItemThreadRead } from "@/features/chat/read-state";
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ thread?: string | string[]; from?: string | string[] }>;
+  searchParams: Promise<{
+    thread?: string | string[];
+    from?: string | string[];
+    created?: string | string[];
+  }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -72,6 +77,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const { id } = await params;
   const query = await searchParams;
   const requestedThread = Array.isArray(query.thread) ? query.thread[0] : query.thread;
+  const justCreated = (Array.isArray(query.created) ? query.created[0] : query.created) === "1";
   const returnHref = parseCatalogReturnHref(query.from) ?? "/catalog";
   const identity = await getCurrentUserIdentity();
   const userId = identity?.id ?? null;
@@ -126,6 +132,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
   const createForExchangeHref = `/new?returnTo=${encodeURIComponent(`/item/${publicItem.id}`)}`;
   const isOwner = Boolean(userId && publicItem.owner?.id === userId);
   const canInteract = canInteractWithItem(item.status, viewerIsAdmin);
+  const showPublishedSuccess = justCreated && isOwner && item.status === ItemStatus.ACTIVE;
   const ownerId = publicItem.owner?.id;
   const [blocks, ownerCompletedSwaps, ownerRatingGroups] = await Promise.all([
     userId && ownerId && !isOwner
@@ -330,6 +337,29 @@ export default async function ItemPage({ params, searchParams }: Props) {
             <ArrowLeft className="h-4 w-4" />
             Назад в каталог
           </MenariumLinkButton>
+
+          {showPublishedSuccess ? (
+            <GlassCard className="mb-5 overflow-hidden border border-teal-300/20 bg-gradient-to-r from-teal-300/[0.12] via-blue-400/[0.08] to-transparent p-5 sm:mb-7 sm:p-6">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3.5">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-teal-300 text-[#06130f] shadow-[0_12px_30px_rgba(52,211,153,0.18)]">
+                    <CheckCircle2 className="h-6 w-6" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-100/72">Объявление опубликовано</p>
+                    <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] sm:text-2xl">Теперь найдём встречный вариант</h2>
+                    <p className="mt-1.5 max-w-xl text-sm leading-6 text-white/62">
+                      В свайпе уже можно выбрать чужую вещь и отправить первое предложение обмена.
+                    </p>
+                  </div>
+                </div>
+                <MenariumLinkButton href="/swipe" className="w-full shrink-0 sm:w-auto">
+                  <ArrowRightLeft className="h-4 w-4" />
+                  Найти вариант
+                </MenariumLinkButton>
+              </div>
+            </GlassCard>
+          ) : null}
 
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-7">
             <div className="lg:sticky lg:top-28">
