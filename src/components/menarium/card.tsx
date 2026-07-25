@@ -6,7 +6,11 @@ export function GlassCard({ className, ...props }: HTMLAttributes<HTMLDivElement
 }
 
 export function HoverCard({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("glass-card glass-card-hover rounded-[24px] sm:rounded-[28px]", className)} {...props} />;
+  return <div className={cn("surface-card surface-card-hover rounded-[24px] sm:rounded-[28px]", className)} {...props} />;
+}
+
+export function SurfaceCard({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("surface-card rounded-[20px] sm:rounded-[24px]", className)} {...props} />;
 }
 
 export function PremiumCard({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

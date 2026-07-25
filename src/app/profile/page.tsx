@@ -20,7 +20,7 @@ import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { buildProfileActivation } from "@/features/profile/activation";
@@ -753,7 +753,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 </div>
 
                 <aside className="space-y-5">
-                  <GlassCard className="border border-white/8 p-5">
+                  <SurfaceCard className="p-5">
                     <div className="mb-4 flex items-center justify-between">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.15em] text-teal-200/60">Ваши вещи</p>
@@ -777,7 +777,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                           >
                             <Icon className="h-4 w-4 text-teal-200/65" />
                             <span className="mt-3 block text-xl font-semibold">{entry.value}</span>
-                            <span className="mt-0.5 block text-[11px] text-white/35">{entry.label}</span>
+                            <span className="mt-0.5 block text-[11px] text-white/48">{entry.label}</span>
                           </Link>
                         );
                       })}
@@ -791,16 +791,16 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-sm font-semibold text-white/86">Избранное</span>
-                        <span className="block text-[11px] text-white/38">Сохранённые вещи и рекомендации</span>
+                        <span className="block text-[11px] text-white/50">Сохранённые вещи и рекомендации</span>
                       </span>
                       <strong className="text-lg text-white/82">{favoriteCount}</strong>
                     </Link>
                     <MenariumLinkButton href="/my-items" variant="secondary" size="sm" className="mt-3 w-full">
                       Управлять объявлениями
                     </MenariumLinkButton>
-                  </GlassCard>
+                  </SurfaceCard>
 
-                  <GlassCard className="border border-white/8 p-5">
+                  <SurfaceCard className="p-5">
                     <div className="mb-4 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <Bell className="h-4 w-4 text-blue-200/70" />
@@ -817,7 +817,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                             className="block rounded-[15px] border border-white/7 bg-white/[0.025] px-3.5 py-3 transition hover:bg-white/[0.055]"
                           >
                             <p className="line-clamp-1 text-sm font-medium">{notification.title}</p>
-                            <p className="mt-1 line-clamp-2 text-xs leading-4 text-white/38">{notification.message}</p>
+                            <p className="mt-1 line-clamp-2 text-xs leading-4 text-white/50">{notification.message}</p>
                           </Link>
                         ))}
                         <MenariumLinkButton href="/notifications" variant="ghost" size="sm" className="w-full">
@@ -827,23 +827,23 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     ) : (
                       <div className="rounded-[16px] border border-teal-300/10 bg-teal-300/[0.03] p-4">
                         <p className="text-sm font-medium text-white/70">Всё прочитано</p>
-                        <p className="mt-1 text-xs leading-4 text-white/35">Новые события появятся здесь и в верхней панели.</p>
+                        <p className="mt-1 text-xs leading-4 text-white/48">Новые события появятся здесь и в верхней панели.</p>
                       </div>
                     )}
-                  </GlassCard>
+                  </SurfaceCard>
 
-                  <GlassCard className="border border-white/8 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/30">История</p>
+                  <SurfaceCard className="p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/45">История</p>
                     <div className="mt-3 flex items-end justify-between gap-4">
                       <div>
                         <p className="text-3xl font-semibold">{completedSwaps}</p>
-                        <p className="mt-1 text-xs text-white/38">завершённых обменов</p>
+                        <p className="mt-1 text-xs text-white/50">завершённых обменов</p>
                       </div>
                       <MenariumLinkButton href="/exchange?tab=matches&filter=history" variant="secondary" size="sm">
                         Открыть
                       </MenariumLinkButton>
                     </div>
-                  </GlassCard>
+                  </SurfaceCard>
 
                   <GlassCard className="border border-teal-300/10 bg-gradient-to-br from-teal-300/[0.055] to-blue-400/[0.035] p-5">
                     <div className="flex items-start gap-3">

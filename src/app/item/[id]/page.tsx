@@ -19,7 +19,7 @@ import {
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { FavoriteButton } from "@/components/menarium/favorite-button";
 import { ItemCard } from "@/components/menarium/item-card";
 import {
@@ -494,7 +494,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 </section>
               </GlassCard>
 
-              <GlassCard className="p-5 sm:p-6">
+              <SurfaceCard className="p-5 sm:p-6">
                 {publicItem.owner?.id ? (
                   <Link
                     href={`/user/${publicItem.owner.id}`}
@@ -583,7 +583,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     />
                   </div>
                 ) : null}
-              </GlassCard>
+              </SurfaceCard>
             </div>
           </div>
           {!showChatPanel && relatedItems.length > 0 ? (

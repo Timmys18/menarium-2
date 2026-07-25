@@ -4,7 +4,7 @@ import { Check, Clock, Heart, Plus, Search, SlidersHorizontal, Sparkles, X } fro
 import { ItemType } from "@prisma/client";
 import { AppShell } from "@/components/layout/app-shell";
 import { PreviewUiNotice } from "@/components/preview-ui-notice";
-import { GlassCard } from "@/components/menarium/card";
+import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
@@ -165,13 +165,13 @@ export default async function CatalogPage({ searchParams }: Props) {
               })}
             </div>
 
-            <details className="glass-card overflow-hidden rounded-[18px]">
+            <details className="surface-card overflow-hidden rounded-[18px]">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/65 [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-2 text-sm font-medium">
                   <SlidersHorizontal className="h-4 w-4 text-teal-200" />
                   Фильтры
                 </span>
-                <span className="text-xs text-white/42">
+                <span className="text-xs text-white/55">
                   {activeFilterCount > 0 ? `Выбрано: ${activeFilterCount}` : "Категория, тип, город"}
                 </span>
               </summary>
@@ -290,7 +290,7 @@ export default async function CatalogPage({ searchParams }: Props) {
 
           <div className="flex gap-8">
             <aside className="hidden w-72 shrink-0 lg:block">
-              <GlassCard className="sticky top-28 p-5">
+              <SurfaceCard className="sticky top-28 p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-semibold">Настроить выдачу</h2>
                   {activeFilterCount > 0 ? (
@@ -363,7 +363,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                     </div>
                   </>
                 ) : null}
-              </GlassCard>
+              </SurfaceCard>
             </aside>
 
             <section className="min-w-0 flex-1" aria-label="Результаты каталога">
