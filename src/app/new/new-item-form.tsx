@@ -72,6 +72,8 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
   const router = useRouter();
   const draftKey = `${DRAFT_KEY_PREFIX}:${userId}`;
   const hasTrackedStart = useRef(false);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const shouldFocusStep = useRef(false);
   const [step, setStep] = useState(0);
   const [draftReady, setDraftReady] = useState(false);
   const [title, setTitle] = useState("");
@@ -164,6 +166,17 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
     type,
   ]);
 
+  useEffect(() => {
+    if (!shouldFocusStep.current) return;
+    shouldFocusStep.current = false;
+
+    const heading = stepHeadingRef.current;
+    if (!heading) return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    heading.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    window.requestAnimationFrame(() => heading.focus({ preventScroll: true }));
+  }, [step]);
+
   function validateStep(stepToValidate: number) {
     if (stepToValidate === 0) {
       if (title.trim().length < 2) {
@@ -206,11 +219,13 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
 
   function goToNextStep() {
     if (!validateStep(step)) return;
+    shouldFocusStep.current = true;
     setStep((current) => Math.min(current + 1, steps.length - 1));
   }
 
   function goToPreviousStep() {
     setError(null);
+    shouldFocusStep.current = true;
     setStep((current) => Math.max(current - 1, 0));
   }
 
@@ -366,7 +381,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             <section className="space-y-6" aria-labelledby="new-item-step-one">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 1 из 3</p>
-                <h2 id="new-item-step-one" className="text-2xl font-bold sm:text-3xl">Покажи, что предлагаешь</h2>
+                <h2 ref={stepHeadingRef} id="new-item-step-one" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Покажи, что предлагаешь</h2>
                 <p className="mt-2 text-sm leading-6 text-white/50">Название и хорошее первое фото помогают получить больше осмысленных предложений.</p>
               </div>
 
@@ -493,7 +508,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             <section className="space-y-6" aria-labelledby="new-item-step-two">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 2 из 3</p>
-                <h2 id="new-item-step-two" className="text-2xl font-bold sm:text-3xl">Расскажи честно и по делу</h2>
+                <h2 ref={stepHeadingRef} id="new-item-step-two" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Расскажи честно и по делу</h2>
                 <p className="mt-2 text-sm leading-6 text-white/50">Состояние, комплектация и нюансы заранее снимают лишние вопросы.</p>
               </div>
 
@@ -554,7 +569,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             <section className="space-y-6" aria-labelledby="new-item-step-three">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 3 из 3</p>
-                <h2 id="new-item-step-three" className="text-2xl font-bold sm:text-3xl">Что будет хорошим обменом?</h2>
+                <h2 ref={stepHeadingRef} id="new-item-step-three" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что будет хорошим обменом?</h2>
                 <p className="mt-2 text-sm leading-6 text-white/50">Дай людям ориентир, но оставь пространство для неожиданно классных предложений.</p>
               </div>
 
