@@ -17,6 +17,7 @@ export function LoginForm() {
   const registrationEmailSent = searchParams.get("emailSent") === "1";
   const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const registerHref = `/auth/register?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  const forgotPasswordHref = `/auth/forgot-password?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -88,7 +89,7 @@ export function LoginForm() {
             Пароль
           </label>
           <Link
-            href="/auth/forgot-password"
+            href={forgotPasswordHref}
             className="rounded-lg text-sm text-teal-200/80 transition hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
           >
           Забыли пароль?

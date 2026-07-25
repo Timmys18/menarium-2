@@ -14,6 +14,8 @@ import { safeCallbackUrl } from "@/lib/utils";
 export function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
+  const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const hasTrackedStart = useRef(false);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
@@ -207,7 +209,7 @@ export function RegisterForm() {
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
         Зарегистрироваться
       </MenariumButton>
-      <MenariumLinkButton href="/auth/login" variant="secondary" className="w-full">
+      <MenariumLinkButton href={loginHref} variant="secondary" className="w-full">
         Уже есть аккаунт
       </MenariumLinkButton>
     </form>

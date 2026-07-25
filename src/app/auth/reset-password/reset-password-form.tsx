@@ -6,12 +6,15 @@ import { Check, Eye, EyeOff, Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
+import { safeCallbackUrl } from "@/lib/utils";
 
 export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
   const token = searchParams.get("token") ?? "";
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
+  const forgotPasswordHref = `/auth/forgot-password?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +53,7 @@ export function ResetPasswordForm() {
         setError(body.error ?? "Не удалось сменить пароль");
         return;
       }
-      router.push("/auth/login?passwordChanged=1");
+      router.push(`/auth/login?passwordChanged=1&callbackUrl=${encodeURIComponent(callbackUrl)}`);
       router.refresh();
     } catch {
       setError("Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.");
@@ -65,7 +68,7 @@ export function ResetPasswordForm() {
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
           Ссылка недействительна. Запросите сброс пароля заново.
         </div>
-        <MenariumLinkButton href="/auth/forgot-password" className="w-full">
+        <MenariumLinkButton href={forgotPasswordHref} className="w-full">
           Запросить ссылку
         </MenariumLinkButton>
       </div>

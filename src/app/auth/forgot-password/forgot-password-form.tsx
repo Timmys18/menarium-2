@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
+import { safeCallbackUrl } from "@/lib/utils";
 
 export function ForgotPasswordForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
+  const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -22,7 +27,7 @@ export function ForgotPasswordForm() {
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, callbackUrl }),
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -74,7 +79,7 @@ export function ForgotPasswordForm() {
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
         Отправить ссылку
       </MenariumButton>
-      <MenariumLinkButton href="/auth/login" variant="secondary" className="w-full">
+      <MenariumLinkButton href={loginHref} variant="secondary" className="w-full">
         Назад ко входу
       </MenariumLinkButton>
     </form>
