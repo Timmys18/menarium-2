@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Prisma, SwapStatus } from "@prisma/client";
+import { ItemStatus, Prisma, SwapStatus } from "@prisma/client";
 import { ArrowLeftRight, CheckCircle2, Clock3, MessageCircle, ShieldCheck, UserRound } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
@@ -214,7 +214,7 @@ export default async function ExchangePage({ searchParams }: Props) {
     ? { OR: [{ senderId: userId }, { receiverId: userId }] }
     : { id: { in: [] } };
 
-  const [pendingForMatches, requestedSwapById, totalSwaps] = userId
+  const [pendingForMatches, requestedSwapById, totalSwaps, activeItemCount] = userId
     ? await Promise.all([
         prisma.swapRequest.findMany({
           where: { ...participantWhere, status: SwapStatus.PENDING },
@@ -233,8 +233,9 @@ export default async function ExchangePage({ searchParams }: Props) {
             })
           : Promise.resolve(null),
         prisma.swapRequest.count({ where: participantWhere }),
+        prisma.item.count({ where: { ownerId: userId, status: ItemStatus.ACTIVE } }),
       ])
-    : [[], null, 0];
+    : [[], null, 0, 0];
 
   const pendingRows = pendingForMatches.map((swap) => ({
     id: swap.id,
@@ -406,6 +407,12 @@ export default async function ExchangePage({ searchParams }: Props) {
     params.notice === "accepted" &&
     selectedSwap?.receiverId === userId &&
     selectedSwap.status === SwapStatus.ACCEPTED;
+  const activeItemLabel =
+    activeItemCount === 1
+      ? "активное объявление"
+      : activeItemCount >= 2 && activeItemCount <= 4
+        ? "активных объявления"
+        : "активных объявлений";
   return (
     <AppShell>
       <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
@@ -482,10 +489,17 @@ export default async function ExchangePage({ searchParams }: Props) {
             />
           ) : totalSwaps === 0 ? (
             <EmptyState
-              title="Обменов пока нет"
-              description="Найдите интересную вещь в каталоге или свайпе и предложите взамен своё объявление."
-              actionHref="/catalog"
-              actionLabel="Найти первый обмен"
+              eyebrow={activeItemCount > 0 ? "Первый обмен в двух шагах" : "Сначала покажите свою ценность"}
+              title={activeItemCount > 0 ? "Ваши вещи уже готовы к обмену" : "Добавьте первую вещь для обмена"}
+              description={
+                activeItemCount > 0
+                  ? `У вас ${activeItemCount} ${activeItemLabel}. Выберите интересную вещь и предложите один из своих вариантов.`
+                  : "Добавьте вещь, навык или услугу. После этого сможете выбирать варианты в каталоге и свайпе."
+              }
+              actionHref={activeItemCount > 0 ? "/catalog" : "/new"}
+              actionLabel={activeItemCount > 0 ? "Открыть каталог" : "Добавить вещь"}
+              secondaryActionHref={activeItemCount > 0 ? "/swipe" : undefined}
+              secondaryActionLabel={activeItemCount > 0 ? "Перейти к свайпу" : undefined}
             />
           ) : (
             <>

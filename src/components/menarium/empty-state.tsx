@@ -9,12 +9,18 @@ export function EmptyState({
   description,
   actionHref,
   actionLabel,
+  eyebrow = "Следующий шаг",
+  secondaryActionHref,
+  secondaryActionLabel,
 }: {
   icon?: ReactNode;
   title: string;
   description: string;
   actionHref?: string;
   actionLabel?: string;
+  eyebrow?: string;
+  secondaryActionHref?: string;
+  secondaryActionLabel?: string;
 }) {
   return (
     <GlassCard className="relative flex min-h-72 flex-col items-center justify-center overflow-hidden px-6 py-10 text-center sm:min-h-80 sm:p-12">
@@ -25,15 +31,22 @@ export function EmptyState({
         <span className="relative">{icon}</span>
       </div>
       <p className="relative mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/68">
-        Следующий шаг
+        {eyebrow}
       </p>
       <h2 className="relative mb-2 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
       <p className="relative max-w-md text-sm leading-6 text-white/66 sm:text-base">{description}</p>
       {actionHref && actionLabel ? (
-        <MenariumLinkButton href={actionHref} className="relative mt-6">
-          {actionLabel}
-          <ArrowRight className="h-4 w-4" />
-        </MenariumLinkButton>
+        <div className="relative mt-6 flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
+          <MenariumLinkButton href={actionHref} className="w-full sm:w-auto">
+            {actionLabel}
+            <ArrowRight className="h-4 w-4" />
+          </MenariumLinkButton>
+          {secondaryActionHref && secondaryActionLabel ? (
+            <MenariumLinkButton href={secondaryActionHref} variant="secondary" className="w-full sm:w-auto">
+              {secondaryActionLabel}
+            </MenariumLinkButton>
+          ) : null}
+        </div>
       ) : null}
     </GlassCard>
   );
