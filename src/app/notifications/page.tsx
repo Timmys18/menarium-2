@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Bell, CalendarClock, MessageCircle, Repeat, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { getSafeNotificationHref } from "@/features/notifications/href";
 import { prisma } from "@/lib/prisma";
@@ -141,11 +141,11 @@ export default async function NotificationsPage({ searchParams }: Props) {
                     <section key={group.label} aria-labelledby={`notifications-${group.label}`}>
                       <h2
                         id={`notifications-${group.label}`}
-                        className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/35"
+                        className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/48"
                       >
                         {group.label}
                       </h2>
-                      <GlassCard className="overflow-hidden border border-white/8">
+                      <SurfaceCard className="overflow-hidden">
                         {group.notifications.map((notification) => {
                           const Icon = typeIcons[notification.type] ?? Bell;
                           const safeHref = getSafeNotificationHref(notification.href);
@@ -166,10 +166,10 @@ export default async function NotificationsPage({ searchParams }: Props) {
                                   <h3 className="font-semibold text-white">{notification.title}</h3>
                                   {!notification.isRead ? <Badge variant="teal">Новое</Badge> : null}
                                 </div>
-                                <p className="mt-1 text-sm leading-5 text-white/48">{notification.message}</p>
+                                <p className="mt-1 text-sm leading-5 text-white/60">{notification.message}</p>
                                 <time
                                   dateTime={notification.createdAt.toISOString()}
-                                  className="mt-2 block text-xs text-white/28"
+                                  className="mt-2 block text-xs text-white/42"
                                 >
                                   {notification.createdAt.toLocaleString("ru-RU", {
                                     day: "numeric",
@@ -210,7 +210,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                             </div>
                           );
                         })}
-                      </GlassCard>
+                      </SurfaceCard>
                     </section>
                   ))}
                 </div>
