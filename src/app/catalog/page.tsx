@@ -372,8 +372,8 @@ export default async function CatalogPage({ searchParams }: Props) {
                   <h2 className="text-lg font-semibold tracking-[-0.02em] text-white">
                     {q ? `По запросу «${q}»` : activeFilterCount > 0 ? "Подходящие предложения" : "Все предложения"}
                   </h2>
-                  <p className="mt-1 text-xs text-white/35">
-                    {sortOptions.find((option) => option.id === sort)?.label} · страница {page} из {totalPages}
+                  <p className="mt-1 text-xs text-white/52">
+                    {total} {total === 1 ? "предложение" : total >= 2 && total <= 4 ? "предложения" : "предложений"} · {sortOptions.find((option) => option.id === sort)?.label.toLowerCase()} · страница {page} из {totalPages}
                   </p>
                 </div>
                 <MenariumLinkButton href="/new" size="sm" className="sm:hidden">

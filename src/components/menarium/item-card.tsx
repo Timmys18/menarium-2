@@ -92,14 +92,14 @@ export function ItemCard({
             </div>
           ) : null}
         </div>
-        <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-1 flex-col p-5 sm:p-5.5">
           {recommendationReason ? (
             <div className="mb-3 flex items-start gap-2 rounded-[13px] border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">
               <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
               <span>{recommendationReason}</span>
             </div>
           ) : null}
-          <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="line-clamp-2 text-lg font-semibold leading-6 tracking-[-0.02em] text-white">{title}</h3>
             {likes ? (
               <span className="flex shrink-0 items-center gap-1 text-sm text-white/55">
@@ -108,18 +108,21 @@ export function ItemCard({
               </span>
             ) : null}
           </div>
-          <div className="mt-auto flex items-start gap-2 rounded-[15px] border border-teal-300/[0.11] bg-teal-300/[0.045] px-3.5 py-3 text-sm text-white/58">
-            <ArrowRightLeft className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
-            <span className="line-clamp-2 leading-5">Ищу: {wanted}</span>
+          <div className="mt-auto rounded-[15px] border border-teal-300/[0.12] bg-teal-300/[0.05] px-3.5 py-3">
+            <span className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-100/58">
+              <ArrowRightLeft className="h-3.5 w-3.5 text-teal-200" />
+              Ищу взамен
+            </span>
+            <span className="line-clamp-2 block text-sm leading-5 text-white/74">{wanted}</span>
           </div>
-          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/50">
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/58">
             {city ? (
               <span className="flex min-w-0 items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{city}</span>
               </span>
             ) : <span />}
-            <span className="shrink-0 text-teal-200/65">Посмотреть →</span>
+            <span className="shrink-0 text-teal-200/80">Посмотреть →</span>
           </div>
         </div>
     </HoverCard>

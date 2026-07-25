@@ -138,6 +138,17 @@ a {
   transition: border-color 220ms ease, background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
 }
 
+/* The homepage has one expressive surface; browsing surfaces stay intentionally quiet. */
+.hero-canvas {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 42%),
+    linear-gradient(180deg, rgba(14, 23, 35, 0.94), rgba(9, 14, 23, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.115);
+  box-shadow:
+    0 38px 100px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
 .page-enter {
   animation: page-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }

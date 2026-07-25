@@ -61,7 +61,7 @@ export function Navigation({
     <>
       <nav aria-label="Основная навигация" className="fixed inset-x-0 top-0 z-50 hidden md:block">
         <div className="mx-auto max-w-[1480px] px-4 py-3 lg:px-6">
-          <div className="glass-card rounded-[24px] px-3 py-2.5">
+          <div className="surface-card rounded-[24px] px-3 py-2.5">
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/"
@@ -91,7 +91,7 @@ export function Navigation({
                         "relative flex min-h-11 items-center gap-2 rounded-[14px] px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 lg:px-5",
                         active
                           ? "border border-white/10 bg-white/[0.09] text-white shadow-inner shadow-white/[0.03]"
-                          : "border border-transparent text-white/52 hover:bg-white/[0.045] hover:text-white",
+                          : "border border-transparent text-white/58 hover:bg-white/[0.055] hover:text-white",
                       )}
                     >
                       <Icon className={cn("h-4 w-4", active ? "text-teal-300" : "text-white/42")} />

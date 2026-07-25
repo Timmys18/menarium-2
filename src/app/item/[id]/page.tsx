@@ -429,7 +429,11 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   <p className="text-base font-medium leading-relaxed text-white/88 sm:text-lg">{wanted}</p>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div
+                  className={`flex flex-col gap-3 ${
+                    !isOwner && canInteract && !communicationBlocked ? "hidden md:flex" : ""
+                  }`}
+                >
                   {isOwner ? (
                     item.status === ItemStatus.ACTIVE || item.status === ItemStatus.PAUSED ? (
                       <div className="flex-1 space-y-3">
@@ -654,13 +658,6 @@ export default async function ItemPage({ params, searchParams }: Props) {
               canWrite={canWriteItemChat}
               isOwner={isOwner}
             />
-          ) : null}
-          {!showChatPanel && isOwner && (item.status === ItemStatus.ACTIVE || item.status === ItemStatus.PAUSED) ? (
-            <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto max-w-lg rounded-[22px] border border-white/12 bg-[#090e16]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
-              <MenariumLinkButton href={`/item/${publicItem.id}/edit`} className="w-full" size="sm">
-                Редактировать объявление
-              </MenariumLinkButton>
-            </div>
           ) : null}
           {!showChatPanel && !isOwner && canInteract && !communicationBlocked ? (
             <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-lg grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-[22px] border border-white/12 bg-[#090e16]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
