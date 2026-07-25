@@ -304,11 +304,12 @@ export function SwipeCardStack({
         open={likeOpen}
         receiverItemId={card.id}
         receiverTitle={card.title}
+        receiverWanted={card.wanted}
         userItems={userItems}
         onClose={() => setLikeOpen(false)}
         onSuccess={(swapId) => {
           setLikeOpen(false);
-          router.push(`/exchange?tab=outgoing&swap=${encodeURIComponent(swapId)}`);
+          router.push(`/exchange?tab=outgoing&swap=${encodeURIComponent(swapId)}&notice=sent`);
           router.refresh();
         }}
       />

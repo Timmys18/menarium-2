@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRightLeft, Loader2 } from "lucide-react";
+import { ArrowRightLeft, BellRing, Loader2, ShieldCheck } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { MenariumDialog } from "@/components/menarium/dialog";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
@@ -12,6 +12,7 @@ export function SwipeLikeModal({
   open,
   receiverItemId,
   receiverTitle,
+  receiverWanted,
   userItems,
   onClose,
   onSuccess,
@@ -19,6 +20,7 @@ export function SwipeLikeModal({
   open: boolean;
   receiverItemId: string;
   receiverTitle: string;
+  receiverWanted: string;
   userItems: UserItem[];
   onClose: () => void;
   onSuccess: (swapId: string) => void;
@@ -63,7 +65,7 @@ export function SwipeLikeModal({
       open={open}
       onClose={close}
       title="Проверим предложение"
-      description="Выбери своё объявление. После отправки откроется центр обмена с этим предложением."
+      description="Выбери вещь или услугу, которую готов отдать. Перед отправкой всё можно изменить."
       footer={
         <>
           <MenariumButton variant="secondary" onClick={close} disabled={loading}>
@@ -77,7 +79,7 @@ export function SwipeLikeModal({
       }
     >
       <label htmlFor="swipe-sender-item" className="block text-sm font-medium text-white/65">
-        Что отдаёшь
+        Что готов отдать
       </label>
       <select
         id="swipe-sender-item"
@@ -102,6 +104,22 @@ export function SwipeLikeModal({
           <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">Получаешь</span>
           <span className="mt-1 block truncate text-sm font-medium text-white">{receiverTitle}</span>
         </div>
+      </div>
+
+      <div className="mt-3 rounded-[16px] border border-teal-300/[0.12] bg-teal-300/[0.045] px-3.5 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-teal-100/62">Владелец ищет</p>
+        <p className="mt-1 text-sm leading-5 text-white/78">{receiverWanted}</p>
+      </div>
+
+      <div className="mt-4 space-y-2 border-t border-white/8 pt-4 text-xs leading-5 text-white/48">
+        <p className="flex items-start gap-2">
+          <BellRing className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200/75" />
+          Владелец получит уведомление и сможет принять или отклонить предложение.
+        </p>
+        <p className="flex items-start gap-2">
+          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200/75" />
+          До ответа предложение можно отозвать. Оплата через Menarium не требуется.
+        </p>
       </div>
 
       {error ? (

@@ -23,7 +23,7 @@ import { ExchangeReviewPanel } from "./exchange-review-panel";
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ swap?: string; tab?: string; filter?: string; page?: string }>;
+  searchParams: Promise<{ swap?: string; tab?: string; filter?: string; page?: string; notice?: string }>;
 };
 
 type ExchangeTab = "incoming" | "outgoing" | "matches";
@@ -398,6 +398,10 @@ export default async function ExchangePage({ searchParams }: Props) {
   const selectedStatus =
     selectedSwap && userId ? statusPresentation(selectedSwap, userId) : null;
   const selectedOwnBlock = selectedBlock?.blockerId === userId;
+  const showSentNotice =
+    params.notice === "sent" &&
+    selectedSwap?.senderId === userId &&
+    selectedSwap.status === SwapStatus.PENDING;
   return (
     <AppShell>
       <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
@@ -433,6 +437,20 @@ export default async function ExchangePage({ searchParams }: Props) {
               )
             ) : null}
           </header>
+
+          {showSentNotice ? (
+            <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300 text-[#07130f]">
+                <CheckCircle2 className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="font-semibold text-white">Предложение отправлено</p>
+                <p className="mt-1 text-sm leading-6 text-white/60">
+                  Партнёр уже получил уведомление. До ответа вы можете отозвать предложение в карточке обмена.
+                </p>
+              </div>
+            </GlassCard>
+          ) : null}
 
           {!userId ? (
             <EmptyState

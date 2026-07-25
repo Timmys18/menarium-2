@@ -121,7 +121,8 @@ test.describe("критический жизненный цикл обмена",
         await expect(mariaMain.getByRole("heading", { name: targetItemTitle }).first()).toBeVisible();
         await pick(mariaMain.locator("select")).selectOption({ label: createdItemTitle });
         await pick(mariaMain.getByRole("button", { name: "Предложить обмен" })).click();
-        await expect(maria).toHaveURL(/\/exchange\?swap=[^&]+/);
+        await expect(maria).toHaveURL(/\/exchange\?.*tab=outgoing.*swap=[^&]+/);
+        await expect(mariaMain.getByText("Предложение отправлено", { exact: true })).toBeVisible();
         await expect(mariaMain.getByText("Ждём ответа", { exact: true }).first()).toBeVisible();
       });
 
