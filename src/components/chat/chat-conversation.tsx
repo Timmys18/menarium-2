@@ -344,7 +344,7 @@ export function ChatConversation({
                 aria-hidden="true"
                 className={`h-1.5 w-1.5 rounded-full ${connected ? "bg-teal-400" : "bg-amber-400"}`}
               />
-              {connected ? "Live" : "Подключаемся"}
+              {connected ? "На связи" : "Подключаемся"}
             </span>
           ) : null}
         </div>
