@@ -200,6 +200,7 @@ export function ExchangeDealPanel({
   currentUserId,
   messages,
   nextCursor,
+  chatSuggestions = [],
 }: ExchangeSnapshot & {
   swapId: string;
   isSender: boolean;
@@ -207,6 +208,7 @@ export function ExchangeDealPanel({
   currentUserId: string;
   messages: ChatMessageView[];
   nextCursor: string | null;
+  chatSuggestions?: string[];
   communicationBlocked: boolean;
   acceptedHref?: string;
 }) {
@@ -259,6 +261,7 @@ export function ExchangeDealPanel({
         disabledPlaceholder={disabledPlaceholder}
         emptyMessage="Сообщений по этой сделке пока нет."
         draftKey={`deal:${swapId}`}
+        suggestedMessages={chatSuggestions}
       />
     </>
   );

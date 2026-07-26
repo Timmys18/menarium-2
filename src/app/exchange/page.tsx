@@ -796,6 +796,15 @@ export default async function ExchangePage({ searchParams }: Props) {
                         currentUserId={userId}
                         messages={selectedMessages}
                         nextCursor={selectedMessagePage.nextCursor}
+                        chatSuggestions={
+                          selectedSwap.status === SwapStatus.ACCEPTED
+                            ? [
+                                "Привет! Рад(а) договориться об обмене.",
+                                `Подтверждаю: я отдаю «${selectedYourItem.title}» и получаю «${selectedTheirItem.title}».`,
+                                "Давайте согласуем удобное время и место здесь, в чате.",
+                              ]
+                            : []
+                        }
                         acceptedHref={`/exchange?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
                       />
 
