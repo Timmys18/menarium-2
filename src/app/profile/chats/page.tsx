@@ -193,8 +193,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
               Все разговоры
             </p>
-            <h1 className="text-4xl font-bold md:text-5xl">Мои чаты</h1>
-            <p className="mt-3 text-white/55">Диалоги по объявлениям и обменам в одном месте.</p>
+            <h1 className="type-page-title text-4xl md:text-5xl">Мои чаты</h1>
           </header>
 
           {userId ? <ChatCenterRefresh /> : null}

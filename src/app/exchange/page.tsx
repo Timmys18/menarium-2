@@ -419,15 +419,12 @@ export default async function ExchangePage({ searchParams }: Props) {
         <div className="mx-auto max-w-7xl">
           <header className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
+              <p className="type-kicker mb-2 text-blue-200/60">
                 Личный центр
               </p>
-              <h1 className="text-3xl font-bold tracking-[-0.04em] sm:text-4xl md:text-5xl">
+              <h1 className="type-page-title text-3xl sm:text-4xl md:text-5xl">
                 Мои <span className="gradient-text">обмены</span>
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/66 sm:text-base">
-                Здесь видно, где нужен твой ответ, где ждём партнёра и о чём уже договорились.
-              </p>
             </div>
             {userId && totalSwaps > 0 ? (
               needsResponseCount > 0 ? (

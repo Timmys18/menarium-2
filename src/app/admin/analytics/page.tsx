@@ -100,7 +100,7 @@ export default async function ProductAnalyticsPage() {
                 <Activity className="h-4 w-4" />
                 Product intelligence
               </div>
-              <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">Пульс Menarium</h1>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Пульс Menarium</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50 sm:text-base">
                 Путь от первого визита до завершённого обмена. Только first-party данные без рекламных трекеров,
                 содержимого сообщений и персональных полей.
@@ -150,7 +150,7 @@ export default async function ProductAnalyticsPage() {
                       North star · 30 дней
                     </div>
                     <div className="mt-5 flex items-end gap-3">
-                      <strong className="font-display text-6xl leading-none text-white">
+                      <strong className="text-6xl leading-none text-white">
                         {numberFormatter.format(dashboard.business.swapsCompleted)}
                       </strong>
                       <span className="pb-1 text-sm text-white/40">завершённых обменов</span>

@@ -98,13 +98,10 @@ export default async function CatalogPage({ searchParams }: Props) {
         <div className="mx-auto max-w-[1600px]">
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/70">Вещи и услуги рядом</p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+              <p className="type-kicker text-teal-200/70">Вещи и услуги рядом</p>
+              <h1 className="type-page-title mt-2 text-4xl sm:text-5xl">
                 Найди встречный <span className="gradient-text">вариант</span>
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/62 sm:text-base">
-                Ищи по названию, городу и категории. Каждый результат уже открыт к обмену.
-              </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
               <div className="rounded-full border border-white/[0.075] bg-white/[0.035] px-4 py-2 text-sm text-white/45">
@@ -383,7 +380,7 @@ export default async function CatalogPage({ searchParams }: Props) {
               </div>
               {cards.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 2xl:grid-cols-3">
+                  <div className="reveal-grid grid grid-cols-1 gap-5 sm:grid-cols-2 2xl:grid-cols-3">
                     {cards.map((item, index) => (
                       <ItemCard
                         key={item.id}

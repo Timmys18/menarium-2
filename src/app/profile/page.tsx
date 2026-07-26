@@ -436,10 +436,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     </div>
 
                     <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.17em] text-white/52">
+                      <p className="type-kicker text-white/52">
                         Личный кабинет
                       </p>
-                      <h1 className="mt-1 truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+                      <h1 className="type-page-title mt-1 truncate text-2xl sm:text-3xl">
                         {user.name ?? "Участник Menarium"}
                       </h1>
                       <div className="mt-2 flex flex-wrap items-center gap-2">

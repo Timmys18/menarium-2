@@ -39,7 +39,7 @@ export default async function NewItemPage({ searchParams }: NewItemPageProps) {
               <Sparkles className="h-4 w-4 text-teal-300" />
               Новое объявление
             </div>
-            <h1 className="mb-3 text-3xl font-bold md:text-5xl">Что выставим на обмен?</h1>
+            <h1 className="type-page-title mb-3 text-3xl md:text-5xl">Что выставим на обмен?</h1>
             <p className="mx-auto max-w-2xl text-white/55">
               Три коротких шага. Черновик сохранится на этом устройстве, если решишь продолжить позже.
             </p>

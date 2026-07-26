@@ -96,8 +96,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
                 Все события
               </p>
-              <h1 className="text-4xl font-bold md:text-5xl">Уведомления</h1>
-              <p className="mt-3 text-white/55">Ответы, сообщения и изменения в ваших обменах.</p>
+              <h1 className="type-page-title text-4xl md:text-5xl">Уведомления</h1>
             </div>
             {userId && unreadCount > 0 ? <MarkAllNotificationsRead disabled={false} /> : null}
           </header>

@@ -94,11 +94,11 @@ export function AuthShell({
           </div>
 
           <div className="mb-7">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/65">
+            <p className="type-kicker mb-2 text-teal-200/65">
               Личный доступ
             </p>
-            <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{title}</h1>
-            <p className="mt-3 max-w-md text-sm leading-6 text-white/66 sm:text-base">{subtitle}</p>
+            <h1 className="type-page-title text-3xl sm:text-4xl">{title}</h1>
+            <p className="type-supporting mt-3 max-w-md text-sm sm:text-base">{subtitle}</p>
           </div>
 
           <GlassCard className="relative overflow-hidden rounded-[26px] p-5 sm:rounded-[30px] sm:p-7">

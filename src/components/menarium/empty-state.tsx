@@ -30,7 +30,7 @@ export function EmptyState({
         <span aria-hidden="true" className="absolute -inset-2 rounded-[27px] border border-white/[0.045]" />
         <span className="relative">{icon}</span>
       </div>
-      <p className="relative mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/68">
+      <p className="type-kicker relative mb-2 text-teal-200/68">
         {eyebrow}
       </p>
       <h2 className="relative mb-2 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>

@@ -207,7 +207,7 @@ export default async function MyItemsPage({
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
                 Управление предложениями
               </p>
-              <h1 className="text-4xl font-bold md:text-5xl">Мои объявления</h1>
+              <h1 className="type-page-title text-4xl md:text-5xl">Мои объявления</h1>
               <p className="mt-3 max-w-2xl text-white/55">
                 Публикуй, приостанавливай и возвращай объявления в каталог без потери данных.
               </p>

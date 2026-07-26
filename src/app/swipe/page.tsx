@@ -59,7 +59,7 @@ export default async function SwipePage() {
             <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/72 md:hidden">
               Быстрый поиск
             </p>
-            <h1 className="mb-2 text-3xl font-bold tracking-[-0.04em] md:mb-4 md:text-5xl">
+            <h1 className="type-page-title mb-2 text-3xl md:mb-4 md:text-5xl">
               <span className="gradient-text">Свайп</span> обмена
             </h1>
             <p className="mx-auto max-w-xl text-sm text-white/66 md:text-base">

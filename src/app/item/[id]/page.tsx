@@ -390,7 +390,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <h1 className="min-w-0 flex-1 text-2xl font-bold leading-[1.08] tracking-[-0.035em] sm:text-4xl">
+                  <h1 className="type-page-title min-w-0 flex-1 text-2xl sm:text-4xl">
                     {publicItem.title}
                   </h1>
                   {!isOwner && canInteract && !communicationBlocked ? (

@@ -138,7 +138,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                 Доверие и защита
               </p>
             </div>
-            <h1 className="mt-3 text-4xl font-bold md:text-5xl">Центр безопасности</h1>
+            <h1 className="type-page-title mt-3 text-4xl md:text-5xl">Центр безопасности</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 sm:text-base">
               Здесь сохраняются ваши обращения, их связь со сделкой и результат проверки.
               Внутреннее расследование остаётся конфиденциальным.

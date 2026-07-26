@@ -178,7 +178,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 </div>
               )}
               <div className="flex-1">
-                <h1 className="text-3xl font-bold tracking-tight">{user.name ?? "Пользователь Menarium"}</h1>
+                <h1 className="type-page-title text-3xl">{user.name ?? "Пользователь Menarium"}</h1>
                 <p className="mt-2 text-white/55">{user.city ?? "Город не указан"}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge variant="teal">{completedSwaps} завершённых обменов</Badge>

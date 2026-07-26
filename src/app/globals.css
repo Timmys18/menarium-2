@@ -59,6 +59,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-kerning: normal;
+  font-synthesis: none;
 }
 
 h1,
@@ -69,6 +71,26 @@ h3 {
 
 p {
   text-wrap: pretty;
+}
+
+/* A small, fixed type scale keeps product labels from competing with content. */
+.type-kicker {
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.type-page-title {
+  font-weight: 650;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.type-supporting {
+  line-height: 1.6;
+  color: var(--text-muted);
 }
 
 ::selection {
@@ -177,9 +199,11 @@ a {
 @keyframes page-enter {
   from {
     opacity: 0;
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
+    transform: none;
   }
 }
 

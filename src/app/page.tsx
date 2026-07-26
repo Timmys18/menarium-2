@@ -57,11 +57,11 @@ export default async function Home() {
       <div className={`min-h-screen px-4 pb-28 sm:px-6 md:pb-32 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <section className="mx-auto grid max-w-7xl gap-12 lg:min-h-[calc(100vh-9rem)] lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-16">
           <div className="relative z-10">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-teal-300/20 bg-teal-300/[0.075] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-teal-200 sm:text-sm">
+            <div className="type-kicker mb-7 inline-flex items-center gap-2 rounded-full border border-teal-300/20 bg-teal-300/[0.075] px-4 py-2 text-teal-200">
               <Repeat2 className="h-4 w-4" />
               Бартер, который работает
             </div>
-            <h1 className="max-w-3xl text-[clamp(3.35rem,7vw,6.7rem)] font-semibold leading-[0.94] tracking-[-0.065em]">
+            <h1 className="type-page-title max-w-3xl text-[clamp(3.35rem,7vw,6.7rem)] leading-[0.94] tracking-[-0.065em]">
               Вещи меняются. <span className="gradient-text">Ценность остаётся.</span>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-white/68 sm:text-xl">
@@ -162,7 +162,7 @@ export default async function Home() {
             </MenariumLinkButton>
           </div>
           {cards.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="reveal-grid grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {cards.map((item, index) => (
                 <ItemCard
                   key={item.id}

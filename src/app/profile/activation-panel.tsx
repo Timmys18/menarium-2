@@ -46,7 +46,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
               >
                 {nextAction.eyebrow}
               </p>
-              <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+              <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
                 {nextAction.title}
               </h2>
               <p className="mt-1.5 max-w-2xl text-sm leading-5 text-white/64">{nextAction.description}</p>
@@ -80,7 +80,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
             <Sparkles className="h-4 w-4" />
             {nextAction.eyebrow}
           </div>
-          <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{nextAction.title}</h2>
+          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{nextAction.title}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/66 sm:mt-3 sm:text-base">{nextAction.description}</p>
           <MenariumLinkButton href={nextAction.href} className="mt-4 w-full sm:mt-6 sm:w-auto">
             {nextAction.label}
@@ -92,7 +92,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-white/54">Путь до первого обмена</p>
-              <p className="mt-2 font-display text-2xl font-semibold">
+              <p className="mt-2 text-2xl font-semibold">
                 {activation.completedCount} <span className="text-base text-white/52">из {activation.steps.length}</span>
               </p>
             </div>

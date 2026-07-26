@@ -237,7 +237,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
                 <Heart className="h-4 w-4 fill-current" />
                 Личная подборка
               </p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+              <h1 className="type-page-title mt-3 text-4xl sm:text-5xl">
                 Избранное
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/48 sm:text-base">
