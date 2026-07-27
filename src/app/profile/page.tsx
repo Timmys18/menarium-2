@@ -477,7 +477,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     </MenariumLinkButton>
                     <MenariumLinkButton href={`/user/${user.id}`} variant="ghost" size="sm" className="w-full sm:w-auto">
                       <Eye className="h-4 w-4" />
-                      Публичный профиль
+                      Моя страница
                     </MenariumLinkButton>
                     <MenariumLinkButton href="/profile/edit" variant="secondary" size="sm" className="w-full sm:w-auto">
                       Настройки
@@ -487,35 +487,44 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 </div>
               </GlassCard>
 
-              <section className="reveal-grid grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Сводка профиля">
+              <SurfaceCard
+                className="grid grid-cols-2 gap-px overflow-hidden bg-white/[0.07] p-px lg:grid-cols-4"
+                aria-label="Сводка профиля"
+              >
                 {metrics.map((metric) => {
                   const Icon = metric.icon;
                   return (
-                    <Link key={metric.label} href={metric.href}>
-                      <GlassCard
+                    <Link
+                      key={metric.label}
+                      href={metric.href}
+                      className={cn(
+                        "group flex min-h-24 items-center gap-3 bg-[#0d131d] p-4 transition-colors hover:bg-[#121b28] sm:p-5",
+                        metric.urgent && "bg-amber-300/[0.055] hover:bg-amber-300/[0.08]",
+                      )}
+                    >
+                      <span
                         className={cn(
-                          "h-full border p-4 transition hover:-translate-y-0.5 hover:bg-white/[0.055] sm:p-5",
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border",
                           metric.urgent
-                            ? "border-amber-300/20 bg-amber-300/[0.055]"
-                            : "border-white/8 bg-white/[0.025]",
+                            ? "border-amber-300/18 bg-amber-300/10 text-amber-200"
+                            : "border-white/8 bg-white/[0.035] text-teal-200/75",
                         )}
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <Icon
-                            className={cn(
-                              "h-5 w-5",
-                              metric.urgent ? "text-amber-200" : "text-teal-200/75",
-                            )}
-                          />
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-2">
+                          <strong className="text-2xl font-semibold leading-none sm:text-3xl">
+                            {metric.value}
+                          </strong>
                           {metric.urgent ? <span className="h-2 w-2 rounded-full bg-amber-300" /> : null}
-                        </div>
-                        <p className="mt-4 text-2xl font-semibold sm:text-3xl">{metric.value}</p>
-                        <p className="mt-1 text-xs text-white/58">{metric.label}</p>
-                      </GlassCard>
+                        </span>
+                        <span className="mt-1.5 block text-xs text-white/56">{metric.label}</span>
+                      </span>
                     </Link>
                   );
                 })}
-              </section>
+              </SurfaceCard>
 
               {!user.emailVerified ? (
                 <EmailVerifyBanner
@@ -523,7 +532,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   initialDeliveryState={initialEmailDeliveryState}
                 />
               ) : null}
-              {activation ? <ActivationPanel activation={activation} /> : null}
+              {activation && activation.nextAction.href !== "#verify-email" ? (
+                <ActivationPanel activation={activation} />
+              ) : null}
 
               {recentViews.length > 0 ? (
                 <section
@@ -579,15 +590,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
                 <div className="space-y-5">
                   <GlassCard className="border border-white/8 p-5 sm:p-6">
-                    <div className="mb-5 flex items-end justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200/65">
-                          Сейчас
-                        </p>
-                        <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
-                          Требует внимания
-                        </h2>
-                      </div>
+                    <div className="mb-5 flex items-center justify-between gap-4">
+                      <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                        Сейчас
+                      </h2>
                       <MenariumLinkButton href="/exchange" variant="ghost" size="sm">
                         Все обмены
                       </MenariumLinkButton>
@@ -750,6 +756,44 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                       </p>
                     )}
                   </GlassCard>
+
+                  <SurfaceCard className="grid overflow-hidden p-2 sm:grid-cols-2">
+                    <Link
+                      href="/exchange?tab=matches&filter=history"
+                      className="flex items-center gap-3 rounded-[17px] px-3 py-3.5 transition-colors hover:bg-white/[0.045]"
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-white/[0.045] text-white/60">
+                        <History className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold">История обменов</span>
+                        <span className="mt-0.5 block text-xs text-white/45">
+                          Завершено: {completedSwaps}
+                        </span>
+                      </span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-white/28" />
+                    </Link>
+                    <Link
+                      href="/profile/safety"
+                      className="flex items-center gap-3 rounded-[17px] border-t border-white/[0.06] px-3 py-3.5 transition-colors hover:bg-white/[0.045] sm:border-l sm:border-t-0"
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300/10 text-teal-200">
+                        <ShieldCheck className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold">Безопасность</span>
+                          {activeSafetyReports > 0 ? (
+                            <Badge variant="gold">{activeSafetyReports} в работе</Badge>
+                          ) : null}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-white/45">
+                          Обращения и защита аккаунта
+                        </span>
+                      </span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-white/28" />
+                    </Link>
+                  </SurfaceCard>
                 </div>
 
                 <aside className="space-y-5">
@@ -832,40 +876,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     )}
                   </SurfaceCard>
 
-                  <SurfaceCard className="p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/45">История</p>
-                    <div className="mt-3 flex items-end justify-between gap-4">
-                      <div>
-                        <p className="text-3xl font-semibold">{completedSwaps}</p>
-                        <p className="mt-1 text-xs text-white/50">завершённых обменов</p>
-                      </div>
-                      <MenariumLinkButton href="/exchange?tab=matches&filter=history" variant="secondary" size="sm">
-                        Открыть
-                      </MenariumLinkButton>
-                    </div>
-                  </SurfaceCard>
-
-                  <GlassCard className="border border-teal-300/10 bg-gradient-to-br from-teal-300/[0.055] to-blue-400/[0.035] p-5">
-                    <div className="flex items-start gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300/10 text-teal-200">
-                        <ShieldCheck className="h-5 w-5" />
-                      </span>
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-semibold">Центр безопасности</p>
-                          {activeSafetyReports > 0 ? (
-                            <Badge variant="gold">{activeSafetyReports} в работе</Badge>
-                          ) : null}
-                        </div>
-                        <p className="mt-1 text-xs leading-4 text-white/38">
-                          Обращения, статусы проверок и защита сделок.
-                        </p>
-                      </div>
-                    </div>
-                    <MenariumLinkButton href="/profile/safety" variant="secondary" size="sm" className="mt-4 w-full">
-                      Открыть
-                    </MenariumLinkButton>
-                  </GlassCard>
                 </aside>
               </div>
             </>
