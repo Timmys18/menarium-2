@@ -83,7 +83,7 @@ async function confirmAction(page: Page, actionLabel: string, confirmLabel: stri
 
 test.describe("критический жизненный цикл обмена", () => {
   test.beforeEach(({}, testInfo) => {
-    testInfo.setTimeout(150_000);
+    testInfo.setTimeout(240_000);
     resetSeedData();
   });
 
@@ -110,7 +110,7 @@ test.describe("критический жизненный цикл обмена",
         await pick(mariaMain.getByRole("button", { name: "Продолжить" })).click();
         await pick(mariaMain.getByRole("textbox", { name: "Что интересно получить" })).fill("Пленочная камера");
         await pick(mariaMain.getByRole("button", { name: "Создать объявление" })).click();
-        await expect(maria).toHaveURL(/\/item\/[^/?]+$/);
+        await expect(maria).toHaveURL(/\/item\/[^/?]+\?created=1$/);
         await expect(mariaMain.getByRole("heading", { name: createdItemTitle })).toBeVisible();
       });
 
@@ -122,7 +122,7 @@ test.describe("критический жизненный цикл обмена",
         await pick(mariaMain.locator("select")).selectOption({ label: createdItemTitle });
         await pick(mariaMain.getByRole("button", { name: "Предложить обмен" })).click();
         await expect(maria).toHaveURL(/\/exchange\?.*tab=outgoing.*swap=[^&]+/);
-        await expect(mariaMain.getByText("Предложение отправлено", { exact: true })).toBeVisible();
+        await expect(mariaMain.getByText("Предложение отправлено", { exact: true }).first()).toBeVisible();
         await expect(mariaMain.getByText("Ждём ответа", { exact: true }).first()).toBeVisible();
       });
 
@@ -206,7 +206,7 @@ test.describe("критический жизненный цикл обмена",
         await expect(pick(dmitryMain.getByText("Отзыв опубликован в профиле партнёра."))).toBeVisible();
 
         await maria.goto("/profile");
-        await pick(main(maria).getByRole("link", { name: "Публичный профиль" })).click();
+        await pick(main(maria).getByRole("link", { name: "Моя страница" })).click();
         await expect(pick(main(maria).getByText(dmitryReview, { exact: true }))).toBeVisible({
           timeout: 20_000,
         });

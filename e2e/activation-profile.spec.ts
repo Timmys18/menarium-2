@@ -37,11 +37,8 @@ test.describe("первый вход и личный кабинет", () => {
 
       await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });
       await expect(content.getByText("Аккаунт создан", { exact: true })).toBeVisible();
-      await expect(content.getByRole("heading", { name: "Подтвердите почту" })).toBeVisible();
-      await expect(content.getByRole("progressbar", { name: "Прогресс до первого обмена" })).toHaveAttribute(
-        "aria-valuenow",
-        "0",
-      );
+      await expect(content.getByRole("heading", { name: "Почта не подтверждена" })).toBeVisible();
+      await expect(content.getByRole("button", { name: "Отправить письмо" })).toBeVisible();
 
       const user = await prisma.user.findUniqueOrThrow({ where: { email } });
       await prisma.user.update({ where: { id: user.id }, data: { emailVerified: new Date() } });

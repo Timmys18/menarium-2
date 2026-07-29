@@ -46,8 +46,8 @@ test.describe("настройки и доверие", () => {
     await expect(content.getByRole("heading", { name: "Настройки профиля" })).toBeVisible();
     await expect(content.getByRole("link", { name: "Безопасность" })).toBeVisible();
 
-    const currentPassword = content.getByLabel("Текущий пароль");
-    const newPassword = content.getByLabel("Новый пароль");
+    const currentPassword = content.getByRole("textbox", { name: "Текущий пароль", exact: true });
+    const newPassword = content.getByRole("textbox", { name: "Новый пароль", exact: true });
     const submit = content.getByRole("button", { name: "Обновить пароль" });
 
     await currentPassword.fill(MARIA.password);
