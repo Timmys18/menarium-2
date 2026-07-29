@@ -55,8 +55,8 @@ export default async function Home() {
       <div className={`min-h-screen px-4 pb-28 sm:px-6 md:pb-32 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <section className="mx-auto grid max-w-7xl gap-12 lg:min-h-[calc(100vh-9rem)] lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-16">
           <div className="relative z-10">
-            <h1 className="type-page-title max-w-3xl text-[clamp(3.35rem,7vw,6.7rem)] leading-[0.94] tracking-[-0.065em]">
-              Меняйся. <span className="gradient-text">Просто.</span>
+            <h1 className="type-page-title max-w-3xl text-[clamp(3.35rem,5.2vw,5rem)] leading-[0.94] tracking-[-0.065em] lg:whitespace-nowrap">
+              Меняйся. <span className="gradient-text">Просто</span>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-white/68 sm:text-xl">
               Меняйте вещи на вещи, услуги на услуги или услуги на вещи. Выбирайте подходящий вариант и договаривайтесь напрямую.

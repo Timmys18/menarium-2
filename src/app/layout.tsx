@@ -16,12 +16,12 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ru_RU",
     siteName: "Менариум",
-    title: "Меняйся. Просто.",
+    title: "Меняйся. Просто",
     description: "Обменивайте вещи и услуги напрямую.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Меняйся. Просто.",
+    title: "Меняйся. Просто",
     description: "Обменивайте вещи и услуги напрямую.",
   },
 };

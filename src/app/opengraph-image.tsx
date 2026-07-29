@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export const alt = "Меняйся. Просто.";
+export const alt = "Меняйся. Просто";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -54,7 +54,7 @@ export default async function OpenGraphImage() {
           <span style={{ fontSize: 72, fontWeight: 700, letterSpacing: -2 }}>Менариум</span>
         </div>
         <p style={{ fontSize: 36, color: "rgba(255,255,255,0.75)", margin: 0 }}>
-          Меняйся. Просто.
+          Меняйся. Просто
         </p>
       </div>
     ),

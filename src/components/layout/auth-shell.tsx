@@ -35,7 +35,7 @@ export function AuthShell({
 
           <div className="relative my-auto py-12">
             <h2 className="max-w-xl text-5xl font-semibold leading-[1.02] tracking-[-0.055em] xl:text-6xl">
-              Меняйся. <span className="gradient-text">Просто.</span>
+              Меняйся. <span className="gradient-text">Просто</span>
             </h2>
             <p className="mt-6 max-w-lg text-base leading-7 text-white/66 xl:text-lg">
               Вещь на вещь, услуга на услугу или услуга на вещь. Выбирайте вариант и договаривайтесь напрямую.
