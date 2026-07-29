@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("Menarium smoke", () => {
   test("главная страница загружается", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("MENARIUM").first()).toBeVisible();
+    await expect(page.getByText("Менариум").first()).toBeVisible();
   });
 
   test("каталог открывается", async ({ page }) => {

@@ -142,7 +142,7 @@ export default async function AdminPage() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold">Админ-панель</h1>
-                <p className="mt-1 text-white/55">Базовый production-контур модерации Menarium.</p>
+                <p className="mt-1 text-white/55">Пользователи, объявления и обращения.</p>
               </div>
             </div>
             {admin ? (

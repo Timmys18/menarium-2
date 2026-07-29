@@ -56,7 +56,7 @@ export default async function ProductAnalyticsPage() {
     ? [
         dashboard.traffic.uniqueVisitors >= 20 &&
         dashboard.cohort[0]!.value / dashboard.traffic.uniqueVisitors < 0.03
-          ? "Менее 3% посетителей зарегистрировались: проверяем ценностное предложение и первый экран."
+          ? "Менее 3% посетителей зарегистрировались: проверяем текст и первый экран."
           : null,
         dashboard.cohort[0]!.value >= 5 && (dashboard.cohort[2]!.rate ?? 0) < 35
           ? "Менее 35% новых пользователей создали первую вещь: нужен более короткий онбординг предложения."
@@ -100,7 +100,7 @@ export default async function ProductAnalyticsPage() {
                 <Activity className="h-4 w-4" />
                 Product intelligence
               </div>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Пульс Menarium</h1>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Пульс Менариум</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50 sm:text-base">
                 Путь от первого визита до завершённого обмена. Только first-party данные без рекламных трекеров,
                 содержимого сообщений и персональных полей.
@@ -120,7 +120,7 @@ export default async function ProductAnalyticsPage() {
           {!admin || !dashboard ? (
             <EmptyState
               title="Доступ только для администратора"
-              description="Продуктовая аналитика содержит внутренние показатели Menarium."
+              description="Здесь находятся внутренние продуктовые показатели."
               actionHref="/profile"
               actionLabel="Вернуться в профиль"
             />
@@ -156,7 +156,7 @@ export default async function ProductAnalyticsPage() {
                       <span className="pb-1 text-sm text-white/40">завершённых обменов</span>
                     </div>
                     <p className="mt-5 max-w-md text-sm leading-6 text-white/50">
-                      Реальная полученная ценность: обе стороны подтвердили обмен, а вещи перешли в архив.
+                      Обе стороны подтвердили обмен, объявления перешли в историю.
                     </p>
                   </div>
                 </GlassCard>
@@ -298,7 +298,7 @@ export default async function ProductAnalyticsPage() {
                     </div>
                   </div>
 
-                  <div className="mt-8 grid h-56 grid-cols-[repeat(14,minmax(0,1fr))] items-end gap-1 sm:gap-2" role="img" aria-label="Активность Menarium за 14 дней">
+                  <div className="mt-8 grid h-56 grid-cols-[repeat(14,minmax(0,1fr))] items-end gap-1 sm:gap-2" role="img" aria-label="Активность Менариум за 14 дней">
                     {dashboard.trend.map((day) => (
                       <div key={day.day} className="flex h-full min-w-0 flex-col justify-end">
                         <div className="flex h-[184px] items-end justify-center gap-px" title={`${day.day}: ${day.registrations} регистраций, ${day.items} вещей, ${day.proposals} предложений, ${day.completions} завершений`}>
@@ -321,7 +321,7 @@ export default async function ProductAnalyticsPage() {
                 <GlassCard className="p-5 sm:p-7">
                   <div className="flex items-center gap-2">
                     <Clock3 className="h-5 w-5 text-violet-300" />
-                    <h2 className="text-xl font-semibold">Скорость ценности</h2>
+                    <h2 className="text-xl font-semibold">Время до обмена</h2>
                   </div>
                   <p className="mt-2 text-sm text-white/40">Медиана за 30 дней</p>
 

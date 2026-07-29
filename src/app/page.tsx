@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ItemStatus } from "@prisma/client";
-import { ArrowRight, Check, Compass, MessageCircle, Plus, Repeat2, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, Compass, MessageCircle, Plus, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PreviewUiNotice } from "@/components/preview-ui-notice";
+import { BrandMark } from "@/components/menarium/brand";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
@@ -36,19 +37,16 @@ export default async function Home() {
   const primaryAction = !userId
     ? {
         href: loginHref("/new"),
-        label: "Начать обмен",
-        hint: "Создадим аккаунт и сразу перейдём к первому предложению.",
+        label: "Предложить своё",
       }
     : activeItemCount === 0
       ? {
           href: "/new",
-          label: "Добавить первую вещь",
-          hint: "Достаточно одной вещи или услуги, чтобы начать получать варианты.",
+          label: "Добавить предложение",
         }
       : {
           href: "/new",
-          label: "Добавить ещё одну вещь",
-          hint: "Больше предложений — больше шансов на удачный обмен.",
+          label: "Добавить предложение",
         };
 
   return (
@@ -57,19 +55,15 @@ export default async function Home() {
       <div className={`min-h-screen px-4 pb-28 sm:px-6 md:pb-32 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <section className="mx-auto grid max-w-7xl gap-12 lg:min-h-[calc(100vh-9rem)] lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-16">
           <div className="relative z-10">
-            <div className="type-kicker mb-7 inline-flex items-center gap-2 rounded-full border border-teal-300/20 bg-teal-300/[0.075] px-4 py-2 text-teal-200">
-              <Repeat2 className="h-4 w-4" />
-              Бартер, который работает
-            </div>
             <h1 className="type-page-title max-w-3xl text-[clamp(3.35rem,7vw,6.7rem)] leading-[0.94] tracking-[-0.065em]">
-              Вещи меняются. <span className="gradient-text">Ценность остаётся.</span>
+              Меняйся. <span className="gradient-text">Просто.</span>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-white/68 sm:text-xl">
-              Покажи, чем готов поделиться. Menarium найдёт встречное желание и поможет договориться без денег.
+              Меняйте вещи на вещи, услуги на услуги или услуги на вещи. Выбирайте подходящий вариант и договаривайтесь напрямую.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <MenariumLinkButton href={primaryAction.href} size="lg" className="w-full sm:w-auto">
-                <Plus className="h-5 w-5" />
+                <BrandMark size="xs" className="h-6 w-6 rounded-lg shadow-none ring-white/20" />
                 {primaryAction.label}
               </MenariumLinkButton>
               <MenariumLinkButton href="/catalog" size="lg" variant="secondary" className="w-full sm:w-auto">
@@ -77,12 +71,11 @@ export default async function Home() {
                 <ArrowRight className="h-5 w-5" />
               </MenariumLinkButton>
             </div>
-            <p className="mt-3 text-sm text-white/42">{primaryAction.hint}</p>
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/58">
               {[
                 "Вещи и услуги",
-                "Чат внутри обмена",
-                "Без оплаты",
+                "Любые сочетания",
+                "Договорённость в чате",
               ].map((label) => (
                 <span key={label} className="flex items-center gap-2">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-300/10 text-teal-200">
@@ -97,16 +90,8 @@ export default async function Home() {
           <div className="hero-canvas relative min-h-[470px] overflow-hidden rounded-[32px] p-5 sm:min-h-[540px] sm:p-8">
             <div aria-hidden="true" className="absolute -left-24 top-12 h-64 w-64 rounded-full bg-teal-400/15 blur-[90px]" />
             <div aria-hidden="true" className="absolute -right-20 bottom-5 h-72 w-72 rounded-full bg-blue-500/16 blur-[100px]" />
-            <div className="relative flex items-center justify-between gap-4">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.055] px-3 py-1.5 text-xs text-white/55">
-                <span className="h-1.5 w-1.5 rounded-full bg-teal-300 shadow-[0_0_12px_rgba(56,214,178,0.8)]" />
-                Живой каталог
-              </span>
-              <span className="text-xs uppercase tracking-[0.16em] text-white/42">Встречное желание</span>
-            </div>
-
             {heroPair.length === 2 ? (
-              <div className="relative mt-6 h-[390px] sm:h-[445px]">
+              <div className="relative h-[430px] sm:h-[480px]">
                 {heroPair.map((item, index) => (
                   <Link
                     key={item.id}
@@ -131,16 +116,17 @@ export default async function Home() {
                     </div>
                   </Link>
                 ))}
-                <div className="absolute left-1/2 top-1/2 z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-white/15 bg-[#111925]/95 text-teal-200 shadow-[0_16px_38px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-                  <Repeat2 className="h-6 w-6" />
-                </div>
+                <BrandMark
+                  size="lg"
+                  className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 ring-white/20"
+                />
               </div>
             ) : (
               <div className="relative flex min-h-[390px] items-center justify-center text-center">
                 <div>
                   <Compass className="mx-auto h-10 w-10 text-teal-200" />
-                  <p className="mt-4 text-lg font-semibold">Первое совпадение начинается с предложения</p>
-                  <p className="mt-2 text-sm text-white/45">Добавь вещь, навык или услугу.</p>
+                  <p className="mt-4 text-lg font-semibold">Предложений пока нет</p>
+                  <p className="mt-2 text-sm text-white/45">Добавьте вещь или услугу.</p>
                 </div>
               </div>
             )}
@@ -150,11 +136,9 @@ export default async function Home() {
         <section className="mx-auto mt-24 max-w-7xl md:mt-32">
           <div className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/70">Можно начать прямо сейчас</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
+              <h2 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
                 Предложения из каталога
               </h2>
-              <p className="mt-2 text-sm text-white/45 sm:text-base">Вещи и услуги, которые уже ищут встречный вариант.</p>
             </div>
             <MenariumLinkButton href="/catalog" variant="secondary" size="sm" className="self-start sm:self-auto">
               Смотреть все
@@ -176,8 +160,8 @@ export default async function Home() {
             </div>
           ) : (
             <EmptyState
-              title="Каталог готов к первым объявлениям"
-              description="Как только пользователи создадут активные предложения, главная витрина начнёт показывать живые карточки."
+              title="Объявлений пока нет"
+              description="Добавьте вещь или услугу, чтобы она появилась в каталоге."
               actionHref="/new"
               actionLabel="Создать объявление"
             />
@@ -187,33 +171,29 @@ export default async function Home() {
         <section className="mx-auto mt-28 max-w-7xl border-t border-white/[0.065] pt-20 md:mt-36 md:pt-24">
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-200/70">Три понятных шага</p>
-              <h2 className="mt-3 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
-                От идеи до честного обмена
+              <h2 className="text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
+                Как работает обмен
               </h2>
-              <p className="mt-5 max-w-md leading-7 text-white/48">
-                Menarium не оставляет тебя с объявлением один на один: каждый следующий шаг виден в личном кабинете.
-              </p>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {[
                 {
                   icon: Plus,
                   number: "01",
-                  title: "Покажи ценность",
-                  text: "Размести вещь, навык или услугу и напиши, что интересно взамен.",
+                  title: "Опубликуйте",
+                  text: "Добавьте вещь или услугу и укажите, что хотите получить.",
                 },
                 {
                   icon: Compass,
                   number: "02",
-                  title: "Найди совпадение",
-                  text: "Используй каталог или свайп и предложи конкретный встречный вариант.",
+                  title: "Предложите обмен",
+                  text: "Выберите чужое предложение и добавьте своё.",
                 },
                 {
                   icon: MessageCircle,
                   number: "03",
-                  title: "Договорись",
-                  text: "Обсуди детали в чате и подтверди результат вместе со второй стороной.",
+                  title: "Договоритесь",
+                  text: "Обсудите детали в чате. После обмена обе стороны подтверждают завершение.",
                 },
               ].map((step) => {
                 const Icon = step.icon;

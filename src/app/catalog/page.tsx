@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Каталог обменов",
-  description: "Ищи вещи и услуги для бартерного обмена на Menarium.",
+  description: "Каталог вещей и услуг для прямого обмена.",
 };
 
 type Props = {

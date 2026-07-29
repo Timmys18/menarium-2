@@ -47,7 +47,7 @@ async function openNotification(page: Page, title: string) {
 
 async function sendDealMessage(page: Page, message: string) {
   const content = main(page);
-  const input = pick(content.getByPlaceholder("Сообщение..."));
+  const input = pick(content.getByLabel("Текст сообщения"));
   await expect(input).toBeEnabled({ timeout: 20_000 });
   const responsePromise = page.waitForResponse(
     (response) => response.url().includes("/messages") && response.request().method() === "POST",
@@ -128,12 +128,12 @@ test.describe("критический жизненный цикл обмена",
 
       await test.step("Дмитрий получает предложение и принимает его", async () => {
         await openNotification(dmitry, "Новое предложение обмена");
-        await expect(pick(main(dmitry).getByText("Вы отдаёте", { exact: true }))).toBeVisible();
+        await expect(pick(main(dmitry).getByText("Вы предлагаете", { exact: true }))).toBeVisible();
         await expect(pick(main(dmitry).getByText("Вы получаете", { exact: true }))).toBeVisible();
         await confirmAction(dmitry, "Принять", "Принять обмен");
         await expect(dmitry).toHaveURL(/\/exchange\?.*tab=matches.*notice=accepted/);
         await expect(main(dmitry).getByText("Обмен принят", { exact: true })).toBeVisible();
-        await expect(pick(main(dmitry).getByPlaceholder("Сообщение..."))).toBeEnabled({ timeout: 20_000 });
+        await expect(pick(main(dmitry).getByLabel("Текст сообщения"))).toBeEnabled({ timeout: 20_000 });
       });
 
       await test.step("обе стороны обмениваются сообщениями в чате сделки", async () => {

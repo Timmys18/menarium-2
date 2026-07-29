@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!user) return { title: "Пользователь не найден" };
   return {
     title: user.name ?? "Профиль пользователя",
-    description: `Объявления и обмены пользователя Menarium${user.city ? ` · ${user.city}` : ""}.`,
+    description: `Объявления и обмены пользователя${user.city ? ` · ${user.city}` : ""}.`,
   };
 }
 
@@ -178,7 +178,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 </div>
               )}
               <div className="flex-1">
-                <h1 className="type-page-title text-3xl">{user.name ?? "Пользователь Menarium"}</h1>
+                <h1 className="type-page-title text-3xl">{user.name ?? "Пользователь Менариум"}</h1>
                 <p className="mt-2 text-white/55">{user.city ?? "Город не указан"}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge variant="teal">{completedSwaps} завершённых обменов</Badge>
@@ -347,7 +347,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                         )}
                         <div className="min-w-0">
                           <Link href={`/user/${review.reviewer.id}`} className="block truncate text-sm font-semibold text-white/82 hover:text-teal-200">
-                            {review.reviewer.name ?? "Участник Menarium"}
+                            {review.reviewer.name ?? "Участник Менариум"}
                           </Link>
                           <time dateTime={review.createdAt.toISOString()} className="mt-0.5 block text-xs text-white/32">
                             {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(review.createdAt)}
@@ -408,7 +408,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
             ) : (
               <EmptyState
                 icon={<PackageOpen className="h-7 w-7" />}
-                title={isSelf ? "Покажите свою первую вещь" : "Активных вещей пока нет"}
+                title={isSelf ? "Добавьте первое объявление" : "Активных объявлений пока нет"}
                 description={
                   isSelf
                     ? "Добавьте вещь, которую готовы обменять. Хорошие фото и честное описание быстрее находят подходящую пару."

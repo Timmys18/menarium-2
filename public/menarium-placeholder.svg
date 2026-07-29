@@ -6,5 +6,4 @@
   <rect x="260" y="220" width="680" height="460" rx="48" fill="white" fill-opacity="0.06" stroke="white" stroke-opacity="0.16" stroke-width="2"/>
   <path d="M460 507L552 415L624 487L672 439L800 567H400L460 507Z" fill="white" fill-opacity="0.28"/>
   <circle cx="745" cy="355" r="45" fill="white" fill-opacity="0.24"/>
-  <text x="600" y="725" text-anchor="middle" fill="white" fill-opacity="0.72" font-family="Arial, sans-serif" font-size="34" font-weight="700">MENARIUM</text>
 </svg>

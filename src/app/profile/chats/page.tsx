@@ -155,7 +155,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
     const lastMessage = swap.messages[0];
     return {
       id: `deal-${swap.id}`,
-      title: partner.name ?? "Участник Menarium",
+      title: partner.name ?? "Участник Менариум",
       context: `Обмен · ${contextItem.title}`,
       href: dealChatHref({ id: swap.id, status: swap.status, isSender }),
       unread: swap._count.messages,
@@ -169,7 +169,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
     const lastMessage = thread.messages[0];
     return {
       id: `item-${thread.id}`,
-      title: partner.name ?? "Участник Menarium",
+      title: partner.name ?? "Участник Менариум",
       context: `Объявление · ${thread.item.title}`,
       href: `/profile/chats/item/${thread.id}`,
       unread: thread._count.messages,

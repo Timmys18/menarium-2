@@ -4,7 +4,7 @@ import { GlassCard } from "@/components/menarium/card";
 const sections = [
   {
     title: "Назначение сервиса",
-    text: "Menarium помогает пользователям публиковать объявления о вещах и услугах, предлагать обмен, вести переписку и фиксировать статус сделки.",
+    text: "Менариум позволяет публиковать объявления о вещах и услугах, предлагать обмен, вести переписку и фиксировать статус сделки.",
   },
   {
     title: "Ответственность пользователей",
@@ -31,7 +31,7 @@ export default function TermsPage() {
         <GlassCard className="mx-auto max-w-4xl space-y-5 p-8">
           <h1 className="text-4xl font-bold">Пользовательское соглашение</h1>
           <p className="text-white/60">
-            Это базовые правила Menarium для production-запуска barter-платформы.
+            Правила использования сервиса Менариум.
           </p>
           {sections.map((section) => (
             <section key={section.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">

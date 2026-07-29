@@ -66,7 +66,6 @@ export function ChatConversation({
   disabledPlaceholder,
   emptyMessage,
   draftKey,
-  suggestedMessages = [],
 }: {
   target: ConversationTarget | null;
   resolveTarget?: () => Promise<ConversationTarget>;
@@ -79,7 +78,6 @@ export function ChatConversation({
   disabledPlaceholder: string;
   emptyMessage: string;
   draftKey: string;
-  suggestedMessages?: string[];
 }) {
   const router = useRouter();
   const draftStorageKey = `menarium:chat-draft:v1:${currentUserId}:${draftKey}`;
@@ -92,7 +90,6 @@ export function ChatConversation({
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const prependHeightRef = useRef<number | null>(null);
   const shouldStickToBottomRef = useRef(true);
   const messages = mergeMessages(initialMessages, localMessages);
@@ -218,7 +215,7 @@ export function ChatConversation({
   }
 
   return (
-    <div>
+    <div className="min-w-0 max-w-full">
       <div
         ref={scrollRef}
         onScroll={(event) => {
@@ -281,31 +278,9 @@ export function ChatConversation({
         )}
       </div>
 
-      {canWrite && messages.length === 0 && suggestedMessages.length > 0 ? (
-        <div className="mt-3" aria-label="Варианты первого сообщения">
-          <p className="type-kicker mb-2 text-white/38">Можно начать так</p>
-          <div className="flex flex-wrap gap-2">
-            {suggestedMessages.map((message) => (
-              <button
-                key={message}
-                type="button"
-                onClick={() => {
-                  setText(message);
-                  window.requestAnimationFrame(() => textareaRef.current?.focus());
-                }}
-                className="rounded-full border border-teal-300/14 bg-teal-300/[0.045] px-3 py-2 text-left text-xs leading-4 text-teal-100/75 transition hover:border-teal-200/30 hover:bg-teal-300/[0.09] hover:text-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/60"
-              >
-                {message}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
       <form className="mt-5 space-y-2" onSubmit={sendMessage}>
-        <div className="flex items-end gap-2">
+        <div className="flex min-w-0 items-end gap-2">
           <MenariumTextarea
-            ref={textareaRef}
             value={text}
             onChange={(event) => setText(event.target.value)}
             onKeyDown={(event) => {

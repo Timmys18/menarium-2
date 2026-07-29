@@ -104,7 +104,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
           {!userId ? (
             <EmptyState
               title="Войдите, чтобы видеть уведомления"
-              description="Menarium будет показывать здесь новые обмены, сообщения и изменения статусов."
+              description="Здесь появятся новые обмены, сообщения и изменения статусов."
               actionHref={loginHref("/notifications")}
               actionLabel="Войти"
             />

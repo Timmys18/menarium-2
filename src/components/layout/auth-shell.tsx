@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowLeft, ArrowRightLeft, MessageCircle, Repeat2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRightLeft, MessageCircle, ShieldCheck } from "lucide-react";
+import { BrandLockup } from "@/components/menarium/brand";
 import { GlassCard } from "@/components/menarium/card";
 
 export function AuthShell({
@@ -26,24 +27,18 @@ export function AuthShell({
 
           <Link
             href="/"
-            aria-label="Menarium — на главную"
-            className="relative inline-flex self-start items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+            aria-label="Менариум — на главную"
+            className="relative inline-flex self-start rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-[15px] border border-white/15 bg-gradient-to-br from-blue-500 to-teal-400 shadow-[0_12px_32px_rgba(77,141,255,0.24)]">
-              <Repeat2 className="h-5 w-5" />
-            </span>
-            <span className="gradient-text font-display text-2xl font-bold tracking-[-0.04em]">MENARIUM</span>
+            <BrandLockup priority markClassName="h-11 w-11 rounded-[15px]" textClassName="text-2xl" />
           </Link>
 
           <div className="relative my-auto py-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-200/65">
-              Обмен без лишнего
-            </p>
-            <h2 className="mt-5 max-w-xl text-5xl font-semibold leading-[1.02] tracking-[-0.055em] xl:text-6xl">
-              Вещи снова обретают <span className="gradient-text">ценность</span>
+            <h2 className="max-w-xl text-5xl font-semibold leading-[1.02] tracking-[-0.055em] xl:text-6xl">
+              Меняйся. <span className="gradient-text">Просто.</span>
             </h2>
             <p className="mt-6 max-w-lg text-base leading-7 text-white/66 xl:text-lg">
-              Находи встречный интерес, договаривайся в чате и веди обмен по понятным статусам — всё в одном месте.
+              Вещь на вещь, услуга на услугу или услуга на вещь. Выбирайте вариант и договаривайтесь напрямую.
             </p>
 
             <div className="mt-9 grid gap-3 xl:grid-cols-3">
@@ -76,13 +71,10 @@ export function AuthShell({
           <div className="mb-8 flex items-center justify-between lg:hidden">
             <Link
               href="/"
-              aria-label="Menarium — на главную"
-              className="inline-flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+              aria-label="Менариум — на главную"
+              className="inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-gradient-to-br from-blue-500 to-teal-400 shadow-[0_10px_24px_rgba(77,141,255,0.22)]">
-                <Repeat2 className="h-4.5 w-4.5" />
-              </span>
-              <span className="gradient-text font-display text-xl font-bold tracking-[-0.04em]">MENARIUM</span>
+              <BrandLockup priority />
             </Link>
             <Link
               href="/"
@@ -94,9 +86,6 @@ export function AuthShell({
           </div>
 
           <div className="mb-7">
-            <p className="type-kicker mb-2 text-teal-200/65">
-              Личный доступ
-            </p>
             <h1 className="type-page-title text-3xl sm:text-4xl">{title}</h1>
             <p className="type-supporting mt-3 max-w-md text-sm sm:text-base">{subtitle}</p>
           </div>

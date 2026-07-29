@@ -13,12 +13,12 @@ import {
   MapPin,
   MessageCircle,
   PackageCheck,
-  Repeat2,
   ShieldCheck,
 } from "lucide-react";
 import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
+import { BrandGlyph, BrandMark } from "@/components/menarium/brand";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
@@ -329,7 +329,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       const lastMessage = swap.messages[0];
       return {
         id: `deal-${swap.id}`,
-        title: partner.name ?? "Участник Menarium",
+        title: partner.name ?? "Участник Менариум",
         context: `Обмен · ${contextItem.title}`,
         preview: lastMessage?.text ?? "Обмен принят. Договоритесь о деталях.",
         href: exchangeChatHref({ id: swap.id, status: swap.status, isSender }),
@@ -342,7 +342,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       const lastMessage = thread.messages[0];
       return {
         id: `item-${thread.id}`,
-        title: partner.name ?? "Участник Menarium",
+        title: partner.name ?? "Участник Менариум",
         context: `Объявление · ${thread.item.title}`,
         preview: lastMessage?.text ?? "Диалог создан, сообщений пока нет.",
         href: `/profile/chats/item/${thread.id}`,
@@ -391,7 +391,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       label: "Активных обменов",
       value: activeSwaps,
       href: "/exchange",
-      icon: Repeat2,
+      icon: BrandGlyph,
       urgent: false,
     },
   ];
@@ -403,7 +403,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           {!user ? (
             <EmptyState
               title="Войдите в личный кабинет"
-              description="Профиль Menarium — ваш центр обменов, объявлений, чатов и уведомлений."
+              description="Здесь находятся ваши объявления, обмены, чаты и настройки."
               actionHref={loginHref("/profile")}
               actionLabel="Войти"
             />
@@ -440,7 +440,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                         Личный кабинет
                       </p>
                       <h1 className="type-page-title mt-1 truncate text-2xl sm:text-3xl">
-                        {user.name ?? "Участник Menarium"}
+                        {user.name ?? "Участник Менариум"}
                       </h1>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         {user.emailVerified ? (
@@ -612,12 +612,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                             >
                               <div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <p className="font-semibold">{swap.sender.name ?? "Участник Menarium"}</p>
+                                  <p className="font-semibold">{swap.sender.name ?? "Участник Менариум"}</p>
                                   <Badge variant="gold">Нужно ответить</Badge>
                                 </div>
                                 <p className="mt-1 text-sm text-white/48">
                                   {swap.receiverItem.title}
-                                  <span className="mx-2 text-teal-200/55">↔</span>
+                                  <BrandMark size="xs" className="mx-2 h-4 w-4 rounded-[5px] align-middle shadow-none ring-white/10" />
                                   {swap.senderItem.title}
                                 </p>
                               </div>
@@ -659,12 +659,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                             >
                               <div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <p className="font-semibold">{partner.name ?? "Участник Menarium"}</p>
+                                  <p className="font-semibold">{partner.name ?? "Участник Менариум"}</p>
                                   <Badge variant="teal">Договоритесь в чате</Badge>
                                 </div>
                                 <p className="mt-1 text-sm text-white/48">
                                   {yourItem.title}
-                                  <span className="mx-2 text-teal-200/55">↔</span>
+                                  <BrandMark size="xs" className="mx-2 h-4 w-4 rounded-[5px] align-middle shadow-none ring-white/10" />
                                   {theirItem.title}
                                 </p>
                               </div>
@@ -808,7 +808,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { label: "Опубликовано", value: activeItems, href: "/my-items?status=active", icon: PackageCheck },
-                        { label: "В сделке", value: inDealItems, href: "/my-items?status=deal", icon: Repeat2 },
+                        { label: "В сделке", value: inDealItems, href: "/my-items?status=deal", icon: BrandGlyph },
                         { label: "На паузе", value: pausedItems, href: "/my-items?status=paused", icon: CirclePause },
                         { label: "История", value: archivedItems, href: "/my-items?status=history", icon: CheckCircle2 },
                       ].map((entry) => {

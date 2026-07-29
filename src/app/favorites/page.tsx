@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Избранное",
-  description: "Сохранённые вещи и персональные рекомендации Menarium.",
+  description: "Сохранённые вещи и персональные рекомендации.",
   robots: { index: false, follow: false },
 };
 
@@ -233,16 +233,9 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
           >
           <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-rose-200/70">
-                <Heart className="h-4 w-4 fill-current" />
-                Личная подборка
-              </p>
-              <h1 className="type-page-title mt-3 text-4xl sm:text-5xl">
+              <h1 className="type-page-title text-4xl sm:text-5xl">
                 Избранное
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/48 sm:text-base">
-                Сохраняйте варианты, сравнивайте без спешки и возвращайтесь к ним, когда будете готовы к обмену.
-              </p>
             </div>
             <div className="flex items-center gap-2 self-start sm:self-auto">
               <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/48">
@@ -258,15 +251,14 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
           {total > 0 && ownItems.length === 0 ? (
             <GlassCard className="mb-7 flex flex-col gap-4 border border-teal-300/18 bg-gradient-to-r from-teal-300/[0.08] via-blue-400/[0.055] to-transparent p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/70">Следующий шаг</p>
-                <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em]">Добавьте свою вещь для обмена</h2>
+                <h2 className="text-xl font-semibold tracking-[-0.025em]">Добавьте своё объявление</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">
-                  Сохранённые варианты уже показывают, что вам интересно. Опубликуйте свою вещь, чтобы отправлять предложения обмена.
+                  Оно понадобится, чтобы предложить обмен на сохранённый вариант.
                 </p>
               </div>
               <MenariumLinkButton href="/new" className="w-full shrink-0 sm:w-auto">
                 <Plus className="h-4 w-4" />
-                Добавить первую вещь
+                Добавить объявление
               </MenariumLinkButton>
             </GlassCard>
           ) : null}
@@ -277,7 +269,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
                 <EmptyState
                   icon={<Heart className="h-7 w-7" />}
                   title="Здесь появятся ваши находки"
-                  description="Нажмите на сердце у интересной вещи — Menarium сохранит её здесь и начнёт точнее подбирать варианты."
+                  description="Нажмите на сердце у интересного объявления, чтобы сохранить его здесь."
                   actionHref="/catalog"
                   actionLabel="Посмотреть каталог"
                 />
@@ -331,7 +323,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
             <EmptyState
               icon={<Heart className="h-7 w-7" />}
               title="Здесь появятся ваши находки"
-              description="Нажмите на сердце у интересной вещи — Menarium сохранит её здесь и начнёт точнее подбирать варианты."
+              description="Нажмите на сердце у интересного объявления, чтобы сохранить его здесь."
               actionHref="/catalog"
               actionLabel="Посмотреть каталог"
             />
@@ -379,7 +371,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
                       recommendationReason={
                         reasons[0] ??
                         (item._count.favorites > 0
-                          ? "Популярно у пользователей Menarium"
+                          ? "Часто сохраняют"
                           : "Свежий вариант для обмена")
                       }
                     />

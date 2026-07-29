@@ -56,7 +56,7 @@ test.describe("первый вход и личный кабинет", () => {
       await content.getByRole("button", { name: "Сохранить" }).click();
 
       await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });
-      await expect(content.getByRole("heading", { name: "Покажите, что готовы обменять" })).toBeVisible();
+      await expect(content.getByRole("heading", { name: "Добавьте вещь или услугу" })).toBeVisible();
       await expect(content.getByRole("progressbar", { name: "Прогресс до первого обмена" })).toHaveAttribute(
         "aria-valuenow",
         "40",

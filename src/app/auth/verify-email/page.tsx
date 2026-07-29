@@ -65,7 +65,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   return (
     <AppShell mode="auth">
-      <AuthShell title="Готово!" subtitle="Email подтверждён — добро пожаловать в Menarium.">
+      <AuthShell title="Готово!" subtitle="Email подтверждён. Добро пожаловать в Менариум.">
         <div className="space-y-4 text-center">
           <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100">
             Почта {email} подтверждена. Можно обмениваться и общаться в чатах.

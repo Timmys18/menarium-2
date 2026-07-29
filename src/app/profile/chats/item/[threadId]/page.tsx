@@ -94,7 +94,7 @@ export default async function ItemThreadPage({ params }: Props) {
                       <div className="min-w-0">
                         <p className="text-xs text-white/35">Диалог по объявлению</p>
                         <h1 className="mt-0.5 truncate text-xl font-semibold">
-                          {partner?.name ?? "Участник Menarium"}
+                          {partner?.name ?? "Участник Менариум"}
                         </h1>
                       </div>
                     </div>

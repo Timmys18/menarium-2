@@ -9,7 +9,7 @@ export function EmptyState({
   description,
   actionHref,
   actionLabel,
-  eyebrow = "Следующий шаг",
+  eyebrow,
   secondaryActionHref,
   secondaryActionLabel,
 }: {
@@ -30,9 +30,9 @@ export function EmptyState({
         <span aria-hidden="true" className="absolute -inset-2 rounded-[27px] border border-white/[0.045]" />
         <span className="relative">{icon}</span>
       </div>
-      <p className="type-kicker relative mb-2 text-teal-200/68">
-        {eyebrow}
-      </p>
+      {eyebrow ? (
+        <p className="type-kicker relative mb-2 text-teal-200/68">{eyebrow}</p>
+      ) : null}
       <h2 className="relative mb-2 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
       <p className="relative max-w-md text-sm leading-6 text-white/66 sm:text-base">{description}</p>
       {actionHref && actionLabel ? (

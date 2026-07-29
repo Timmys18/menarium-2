@@ -118,7 +118,7 @@ export function SwipeLikeModal({
         </p>
         <p className="flex items-start gap-2">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200/75" />
-          До ответа предложение можно отозвать. Оплата через Menarium не требуется.
+          До ответа предложение можно отозвать. Оплата не требуется.
         </p>
       </div>
 

@@ -42,7 +42,7 @@ function actionForStep(step: ActivationStep, outgoingPending: number): ProfileNe
   switch (step.id) {
     case "verify":
       return {
-        eyebrow: "Безопасный старт",
+        eyebrow: "Аккаунт",
         title: "Подтвердите почту",
         description: "Так важные сообщения об обменах не потеряются, а аккаунт будет лучше защищён.",
         href: step.href,
@@ -51,7 +51,7 @@ function actionForStep(step: ActivationStep, outgoingPending: number): ProfileNe
       };
     case "profile":
       return {
-        eyebrow: "Следующий шаг",
+        eyebrow: "Профиль",
         title: "Расскажите о себе",
         description: "Имя и город помогают другим участникам быстрее решиться на обмен.",
         href: step.href,
@@ -60,25 +60,25 @@ function actionForStep(step: ActivationStep, outgoingPending: number): ProfileNe
       };
     case "listing":
       return {
-        eyebrow: "Следующий шаг",
-        title: "Покажите, что готовы обменять",
-        description: "Добавьте вещь, навык или услугу. Это займёт несколько минут.",
+        eyebrow: "Объявление",
+        title: "Добавьте вещь или услугу",
+        description: "Укажите, что предлагаете и что хотите получить.",
         href: step.href,
         label: "Создать объявление",
         kind: "progress",
       };
     case "proposal":
       return {
-        eyebrow: "Следующий шаг",
+        eyebrow: "Обмен",
         title: "Найдите подходящий обмен",
-        description: "Свайп покажет предложения других людей и поможет быстро отправить первый вариант.",
+        description: "Выберите предложение другого участника и отправьте свой вариант.",
         href: step.href,
         label: "Открыть свайп",
         kind: "progress",
       };
     case "completed":
       return {
-        eyebrow: "Первый обмен уже близко",
+        eyebrow: "Обмен",
         title: outgoingPending > 0 ? "Следите за ответом" : "Попробуйте ещё один вариант",
         description:
           outgoingPending > 0
@@ -145,7 +145,7 @@ export function buildProfileActivation(input: ProfileActivationInput): ProfileAc
   let nextAction: ProfileNextAction;
   if (input.incomingPending > 0) {
     nextAction = {
-      eyebrow: "Нужно ваше решение",
+      eyebrow: "Новые предложения",
       title: input.incomingPending === 1 ? "Вам предложили обмен" : `Новых предложений: ${input.incomingPending}`,
       description: "Посмотрите, что предлагают, и ответьте человеку, пока обмен актуален.",
       href: "/exchange?tab=incoming",
@@ -154,7 +154,7 @@ export function buildProfileActivation(input: ProfileActivationInput): ProfileAc
     };
   } else if (input.acceptedSwaps > 0) {
     nextAction = {
-      eyebrow: "Обмен в работе",
+      eyebrow: "Активный обмен",
       title: input.acceptedSwaps === 1 ? "Продолжите договорённость" : `Активных обменов: ${input.acceptedSwaps}`,
       description: "Уточните детали в чате и подтвердите результат, когда обе стороны всё выполнили.",
       href: "/exchange?tab=matches",
@@ -163,7 +163,7 @@ export function buildProfileActivation(input: ProfileActivationInput): ProfileAc
     };
   } else if (input.activeItems === 0 && pausedItems > 0) {
     nextAction = {
-      eyebrow: "Готово к возвращению",
+      eyebrow: "Объявления",
       title: pausedItems === 1 ? "Верните объявление в каталог" : `На паузе: ${pausedItems}`,
       description: "Данные и фотографии сохранены. Возобновите публикацию, чтобы снова получать предложения.",
       href: "/my-items?status=paused",
@@ -174,9 +174,9 @@ export function buildProfileActivation(input: ProfileActivationInput): ProfileAc
     nextAction = actionForStep(nextStep, input.outgoingPending);
   } else {
     nextAction = {
-      eyebrow: "Маршрут пройден",
-      title: "Готовы к следующей находке?",
-      description: "Профиль настроен, первый обмен завершён. Можно искать новый удачный вариант.",
+      eyebrow: "Обмен завершён",
+      title: "Найдите новый вариант",
+      description: "Откройте свайп или каталог.",
       href: "/swipe",
       label: "Найти новый обмен",
       kind: "complete",

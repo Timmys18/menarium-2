@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ItemStatus, Prisma, SwapStatus } from "@prisma/client";
-import { ArrowLeftRight, CheckCircle2, Clock3, MessageCircle, ShieldCheck, UserRound } from "lucide-react";
+import { CheckCircle2, Clock3, MessageCircle, ShieldCheck, UserRound } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
+import { BrandMark } from "@/components/menarium/brand";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
@@ -104,8 +105,8 @@ function statusPresentation(
           variant: "teal",
         }
       : {
-          label: "Договоритесь в чате",
-          description: "Обмен принят. Используйте чат, чтобы согласовать все детали напрямую.",
+          label: "В чате",
+          description: "Обмен принят. Детали остаются в чате этой сделки.",
           variant: "teal",
         };
   }
@@ -389,8 +390,6 @@ export default async function ExchangePage({ searchParams }: Props) {
   const selectedYourItem = selectedSwap
     ? serializeItem(selectedIsIncoming ? selectedSwap.receiverItem : selectedSwap.senderItem)
     : null;
-  const selectedTheirCard = selectedTheirItem ? toItemCardView(selectedTheirItem) : null;
-  const selectedYourCard = selectedYourItem ? toItemCardView(selectedYourItem) : null;
   const selectedPartner = selectedSwap
     ? selectedIsIncoming
       ? selectedSwap.sender
@@ -417,11 +416,13 @@ export default async function ExchangePage({ searchParams }: Props) {
     <AppShell>
       <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-7xl">
-          <header className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <header
+            className={cn(
+              "mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end",
+              params.swap ? "hidden lg:flex" : "",
+            )}
+          >
             <div>
-              <p className="type-kicker mb-2 text-blue-200/60">
-                Личный центр
-              </p>
               <h1 className="type-page-title text-3xl sm:text-4xl md:text-5xl">
                 Мои <span className="gradient-text">обмены</span>
               </h1>
@@ -486,12 +487,11 @@ export default async function ExchangePage({ searchParams }: Props) {
             />
           ) : totalSwaps === 0 ? (
             <EmptyState
-              eyebrow={activeItemCount > 0 ? "Первый обмен в двух шагах" : "Сначала покажите свою ценность"}
-              title={activeItemCount > 0 ? "Ваши вещи уже готовы к обмену" : "Добавьте первую вещь для обмена"}
+              title={activeItemCount > 0 ? "Выберите, что хотите получить" : "Добавьте вещь или услугу"}
               description={
                 activeItemCount > 0
-                  ? `У вас ${activeItemCount} ${activeItemLabel}. Выберите интересную вещь и предложите один из своих вариантов.`
-                  : "Добавьте вещь, навык или услугу. После этого сможете выбирать варианты в каталоге и свайпе."
+                  ? `У вас ${activeItemCount} ${activeItemLabel}. Откройте каталог и предложите один из своих вариантов.`
+                  : "После публикации вы сможете предлагать обмен в каталоге и свайпе."
               }
               actionHref={activeItemCount > 0 ? "/catalog" : "/new"}
               actionLabel={activeItemCount > 0 ? "Открыть каталог" : "Добавить вещь"}
@@ -500,7 +500,12 @@ export default async function ExchangePage({ searchParams }: Props) {
             />
           ) : (
             <>
-              <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.025] p-2 sm:flex-row sm:items-center sm:justify-between">
+              <div
+                className={cn(
+                  "mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.025] p-2 sm:flex-row sm:items-center sm:justify-between",
+                  params.swap ? "hidden lg:flex" : "",
+                )}
+              >
                 <nav className="grid grid-cols-3 gap-1 sm:flex sm:overflow-x-auto" aria-label="Виды обменов">
                   {([
                     ["incoming", "Мне предложили", "Входящие", incomingCount],
@@ -549,12 +554,12 @@ export default async function ExchangePage({ searchParams }: Props) {
                 </nav>
               </div>
 
-              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_410px]">
+              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[minmax(420px,500px)_minmax(0,1fr)] xl:grid-cols-[520px_minmax(0,1fr)]">
                 <GlassCard
                   id="exchange-list"
                   className={cn(
                     "border border-white/8 p-4 sm:p-5 lg:order-1",
-                    params.swap ? "order-2" : "order-1",
+                    params.swap ? "hidden lg:block" : "order-1",
                   )}
                 >
                   <div className="mb-4 flex items-end justify-between gap-4 px-1">
@@ -564,7 +569,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                           ? "Предложения для тебя"
                           : activeTab === "outgoing"
                             ? "Твои предложения"
-                            : "Обмены с взаимным интересом"}
+                            : "Взаимные обмены"}
                       </h2>
                       <p className="mt-1 text-xs text-white/54">
                         {activeFilter === "active" ? "Актуальные обмены" : "Завершённые и отменённые"}
@@ -614,50 +619,49 @@ export default async function ExchangePage({ searchParams }: Props) {
                                 : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.05]",
                             )}
                           >
-                            <article className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                              <div className="grid w-full shrink-0 grid-cols-[minmax(0,1fr)_28px_minmax(0,1fr)] items-center gap-2 sm:w-44">
-                                <div>
-                                  <div className="relative aspect-square overflow-hidden rounded-[14px] border border-white/8 bg-white/[0.03]">
+                            <article>
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className="flex items-center gap-1.5 text-xs text-white/60">
+                                  <UserRound className="h-3.5 w-3.5" />
+                                  {partner?.name ?? "Участник Менариум"}
+                                </span>
+                                <Badge variant={presentation.variant}>{presentation.label}</Badge>
+                              </div>
+
+                              <div className="mt-3 grid grid-cols-[minmax(0,1fr)_42px_minmax(0,1fr)] items-center gap-2">
+                                <div className="min-w-0">
+                                  <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] border border-white/8 bg-white/[0.03]">
                                     <ItemCoverImage
                                       src={yourCard.image}
                                       alt={yourItem.title}
-                                      sizes="96px"
+                                      sizes="(max-width: 768px) 38vw, 210px"
                                       imageClassName="transition-transform duration-500 group-hover:scale-105"
                                     />
                                   </div>
-                                  <span className="mt-1.5 block truncate text-xs text-white/54">Ваше</span>
+                                  <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/42">Вы предлагаете</span>
+                                  <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{yourItem.title}</h3>
                                 </div>
-                                <ArrowLeftRight className="h-4 w-4 justify-self-center text-teal-200/70" />
-                                <div>
-                                  <div className="relative aspect-square overflow-hidden rounded-[14px] border border-white/8 bg-white/[0.03]">
+                                <BrandMark
+                                  size="md"
+                                  className="justify-self-center rounded-[13px] shadow-[0_12px_30px_rgba(0,0,0,0.38)] ring-white/16"
+                                />
+                                <div className="min-w-0">
+                                  <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] border border-white/8 bg-white/[0.03]">
                                     <ItemCoverImage
                                       src={theirCard.image}
                                       alt={theirItem.title}
-                                      sizes="96px"
+                                      sizes="(max-width: 768px) 38vw, 210px"
                                       imageClassName="transition-transform duration-500 group-hover:scale-105"
                                     />
                                   </div>
-                                  <span className="mt-1.5 block truncate text-xs text-white/54">Взамен</span>
+                                  <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/42">Вы получаете</span>
+                                  <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{theirItem.title}</h3>
                                 </div>
                               </div>
 
-                              <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <span className="flex items-center gap-1.5 text-xs text-white/60">
-                                    <UserRound className="h-3.5 w-3.5" />
-                                    {partner?.name ?? "Участник Menarium"}
-                                  </span>
-                                  <Badge variant={presentation.variant}>{presentation.label}</Badge>
-                                </div>
-                                <h3 className="mt-2 line-clamp-1 text-sm font-semibold text-white">
-                                  {yourItem.title}
-                                  <span className="mx-2 text-teal-200/55">↔</span>
-                                  {theirItem.title}
-                                </h3>
-                                <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-white/60">
-                                  {presentation.description}
-                                </p>
-                              </div>
+                              <p className="mt-3 border-t border-white/7 pt-3 text-xs leading-5 text-white/58">
+                                {presentation.description}
+                              </p>
                             </article>
                           </Link>
                         );
@@ -693,12 +697,20 @@ export default async function ExchangePage({ searchParams }: Props) {
                 <GlassCard
                   id="exchange-detail"
                   className={cn(
-                    "scroll-mt-24 border border-white/10 p-4 sm:p-5 lg:order-2 lg:sticky lg:top-24",
+                    "min-w-0 max-w-full scroll-mt-24 overflow-hidden border border-white/10 p-4 sm:p-5 lg:order-2",
                     params.swap ? "order-1" : "order-2",
                   )}
                 >
-                  {selectedSwap && selectedTheirItem && selectedYourItem && selectedTheirCard && selectedYourCard && selectedStatus ? (
+                  {selectedSwap && selectedTheirItem && selectedYourItem && selectedStatus ? (
                     <>
+                      {params.swap ? (
+                        <Link
+                          href={exchangeHref(activeTab, undefined, activeFilter, page)}
+                          className="mb-4 inline-flex rounded-xl px-2 py-1.5 text-sm text-white/58 transition hover:bg-white/5 hover:text-white lg:hidden"
+                        >
+                          ← Все обмены
+                        </Link>
+                      ) : null}
                       <div className="mb-4 flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-blue-500/20 to-teal-400/15">
@@ -706,47 +718,19 @@ export default async function ExchangePage({ searchParams }: Props) {
                           </div>
                           <div className="min-w-0">
                             <h2 className="truncate font-semibold">
-                              {selectedPartner?.name ?? "Участник Menarium"}
+                              {selectedPartner?.name ?? "Участник Менариум"}
                             </h2>
-                            <p className="mt-0.5 text-xs text-white/56">Обсуждение обмена</p>
+                            <p className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-white/56">
+                              <span className="truncate">{selectedYourItem.title}</span>
+                              <BrandMark size="xs" className="h-4 w-4 rounded-[5px] shadow-none ring-white/10" />
+                              <span className="truncate">{selectedTheirItem.title}</span>
+                            </p>
                           </div>
                         </div>
-                        <Badge variant={selectedStatus.variant} className="shrink-0">
+                        <Badge variant={selectedStatus.variant} className="hidden max-w-[12rem] shrink-0 truncate sm:inline-flex">
                           {selectedStatus.label}
                         </Badge>
                       </div>
-
-                      <div className="grid grid-cols-[minmax(0,1fr)_28px_minmax(0,1fr)] items-stretch gap-2 rounded-[20px] border border-white/8 bg-white/[0.025] p-3">
-                        <div className="min-w-0">
-                          <div className="relative aspect-[4/3] overflow-hidden rounded-[13px] bg-white/[0.03]">
-                            <ItemCoverImage
-                              src={selectedYourCard.image}
-                              alt={selectedYourItem.title}
-                              sizes="160px"
-                              priority
-                            />
-                          </div>
-                          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/56">Вы отдаёте</p>
-                          <p className="mt-1 line-clamp-2 text-xs font-medium leading-4 text-white/75">{selectedYourItem.title}</p>
-                        </div>
-                        <ArrowLeftRight className="h-4 w-4 self-center justify-self-center text-teal-200/75" />
-                        <div className="min-w-0">
-                          <div className="relative aspect-[4/3] overflow-hidden rounded-[13px] bg-white/[0.03]">
-                            <ItemCoverImage
-                              src={selectedTheirCard.image}
-                              alt={selectedTheirItem.title}
-                              sizes="160px"
-                              priority
-                            />
-                          </div>
-                          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/56">Вы получаете</p>
-                          <p className="mt-1 line-clamp-2 text-xs font-medium leading-4 text-white/75">{selectedTheirItem.title}</p>
-                        </div>
-                      </div>
-
-                      <p className="my-4 rounded-[16px] border border-blue-300/15 bg-blue-400/[0.055] px-4 py-3 text-sm leading-5 text-white/60">
-                        {selectedStatus.description}
-                      </p>
 
                       {selectedSwap.status === SwapStatus.PENDING ? (
                         <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-white/58">
@@ -794,17 +778,9 @@ export default async function ExchangePage({ searchParams }: Props) {
                         receiverCompleted={selectedSwap.receiverCompleted}
                         communicationBlocked={Boolean(selectedBlock)}
                         currentUserId={userId}
+                        partnerName={selectedPartner?.name ?? "участником"}
                         messages={selectedMessages}
                         nextCursor={selectedMessagePage.nextCursor}
-                        chatSuggestions={
-                          selectedSwap.status === SwapStatus.ACCEPTED
-                            ? [
-                                "Привет! Рад(а) договориться об обмене.",
-                                `Подтверждаю: я отдаю «${selectedYourItem.title}» и получаю «${selectedTheirItem.title}».`,
-                                "Давайте согласуем удобное время и место здесь, в чате.",
-                              ]
-                            : []
-                        }
                         acceptedHref={`/exchange?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
                       />
 
@@ -836,9 +812,6 @@ export default async function ExchangePage({ searchParams }: Props) {
                         </section>
                       ) : null}
 
-                      <a href="#exchange-list" className="mt-4 block text-center text-xs text-white/56 hover:text-white/78 lg:hidden">
-                        Вернуться к списку ↑
-                      </a>
                     </>
                   ) : (
                     <div className="py-12 text-center">

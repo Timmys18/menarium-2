@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ItemStatus, SwapStatus } from "@prisma/client";
 import {
   Archive,
-  ArrowLeftRight,
   CirclePause,
   MapPin,
   PackageCheck,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
+import { BrandGlyph } from "@/components/menarium/brand";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
@@ -53,7 +53,7 @@ const filters = [
     status: ItemStatus.IN_DEAL,
     label: "В сделке",
     description: "Зарезервировано",
-    icon: ArrowLeftRight,
+    icon: BrandGlyph,
   },
   {
     value: "paused",
@@ -416,7 +416,7 @@ export default async function MyItemsPage({
                   description={
                     activeFilter === "active"
                       ? "Создай объявление или верни в каталог одно из приостановленных."
-                      : "Когда здесь появятся объявления, Menarium подскажет доступные действия."
+                      : "Когда здесь появятся объявления, рядом будут доступны нужные действия."
                   }
                   actionHref={activeFilter === "paused" ? "/my-items?status=active" : "/new"}
                   actionLabel={activeFilter === "paused" ? "Открыть опубликованные" : "Создать объявление"}

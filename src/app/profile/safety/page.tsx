@@ -276,7 +276,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                               </p>
                               {partner ? (
                                 <p className="mt-1 text-xs text-white/38">
-                                  Участник: {partner.name ?? "пользователь Menarium"}
+                                  Участник: {partner.name ?? "пользователь Менариум"}
                                 </p>
                               ) : null}
                               {contextHref ? (

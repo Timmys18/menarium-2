@@ -1,7 +1,21 @@
 import { expect, test } from "@playwright/test";
+import { spawnSync } from "node:child_process";
+
+function resetSeedData() {
+  const result = spawnSync(process.execPath, ["prisma/seed.mjs"], {
+    cwd: process.cwd(),
+    env: { ...process.env, ALLOW_PROD_SEED: "true" },
+    encoding: "utf8",
+  });
+
+  if (result.status !== 0) {
+    throw new Error(`Seed reset failed:\n${result.stdout}\n${result.stderr}`);
+  }
+}
 
 test.describe("Мобильное открытие каталога", () => {
   test.use({ viewport: { width: 390, height: 844 } });
+  test.beforeEach(() => resetSeedData());
 
   test("главная помещается на экран и показывает ключевые разделы", async ({ page }) => {
     await page.goto("/");

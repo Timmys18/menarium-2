@@ -46,7 +46,7 @@ export default async function SwipePage() {
       wanted: card.wanted,
       image: card.image,
       city: card.city,
-      ownerName: serializedItem.owner?.name ?? "Участник Menarium",
+      ownerName: serializedItem.owner?.name ?? "Участник Менариум",
       isOnline: serializedItem.isOnline,
     };
   });
@@ -70,7 +70,7 @@ export default async function SwipePage() {
           {!userId ? (
             <EmptyState
               title="Войдите, чтобы открыть свайп"
-              description="Свайп-лента персональная: Menarium исключает ваши объявления и уже отправленные предложения."
+              description="Здесь не показываются ваши объявления и варианты, которые вы уже просмотрели."
               actionHref={loginHref("/swipe")}
               actionLabel="Войти"
             />

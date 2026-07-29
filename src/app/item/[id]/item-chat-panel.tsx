@@ -49,13 +49,9 @@ export function ItemChatPanel({
     <GlassCard className="mt-8 p-6">
       <div className="mb-5">
         <h2 className="text-xl font-semibold">Чат по объявлению</h2>
-        <p className="mt-1 text-sm text-white/45">
-          {!canWrite
-            ? "Переписка сохранена в истории, но новые сообщения для этого объявления закрыты."
-            : isOwner
-            ? "Ответьте покупателю на вопрос по этому объявлению."
-            : "Задайте вопрос владельцу до предложения обмена."}
-        </p>
+        {!canWrite ? (
+          <p className="mt-1 text-sm text-white/45">Новые сообщения недоступны.</p>
+        ) : null}
       </div>
       <ChatConversation
         target={
@@ -71,17 +67,8 @@ export function ItemChatPanel({
         canWrite={canWrite}
         placeholder={isOwner ? "Ответьте покупателю..." : "Напишите владельцу..."}
         disabledPlaceholder="Переписка закрыта для новых сообщений"
-        emptyMessage="Сообщений пока нет. Начните диалог первым сообщением."
+        emptyMessage="Сообщений пока нет."
         draftKey={`item:${itemId}`}
-        suggestedMessages={
-          !isOwner
-            ? [
-                "Здравствуйте! Подскажите, пожалуйста, объявление ещё актуально?",
-                "Какие варианты обмена вам особенно интересны?",
-                "Могу предложить свой вариант обмена. Готовы обсудить?",
-              ]
-            : []
-        }
       />
     </GlassCard>
   );

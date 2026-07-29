@@ -88,14 +88,17 @@ export function ExchangeActionPanel({
   const actionDescription =
     status === "PENDING"
       ? isReceiver
-        ? "Сначала сверьте обе вещи. После принятия откроется чат для договорённостей."
-        : "Партнёр увидит предложение и примет решение. До этого его можно отозвать."
-      : "Договоритесь обо всех деталях в чате. Подтверждайте завершение только после фактического обмена.";
+        ? "Сверьте обе стороны обмена перед решением."
+        : "До ответа предложение можно отозвать."
+      : "Подтвердите завершение, когда договорённость выполнена.";
 
   if (!hasActions) return null;
 
   return (
-    <section className="mb-5 space-y-3 rounded-[18px] border border-white/10 bg-white/[0.03] p-4" aria-labelledby="exchange-actions-title">
+    <section
+      className={`mb-5 space-y-3 rounded-[18px] border border-white/10 bg-white/[0.03] p-4 ${status === "ACCEPTED" ? "mt-5" : ""}`}
+      aria-labelledby="exchange-actions-title"
+    >
       <div>
         <h3 id="exchange-actions-title" className="text-sm font-semibold text-white/88">
           {actionTitle}
@@ -198,17 +201,17 @@ export function ExchangeDealPanel({
   communicationBlocked,
   acceptedHref,
   currentUserId,
+  partnerName,
   messages,
   nextCursor,
-  chatSuggestions = [],
 }: ExchangeSnapshot & {
   swapId: string;
   isSender: boolean;
   isReceiver: boolean;
   currentUserId: string;
+  partnerName: string;
   messages: ChatMessageView[];
   nextCursor: string | null;
-  chatSuggestions?: string[];
   communicationBlocked: boolean;
   acceptedHref?: string;
 }) {
@@ -225,44 +228,54 @@ export function ExchangeDealPanel({
       : snapshot.status === "COMPLETED"
         ? "Обмен завершён, чат доступен только для чтения"
         : "Обмен закрыт, чат доступен только для чтения";
+  const chatSection = (
+    <section
+      id="exchange-chat"
+      className="min-w-0 max-w-full scroll-mt-24 overflow-hidden rounded-[22px] border border-white/10 bg-[#0a1018]/72"
+      tabIndex={-1}
+      aria-labelledby="exchange-chat-title"
+    >
+      <div className="border-b border-white/8 px-4 py-3.5">
+        <h3 id="exchange-chat-title" className="font-semibold text-white/90">
+          Чат с {partnerName}
+        </h3>
+        {communicationBlocked ? (
+          <p className="mt-1 text-xs text-white/52">Новые сообщения недоступны.</p>
+        ) : null}
+      </div>
+      <div className="min-w-0 p-4">
+        <ChatConversation
+          target={{ endpoint: `/api/exchange/${swapId}/messages`, entityId: swapId }}
+          currentUserId={currentUserId}
+          initialMessages={messages}
+          initialNextCursor={nextCursor}
+          realtimeTypes={["deal-message", "swap"]}
+          canWrite={snapshot.status === "ACCEPTED" && !communicationBlocked}
+          placeholder={`Написать ${partnerName}...`}
+          disabledPlaceholder={disabledPlaceholder}
+          emptyMessage="Сообщений пока нет."
+          draftKey={`deal:${swapId}`}
+        />
+      </div>
+    </section>
+  );
+  const actionPanel = (
+    <ExchangeActionPanel
+      swapId={swapId}
+      status={snapshot.status}
+      isSender={isSender}
+      isReceiver={isReceiver}
+      senderCompleted={snapshot.senderCompleted}
+      receiverCompleted={snapshot.receiverCompleted}
+      acceptedHref={acceptedHref}
+      onSwapUpdated={setSnapshot}
+    />
+  );
 
   return (
     <>
-      <ExchangeActionPanel
-        swapId={swapId}
-        status={snapshot.status}
-        isSender={isSender}
-        isReceiver={isReceiver}
-        senderCompleted={snapshot.senderCompleted}
-        receiverCompleted={snapshot.receiverCompleted}
-        acceptedHref={acceptedHref}
-        onSwapUpdated={setSnapshot}
-      />
-      <div id="exchange-chat" className="mb-3 scroll-mt-24" tabIndex={-1}>
-        <div>
-          <h3 className="text-sm font-semibold text-white/88">Чат сделки</h3>
-          <p className="mt-1 text-xs text-white/58">
-            {communicationBlocked
-              ? "История сохранена, но новые сообщения недоступны."
-              : snapshot.status === "ACCEPTED"
-              ? "Согласуйте здесь все детали обмена."
-              : "История договорённостей хранится здесь."}
-          </p>
-        </div>
-      </div>
-      <ChatConversation
-        target={{ endpoint: `/api/exchange/${swapId}/messages`, entityId: swapId }}
-        currentUserId={currentUserId}
-        initialMessages={messages}
-        initialNextCursor={nextCursor}
-        realtimeTypes={["deal-message", "swap"]}
-        canWrite={snapshot.status === "ACCEPTED" && !communicationBlocked}
-        placeholder="Сообщение..."
-        disabledPlaceholder={disabledPlaceholder}
-        emptyMessage="Сообщений по этой сделке пока нет."
-        draftKey={`deal:${swapId}`}
-        suggestedMessages={chatSuggestions}
-      />
+      {snapshot.status === "ACCEPTED" ? chatSection : actionPanel}
+      {snapshot.status === "ACCEPTED" ? actionPanel : chatSection}
     </>
   );
 }

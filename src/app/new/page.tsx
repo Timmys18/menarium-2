@@ -54,7 +54,7 @@ export default async function NewItemPage({ searchParams }: NewItemPageProps) {
           ) : (
             <EmptyState
               title="Войдите, чтобы создать объявление"
-              description="Menarium привязывает объявления, фото и обмены к вашему профилю."
+              description="Объявления, фотографии и обмены сохраняются в вашем профиле."
               actionHref={loginHref(currentPath)}
               actionLabel="Войти"
             />

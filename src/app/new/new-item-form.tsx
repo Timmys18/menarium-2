@@ -381,7 +381,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             <section className="space-y-6" aria-labelledby="new-item-step-one">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 1 из 3</p>
-                <h2 ref={stepHeadingRef} id="new-item-step-one" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Покажи, что предлагаешь</h2>
+                <h2 ref={stepHeadingRef} id="new-item-step-one" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что вы предлагаете?</h2>
                 <p className="mt-2 text-sm leading-6 text-white/50">Название и хорошее первое фото помогают получить больше осмысленных предложений.</p>
               </div>
 

@@ -1,7 +1,6 @@
 import localFont from "next/font/local";
 
-// Onest — основной шрифт интерфейса: полностью поддерживает кириллицу и латиницу,
-// премиальный геометрический гротеск в духе фирменного стиля Menarium.
+// Onest — основной шрифт интерфейса с поддержкой кириллицы и латиницы.
 export const onest = localFont({
   variable: "--font-onest",
   display: "swap",
@@ -19,8 +18,7 @@ export const onest = localFont({
   ],
 });
 
-// Space Grotesk — акцентный дисплейный шрифт для латинских элементов бренда
-// (логотип MENARIUM и т.п.). Кириллицу не покрывает, поэтому только для латиницы.
+// Space Grotesk — акцентный шрифт для цифр и коротких латинских элементов.
 export const spaceGrotesk = localFont({
   variable: "--font-space-grotesk",
   display: "swap",

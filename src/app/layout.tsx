@@ -7,23 +7,22 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
   title: {
-    default: "Menarium",
-    template: "%s | Menarium",
+    default: "Менариум",
+    template: "%s | Менариум",
   },
-  description:
-    "Menarium — премиальная платформа бартерного обмена вещами и услугами. Свайп, каталог, безопасные сделки.",
-  applicationName: "Menarium",
+  description: "Обмен вещей и услуг напрямую: вещь на вещь, услуга на услугу или услуга на вещь.",
+  applicationName: "Менариум",
   openGraph: {
     type: "website",
     locale: "ru_RU",
-    siteName: "Menarium",
-    title: "Menarium — бартерный обмен нового уровня",
-    description: "Меняйся просто. Находи людей, которым нужен твой предмет.",
+    siteName: "Менариум",
+    title: "Меняйся. Просто.",
+    description: "Обменивайте вещи и услуги напрямую.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Menarium",
-    description: "Премиальная платформа бартерного обмена",
+    title: "Меняйся. Просто.",
+    description: "Обменивайте вещи и услуги напрямую.",
   },
 };
 

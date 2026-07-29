@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
+import { BrandMark } from "@/components/menarium/brand";
 import { cn } from "@/lib/utils";
 
 export const ITEM_PLACEHOLDER = "/menarium-placeholder.svg";
@@ -34,7 +34,7 @@ export function ItemCoverImage({
         )}
       >
         <div className="flex flex-col items-center gap-2 text-white/30">
-          <ImageIcon className="h-12 w-12" strokeWidth={1.25} />
+          <BrandMark size="xl" className="opacity-70" />
           <span className="text-[11px] uppercase tracking-[0.18em]">Нет фото</span>
         </div>
       </div>

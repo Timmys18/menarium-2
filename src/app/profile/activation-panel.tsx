@@ -1,16 +1,18 @@
-import { ArrowRight, Check, CircleUserRound, MailCheck, Repeat2, Sparkles, Tag } from "lucide-react";
+import type { ComponentType } from "react";
+import { ArrowRight, Check, CircleUserRound, MailCheck, Tag } from "lucide-react";
+import { BrandGlyph } from "@/components/menarium/brand";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import type { ActivationStepId, ProfileActivation } from "@/features/profile/activation";
 import { cn } from "@/lib/utils";
 
-const stepIcons = {
+const stepIcons: Record<ActivationStepId, ComponentType<{ className?: string }>> = {
   verify: MailCheck,
   profile: CircleUserRound,
   listing: Tag,
-  proposal: Repeat2,
+  proposal: BrandGlyph,
   completed: Check,
-} satisfies Record<ActivationStepId, typeof MailCheck>;
+};
 
 export function ActivationPanel({ activation }: { activation: ProfileActivation }) {
   const { nextAction } = activation;
@@ -33,7 +35,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
                 : "bg-teal-300/10 text-teal-200",
             )}
           >
-            <Sparkles className="h-5 w-5" />
+            <BrandGlyph className="h-6 w-6" />
           </span>
           <div>
             <p

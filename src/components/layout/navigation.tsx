@@ -2,21 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeftRight, Bell, Compass, Heart, Plus, Repeat2, Search, UserRound } from "lucide-react";
+import { Bell, Compass, Heart, Plus, Repeat2, Search, UserRound } from "lucide-react";
+import { BrandGlyph, BrandLockup, BrandMark } from "@/components/menarium/brand";
 import { cn } from "@/lib/utils";
 
 const desktopItems = [
   { href: "/catalog", label: "Каталог", icon: Compass },
   { href: "/favorites", label: "Избранное", icon: Heart },
   { href: "/swipe", label: "Свайп", icon: Repeat2 },
-  { href: "/exchange", label: "Обмены", icon: ArrowLeftRight },
+  { href: "/exchange", label: "Обмены", icon: BrandGlyph },
 ];
 
 const mobileItems = [
   { href: "/catalog", label: "Каталог", icon: Search },
   { href: "/swipe", label: "Свайп", icon: Repeat2 },
   { href: "/new", label: "Создать", icon: Plus, primary: true },
-  { href: "/exchange", label: "Обмены", icon: ArrowLeftRight },
+  { href: "/exchange", label: "Обмены", icon: BrandGlyph },
   { href: "/profile", label: "Профиль", icon: UserRound },
 ];
 
@@ -65,16 +66,15 @@ export function Navigation({
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/"
-                aria-label="Menarium — главная"
+                aria-label="Менариум — главная"
                 aria-current={pathname === "/" ? "page" : undefined}
-                className="group flex items-center gap-2.5 rounded-2xl px-2 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                className="group rounded-2xl px-2 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/15 bg-gradient-to-br from-blue-500 to-teal-400 shadow-[0_10px_28px_rgba(77,141,255,0.25)] transition group-hover:rotate-3">
-                  <Repeat2 className="h-5 w-5 text-white" />
-                </span>
-                <span className="gradient-text font-display text-xl font-bold tracking-[-0.03em] lg:text-2xl">
-                  MENARIUM
-                </span>
+                <BrandLockup
+                  priority
+                  markClassName="transition duration-300 group-hover:scale-[1.04]"
+                  textClassName="lg:text-2xl"
+                />
               </Link>
 
               <div className="flex items-center gap-1 rounded-2xl border border-white/[0.06] bg-black/10 p-1">
@@ -108,7 +108,7 @@ export function Navigation({
                   aria-current={isActivePath(pathname, "/new") ? "page" : undefined}
                   className="inline-flex min-h-11 items-center gap-2 rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 lg:px-5"
                 >
-                  <Plus className="h-4 w-4" />
+                  <BrandMark size="xs" className="h-5 w-5 rounded-md shadow-none ring-white/20" />
                   <span className="hidden lg:inline">Добавить</span>
                 </Link>
                 <Link
@@ -148,14 +148,15 @@ export function Navigation({
         <div className="mx-auto flex max-w-lg items-center justify-between rounded-[20px] border border-white/10 bg-[#090d14]/82 px-3 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
           <Link
             href="/"
-            aria-label="Menarium — главная"
+            aria-label="Менариум — главная"
             aria-current={pathname === "/" ? "page" : undefined}
-            className="flex items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+            className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-gradient-to-br from-blue-500 to-teal-400 shadow-[0_8px_20px_rgba(77,141,255,0.22)]">
-              <Repeat2 className="h-4.5 w-4.5" />
-            </span>
-            <span className="gradient-text font-display text-lg font-bold tracking-[-0.03em]">MENARIUM</span>
+            <BrandLockup
+              priority
+              markClassName="h-9 w-9 rounded-xl"
+              textClassName="text-lg"
+            />
           </Link>
           <Link
             href="/notifications"
@@ -206,7 +207,11 @@ export function Navigation({
                             : "h-8 w-10 rounded-xl text-white/62",
                       )}
                     >
-                      <Icon className={cn(item.primary ? "h-5.5 w-5.5" : "h-5 w-5")} />
+                      {item.primary ? (
+                        <BrandMark size="lg" className="h-12 w-12 rounded-[16px] shadow-none ring-white/20" />
+                      ) : (
+                        <Icon className="h-5 w-5" />
+                      )}
                       <CountBadge count={count} compact />
                     </span>
                     <span className={cn("whitespace-nowrap", active && "font-semibold text-white")}>{item.label}</span>
