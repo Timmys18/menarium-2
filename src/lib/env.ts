@@ -30,6 +30,9 @@ export function validateProductionEnv(env: NodeJS.ProcessEnv = process.env) {
     "ADMIN_EMAILS",
     "SMTP_HOST",
     "SMTP_FROM",
+    "WEB_PUSH_SUBJECT",
+    "NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY",
+    "WEB_PUSH_PRIVATE_KEY",
     "PRODUCT_ANALYTICS_ENABLED",
     "SENTRY_DSN",
     "SENTRY_ENVIRONMENT",
@@ -51,6 +54,15 @@ export function validateProductionEnv(env: NodeJS.ProcessEnv = process.env) {
 
   if ((env.NEXTAUTH_SECRET?.length ?? 0) < 32) {
     throw new Error("[env] NEXTAUTH_SECRET must contain at least 32 characters");
+  }
+  if (!/^(mailto:|https:)/.test(env.WEB_PUSH_SUBJECT ?? "")) {
+    throw new Error("[env] WEB_PUSH_SUBJECT must start with mailto: or https:");
+  }
+  if (
+    (env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY?.length ?? 0) < 64 ||
+    (env.WEB_PUSH_PRIVATE_KEY?.length ?? 0) < 32
+  ) {
+    throw new Error("[env] Web Push keys are invalid");
   }
 
   const authUrl = assertProductionUrl(env.NEXTAUTH_URL, "NEXTAUTH_URL", isCi);

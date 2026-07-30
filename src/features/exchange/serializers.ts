@@ -1,4 +1,5 @@
-import type { DealMessage, Item, MediaAsset, SwapRequest, User } from "@prisma/client";
+import type { Item, MediaAsset, SwapRequest, User } from "@prisma/client";
+import type { DealMessageWithRelations } from "@/features/chat/message-pages";
 import { serializeItem } from "@/features/items/serializers";
 
 type SwapWithItems = SwapRequest & {
@@ -28,13 +29,16 @@ export function serializeSwap(swap: SwapWithItems) {
   };
 }
 
-export function serializeDealMessage(message: DealMessage) {
+export function serializeDealMessage(message: DealMessageWithRelations) {
   return {
     id: message.id,
     swapId: message.swapId,
     senderId: message.senderId,
     text: message.text,
     isRead: message.isRead,
+    readAt: message.readAt?.toISOString() ?? null,
+    attachments: message.attachments,
+    replyTo: message.replyTo,
     createdAt: message.createdAt.toISOString(),
   };
 }

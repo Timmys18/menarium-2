@@ -251,10 +251,11 @@ export function ExchangeDealPanel({
           initialNextCursor={nextCursor}
           realtimeTypes={["deal-message", "swap"]}
           canWrite={snapshot.status === "ACCEPTED" && !communicationBlocked}
-          placeholder={`Написать ${partnerName}...`}
+          placeholder="Сообщение..."
           disabledPlaceholder={disabledPlaceholder}
           emptyMessage="Сообщений пока нет."
           draftKey={`deal:${swapId}`}
+          kind="DEAL"
         />
       </div>
     </section>

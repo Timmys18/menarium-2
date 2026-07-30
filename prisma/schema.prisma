@@ -50,6 +50,12 @@ enum HandoffMode {
 enum MediaOwnerType {
   ITEM
   USER
+  CHAT
+}
+
+enum ChatKind {
+  DEAL
+  ITEM
 }
 
 enum UserStatus {
@@ -116,6 +122,8 @@ model User {
   favorites          Favorite[]
   itemViews          ItemView[]
   productEvents      ProductEvent[]
+  pushSubscriptions  PushSubscription[]
+  chatPreferences    ChatPreference[]
 
   @@index([createdAt])
   @@index([status, createdAt])
@@ -293,18 +301,24 @@ model ItemView {
 }
 
 model DealMessage {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   swapId    String
   senderId  String
-  text      String   @db.Text
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  text      String    @db.Text
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  replyToId String?
+  createdAt DateTime  @default(now())
 
-  swap   SwapRequest @relation(fields: [swapId], references: [id], onDelete: Cascade)
-  sender User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  swap        SwapRequest   @relation(fields: [swapId], references: [id], onDelete: Cascade)
+  sender      User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo     DealMessage?  @relation("DealMessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies     DealMessage[] @relation("DealMessageReplies")
+  attachments MediaAsset[]  @relation("DealMessageMedia")
 
   @@index([swapId, createdAt])
   @@index([swapId, isRead, createdAt])
+  @@index([replyToId])
 }
 
 model ItemThread {
@@ -326,18 +340,24 @@ model ItemThread {
 }
 
 model ItemThreadMessage {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   threadId  String
   senderId  String
-  text      String   @db.Text
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  text      String    @db.Text
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  replyToId String?
+  createdAt DateTime  @default(now())
 
-  thread ItemThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  sender User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  thread      ItemThread          @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender      User                @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo     ItemThreadMessage?  @relation("ItemThreadMessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies     ItemThreadMessage[] @relation("ItemThreadMessageReplies")
+  attachments MediaAsset[]        @relation("ItemThreadMessageMedia")
 
   @@index([threadId, createdAt])
   @@index([threadId, isRead, createdAt])
+  @@index([replyToId])
 }
 
 model Notification {
@@ -359,23 +379,58 @@ model Notification {
 }
 
 model MediaAsset {
-  id          String         @id @default(cuid())
-  ownerId     String?
-  ownerType   MediaOwnerType
-  itemId      String?
-  url         String
-  key         String?
-  contentType String
-  sizeBytes   Int
-  width       Int?
-  height      Int?
-  createdAt   DateTime       @default(now())
+  id                  String         @id @default(cuid())
+  ownerId             String?
+  ownerType           MediaOwnerType
+  itemId              String?
+  dealMessageId       String?
+  itemThreadMessageId String?
+  url                 String
+  key                 String?
+  contentType         String
+  sizeBytes           Int
+  width               Int?
+  height              Int?
+  createdAt           DateTime       @default(now())
 
-  owner User? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-  item  Item? @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  owner             User?              @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  item              Item?              @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  dealMessage       DealMessage?       @relation("DealMessageMedia", fields: [dealMessageId], references: [id], onDelete: Cascade)
+  itemThreadMessage ItemThreadMessage? @relation("ItemThreadMessageMedia", fields: [itemThreadMessageId], references: [id], onDelete: Cascade)
 
   @@index([ownerId, createdAt])
   @@index([itemId, createdAt])
+  @@index([dealMessageId])
+  @@index([itemThreadMessageId])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique @db.Text
+  p256dh    String   @db.Text
+  auth      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+}
+
+model ChatPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      ChatKind
+  entityId  String
+  muted     Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kind, entityId])
+  @@index([userId, muted, updatedAt])
 }
 
 model UserBlock {

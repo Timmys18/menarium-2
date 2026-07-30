@@ -13,12 +13,13 @@ const MAX_UNATTACHED_ASSETS = 32;
 const MAX_UNATTACHED_BYTES = 128 * 1024 * 1024;
 const STALE_UPLOAD_AGE_MS = 24 * 60 * 60 * 1000;
 
-async function cleanupStaleItemUploads(userId: string) {
+async function cleanupStaleUploads(userId: string) {
   const stale = await prisma.mediaAsset.findMany({
     where: {
       ownerId: userId,
-      ownerType: MediaOwnerType.ITEM,
       itemId: null,
+      dealMessageId: null,
+      itemThreadMessageId: null,
       createdAt: { lt: new Date(Date.now() - STALE_UPLOAD_AGE_MS) },
     },
     select: { id: true, key: true },
@@ -30,8 +31,9 @@ async function cleanupStaleItemUploads(userId: string) {
       where: {
         id: asset.id,
         ownerId: userId,
-        ownerType: MediaOwnerType.ITEM,
         itemId: null,
+        dealMessageId: null,
+        itemThreadMessageId: null,
       },
     });
     if (deleted.count && asset.key) {
@@ -59,7 +61,9 @@ export async function POST(req: Request) {
   const file = formData.get("file");
   const rawOwnerType = formData.get("ownerType");
   const ownerType =
-    rawOwnerType === MediaOwnerType.USER || rawOwnerType === MediaOwnerType.ITEM
+    rawOwnerType === MediaOwnerType.USER ||
+    rawOwnerType === MediaOwnerType.ITEM ||
+    rawOwnerType === MediaOwnerType.CHAT
       ? rawOwnerType
       : null;
   const rawItemId = formData.get("itemId");
@@ -71,12 +75,24 @@ export async function POST(req: Request) {
   }
 
   try {
-    await cleanupStaleItemUploads(auth.userId);
+    await cleanupStaleUploads(auth.userId);
 
     const [unattachedCount, unattachedSize] = await Promise.all([
-      prisma.mediaAsset.count({ where: { ownerId: auth.userId, itemId: null } }),
+      prisma.mediaAsset.count({
+        where: {
+          ownerId: auth.userId,
+          itemId: null,
+          dealMessageId: null,
+          itemThreadMessageId: null,
+        },
+      }),
       prisma.mediaAsset.aggregate({
-        where: { ownerId: auth.userId, itemId: null },
+        where: {
+          ownerId: auth.userId,
+          itemId: null,
+          dealMessageId: null,
+          itemThreadMessageId: null,
+        },
         _sum: { sizeBytes: true },
       }),
     ]);
@@ -92,9 +108,21 @@ export async function POST(req: Request) {
     try {
       asset = await runSerializableTransaction(async (tx) => {
         const [currentCount, currentSize] = await Promise.all([
-          tx.mediaAsset.count({ where: { ownerId: auth.userId, itemId: null } }),
+          tx.mediaAsset.count({
+            where: {
+              ownerId: auth.userId,
+              itemId: null,
+              dealMessageId: null,
+              itemThreadMessageId: null,
+            },
+          }),
           tx.mediaAsset.aggregate({
-            where: { ownerId: auth.userId, itemId: null },
+            where: {
+              ownerId: auth.userId,
+              itemId: null,
+              dealMessageId: null,
+              itemThreadMessageId: null,
+            },
             _sum: { sizeBytes: true },
           }),
         ]);
@@ -173,7 +201,13 @@ export async function DELETE(req: NextRequest) {
   if (!id) return errorResponse("Укажите id изображения", 400);
 
   const asset = await prisma.mediaAsset.findFirst({
-    where: { id, ownerId: auth.userId, itemId: null },
+    where: {
+      id,
+      ownerId: auth.userId,
+      itemId: null,
+      dealMessageId: null,
+      itemThreadMessageId: null,
+    },
     select: { id: true, key: true, url: true, ownerType: true },
   });
   if (!asset) return errorResponse("Изображение не найдено или уже используется", 404);
@@ -189,7 +223,13 @@ export async function DELETE(req: NextRequest) {
   }
 
   const deleted = await prisma.mediaAsset.deleteMany({
-    where: { id: asset.id, ownerId: auth.userId, itemId: null },
+    where: {
+      id: asset.id,
+      ownerId: auth.userId,
+      itemId: null,
+      dealMessageId: null,
+      itemThreadMessageId: null,
+    },
   });
   if (!deleted.count) return errorResponse("Изображение уже используется", 409);
 

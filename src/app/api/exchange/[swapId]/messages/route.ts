@@ -1,4 +1,4 @@
-import { NotificationType } from "@prisma/client";
+import { ChatKind, NotificationType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { actionResponse, errorResponse, getPaging, listResponse, parseJson } from "@/lib/api";
 import { canOpenDealChat, canWriteDealChat } from "@/lib/domain";
@@ -9,8 +9,11 @@ import { serializeDealMessage } from "@/features/exchange/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
 import { publishUserEvents } from "@/lib/realtime";
 import { runSerializableTransaction } from "@/lib/transactions";
-import { loadDealMessagePage } from "@/features/chat/message-pages";
+import { loadDealMessagePage, messageRelations } from "@/features/chat/message-pages";
 import { markDealChatRead } from "@/features/chat/read-state";
+import { claimChatMedia, INVALID_CHAT_MEDIA, MAX_CHAT_IMAGES } from "@/features/chat/media";
+import { sendChatPush } from "@/lib/push";
+import { reportError } from "@/lib/logger";
 
 type Context = { params: Promise<{ swapId: string }> };
 
@@ -50,10 +53,17 @@ export async function POST(req: Request, context: Context) {
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
   const { swapId } = await context.params;
-  const body = await parseJson<{ text?: string }>(req);
+  const body = await parseJson<{ text?: string; imageIds?: unknown; replyToId?: unknown }>(req);
   const text = typeof body.text === "string" ? body.text.trim() : "";
-  if (!text) return errorResponse("Текст сообщения не может быть пустым", 400);
+  const imageIds = Array.isArray(body.imageIds)
+    ? body.imageIds.filter((id): id is string => typeof id === "string")
+    : [];
+  const replyToId = typeof body.replyToId === "string" ? body.replyToId.trim() : null;
+  if (!text && imageIds.length === 0) return errorResponse("Добавьте текст или фотографию", 400);
   if (text.length > 2000) return errorResponse("Сообщение слишком длинное", 400);
+  if (imageIds.length > MAX_CHAT_IMAGES || imageIds.length !== new Set(imageIds).size) {
+    return errorResponse(`К сообщению можно добавить до ${MAX_CHAT_IMAGES} фотографий`, 400);
+  }
 
   try {
     const result = await runSerializableTransaction(async (tx) => {
@@ -76,13 +86,27 @@ export async function POST(req: Request, context: Context) {
         select: { blockerId: true },
       });
       if (blocked) throw new Error("USER_BLOCKED");
+      if (replyToId) {
+        const replyExists = await tx.dealMessage.findFirst({
+          where: { id: replyToId, swapId },
+          select: { id: true },
+        });
+        if (!replyExists) throw new Error("INVALID_REPLY");
+      }
 
       const created = await tx.dealMessage.create({
         data: {
           swapId,
           senderId: auth.userId,
           text,
+          replyToId,
         },
+      });
+      await claimChatMedia(tx, {
+        imageIds,
+        userId: auth.userId,
+        messageId: created.id,
+        kind: "deal",
       });
 
       await tx.swapRequest.update({
@@ -98,15 +122,31 @@ export async function POST(req: Request, context: Context) {
         href: `/exchange?tab=matches&swap=${swapId}`,
         entityType: "SwapRequest",
         entityId: swapId,
+        coalesceUnread: true,
       });
 
-      return { created, recipientId, participantIds: [swap.senderId, swap.receiverId] };
+      const hydrated = await tx.dealMessage.findUniqueOrThrow({
+        where: { id: created.id },
+        include: messageRelations,
+      });
+      return { created: hydrated, recipientId, participantIds: [swap.senderId, swap.receiverId] };
     });
 
     await publishUserEvents(result.participantIds, {
       type: "deal-message",
       entityId: swapId,
     });
+    await sendChatPush({
+      userId: result.recipientId,
+      kind: ChatKind.DEAL,
+      entityId: swapId,
+      payload: {
+        title: "Новое сообщение в обмене",
+        body: text ? text.slice(0, 140) : "Вам отправили фотографию",
+        href: `/exchange?tab=matches&swap=${swapId}`,
+        tag: `deal-${swapId}`,
+      },
+    }).catch((error) => reportError("push.deal_message_failed", error, { swapId }));
 
     return actionResponse(
       serializeDealMessage(result.created),
@@ -120,6 +160,8 @@ export async function POST(req: Request, context: Context) {
       if (error.message === "CHAT_NOT_OPEN") return errorResponse("Чат доступен только после принятия обмена", 403);
       if (error.message === "CHAT_CLOSED") return errorResponse("Обмен завершен. Чат закрыт для новых сообщений", 409);
       if (error.message === "USER_BLOCKED") return errorResponse("Переписка с этим пользователем недоступна", 403);
+      if (error.message === "INVALID_REPLY") return errorResponse("Сообщение для ответа не найдено", 400);
+      if (error.message === INVALID_CHAT_MEDIA) return errorResponse("Не удалось прикрепить фотографии", 400);
     }
     return errorResponse("Не удалось отправить сообщение", 500);
   }

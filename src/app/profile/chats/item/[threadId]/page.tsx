@@ -160,6 +160,7 @@ export default async function ItemThreadPage({ params }: Props) {
                       disabledPlaceholder="Объявление неактивно — история доступна только для чтения"
                       emptyMessage="Сообщений пока нет. Начните разговор с важного вопроса об объявлении."
                       draftKey={`item:${thread.item.id}`}
+                      kind="ITEM"
                     />
                   </section>
                 </div>

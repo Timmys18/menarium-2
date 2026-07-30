@@ -66,15 +66,15 @@ export async function checkRateLimit(
 
 export async function checkMessageRateLimit(userId: string) {
   const shortWindow = await checkRateLimit(`message:${userId}:short`, {
-    limit: 1,
-    windowSec: 3,
-    error: "Слишком частые сообщения. Подождите несколько секунд.",
+    limit: 8,
+    windowSec: 10,
+    error: "Сообщения отправляются слишком быстро. Сделайте короткую паузу.",
   });
 
   if (!shortWindow.ok) return shortWindow;
 
   return checkRateLimit(`message:${userId}:day`, {
-    limit: 50,
+    limit: 500,
     windowSec: 24 * 60 * 60,
     error: "Превышен лимит сообщений за сутки. Попробуйте завтра.",
   });

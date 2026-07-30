@@ -1,4 +1,4 @@
-import { ItemStatus, NotificationType } from "@prisma/client";
+import { ChatKind, ItemStatus, NotificationType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { actionResponse, errorResponse, getPaging, listResponse, parseJson } from "@/lib/api";
 import { checkMessageRateLimit } from "@/lib/rate-limit";
@@ -8,8 +8,11 @@ import { serializeItemThreadMessage } from "@/features/chat/serializers";
 import { createNotification } from "@/features/notifications/create-notification";
 import { publishUserEvents } from "@/lib/realtime";
 import { runSerializableTransaction } from "@/lib/transactions";
-import { loadItemThreadMessagePage } from "@/features/chat/message-pages";
+import { loadItemThreadMessagePage, messageRelations } from "@/features/chat/message-pages";
 import { markItemThreadRead } from "@/features/chat/read-state";
+import { claimChatMedia, INVALID_CHAT_MEDIA, MAX_CHAT_IMAGES } from "@/features/chat/media";
+import { sendChatPush } from "@/lib/push";
+import { reportError } from "@/lib/logger";
 
 type Context = { params: Promise<{ threadId: string }> };
 
@@ -47,10 +50,17 @@ export async function POST(req: Request, context: Context) {
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
   const { threadId } = await context.params;
-  const body = await parseJson<{ text?: string }>(req);
+  const body = await parseJson<{ text?: string; imageIds?: unknown; replyToId?: unknown }>(req);
   const text = typeof body.text === "string" ? body.text.trim() : "";
-  if (!text) return errorResponse("Текст сообщения не может быть пустым", 400);
+  const imageIds = Array.isArray(body.imageIds)
+    ? body.imageIds.filter((id): id is string => typeof id === "string")
+    : [];
+  const replyToId = typeof body.replyToId === "string" ? body.replyToId.trim() : null;
+  if (!text && imageIds.length === 0) return errorResponse("Добавьте текст или фотографию", 400);
   if (text.length > 2000) return errorResponse("Сообщение слишком длинное", 400);
+  if (imageIds.length > MAX_CHAT_IMAGES || imageIds.length !== new Set(imageIds).size) {
+    return errorResponse(`К сообщению можно добавить до ${MAX_CHAT_IMAGES} фотографий`, 400);
+  }
 
   try {
     const result = await runSerializableTransaction(async (tx) => {
@@ -75,9 +85,22 @@ export async function POST(req: Request, context: Context) {
         select: { blockerId: true },
       });
       if (blocked) throw new Error("USER_BLOCKED");
+      if (replyToId) {
+        const replyExists = await tx.itemThreadMessage.findFirst({
+          where: { id: replyToId, threadId },
+          select: { id: true },
+        });
+        if (!replyExists) throw new Error("INVALID_REPLY");
+      }
 
       const created = await tx.itemThreadMessage.create({
-        data: { threadId, senderId: auth.userId, text },
+        data: { threadId, senderId: auth.userId, text, replyToId },
+      });
+      await claimChatMedia(tx, {
+        imageIds,
+        userId: auth.userId,
+        messageId: created.id,
+        kind: "item",
       });
       await tx.itemThread.update({
         where: { id: threadId },
@@ -92,15 +115,35 @@ export async function POST(req: Request, context: Context) {
         href: `/profile/chats/item/${thread.id}`,
         entityType: "ItemThread",
         entityId: thread.id,
+        coalesceUnread: true,
       });
 
-      return { created, participantIds: [thread.buyerId, thread.ownerId] };
+      const hydrated = await tx.itemThreadMessage.findUniqueOrThrow({
+        where: { id: created.id },
+        include: messageRelations,
+      });
+      return {
+        created: hydrated,
+        recipientId,
+        participantIds: [thread.buyerId, thread.ownerId],
+      };
     });
 
     await publishUserEvents(result.participantIds, {
       type: "item-message",
       entityId: threadId,
     });
+    await sendChatPush({
+      userId: result.recipientId,
+      kind: ChatKind.ITEM,
+      entityId: threadId,
+      payload: {
+        title: "Новое сообщение",
+        body: text ? text.slice(0, 140) : "Вам отправили фотографию",
+        href: `/profile/chats/item/${threadId}`,
+        tag: `item-${threadId}`,
+      },
+    }).catch((error) => reportError("push.item_message_failed", error, { threadId }));
 
     return actionResponse(
       serializeItemThreadMessage(result.created),
@@ -113,6 +156,8 @@ export async function POST(req: Request, context: Context) {
       if (error.message === "FORBIDDEN") return errorResponse("Нет доступа к этому чату", 403);
       if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Объявление больше недоступно для переписки", 409);
       if (error.message === "USER_BLOCKED") return errorResponse("Переписка с этим пользователем недоступна", 403);
+      if (error.message === "INVALID_REPLY") return errorResponse("Сообщение для ответа не найдено", 400);
+      if (error.message === INVALID_CHAT_MEDIA) return errorResponse("Не удалось прикрепить фотографии", 400);
     }
     return errorResponse("Не удалось отправить сообщение", 500);
   }

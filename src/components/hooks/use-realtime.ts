@@ -12,8 +12,17 @@ import {
 } from "react";
 
 export type RealtimeEvent = {
-  type: "notification" | "swap" | "deal-message" | "item-message" | "counts";
+  type:
+    | "notification"
+    | "swap"
+    | "deal-message"
+    | "item-message"
+    | "counts"
+    | "chat-read"
+    | "chat-typing";
   entityId?: string;
+  actorId?: string;
+  state?: "active" | "idle";
   occurredAt: string;
 };
 

@@ -14,6 +14,10 @@ const productionEnv: NodeJS.ProcessEnv = {
   ADMIN_EMAILS: "admin@menarium.ru",
   SMTP_HOST: "smtp.example.test",
   SMTP_FROM: "Menarium <noreply@menarium.ru>",
+  WEB_PUSH_SUBJECT: "mailto:support@menarium.ru",
+  NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY:
+    "BItNuCakjxFOumn76s9LkhcK40FFZK6ezBVmE3H3Wt4IImuYHLQKPRzZNEkWX69dUh80dVTutNJgr1qpqHH3WFE",
+  WEB_PUSH_PRIVATE_KEY: "_5Y7T2ph2DRygpj3Fwv_ANTx6nPeE-o4oXr7GCYT-r0",
   PRODUCT_ANALYTICS_ENABLED: "true",
   SENTRY_DSN: "https://public@example.test/1",
   SENTRY_ENVIRONMENT: "production",

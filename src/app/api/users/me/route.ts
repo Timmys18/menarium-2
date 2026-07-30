@@ -172,6 +172,8 @@ export async function DELETE(req: Request) {
       tx.session.deleteMany({ where: { userId: auth.userId } }),
       tx.swipePass.deleteMany({ where: { userId: auth.userId } }),
       tx.notification.deleteMany({ where: { userId: auth.userId } }),
+      tx.pushSubscription.deleteMany({ where: { userId: auth.userId } }),
+      tx.chatPreference.deleteMany({ where: { userId: auth.userId } }),
       tx.userBlock.deleteMany({
         where: { OR: [{ blockerId: auth.userId }, { blockedId: auth.userId }] },
       }),

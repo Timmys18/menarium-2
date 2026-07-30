@@ -1,4 +1,4 @@
-import type { DealMessage, ItemThreadMessage, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const DEFAULT_CHAT_PAGE_SIZE = 40;
@@ -9,6 +9,34 @@ export type MessagePage<T> = {
   hasOlder: boolean;
   nextCursor: string | null;
 };
+
+export const messageRelations = {
+  attachments: {
+    orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      url: true,
+      width: true,
+      height: true,
+      contentType: true,
+    },
+  },
+  replyTo: {
+    select: {
+      id: true,
+      senderId: true,
+      text: true,
+    },
+  },
+} as const;
+
+export type DealMessageWithRelations = Prisma.DealMessageGetPayload<{
+  include: typeof messageRelations;
+}>;
+
+export type ItemThreadMessageWithRelations = Prisma.ItemThreadMessageGetPayload<{
+  include: typeof messageRelations;
+}>;
 
 function clampLimit(limit: number) {
   if (!Number.isFinite(limit) || limit <= 0) return DEFAULT_CHAT_PAGE_SIZE;
@@ -43,7 +71,7 @@ export async function loadDealMessagePage({
   swapId: string;
   before?: string | null;
   limit?: number;
-}): Promise<MessagePage<DealMessage>> {
+}): Promise<MessagePage<DealMessageWithRelations>> {
   const pageLimit = clampLimit(limit);
   const cursor = before
     ? await prisma.dealMessage.findFirst({
@@ -60,6 +88,7 @@ export async function loadDealMessagePage({
   };
   const rows = await prisma.dealMessage.findMany({
     where,
+    include: messageRelations,
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: pageLimit + 1,
   });
@@ -75,7 +104,7 @@ export async function loadItemThreadMessagePage({
   threadId: string;
   before?: string | null;
   limit?: number;
-}): Promise<MessagePage<ItemThreadMessage>> {
+}): Promise<MessagePage<ItemThreadMessageWithRelations>> {
   const pageLimit = clampLimit(limit);
   const cursor = before
     ? await prisma.itemThreadMessage.findFirst({
@@ -92,6 +121,7 @@ export async function loadItemThreadMessagePage({
   };
   const rows = await prisma.itemThreadMessage.findMany({
     where,
+    include: messageRelations,
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: pageLimit + 1,
   });

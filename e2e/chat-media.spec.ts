@@ -10,6 +10,10 @@ const MARIA = {
   email: "maria@menarium.ru",
   password: "MenariumDemo2026!",
 };
+const DMITRY = {
+  email: "dmitry@menarium.ru",
+  password: "MenariumDemo2026!",
+};
 
 function resetSeedData() {
   const result = spawnSync(process.execPath, ["prisma/seed.mjs"], {
@@ -23,13 +27,13 @@ function resetSeedData() {
   }
 }
 
-async function login(context: BrowserContext) {
+async function login(context: BrowserContext, account = MARIA) {
   const page = await context.newPage();
   await page.goto("/auth/login");
   const content = page.locator("main");
-  await content.locator('input[type="email"]').filter({ visible: true }).first().fill(MARIA.email);
+  await content.locator('input[type="email"]').filter({ visible: true }).first().fill(account.email);
   const password = content.locator('input[type="password"]').filter({ visible: true }).first();
-  await password.fill(MARIA.password);
+  await password.fill(account.password);
   await password.press("Enter");
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
   await page.close();
@@ -91,7 +95,7 @@ test.describe("chat history and media hardening", () => {
       await expect(messageLog.getByText("[E2E history] 45", { exact: true })).toHaveCount(1);
       await expect(messageLog.getByText("[E2E history] 45", { exact: true })).toBeVisible();
       await expect(messageLog.getByText("[E2E history] 01", { exact: true })).toHaveCount(0);
-      await messageLog.getByRole("button", { name: "Показать ранние сообщения" }).click();
+      await messageLog.getByRole("button", { name: "Ранние сообщения" }).click();
       await expect(messageLog.getByText("[E2E history] 01", { exact: true })).toBeVisible();
 
       const sentText = "[E2E history] Отправлено без перезагрузки";
@@ -155,6 +159,204 @@ test.describe("chat history and media hardening", () => {
       expect(post.status(), await post.text()).toBe(409);
     } finally {
       await context.close();
+    }
+  });
+
+  test("sends a deal photo, supports replies and updates the read receipt live", async ({ browser }) => {
+    const maria = await prisma.user.findUniqueOrThrow({ where: { email: MARIA.email } });
+    const dmitry = await prisma.user.findUniqueOrThrow({ where: { email: DMITRY.email } });
+    const mariaItem = await prisma.item.findFirstOrThrow({ where: { ownerId: maria.id } });
+    const dmitryItem = await prisma.item.findFirstOrThrow({ where: { ownerId: dmitry.id } });
+    const swap = await prisma.swapRequest.create({
+      data: {
+        status: SwapStatus.ACCEPTED,
+        senderId: maria.id,
+        receiverId: dmitry.id,
+        senderItemId: mariaItem.id,
+        receiverItemId: dmitryItem.id,
+        acceptedAt: new Date(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const mariaContext = await browser.newContext();
+    const dmitryContext = await browser.newContext();
+    try {
+      await login(mariaContext);
+      await login(dmitryContext, DMITRY);
+      const pushConfig = await mariaContext.request.get("/api/push/subscriptions");
+      expect(pushConfig.status(), await pushConfig.text()).toBe(200);
+      expect(await pushConfig.json()).toMatchObject({
+        data: { configured: true },
+      });
+
+      const photo = readFileSync(path.join(process.cwd(), "public", "demo", "items", "canon.png"));
+      const mariaPage = await mariaContext.newPage();
+      await mariaPage.goto(`/exchange?tab=matches&swap=${swap.id}`);
+      const mariaLog = mariaPage.getByRole("log", { name: "Сообщения чата" });
+      const messageText = "[E2E chat 2.0] Фото состояния";
+
+      const uploadPromise = mariaPage.waitForResponse(
+        (response) => response.url().endsWith("/api/media") && response.request().method() === "POST",
+      );
+      await mariaPage.locator('input[type="file"]').setInputFiles({
+        name: "condition.png",
+        mimeType: "image/png",
+        buffer: photo,
+      });
+      const upload = await uploadPromise;
+      expect(upload.status(), await upload.text()).toBe(201);
+      const asset = (await upload.json()).data as { id: string };
+
+      const sentPromise = mariaPage.waitForResponse(
+        (response) =>
+          response.url().includes(`/api/exchange/${swap.id}/messages`) &&
+          response.request().method() === "POST",
+      );
+      const composer = mariaPage.getByRole("textbox", { name: "Текст сообщения" });
+      await composer.fill(messageText);
+      await composer.press("Enter");
+      const sent = await sentPromise;
+      expect(sent.status(), await sent.text()).toBe(201);
+      const sentMessage = (await sent.json()).data as {
+        id: string;
+        attachments: Array<{ id: string }>;
+      };
+      expect(sentMessage.attachments).toHaveLength(1);
+      await expect(mariaLog.getByText(messageText, { exact: true })).toBeVisible();
+      await expect(mariaLog.getByText("Отправлено", { exact: true })).toBeVisible();
+
+      const boundAsset = await prisma.mediaAsset.findUniqueOrThrow({ where: { id: asset.id } });
+      expect(boundAsset.dealMessageId).toBe(sentMessage.id);
+
+      const dmitryPage = await dmitryContext.newPage();
+      await dmitryPage.goto(`/exchange?tab=matches&swap=${swap.id}`);
+      const dmitryLog = dmitryPage.getByRole("log", { name: "Сообщения чата" });
+      await expect(dmitryLog.getByText(messageText, { exact: true })).toBeVisible();
+      await expect(mariaLog.getByText("Прочитано", { exact: true })).toBeVisible({ timeout: 15_000 });
+
+      const dmitryComposer = dmitryPage.getByRole("textbox", { name: "Текст сообщения" });
+      await dmitryComposer.fill("Черновик ответа");
+      await expect(mariaLog.getByText("Собеседник печатает", { exact: true })).toHaveCount(1);
+      await dmitryComposer.fill("");
+      await expect(mariaLog.getByText("Собеседник печатает", { exact: true })).toHaveCount(0, {
+        timeout: 6_000,
+      });
+
+      const reply = await dmitryContext.request.post(`/api/exchange/${swap.id}/messages`, {
+        data: { text: "[E2E chat 2.0] Ответ", replyToId: sentMessage.id },
+      });
+      expect(reply.status(), await reply.text()).toBe(201);
+      const replyMessage = (await reply.json()).data as {
+        replyTo: { id: string; text: string } | null;
+      };
+      expect(replyMessage.replyTo).toEqual({
+        id: sentMessage.id,
+        senderId: maria.id,
+        text: messageText,
+      });
+      const secondReply = await dmitryContext.request.post(`/api/exchange/${swap.id}/messages`, {
+        data: { text: "[E2E chat 2.0] Ещё одно сообщение" },
+      });
+      expect(secondReply.status(), await secondReply.text()).toBe(201);
+      expect(
+        await prisma.notification.count({
+          where: {
+            userId: maria.id,
+            type: NotificationType.DEAL_MESSAGE_RECEIVED,
+            entityId: swap.id,
+            isRead: false,
+          },
+        }),
+      ).toBe(1);
+
+      const muted = await mariaContext.request.patch("/api/chat/preferences", {
+        data: { kind: "DEAL", entityId: swap.id, muted: true },
+      });
+      expect(muted.status(), await muted.text()).toBe(200);
+      expect(
+        await prisma.chatPreference.findUnique({
+          where: {
+            userId_kind_entityId: {
+              userId: maria.id,
+              kind: "DEAL",
+              entityId: swap.id,
+            },
+          },
+        }),
+      ).toMatchObject({ muted: true });
+    } finally {
+      await mariaContext.close();
+      await dmitryContext.close();
+    }
+  });
+
+  test("supports photos, replies and read timestamps in an item conversation", async ({ browser }) => {
+    const maria = await prisma.user.findUniqueOrThrow({ where: { email: MARIA.email } });
+    const dmitry = await prisma.user.findUniqueOrThrow({ where: { email: DMITRY.email } });
+    const item = await prisma.item.findFirstOrThrow({
+      where: { ownerId: dmitry.id, status: ItemStatus.ACTIVE },
+    });
+    const thread = await prisma.itemThread.create({
+      data: { itemId: item.id, buyerId: maria.id, ownerId: dmitry.id },
+    });
+    const mariaContext = await browser.newContext();
+    const dmitryContext = await browser.newContext();
+
+    try {
+      await login(mariaContext);
+      await login(dmitryContext, DMITRY);
+      const image = readFileSync(path.join(process.cwd(), "public", "demo", "items", "sony.png"));
+      const upload = await mariaContext.request.post("/api/media", {
+        multipart: {
+          ownerType: "CHAT",
+          file: { name: "detail.png", mimeType: "image/png", buffer: image },
+        },
+      });
+      expect(upload.status(), await upload.text()).toBe(201);
+      const asset = (await upload.json()).data as { id: string };
+
+      const sent = await mariaContext.request.post(`/api/items/chat/${thread.id}/messages`, {
+        data: {
+          text: "[E2E item chat 2.0] Уточнение по объявлению",
+          imageIds: [asset.id],
+        },
+      });
+      expect(sent.status(), await sent.text()).toBe(201);
+      const message = (await sent.json()).data as {
+        id: string;
+        attachments: Array<{ id: string }>;
+      };
+      expect(message.attachments).toHaveLength(1);
+
+      const history = await dmitryContext.request.get(`/api/items/chat/${thread.id}/messages`);
+      expect(history.status(), await history.text()).toBe(200);
+      await expect.poll(async () => {
+        const stored = await prisma.itemThreadMessage.findUniqueOrThrow({
+          where: { id: message.id },
+        });
+        return { isRead: stored.isRead, hasReadAt: Boolean(stored.readAt) };
+      }).toEqual({ isRead: true, hasReadAt: true });
+
+      const reply = await dmitryContext.request.post(`/api/items/chat/${thread.id}/messages`, {
+        data: {
+          text: "[E2E item chat 2.0] Ответ владельца",
+          replyToId: message.id,
+        },
+      });
+      expect(reply.status(), await reply.text()).toBe(201);
+      expect(await reply.json()).toMatchObject({
+        data: {
+          replyTo: {
+            id: message.id,
+            senderId: maria.id,
+            text: "[E2E item chat 2.0] Уточнение по объявлению",
+          },
+        },
+      });
+    } finally {
+      await mariaContext.close();
+      await dmitryContext.close();
     }
   });
 

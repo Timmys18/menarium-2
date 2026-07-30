@@ -48,6 +48,7 @@ import { RecentlyViewedTracker } from "./recently-viewed-tracker";
 import { TrustActions } from "@/components/trust/trust-actions";
 import { loadItemThreadMessagePage } from "@/features/chat/message-pages";
 import { markItemThreadRead } from "@/features/chat/read-state";
+import { serializeItemThreadMessage } from "@/features/chat/serializers";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -318,13 +319,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
         )[0]
       : { messages: [], nextCursor: null };
 
-  const itemChatMessages =
-    itemMessagePage.messages.map((message) => ({
-      id: message.id,
-      senderId: message.senderId,
-      text: message.text,
-      createdAt: message.createdAt.toISOString(),
-    }));
+  const itemChatMessages = itemMessagePage.messages.map(serializeItemThreadMessage);
 
   return (
     <AppShell>

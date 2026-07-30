@@ -10,8 +10,33 @@ export async function createNotification(
     href?: string;
     entityType?: string;
     entityId?: string;
+    coalesceUnread?: boolean;
   },
 ) {
+  if (data.coalesceUnread && data.entityId) {
+    const existing = await db.notification.findFirst({
+      where: {
+        userId: data.userId,
+        type: data.type,
+        entityId: data.entityId,
+        isRead: false,
+      },
+      orderBy: { createdAt: "desc" },
+      select: { id: true },
+    });
+    if (existing) {
+      return db.notification.update({
+        where: { id: existing.id },
+        data: {
+          title: data.title,
+          message: data.message,
+          href: data.href,
+          createdAt: new Date(),
+        },
+      });
+    }
+  }
+
   return db.notification.create({
     data: {
       userId: data.userId,

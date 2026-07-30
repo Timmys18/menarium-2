@@ -69,6 +69,7 @@ export function ItemChatPanel({
         disabledPlaceholder="Переписка закрыта для новых сообщений"
         emptyMessage="Сообщений пока нет."
         draftKey={`item:${itemId}`}
+        kind="ITEM"
       />
     </GlassCard>
   );
