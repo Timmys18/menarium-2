@@ -3,7 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { CityPicker } from "@/components/menarium/city-picker";
-import { catalogTaxonomy, categoryLabel } from "@/features/taxonomy/catalog";
+import { catalogTaxonomy, categoryLabel, categoryRoot } from "@/features/taxonomy/catalog";
 import { getCity } from "@/features/locations/cities";
 import { cn } from "@/lib/utils";
 
@@ -23,21 +23,35 @@ function useCatalogNavigation() {
 
 export function CatalogCategoryFilter({ value, className }: { value?: string; className?: string }) {
   const navigate = useCatalogNavigation();
+  const root = categoryRoot(value);
+  const selectedSubcategory = value !== root?.id ? value ?? "" : "";
   return (
-    <select
-      value={value ?? ""}
-      onChange={(event) => navigate("category", event.target.value || undefined)}
-      className={cn("min-h-11 w-full rounded-[13px] border border-white/10 bg-[#111723] px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65", className)}
-    >
-      <option value="">Все категории</option>
-      {Object.values(catalogTaxonomy).flatMap((roots) => roots).map((root) => (
-        <optgroup key={root.id} label={root.label}>
-          {root.children.map((child) => (
-            <option key={child.id} value={child.id}>{child.label}</option>
-          ))}
-        </optgroup>
-      ))}
-    </select>
+    <div className={cn("grid gap-2", className)}>
+      <select
+        aria-label="Категория каталога"
+        value={root?.id ?? ""}
+        onChange={(event) => navigate("category", event.target.value || undefined)}
+        className="min-h-11 w-full rounded-[13px] border border-white/10 bg-[#111723] px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65"
+      >
+        <option value="">Все категории</option>
+        {Object.entries(catalogTaxonomy).map(([type, roots]) => (
+          <optgroup key={type} label={type === "THING" ? "Предметы" : "Услуги"}>
+            {roots.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}
+          </optgroup>
+        ))}
+      </select>
+
+      <select
+        aria-label="Подкатегория каталога"
+        value={selectedSubcategory}
+        disabled={!root}
+        onChange={(event) => navigate("category", event.target.value || root?.id)}
+        className="min-h-11 w-full rounded-[13px] border border-white/10 bg-[#111723] px-3 text-sm text-white outline-none transition disabled:cursor-not-allowed disabled:border-white/[0.06] disabled:text-white/30 focus-visible:ring-2 focus-visible:ring-blue-300/65"
+      >
+        <option value="">{root ? "Все подкатегории" : "Сначала выберите категорию"}</option>
+        {root?.children.map((child) => <option key={child.id} value={child.id}>{child.label}</option>)}
+      </select>
+    </div>
   );
 }
 
@@ -46,7 +60,7 @@ export function CatalogCityFilter({ value, className }: { value?: string; classN
   const selected = getCity(value);
   return (
     <div className={cn("space-y-2", className)}>
-      <CityPicker value={value ?? ""} onChange={(city) => navigate("city", city.id)} />
+      <CityPicker value={value ?? ""} inline onChange={(city) => navigate("city", city.id)} />
       {selected ? (
         <button type="button" onClick={() => navigate("city")} className="inline-flex items-center gap-1.5 text-xs text-white/48 transition hover:text-white">
           <X className="h-3.5 w-3.5" /> Сбросить «{selected.name}»

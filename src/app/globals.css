@@ -299,6 +299,31 @@ a {
   display: none;
 }
 
+/* Native white scrollbars clash with the dark product surface, especially in compact pickers. */
+.menarium-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 164, 197, 0.58) transparent;
+  scrollbar-gutter: stable;
+}
+
+.menarium-scrollbar::-webkit-scrollbar {
+  width: 7px;
+}
+
+.menarium-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menarium-scrollbar::-webkit-scrollbar-thumb {
+  border: 2px solid #101722;
+  border-radius: 999px;
+  background: rgba(139, 164, 197, 0.58);
+}
+
+.menarium-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(186, 207, 234, 0.76);
+}
+
 @media (max-width: 767px) {
   html {
     scroll-padding-top: 5.5rem;

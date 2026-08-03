@@ -106,6 +106,19 @@ export function findCategory(categoryId: string | null | undefined): CatalogCate
   return null;
 }
 
+/** Returns the broad category for either a category or one of its subcategories. */
+export function categoryRoot(categoryId: string | null | undefined): CatalogCategory | null {
+  if (!categoryId) return null;
+  for (const roots of Object.values(catalogTaxonomy)) {
+    for (const root of roots) {
+      if (root.id === categoryId || root.children.some((child) => child.id === categoryId)) {
+        return root;
+      }
+    }
+  }
+  return null;
+}
+
 export function categoryLabel(categoryId: string | null | undefined): string | null {
   return findCategory(categoryId)?.label ?? null;
 }
