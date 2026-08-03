@@ -415,9 +415,9 @@ test.describe("chat history and media hardening", () => {
         data: {
           title,
           type: "THING",
-          category: "Техника",
+          categoryId: "thing.electronics.audio",
           description: "Валидное описание объявления для проверки атомарной привязки изображений.",
-          city: "Москва",
+          cityId: "москва-москва",
           isOnline: false,
           desired: [],
           acceptsAnything: true,
@@ -432,7 +432,7 @@ test.describe("chat history and media hardening", () => {
       ).toBeNull();
 
       const profile = await context.request.patch("/api/users/me", {
-        data: { name: "Мария К.", city: "Москва", image: "https://evil.example/avatar.jpg" },
+        data: { name: "Мария К.", cityId: "москва-москва", image: "https://evil.example/avatar.jpg" },
       });
       expect(profile.status(), await profile.text()).toBe(400);
     } finally {

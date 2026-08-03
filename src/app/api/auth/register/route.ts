@@ -13,10 +13,11 @@ import { prisma } from "@/lib/prisma";
 import { trackProductEvent } from "@/lib/product-analytics";
 import { checkRegisterRateLimit, getClientIp } from "@/lib/rate-limit";
 import { isPrismaError } from "@/lib/transactions";
+import { getCity } from "@/features/locations/cities";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, "Имя слишком короткое").max(80).optional().or(z.literal("")),
-  city: z.string().trim().max(80).optional().or(z.literal("")),
+  cityId: z.string().trim().max(180).optional().or(z.literal("")),
   email: z.string().trim().toLowerCase().email("Некорректный email"),
   password: z
     .string()
@@ -39,7 +40,9 @@ export async function POST(req: Request) {
     return errorResponse(parsed.error.issues[0]?.message ?? "Некорректные данные", 400);
   }
 
-  const { email, password, name, city } = parsed.data;
+  const { email, password, name, cityId } = parsed.data;
+  const city = cityId ? getCity(cityId) : null;
+  if (cityId && !city) return errorResponse("Выберите город из списка.", 400);
   const existing = await prisma.user.findUnique({ where: { email } });
 
   if (existing) {
@@ -54,13 +57,15 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         name: name || null,
-        city: city || null,
+        city: city?.name ?? null,
+        cityId: city?.id ?? null,
       },
       select: {
         id: true,
         email: true,
         name: true,
         city: true,
+        cityId: true,
       },
     });
   } catch (error) {

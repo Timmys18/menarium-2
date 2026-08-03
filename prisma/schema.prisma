@@ -92,6 +92,7 @@ model User {
   passwordHash     String?
   image            String?
   city             String?
+  cityId           String?
   status           UserStatus @default(ACTIVE)
   sessionVersion   Int        @default(0)
   deletedAt        DateTime?
@@ -127,6 +128,7 @@ model User {
 
   @@index([createdAt])
   @@index([status, createdAt])
+  @@index([cityId])
 }
 
 model Account {
@@ -173,8 +175,10 @@ model Item {
   title           String
   type            ItemType
   category        String
+  categoryId      String?
   description     String     @db.Text
   city            String
+  cityId          String?
   isOnline        Boolean    @default(false)
   status          ItemStatus @default(ACTIVE)
   desired         String[]   @default([])
@@ -197,7 +201,9 @@ model Item {
   @@index([status, createdAt])
   @@index([ownerId, status])
   @@index([category, status])
+  @@index([categoryId, status])
   @@index([city, status])
+  @@index([cityId, status])
   @@index([type, status])
 }
 

@@ -12,6 +12,8 @@ import { claimItemMedia, INVALID_ITEM_MEDIA } from "@/features/media/item-media"
 import { deleteMediaObjects } from "@/features/media/cleanup";
 import { runSerializableTransaction } from "@/lib/transactions";
 import { reportError } from "@/lib/logger";
+import { categoryLabel } from "@/features/taxonomy/catalog";
+import { getCity } from "@/features/locations/cities";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -48,6 +50,9 @@ export async function PATCH(req: Request, context: Context) {
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
   const data = parsed.data;
+  const category = categoryLabel(data.categoryId);
+  const city = getCity(data.cityId);
+  if (!category || !city) return errorResponse("Выберите категорию и город из списка.", 400);
   try {
     const result = await runSerializableTransaction(async (tx) => {
       const current = await tx.item.findFirst({
@@ -82,9 +87,11 @@ export async function PATCH(req: Request, context: Context) {
         data: {
           title: data.title,
           type: data.type,
-          category: data.category,
+          category,
+          categoryId: data.categoryId,
           description: data.description,
-          city: data.city,
+          city: city.name,
+          cityId: city.id,
           isOnline: data.isOnline,
           desired: data.desired,
           acceptsAnything: data.acceptsAnything,

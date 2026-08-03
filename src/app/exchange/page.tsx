@@ -3,7 +3,7 @@ import { ItemStatus, Prisma, SwapStatus } from "@prisma/client";
 import { CheckCircle2, Clock3, MessageCircle, ShieldCheck, UserRound } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
-import { BrandMark } from "@/components/menarium/brand";
+import { BrandGlyph, BrandMark } from "@/components/menarium/brand";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
@@ -722,7 +722,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                             </h2>
                             <p className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-white/56">
                               <span className="truncate">{selectedYourItem.title}</span>
-                              <BrandMark size="xs" className="h-4 w-4 rounded-[5px] shadow-none ring-white/10" />
+                              <BrandGlyph className="h-4 w-4 shrink-0 text-teal-200/70" />
                               <span className="truncate">{selectedTheirItem.title}</span>
                             </p>
                           </div>

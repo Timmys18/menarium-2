@@ -63,7 +63,7 @@ export default async function Home() {
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <MenariumLinkButton href={primaryAction.href} size="lg" className="w-full sm:w-auto">
-                <BrandMark size="xs" className="h-6 w-6 rounded-lg shadow-none ring-white/20" />
+                <Plus className="h-5 w-5" />
                 {primaryAction.label}
               </MenariumLinkButton>
               <MenariumLinkButton href="/catalog" size="lg" variant="secondary" className="w-full sm:w-auto">

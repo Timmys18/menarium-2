@@ -3,21 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Compass, Heart, Plus, Repeat2, Search, UserRound } from "lucide-react";
-import { BrandGlyph, BrandLockup, BrandMark } from "@/components/menarium/brand";
+import { BrandLockup } from "@/components/menarium/brand";
 import { cn } from "@/lib/utils";
 
 const desktopItems = [
   { href: "/catalog", label: "Каталог", icon: Compass },
   { href: "/favorites", label: "Избранное", icon: Heart },
   { href: "/swipe", label: "Свайп", icon: Repeat2 },
-  { href: "/exchange", label: "Обмены", icon: BrandGlyph },
+  { href: "/exchange", label: "Обмены", icon: Repeat2 },
 ];
 
 const mobileItems = [
   { href: "/catalog", label: "Каталог", icon: Search },
   { href: "/swipe", label: "Свайп", icon: Repeat2 },
   { href: "/new", label: "Создать", icon: Plus, primary: true },
-  { href: "/exchange", label: "Обмены", icon: BrandGlyph },
+  { href: "/exchange", label: "Обмены", icon: Repeat2 },
   { href: "/profile", label: "Профиль", icon: UserRound },
 ];
 
@@ -108,7 +108,7 @@ export function Navigation({
                   aria-current={isActivePath(pathname, "/new") ? "page" : undefined}
                   className="inline-flex min-h-11 items-center gap-2 rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 lg:px-5"
                 >
-                  <BrandMark size="xs" className="h-5 w-5 rounded-md shadow-none ring-white/20" />
+                  <Plus className="h-4 w-4" />
                   <span className="hidden lg:inline">Добавить</span>
                 </Link>
                 <Link
@@ -207,11 +207,7 @@ export function Navigation({
                             : "h-8 w-10 rounded-xl text-white/62",
                       )}
                     >
-                      {item.primary ? (
-                        <BrandMark size="lg" className="h-12 w-12 rounded-[16px] shadow-none ring-white/20" />
-                      ) : (
-                        <Icon className="h-5 w-5" />
-                      )}
+                      <Icon className={item.primary ? "h-5 w-5" : "h-5 w-5"} />
                       <CountBadge count={count} compact />
                     </span>
                     <span className={cn("whitespace-nowrap", active && "font-semibold text-white")}>{item.label}</span>

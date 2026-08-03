@@ -14,6 +14,9 @@ import { loadCatalogItemCards } from "@/features/items/load-item-cards";
 import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
+import { CatalogCategoryFilter, CatalogCityFilter, CatalogFilterChip } from "./catalog-reference-filters";
+import { legacyCategoryId } from "@/features/taxonomy/catalog";
+import { findCityByName, getCity } from "@/features/locations/cities";
 
 export const dynamic = "force-dynamic";
 
@@ -63,15 +66,16 @@ export default async function CatalogPage({ searchParams }: Props) {
   const parsedType = params.type === ItemType.THING || params.type === ItemType.SERVICE ? params.type : undefined;
   const sort = parseCatalogSort(params.sort);
   const page = Math.max(1, Number(params.page) || 1);
-  const selectedCategory = category && category !== "Все" ? category : undefined;
-  const catalogBase = { q, city, category: selectedCategory, type: parsedType, sort };
+  const selectedCategory = category && category !== "Все" ? legacyCategoryId(category) ?? category : undefined;
+  const selectedCity = city ? getCity(city)?.id ?? findCityByName(city)?.id ?? city : undefined;
+  const catalogBase = { q, city: selectedCity, category: selectedCategory, type: parsedType, sort };
   const currentCatalogHref = buildCatalogHref({ ...catalogBase, page });
 
-  const [{ cards, preview, categoryList, cityList, total, hasMore }, userId] = await Promise.all([
+  const [{ cards, preview, total, hasMore }, userId] = await Promise.all([
     loadCatalogItemCards({
       q,
       category: selectedCategory,
-      city,
+      city: selectedCity,
       type: parsedType,
       sort,
       fallbackCategories: categories,
@@ -88,7 +92,7 @@ export default async function CatalogPage({ searchParams }: Props) {
       : [];
   const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
   const totalPages = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));
-  const activeFilterCount = [selectedCategory, city, parsedType].filter(Boolean).length;
+  const activeFilterCount = [selectedCategory, selectedCity, parsedType].filter(Boolean).length;
   const typeLabel = typeOptions.find((entry) => entry.id === parsedType)?.label;
 
   return (
@@ -127,7 +131,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                 placeholder="Что хочешь найти?"
                 className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-white/32 sm:text-lg"
               />
-              {city ? <input type="hidden" name="city" value={city} /> : null}
+              {selectedCity ? <input type="hidden" name="city" value={selectedCity} /> : null}
               {selectedCategory ? <input type="hidden" name="category" value={selectedCategory} /> : null}
               {parsedType ? <input type="hidden" name="type" value={parsedType} /> : null}
               {sort !== "new" ? <input type="hidden" name="sort" value={sort} /> : null}
@@ -195,56 +199,13 @@ export default async function CatalogPage({ searchParams }: Props) {
 
                 <div className="mt-5">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Категория</p>
-                  <div className="grid max-h-64 grid-cols-2 gap-1 overflow-y-auto pr-1">
-                    {categoryList.map((entry) => {
-                      const active = (entry === "Все" && !selectedCategory) || entry === selectedCategory;
-                      return (
-                        <Link
-                          key={entry}
-                          href={buildCatalogHref({ ...catalogBase, category: entry === "Все" ? undefined : entry })}
-                          scroll={false}
-                          aria-current={active ? "page" : undefined}
-                          className={filterLinkClass(active)}
-                        >
-                          <span className="truncate">{entry}</span>
-                          {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
-                        </Link>
-                      );
-                    })}
-                  </div>
+                  <CatalogCategoryFilter value={selectedCategory} />
                 </div>
 
-                {cityList.length > 0 ? (
-                  <div className="mt-5">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Город</p>
-                    <div className="grid grid-cols-2 gap-1">
-                      <Link
-                        href={buildCatalogHref({ ...catalogBase, city: undefined })}
-                        scroll={false}
-                        aria-current={!city ? "page" : undefined}
-                        className={filterLinkClass(!city)}
-                      >
-                        Все города
-                        {!city ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
-                      </Link>
-                      {cityList.map((entry) => {
-                        const active = city?.toLowerCase() === entry.toLowerCase();
-                        return (
-                          <Link
-                            key={entry}
-                            href={buildCatalogHref({ ...catalogBase, city: entry })}
-                            scroll={false}
-                            aria-current={active ? "page" : undefined}
-                            className={filterLinkClass(active)}
-                          >
-                            <span className="truncate">{entry}</span>
-                            {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : null}
+                <div className="mt-5">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Город</p>
+                  <CatalogCityFilter value={selectedCity} />
+                </div>
 
                 {activeFilterCount > 0 ? (
                   <Link
@@ -266,21 +227,13 @@ export default async function CatalogPage({ searchParams }: Props) {
                     Запрос: {q} <X className="h-3 w-3" />
                   </Link>
                 ) : null}
-                {selectedCategory ? (
-                  <Link href={buildCatalogHref({ ...catalogBase, category: undefined })} scroll={false} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/62">
-                    {selectedCategory} <X className="h-3 w-3" />
-                  </Link>
-                ) : null}
+                <CatalogFilterChip kind="category" value={selectedCategory} />
                 {parsedType ? (
                   <Link href={buildCatalogHref({ ...catalogBase, type: undefined })} scroll={false} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/62">
                     {typeLabel} <X className="h-3 w-3" />
                   </Link>
                 ) : null}
-                {city ? (
-                  <Link href={buildCatalogHref({ ...catalogBase, city: undefined })} scroll={false} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/62">
-                    {city} <X className="h-3 w-3" />
-                  </Link>
-                ) : null}
+                <CatalogFilterChip kind="city" value={selectedCity} />
               </div>
             ) : null}
           </div>
@@ -327,39 +280,11 @@ export default async function CatalogPage({ searchParams }: Props) {
 
                 <div className="my-5 h-px bg-white/[0.065]" />
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Категории</p>
-                <div className="max-h-64 space-y-1 overflow-y-auto pr-1">
-                  {categoryList.map((entry) => {
-                    const active = (entry === "Все" && !selectedCategory) || entry === selectedCategory;
-                    return (
-                      <Link key={entry} href={buildCatalogHref({ ...catalogBase, category: entry === "Все" ? undefined : entry })} scroll={false} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
-                        <span className="truncate">{entry}</span>
-                        {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
-                      </Link>
-                    );
-                  })}
-                </div>
+                <CatalogCategoryFilter value={selectedCategory} />
 
-                {cityList.length > 0 ? (
-                  <>
-                    <div className="my-5 h-px bg-white/[0.065]" />
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Города</p>
-                    <div className="space-y-1">
-                      <Link href={buildCatalogHref({ ...catalogBase, city: undefined })} scroll={false} aria-current={!city ? "page" : undefined} className={filterLinkClass(!city)}>
-                        Все города
-                        {!city ? <Check className="h-3.5 w-3.5 text-teal-200" /> : null}
-                      </Link>
-                      {cityList.map((entry) => {
-                        const active = city?.toLowerCase() === entry.toLowerCase();
-                        return (
-                          <Link key={entry} href={buildCatalogHref({ ...catalogBase, city: entry })} scroll={false} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
-                            <span className="truncate">{entry}</span>
-                            {active ? <Check className="h-3.5 w-3.5 shrink-0 text-teal-200" /> : null}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </>
-                ) : null}
+                <div className="my-5 h-px bg-white/[0.065]" />
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Город</p>
+                <CatalogCityFilter value={selectedCity} />
               </SurfaceCard>
             </aside>
 

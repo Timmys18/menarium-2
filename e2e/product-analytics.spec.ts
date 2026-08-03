@@ -105,9 +105,9 @@ test.describe("privacy-first product analytics", () => {
         data: {
           title,
           type: "THING",
-          category: "Техника",
+          categoryId: "thing.electronics.audio",
           description: "Объявление для проверки продуктовой аналитики Menarium.",
-          city: "Москва",
+          cityId: "москва-москва",
           isOnline: false,
           desired: ["Книги"],
           acceptsAnything: false,
@@ -153,7 +153,7 @@ test.describe("privacy-first product analytics", () => {
     try {
       const adminPage = await login(adminContext, ADMIN);
       await adminPage.goto("/admin/analytics");
-      await expect(adminPage.getByRole("heading", { name: "Пульс Menarium" })).toBeVisible();
+      await expect(adminPage.getByRole("heading", { name: "Пульс Менариум" })).toBeVisible();
       await expect(adminPage.getByText("North star · 30 дней").filter({ visible: true })).toBeVisible();
     } finally {
       await adminContext.close();

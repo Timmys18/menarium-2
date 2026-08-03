@@ -6,6 +6,9 @@ import { toItemCardView } from "@/features/items/presenters";
 import { isDbUnavailableError } from "@/lib/db-unavailable";
 import { prisma } from "@/lib/prisma";
 import { CATALOG_PAGE_SIZE } from "@/features/items/catalog-url";
+import { categoryLabel } from "@/features/taxonomy/catalog";
+import { getCity } from "@/features/locations/cities";
+import { findSearchItemIds, searchPhrases } from "@/features/items/search";
 
 // Демо-карточки при недоступной БД показываем ТОЛЬКО вне production.
 // В production поломка БД должна честно приводить к ошибке (error.tsx),
@@ -35,16 +38,17 @@ function filterPreviewCards(
   cards: ItemCardView[],
   filters: { q?: string; category?: string; city?: string },
 ) {
-  const q = filters.q?.trim().toLowerCase();
-  const category = filters.category?.trim();
-  const city = filters.city?.trim().toLowerCase();
+  const phrases = searchPhrases(filters.q ?? "");
+  const category = categoryLabel(filters.category?.trim());
+  const city = getCity(filters.city)?.name.toLocaleLowerCase("ru-RU");
 
   return cards.filter((card) => {
-    if (q && !card.title.toLowerCase().includes(q) && !card.wanted.toLowerCase().includes(q)) {
+    const searchText = `${card.title} ${card.wanted} ${card.category}`.toLocaleLowerCase("ru-RU");
+    if (phrases.length > 0 && !phrases.some((phrase) => searchText.includes(phrase))) {
       return false;
     }
     if (category && card.category !== category) return false;
-    if (city && card.city.toLowerCase() !== city) return false;
+    if (city && card.city.toLocaleLowerCase("ru-RU") !== city) return false;
     return true;
   });
 }
@@ -85,24 +89,27 @@ export async function loadCatalogItemCards(input: {
   pageSize?: number;
 }): Promise<ItemCardsLoadResult> {
   const selectedCategory = input.category && input.category !== "Все" ? input.category : undefined;
+  const selectedCategoryLabel = categoryLabel(selectedCategory);
+  const selectedCity = getCity(input.city);
   const page = Math.max(1, input.page ?? 1);
   const pageSize = input.pageSize ?? CATALOG_PAGE_SIZE;
   const offset = (page - 1) * pageSize;
 
   try {
+    const searchItemIds = input.q ? await findSearchItemIds(input.q) : undefined;
+    const conditions: Prisma.ItemWhereInput[] = [
+      ...(input.q ? [{ id: { in: searchItemIds ?? [] } }] : []),
+      ...(selectedCategory
+        ? [{ OR: [{ categoryId: selectedCategory }, ...(selectedCategoryLabel ? [{ category: selectedCategoryLabel }] : [])] }]
+        : []),
+      ...(input.city
+        ? [{ OR: [{ cityId: input.city }, ...(selectedCity ? [{ city: { equals: selectedCity.name, mode: "insensitive" as const } }] : [])] }]
+        : []),
+    ];
     const where: Prisma.ItemWhereInput = {
       status: ItemStatus.ACTIVE,
       owner: { status: UserStatus.ACTIVE },
-      ...(input.q
-        ? {
-            OR: [
-              { title: { contains: input.q, mode: "insensitive" as const } },
-              { description: { contains: input.q, mode: "insensitive" as const } },
-            ],
-          }
-        : {}),
-      ...(selectedCategory ? { category: selectedCategory } : {}),
-      ...(input.city ? { city: { equals: input.city, mode: "insensitive" as const } } : {}),
+      ...(conditions.length ? { AND: conditions } : {}),
       ...(input.type ? { type: input.type } : {}),
     };
 

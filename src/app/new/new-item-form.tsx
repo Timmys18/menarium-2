@@ -19,6 +19,10 @@ import { Badge } from "@/components/menarium/badge";
 import { MenariumButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { MenariumInput, MenariumTextarea } from "@/components/menarium/input";
+import { CategoryPicker } from "@/components/menarium/category-picker";
+import { CityPicker } from "@/components/menarium/city-picker";
+import { categoryLabel, categoryOptions } from "@/features/taxonomy/catalog";
+import { findCityByName, getCity } from "@/features/locations/cities";
 import { cn } from "@/lib/utils";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
 
@@ -32,9 +36,9 @@ type UploadedImage = {
 type NewItemDraft = {
   title: string;
   type: "THING" | "SERVICE";
-  category: string;
+  categoryId: string;
   description: string;
-  city: string;
+  cityId: string;
   desiredText: string;
   acceptsAnything: boolean;
   extraOfferText: string;
@@ -48,8 +52,9 @@ type NewItemFormProps = {
   continuationTitle: string | null;
 };
 
-const DRAFT_KEY_PREFIX = "menarium:new-item-draft:v2";
-const categories = ["Техника", "Мода", "Музыка", "Спорт", "Книги", "Искусство", "Фото", "Услуги"];
+const DRAFT_KEY_PREFIX = "menarium:new-item-draft:v3";
+const DEFAULT_CITY_ID = findCityByName("Москва")?.id ?? "";
+const defaultCategoryId = (type: "THING" | "SERVICE") => categoryOptions(type)[0]?.children[0]?.id ?? "";
 const quickWants = ["iPhone", "MacBook", "Игровая консоль", "Наушники", "Кроссовки", "Винтажная камера"];
 const steps = [
   { title: "Предложение", hint: "Что и как выглядит" },
@@ -78,9 +83,9 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
   const [draftReady, setDraftReady] = useState(false);
   const [title, setTitle] = useState("");
   const [type, setType] = useState<"THING" | "SERVICE">("THING");
-  const [category, setCategory] = useState(categories[0]);
+  const [categoryId, setCategoryId] = useState(defaultCategoryId("THING"));
   const [description, setDescription] = useState("");
-  const [city, setCity] = useState("Москва");
+  const [cityId, setCityId] = useState(DEFAULT_CITY_ID);
   const [desiredText, setDesiredText] = useState("");
   const [acceptsAnything, setAcceptsAnything] = useState(false);
   const [extraOfferText, setExtraOfferText] = useState("");
@@ -101,9 +106,9 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
       const draft = readDraft(draftKey);
       if (typeof draft?.title === "string") setTitle(draft.title);
       if (draft?.type === "THING" || draft?.type === "SERVICE") setType(draft.type);
-      if (typeof draft?.category === "string" && categories.includes(draft.category)) setCategory(draft.category);
+      if (typeof draft?.categoryId === "string" && categoryLabel(draft.categoryId)) setCategoryId(draft.categoryId);
       if (typeof draft?.description === "string") setDescription(draft.description);
-      if (typeof draft?.city === "string") setCity(draft.city);
+      if (typeof draft?.cityId === "string" && getCity(draft.cityId)) setCityId(draft.cityId);
       if (typeof draft?.desiredText === "string") setDesiredText(draft.desiredText);
       if (typeof draft?.acceptsAnything === "boolean") setAcceptsAnything(draft.acceptsAnything);
       if (typeof draft?.extraOfferText === "string") setExtraOfferText(draft.extraOfferText);
@@ -136,9 +141,9 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
     const draft: NewItemDraft = {
       title,
       type,
-      category,
+      categoryId,
       description,
-      city,
+      cityId,
       desiredText,
       acceptsAnything,
       extraOfferText,
@@ -153,8 +158,8 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
     }
   }, [
     acceptsAnything,
-    category,
-    city,
+    categoryId,
+    cityId,
     description,
     desiredText,
     draftReady,
@@ -183,7 +188,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
         setError("Добавь понятное название длиной хотя бы в два символа.");
         return false;
       }
-      if (category.trim().length < 2) {
+      if (!categoryLabel(categoryId)) {
         setError("Выбери категорию объявления.");
         return false;
       }
@@ -194,7 +199,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
         setError("Расскажи о предложении чуть подробнее — минимум 10 символов.");
         return false;
       }
-      if (city.trim().length < 2) {
+      if (!getCity(cityId)) {
         setError("Укажи город, чтобы людям было проще оценить обмен.");
         return false;
       }
@@ -298,9 +303,9 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
         body: JSON.stringify({
           title,
           type,
-          category,
+          categoryId,
           description,
-          city,
+          cityId,
           isOnline,
           desired,
           acceptsAnything,
@@ -396,7 +401,10 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                       key={value}
                       type="button"
                       aria-pressed={type === value}
-                      onClick={() => setType(value)}
+                      onClick={() => {
+                        setType(value);
+                        setCategoryId(defaultCategoryId(value));
+                      }}
                       className={cn(
                         "rounded-[18px] border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                         type === value
@@ -425,15 +433,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 </label>
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-white/70">Категория</span>
-                  <select
-                    value={category}
-                    onChange={(event) => setCategory(event.target.value)}
-                    className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50"
-                  >
-                    {categories.map((entry) => (
-                      <option key={entry} value={entry}>{entry}</option>
-                    ))}
-                  </select>
+                  <CategoryPicker type={type} value={categoryId} onChange={setCategoryId} />
                 </label>
               </div>
 
@@ -530,17 +530,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-white/70">Город</span>
-                <div className="relative">
-                  <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
-                  <MenariumInput
-                    value={city}
-                    onChange={(event) => setCity(event.target.value)}
-                    placeholder="Москва"
-                    maxLength={80}
-                    autoComplete="address-level2"
-                    className="pl-11"
-                  />
-                </div>
+                <CityPicker value={cityId} onChange={(city) => setCityId(city.id)} />
               </label>
 
               <label
@@ -701,7 +691,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
           <div className="p-5">
             <div className="mb-3 flex flex-wrap gap-2">
               <Badge variant="purple">{type === "THING" ? "Вещь" : "Услуга"}</Badge>
-              <Badge variant="glass">{category}</Badge>
+              <Badge variant="glass">{categoryLabel(categoryId) ?? "Категория"}</Badge>
               {isOnline ? <Badge variant="teal">Онлайн</Badge> : null}
             </div>
             <h3 className={cn("text-xl font-bold leading-tight", title ? "text-white" : "text-white/30")}>
@@ -712,7 +702,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-white/40">
               <MapPin className="h-3.5 w-3.5" />
-              {city || "Город не указан"}
+              {getCity(cityId)?.name ?? "Город не указан"}
             </div>
             <div className="mt-5 border-t border-white/8 pt-4">
               <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-teal-200/65">

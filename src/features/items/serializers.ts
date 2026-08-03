@@ -1,12 +1,16 @@
 import type { Item, MediaAsset, User } from "@prisma/client";
+import { categoryLabel } from "@/features/taxonomy/catalog";
+import { getCity } from "@/features/locations/cities";
 
 export type PublicItem = {
   id: string;
   title: string;
   type: string;
   category: string;
+  categoryId: string | null;
   description: string;
   city: string;
+  cityId: string | null;
   isOnline: boolean;
   status: string;
   desired: string[];
@@ -37,9 +41,11 @@ export function serializeItem(
     id: item.id,
     title: item.title,
     type: item.type,
-    category: item.category,
+    category: categoryLabel(item.categoryId) ?? item.category,
+    categoryId: item.categoryId,
     description: item.description,
-    city: item.city,
+    city: getCity(item.cityId)?.name ?? item.city,
+    cityId: item.cityId,
     isOnline: item.isOnline,
     status: item.status,
     desired: item.desired,

@@ -1,7 +1,19 @@
 import bcrypt from "bcryptjs";
 import { ItemStatus, PrismaClient, ItemType, MediaOwnerType, UserStatus } from "@prisma/client";
+import rawCities from "../src/features/locations/russian-cities.json" with { type: "json" };
 
 const prisma = new PrismaClient();
+
+function referenceCity(name) {
+  const city = rawCities.find((candidate) => candidate.name === name);
+  if (!city) throw new Error(`Missing city reference for ${name}`);
+  const id = `${city.name}-${city.subject}`
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^a-zа-яё0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
+  return { name: city.name, id };
+}
 
 const users = [
   {
@@ -30,6 +42,7 @@ const itemFixtures = [
     title: "Sony WH-1000XM5",
     type: ItemType.THING,
     category: "Техника",
+    categoryId: "thing.electronics.audio",
     description: "Флагманские наушники в отличном состоянии. Полный комплект, бережное использование.",
     city: "Москва",
     desired: ["Механическая клавиатура", "AirPods Pro"],
@@ -40,6 +53,7 @@ const itemFixtures = [
     title: "Canon AE-1",
     type: ItemType.THING,
     category: "Фото",
+    categoryId: "thing.electronics.photo-video",
     description: "Пленочная камера Canon AE-1. Подойдет для тех, кто хочет начать с аналоговой фотографии.",
     city: "Санкт-Петербург",
     desired: ["Винтажные часы", "Объектив"],
@@ -50,6 +64,7 @@ const itemFixtures = [
     title: "Консультация по интерьеру",
     type: ItemType.SERVICE,
     category: "Услуги",
+    categoryId: "service.creative.art-service",
     description: "Помогу собрать визуальную концепцию комнаты, подобрать референсы и список покупок.",
     city: "Москва",
     desired: ["Фотосъемка", "Книги по дизайну"],
@@ -60,6 +75,7 @@ const itemFixtures = [
     title: "Коллекция винила",
     type: ItemType.THING,
     category: "Музыка",
+    categoryId: "thing.media.vinyl",
     description: "Небольшая коллекция пластинок в хорошем состоянии. Готов обсуждать обмен комплектом.",
     city: "Санкт-Петербург",
     desired: ["Проигрыватель", "Аудиотехника"],
@@ -69,11 +85,13 @@ const itemFixtures = [
 
 async function upsertUser(user) {
   const passwordHash = await bcrypt.hash(user.password, 12);
+  const city = referenceCity(user.city);
   return prisma.user.upsert({
     where: { email: user.email },
     update: {
       name: user.name,
-      city: user.city,
+      city: city.name,
+      cityId: city.id,
       passwordHash,
       status: UserStatus.ACTIVE,
       deletedAt: null,
@@ -83,7 +101,8 @@ async function upsertUser(user) {
     create: {
       email: user.email,
       name: user.name,
-      city: user.city,
+      city: city.name,
+      cityId: city.id,
       passwordHash,
     },
   });
@@ -92,6 +111,7 @@ async function upsertUser(user) {
 async function upsertItem(fixture, owners) {
   const owner = owners.get(fixture.ownerEmail);
   if (!owner) throw new Error(`Missing owner for ${fixture.ownerEmail}`);
+  const city = referenceCity(fixture.city);
 
   const existing = await prisma.item.findFirst({
     where: {
@@ -107,8 +127,10 @@ async function upsertItem(fixture, owners) {
       data: {
         type: fixture.type,
         category: fixture.category,
+        categoryId: fixture.categoryId,
         description: fixture.description,
-        city: fixture.city,
+        city: city.name,
+        cityId: city.id,
         desired: fixture.desired,
         acceptsAnything: false,
         isOnline: false,
@@ -142,8 +164,10 @@ async function upsertItem(fixture, owners) {
       title: fixture.title,
       type: fixture.type,
       category: fixture.category,
+      categoryId: fixture.categoryId,
       description: fixture.description,
-      city: fixture.city,
+      city: city.name,
+      cityId: city.id,
       desired: fixture.desired,
       acceptsAnything: false,
       isOnline: false,

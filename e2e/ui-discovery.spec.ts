@@ -38,7 +38,9 @@ test.describe("Мобильное открытие каталога", () => {
 
     await expect(page.getByRole("button", { name: "Найти" })).toBeVisible();
     await page.locator("summary").filter({ visible: true }).click();
-    await page.getByRole("link", { name: "Москва", exact: true }).click();
+    await page.getByRole("button", { name: "Выберите город", exact: true }).click();
+    await page.getByRole("textbox", { name: "Найти город в списке" }).fill("Москва");
+    await page.getByRole("option", { name: "Москва Москва", exact: true }).click();
 
     await expect(page).toHaveURL(/city=/);
     await expect(

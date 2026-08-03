@@ -18,7 +18,7 @@ import {
 import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
-import { BrandGlyph, BrandMark } from "@/components/menarium/brand";
+import { BrandGlyph } from "@/components/menarium/brand";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
@@ -617,7 +617,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                                 </div>
                                 <p className="mt-1 text-sm text-white/48">
                                   {swap.receiverItem.title}
-                                  <BrandMark size="xs" className="mx-2 h-4 w-4 rounded-[5px] align-middle shadow-none ring-white/10" />
+                                  <BrandGlyph className="mx-2 inline-block h-4 w-4 align-middle text-teal-200/70" />
                                   {swap.senderItem.title}
                                 </p>
                               </div>
@@ -664,7 +664,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                                 </div>
                                 <p className="mt-1 text-sm text-white/48">
                                   {yourItem.title}
-                                  <BrandMark size="xs" className="mx-2 h-4 w-4 rounded-[5px] align-middle shadow-none ring-white/10" />
+                                  <BrandGlyph className="mx-2 inline-block h-4 w-4 align-middle text-teal-200/70" />
                                   {theirItem.title}
                                 </p>
                               </div>

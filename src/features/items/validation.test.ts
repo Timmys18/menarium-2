@@ -4,9 +4,9 @@ import { itemPayloadSchema } from "./validation";
 const validPayload = {
   title: "Sony WH-1000XM5",
   type: "THING",
-  category: "Техника",
+  categoryId: "thing.electronics.audio",
   description: "Наушники в отличном состоянии, полный комплект и аккуратное использование.",
-  city: "Москва",
+  cityId: "москва-москва",
   isOnline: false,
   desired: ["Механическая клавиатура"],
   acceptsAnything: false,

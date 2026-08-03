@@ -9,18 +9,21 @@ import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button
 import { GlassCard } from "@/components/menarium/card";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { MenariumInput } from "@/components/menarium/input";
+import { CityPicker } from "@/components/menarium/city-picker";
+import { findCityByName } from "@/features/locations/cities";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 
 type ProfileFormUser = {
   name: string | null;
   city: string | null;
+  cityId: string | null;
   image: string | null;
 };
 
 export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   const router = useRouter();
   const [name, setName] = useState(user.name ?? "");
-  const [city, setCity] = useState(user.city ?? "");
+  const [cityId, setCityId] = useState(user.cityId ?? findCityByName(user.city)?.id ?? "");
   const [image, setImage] = useState(user.image ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -89,7 +92,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       const response = await fetch("/api/users/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, city, image }),
+        body: JSON.stringify({ name, cityId, image }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Не удалось сохранить профиль");
@@ -214,14 +217,11 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           <label htmlFor="profile-city" className="block text-sm font-medium text-white/75">
             Город
           </label>
-          <MenariumInput
+          <CityPicker
             id="profile-city"
-            name="city"
-            autoComplete="address-level2"
-            placeholder="Например, Москва"
-            value={city}
-            onChange={(event) => {
-              setCity(event.target.value);
+            value={cityId}
+            onChange={(city) => {
+              setCityId(city.id);
               setProfileError(null);
             }}
           />

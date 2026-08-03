@@ -53,6 +53,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  // Keep local visual reviews free from the framework's floating development badge.
+  devIndicators: false,
   async redirects() {
     return [
       { source: "/login", destination: "/auth/login", permanent: true },

@@ -11,29 +11,39 @@ import { claimItemMedia, INVALID_ITEM_MEDIA } from "@/features/media/item-media"
 import { trackProductEvent } from "@/lib/product-analytics";
 import { runSerializableTransaction } from "@/lib/transactions";
 import { reportError } from "@/lib/logger";
+import { categoryLabel, legacyCategoryId } from "@/features/taxonomy/catalog";
+import { findCityByName, getCity } from "@/features/locations/cities";
+import { findSearchItemIds } from "@/features/items/search";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const { limit, offset } = getPaging(req);
   const q = searchParams.get("q")?.trim();
-  const category = searchParams.get("category")?.trim();
-  const city = searchParams.get("city")?.trim();
+  const rawCategory = searchParams.get("category")?.trim();
+  const rawCity = searchParams.get("city")?.trim();
+  const category = rawCategory ? legacyCategoryId(rawCategory) ?? rawCategory : undefined;
+  const city = rawCity ? getCity(rawCity)?.id ?? findCityByName(rawCity)?.id ?? rawCity : undefined;
   const type = searchParams.get("type")?.trim();
   const acceptsAnything = searchParams.get("acceptsAnything");
 
   const parsedType = type === ItemType.THING || type === ItemType.SERVICE ? type : undefined;
+  const [searchItemIds, selectedCategoryLabel, selectedCity] = await Promise.all([
+    q ? findSearchItemIds(q) : Promise.resolve(undefined),
+    Promise.resolve(categoryLabel(category)),
+    Promise.resolve(getCity(city)),
+  ]);
+  const filters: Prisma.ItemWhereInput[] = [
+    ...(q ? [{ id: { in: searchItemIds ?? [] } }] : []),
+    ...(category
+      ? [{ OR: [{ categoryId: category }, ...(selectedCategoryLabel ? [{ category: selectedCategoryLabel }] : [])] }]
+      : []),
+    ...(city
+      ? [{ OR: [{ cityId: city }, ...(selectedCity ? [{ city: { equals: selectedCity.name, mode: "insensitive" as const } }] : [])] }]
+      : []),
+  ];
   const where: Prisma.ItemWhereInput = {
     status: ItemStatus.ACTIVE,
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q, mode: "insensitive" as const } },
-            { description: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
-    ...(category ? { category } : {}),
-    ...(city ? { city: { equals: city, mode: "insensitive" as const } } : {}),
+    ...(filters.length ? { AND: filters } : {}),
     ...(parsedType ? { type: parsedType } : {}),
     ...(acceptsAnything === "true" ? { acceptsAnything: true } : {}),
   };
@@ -67,15 +77,20 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
+  const category = categoryLabel(data.categoryId);
+  const city = getCity(data.cityId);
+  if (!category || !city) return errorResponse("Выберите категорию и город из списка.", 400);
   try {
     const item = await runSerializableTransaction(async (tx) => {
       const created = await tx.item.create({
         data: {
           title: data.title,
           type: data.type,
-          category: data.category,
+          category,
+          categoryId: data.categoryId,
           description: data.description,
-          city: data.city,
+          city: city.name,
+          cityId: city.id,
           isOnline: data.isOnline,
           desired: data.desired,
           acceptsAnything: data.acceptsAnything,

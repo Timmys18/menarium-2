@@ -52,7 +52,9 @@ test.describe("первый вход и личный кабинет", () => {
 
       await content.getByRole("link", { name: "Заполнить профиль" }).click();
       await content.getByLabel("Имя").fill("Анна");
-      await content.getByLabel("Город").fill("Казань");
+      await content.getByLabel("Город").click();
+      await content.getByRole("textbox", { name: "Найти город в списке" }).fill("Казань");
+      await content.getByRole("option", { name: "Казань Татарстан", exact: true }).click();
       await content.getByRole("button", { name: "Сохранить" }).click();
 
       await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });

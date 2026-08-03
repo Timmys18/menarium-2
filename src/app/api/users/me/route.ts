@@ -9,12 +9,14 @@ import { requireUserId } from "@/server/session";
 import { deleteMediaObjects } from "@/features/media/cleanup";
 import { runSerializableTransaction } from "@/lib/transactions";
 import { reportError } from "@/lib/logger";
+import { getCity } from "@/features/locations/cities";
 
 function serializeUser(user: {
   id: string;
   email: string;
   name: string | null;
   city: string | null;
+  cityId: string | null;
   image: string | null;
   createdAt: Date;
 }) {
@@ -30,7 +32,7 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { id: auth.userId },
-    select: { id: true, email: true, name: true, city: true, image: true, createdAt: true },
+    select: { id: true, email: true, name: true, city: true, cityId: true, image: true, createdAt: true },
   });
   if (!user) return errorResponse("Пользователь не найден", 404);
 
@@ -39,7 +41,7 @@ export async function GET() {
 
 const profileSchema = z.object({
   name: z.string().trim().min(2).max(80).optional().or(z.literal("")),
-  city: z.string().trim().max(80).optional().or(z.literal("")),
+  cityId: z.string().trim().max(180).optional().or(z.literal("")),
   image: z.string().trim().max(2048).optional().or(z.literal("")),
 });
 
@@ -53,6 +55,8 @@ export async function PATCH(req: Request) {
   const body = await parseJson(req);
   const parsed = profileSchema.safeParse(body);
   if (!parsed.success) return errorResponse("Некорректные данные профиля", 400);
+  const city = parsed.data.cityId ? getCity(parsed.data.cityId) : null;
+  if (parsed.data.cityId && !city) return errorResponse("Выберите город из списка.", 400);
 
   try {
     const result = await runSerializableTransaction(async (tx) => {
@@ -86,10 +90,11 @@ export async function PATCH(req: Request) {
         where: { id: auth.userId },
         data: {
           name: parsed.data.name || null,
-          city: parsed.data.city || null,
+          city: city?.name ?? null,
+          cityId: city?.id ?? null,
           image: requestedImage,
         },
-        select: { id: true, email: true, name: true, city: true, image: true, createdAt: true },
+        select: { id: true, email: true, name: true, city: true, cityId: true, image: true, createdAt: true },
       });
       if (obsoleteAssets.length) {
         await tx.mediaAsset.deleteMany({
@@ -199,6 +204,7 @@ export async function DELETE(req: Request) {
         passwordHash: null,
         name: "Удалённый пользователь",
         city: null,
+        cityId: null,
         image: null,
         suspendedAt: null,
         suspensionReason: null,

@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Eye, EyeOff, Loader2, UserRound } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
+import { CityPicker } from "@/components/menarium/city-picker";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
 import { safeCallbackUrl } from "@/lib/utils";
@@ -18,7 +19,7 @@ export function RegisterForm() {
   const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const hasTrackedStart = useRef(false);
   const [name, setName] = useState("");
-  const [city, setCity] = useState("");
+  const [cityId, setCityId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +38,7 @@ export function RegisterForm() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, city, email, password }),
+        body: JSON.stringify({ name, cityId, email, password }),
       });
       const body = await response.json();
       if (!response.ok) {
@@ -174,14 +175,7 @@ export function RegisterForm() {
             <label htmlFor="register-city" className="block text-sm font-medium text-white/70">
               Город
             </label>
-            <MenariumInput
-              id="register-city"
-              name="city"
-              autoComplete="address-level2"
-              placeholder="Например, Москва"
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-            />
+            <CityPicker id="register-city" value={cityId} onChange={(city) => setCityId(city.id)} />
           </div>
         </div>
       </fieldset>

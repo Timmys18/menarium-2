@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Repeat2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type BrandMarkSize = "xs" | "sm" | "md" | "lg" | "xl";
@@ -25,7 +26,7 @@ export function BrandMark({
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 overflow-hidden rounded-[28%] bg-[#111315] ring-1 ring-white/12 shadow-[0_10px_28px_rgba(0,0,0,0.32)]",
+        "relative inline-flex shrink-0 overflow-hidden rounded-[28%] bg-[#111315] ring-1 ring-white/10 shadow-[0_10px_28px_rgba(0,0,0,0.28)]",
         markSizes[size],
         className,
       )}
@@ -46,7 +47,7 @@ export function BrandMark({
                   : "24px"
         }
         preload={priority}
-        className="object-cover"
+        className="object-cover object-center"
       />
     </span>
   );
@@ -79,10 +80,5 @@ export function BrandLockup({
 }
 
 export function BrandGlyph({ className }: { className?: string }) {
-  return (
-    <BrandMark
-      size="xs"
-      className={cn("h-5 w-5 rounded-[6px] shadow-none ring-white/10", className)}
-    />
-  );
+  return <Repeat2 aria-hidden="true" className={cn("h-5 w-5", className)} />;
 }

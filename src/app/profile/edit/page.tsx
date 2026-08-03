@@ -15,7 +15,7 @@ export default async function ProfileEditPage() {
   const user = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
-        select: { id: true, name: true, city: true, image: true },
+        select: { id: true, name: true, city: true, cityId: true, image: true },
       })
     : null;
 
