@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { categoryLabel, categoryOptions, categoryRoot, findCategory } from "./catalog";
+import { categoryLabel, categoryOptions, categoryRoot, categoryScope, findCategory } from "./catalog";
 
 describe("catalog taxonomy", () => {
   it("keeps categories broad enough to understand and specific enough to filter", () => {
@@ -16,5 +16,11 @@ describe("catalog taxonomy", () => {
   it("finds the broad category for a selected subcategory", () => {
     expect(categoryRoot("thing.electronics.phones")?.label).toBe("Электроника");
     expect(categoryRoot("service.photo-events")?.label).toBe("Фото, видео и события");
+  });
+
+  it("expands a broad category to every nested category and legacy label", () => {
+    expect(categoryScope("thing.electronics").ids).toContain("thing.electronics.photo-video");
+    expect(categoryScope("thing.electronics").labels).toEqual(expect.arrayContaining(["Фото и видео", "Фото"]));
+    expect(categoryScope("thing.electronics.photo-video").ids).toEqual(["thing.electronics.photo-video"]);
   });
 });

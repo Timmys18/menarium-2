@@ -119,6 +119,31 @@ export function categoryRoot(categoryId: string | null | undefined): CatalogCate
   return null;
 }
 
+/**
+ * Expands a broad category into every stored value it represents.
+ * A selected subcategory remains precise; a selected top-level category includes its children.
+ */
+export function categoryScope(categoryId: string | null | undefined) {
+  const root = categoryRoot(categoryId);
+  const ids =
+    root && root.id === categoryId
+      ? [root.id, ...root.children.map((child) => child.id)]
+      : categoryId
+        ? [categoryId]
+        : [];
+  const labels = ids
+    .map((id) => categoryLabel(id))
+    .filter((label): label is string => Boolean(label));
+  const legacyLabels = Object.entries(legacyCategoryAliases)
+    .filter(([, id]) => ids.includes(id))
+    .map(([label]) => label);
+
+  return {
+    ids,
+    labels: [...new Set([...labels, ...legacyLabels])],
+  };
+}
+
 export function categoryLabel(categoryId: string | null | undefined): string | null {
   return findCategory(categoryId)?.label ?? null;
 }

@@ -6,7 +6,7 @@ import { toItemCardView } from "@/features/items/presenters";
 import { isDbUnavailableError } from "@/lib/db-unavailable";
 import { prisma } from "@/lib/prisma";
 import { CATALOG_PAGE_SIZE } from "@/features/items/catalog-url";
-import { categoryLabel } from "@/features/taxonomy/catalog";
+import { categoryScope } from "@/features/taxonomy/catalog";
 import { getCity } from "@/features/locations/cities";
 import { findSearchItemIds, searchPhrases } from "@/features/items/search";
 
@@ -39,7 +39,7 @@ function filterPreviewCards(
   filters: { q?: string; category?: string; city?: string },
 ) {
   const phrases = searchPhrases(filters.q ?? "");
-  const category = categoryLabel(filters.category?.trim());
+  const category = categoryScope(filters.category?.trim());
   const city = getCity(filters.city)?.name.toLocaleLowerCase("ru-RU");
 
   return cards.filter((card) => {
@@ -47,7 +47,7 @@ function filterPreviewCards(
     if (phrases.length > 0 && !phrases.some((phrase) => searchText.includes(phrase))) {
       return false;
     }
-    if (category && card.category !== category) return false;
+    if (category.ids.length > 0 && !category.labels.includes(card.category)) return false;
     if (city && card.city.toLocaleLowerCase("ru-RU") !== city) return false;
     return true;
   });
@@ -89,7 +89,7 @@ export async function loadCatalogItemCards(input: {
   pageSize?: number;
 }): Promise<ItemCardsLoadResult> {
   const selectedCategory = input.category && input.category !== "Все" ? input.category : undefined;
-  const selectedCategoryLabel = categoryLabel(selectedCategory);
+  const selectedCategoryScope = categoryScope(selectedCategory);
   const selectedCity = getCity(input.city);
   const page = Math.max(1, input.page ?? 1);
   const pageSize = input.pageSize ?? CATALOG_PAGE_SIZE;
@@ -100,7 +100,7 @@ export async function loadCatalogItemCards(input: {
     const conditions: Prisma.ItemWhereInput[] = [
       ...(input.q ? [{ id: { in: searchItemIds ?? [] } }] : []),
       ...(selectedCategory
-        ? [{ OR: [{ categoryId: selectedCategory }, ...(selectedCategoryLabel ? [{ category: selectedCategoryLabel }] : [])] }]
+        ? [{ OR: [{ categoryId: { in: selectedCategoryScope.ids } }, { category: { in: selectedCategoryScope.labels } }] }]
         : []),
       ...(input.city
         ? [{ OR: [{ cityId: input.city }, ...(selectedCity ? [{ city: { equals: selectedCity.name, mode: "insensitive" as const } }] : [])] }]
