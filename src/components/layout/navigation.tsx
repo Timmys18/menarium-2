@@ -2,20 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Compass, Heart, Plus, Repeat2, Search, UserRound } from "lucide-react";
-import { BrandLockup } from "@/components/menarium/brand";
+import { Bell, Compass, Heart, Plus, Repeat2, Sparkles, UserRound } from "lucide-react";
+import { BrandLockup, BrandMark } from "@/components/menarium/brand";
 import { cn } from "@/lib/utils";
 
 const desktopItems = [
   { href: "/catalog", label: "Каталог", icon: Compass },
   { href: "/favorites", label: "Избранное", icon: Heart },
-  { href: "/swipe", label: "Свайп", icon: Repeat2 },
+  { href: "/swipe", label: "Свайп", icon: Sparkles },
   { href: "/exchange", label: "Обмены", icon: Repeat2 },
 ];
 
 const mobileItems = [
-  { href: "/catalog", label: "Каталог", icon: Search },
-  { href: "/swipe", label: "Свайп", icon: Repeat2 },
+  { href: "/catalog", label: "Каталог", icon: Compass },
+  { href: "/swipe", label: "Свайп", icon: Sparkles },
   { href: "/new", label: "Создать", icon: Plus, primary: true },
   { href: "/exchange", label: "Обмены", icon: Repeat2 },
   { href: "/profile", label: "Профиль", icon: UserRound },
@@ -145,7 +145,7 @@ export function Navigation({
       </nav>
 
       <header className="mobile-navigation fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden">
-        <div className="mx-auto flex max-w-lg items-center justify-between rounded-[20px] border border-white/10 bg-[#090d14]/82 px-3 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
+        <div className="mx-auto flex max-w-lg items-center justify-between rounded-[24px] border border-white/10 bg-[#090d14]/88 px-3 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
           <Link
             href="/"
             aria-label="Менариум — главная"
@@ -180,7 +180,7 @@ export function Navigation({
           className="px-2.5 pt-5"
           style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
         >
-          <div className="mx-auto max-w-lg rounded-[24px] border border-white/12 bg-[#080c13]/90 px-1.5 py-1.5 shadow-[0_-14px_54px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
+          <div className="mx-auto max-w-lg rounded-[24px] border border-white/10 bg-[#090d14]/88 px-1.5 py-1.5 shadow-[0_-14px_54px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
             <div className="grid grid-cols-5 items-end gap-0.5">
               {mobileItems.map((item) => {
                 const Icon = item.icon;
@@ -207,7 +207,11 @@ export function Navigation({
                             : "h-8 w-10 rounded-xl text-white/62",
                       )}
                     >
-                      <Icon className={item.primary ? "h-5 w-5" : "h-5 w-5"} />
+                      {item.primary ? (
+                        <BrandMark size="sm" className="h-7 w-7" decorative />
+                      ) : (
+                        <Icon className="h-5 w-5" />
+                      )}
                       <CountBadge count={count} compact />
                     </span>
                     <span className={cn("whitespace-nowrap", active && "font-semibold text-white")}>{item.label}</span>
