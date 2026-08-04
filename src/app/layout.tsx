@@ -13,9 +13,9 @@ export const metadata: Metadata = {
   description: "Обмен вещей и услуг напрямую: вещь на вещь, услуга на услугу или услуга на вещь.",
   applicationName: "Менариум",
   icons: {
-    icon: "/brand/menarium-exchange.svg",
-    shortcut: "/brand/menarium-exchange.svg",
-    apple: "/brand/menarium-exchange.svg",
+    icon: "/icon",
+    shortcut: "/icon",
+    apple: "/icon",
   },
   openGraph: {
     type: "website",

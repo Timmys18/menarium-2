@@ -26,7 +26,7 @@ export function BrandMark({
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 overflow-hidden bg-transparent",
+        "relative inline-flex shrink-0 overflow-hidden rounded-full bg-transparent",
         markSizes[size],
         className,
       )}

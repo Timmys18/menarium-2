@@ -21,6 +21,8 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          borderRadius: "50%",
+          overflow: "hidden",
         }}
       >
         {/* ImageResponse needs a plain image element for embedded SVG data. */}
