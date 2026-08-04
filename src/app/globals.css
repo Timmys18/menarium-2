@@ -299,6 +299,17 @@ a {
   display: none;
 }
 
+/* Browser zoom must not turn a mouse-and-keyboard desktop into the mobile app shell. */
+@media (hover: hover) and (pointer: fine) {
+  .desktop-navigation {
+    display: block !important;
+  }
+
+  .mobile-navigation {
+    display: none !important;
+  }
+}
+
 /* Native white scrollbars clash with the dark product surface, especially in compact pickers. */
 .menarium-scrollbar {
   scrollbar-width: thin;

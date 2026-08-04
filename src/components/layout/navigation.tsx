@@ -60,7 +60,7 @@ export function Navigation({
 
   return (
     <>
-      <nav aria-label="Основная навигация" className="fixed inset-x-0 top-0 z-50 hidden md:block">
+      <nav aria-label="Основная навигация" className="desktop-navigation fixed inset-x-0 top-0 z-50 hidden md:block">
         <div className="mx-auto max-w-[1480px] px-4 py-3 lg:px-6">
           <div className="surface-card rounded-[24px] px-3 py-2.5">
             <div className="flex items-center justify-between gap-4">
@@ -144,7 +144,7 @@ export function Navigation({
         </div>
       </nav>
 
-      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden">
+      <header className="mobile-navigation fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between rounded-[20px] border border-white/10 bg-[#090d14]/82 px-3 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
           <Link
             href="/"
@@ -154,7 +154,7 @@ export function Navigation({
           >
             <BrandLockup
               priority
-              markClassName="h-9 w-9 rounded-xl"
+              markClassName="h-9 w-9"
               textClassName="text-lg"
             />
           </Link>
@@ -175,7 +175,7 @@ export function Navigation({
         </div>
       </header>
 
-      <nav aria-label="Мобильная навигация" className="fixed inset-x-0 bottom-0 z-50 md:hidden">
+      <nav aria-label="Мобильная навигация" className="mobile-navigation fixed inset-x-0 bottom-0 z-50 md:hidden">
         <div
           className="px-2.5 pt-5"
           style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
