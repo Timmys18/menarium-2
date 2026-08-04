@@ -88,7 +88,7 @@ export function Navigation({
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "relative flex min-h-11 items-center gap-2 rounded-[14px] px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 lg:px-5",
+                        "desktop-nav-link relative flex min-h-11 items-center gap-2 rounded-[14px] px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 lg:px-5",
                         active
                           ? "border border-white/10 bg-white/[0.09] text-white shadow-inner shadow-white/[0.03]"
                           : "border border-transparent text-white/58 hover:bg-white/[0.055] hover:text-white",

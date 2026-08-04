@@ -300,13 +300,26 @@ a {
 }
 
 /* Browser zoom must not turn a mouse-and-keyboard desktop into the mobile app shell. */
-@media (hover: hover) and (pointer: fine) {
+@media (any-hover: hover) {
   .desktop-navigation {
     display: block !important;
   }
 
   .mobile-navigation {
     display: none !important;
+  }
+}
+
+/* When a desktop browser is zoomed in, retain the desktop actions without letting labels overflow. */
+@media (max-width: 767px) and (any-hover: hover) {
+  .desktop-navigation .surface-card {
+    padding: 0.5rem;
+  }
+
+  .desktop-navigation .desktop-nav-link {
+    gap: 0;
+    padding-inline: 0.7rem;
+    font-size: 0;
   }
 }
 
