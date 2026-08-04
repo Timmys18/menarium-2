@@ -1,7 +1,15 @@
+import fs from "node:fs";
+import path from "node:path";
 import { ImageResponse } from "next/og";
 
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
+
+const logoSvg = fs.readFileSync(
+  path.join(process.cwd(), "public/brand/menarium-exchange.svg"),
+  "utf8",
+);
+const logoDataUrl = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString("base64")}`;
 
 export default function Icon() {
   return new ImageResponse(
@@ -13,14 +21,11 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #14b8a6, #a855f7)",
-          borderRadius: 8,
-          fontSize: 18,
-          fontWeight: 700,
-          color: "white",
         }}
       >
-        M
+        {/* ImageResponse needs a plain image element for embedded SVG data. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logoDataUrl} width={32} height={32} alt="" />
       </div>
     ),
     { ...size },

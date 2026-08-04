@@ -26,18 +26,18 @@ export function BrandMark({
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 overflow-hidden rounded-full bg-transparent",
+        "relative inline-flex shrink-0 overflow-hidden bg-transparent",
         markSizes[size],
         className,
       )}
     >
       <Image
-        src="/brand/menarium-logo.png"
+        src="/brand/menarium-exchange.svg"
         alt={decorative ? "" : "Логотип Менариум"}
         fill
         sizes={size === "xl" ? "80px" : size === "lg" ? "56px" : size === "md" ? "40px" : size === "sm" ? "32px" : "24px"}
         preload={priority}
-        className="scale-[1.13] object-cover object-center mix-blend-screen"
+        className="object-contain object-center"
       />
     </span>
   );
