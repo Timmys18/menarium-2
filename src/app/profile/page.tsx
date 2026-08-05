@@ -1,38 +1,31 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ItemStatus, ReportStatus, SwapStatus, UserStatus } from "@prisma/client";
+import { ItemStatus, SwapStatus } from "@prisma/client";
 import {
   ArrowRight,
-  Bell,
   CheckCircle2,
-  CirclePause,
-  Clock3,
-  Eye,
   Heart,
-  History,
   MapPin,
   MessageCircle,
   PackageCheck,
+  Pencil,
+  Repeat2,
+  Settings,
   ShieldCheck,
+  UserRound,
 } from "lucide-react";
-import { ExchangeActionPanel } from "@/app/exchange/exchange-controls";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
-import { BrandGlyph } from "@/components/menarium/brand";
 import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
-import { buildProfileActivation } from "@/features/profile/activation";
-import { expirePendingSwapOffers } from "@/features/exchange/expiration";
 import { toItemCardView } from "@/features/items/presenters";
 import { serializeItem } from "@/features/items/serializers";
-import { getSafeNotificationHref } from "@/features/notifications/href";
+import { expirePendingSwapOffers } from "@/features/exchange/expiration";
 import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
-import { ActivationPanel } from "./activation-panel";
-import { ClearRecentViewsButton } from "./clear-recent-views-button";
 import { EmailVerifyBanner } from "./email-verify-banner";
 import { SignOutButton } from "./profile-actions";
 import { ProfileNotice } from "./profile-notice";
@@ -45,9 +38,12 @@ const DEAL_CHAT_STATUSES: SwapStatus[] = [
   SwapStatus.CANCELLED,
 ];
 
+type ProfilePageProps = {
+  searchParams: Promise<{ welcome?: string; emailSent?: string; verified?: string }>;
+};
+
 function getInitials(name: string | null, email: string) {
-  const source = name?.trim() || email;
-  return source
+  return (name?.trim() || email)
     .split(/\s+|@/)
     .filter(Boolean)
     .slice(0, 2)
@@ -57,24 +53,10 @@ function getInitials(name: string | null, email: string) {
 
 function formatChatTime(value: Date) {
   const now = new Date();
-  const sameDay =
-    value.getFullYear() === now.getFullYear() &&
-    value.getMonth() === now.getMonth() &&
-    value.getDate() === now.getDate();
-  return sameDay
+  const isToday = value.toDateString() === now.toDateString();
+  return isToday
     ? value.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
     : value.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
-}
-
-function recentViewLabel(viewedAt: Date) {
-  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - viewedAt.getTime()) / 60_000));
-  if (elapsedMinutes < 60) return "Смотрели недавно";
-  if (elapsedMinutes < 24 * 60) return "Смотрели сегодня";
-  if (elapsedMinutes < 48 * 60) return "Смотрели вчера";
-  return `Смотрели ${new Intl.DateTimeFormat("ru-RU", {
-    day: "numeric",
-    month: "short",
-  }).format(viewedAt)}`;
 }
 
 function exchangeChatHref({
@@ -95,14 +77,11 @@ function exchangeChatHref({
   return `/exchange?tab=${isSender ? "outgoing" : "incoming"}&filter=history&swap=${encodeURIComponent(id)}`;
 }
 
-type ProfilePageProps = {
-  searchParams: Promise<{ welcome?: string; emailSent?: string; verified?: string }>;
-};
-
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const params = await searchParams;
   const userId = await getCurrentUserId();
   if (userId) await expirePendingSwapOffers(prisma, { userId });
+
   const user = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
@@ -118,64 +97,34 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       })
     : null;
 
-  const [
-    itemGroups,
-    favoriteCount,
-    incomingPending,
-    outgoingPending,
-    sentProposals,
-    acceptedSwaps,
-    completedSwaps,
-    activeSafetyReports,
-    unreadNotifications,
-    unreadDealMessages,
-    unreadItemMessages,
-    recentIncoming,
-    recentAccepted,
-    recentNotifications,
-    recentDealChats,
-    recentItemChats,
-    recentViewRows,
-    profileBlockRows,
-  ] = userId
+  const [itemGroups, ownItems, favoriteCount, pendingIncoming, acceptedSwaps, unreadDealMessages, unreadItemMessages, recentDealChats, recentItemChats] = userId
     ? await Promise.all([
         prisma.item.groupBy({
           by: ["status"],
           where: { ownerId: userId },
           _count: { _all: true },
         }),
-        prisma.favorite.count({
+        prisma.item.findMany({
           where: {
-            userId,
-            item: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
+            ownerId: userId,
+            status: { in: [ItemStatus.ACTIVE, ItemStatus.IN_DEAL, ItemStatus.PAUSED] },
           },
+          include: {
+            images: true,
+            owner: { select: { id: true, name: true, city: true, image: true } },
+            _count: { select: { favorites: true } },
+          },
+          orderBy: [{ status: "asc" }, { updatedAt: "desc" }],
+          take: 4,
         }),
-        prisma.swapRequest.count({
-          where: { receiverId: userId, status: SwapStatus.PENDING },
-        }),
-        prisma.swapRequest.count({
-          where: { senderId: userId, status: SwapStatus.PENDING },
-        }),
-        prisma.swapRequest.count({ where: { senderId: userId } }),
+        prisma.favorite.count({ where: { userId } }),
+        prisma.swapRequest.count({ where: { receiverId: userId, status: SwapStatus.PENDING } }),
         prisma.swapRequest.count({
           where: {
             status: SwapStatus.ACCEPTED,
             OR: [{ senderId: userId }, { receiverId: userId }],
           },
         }),
-        prisma.swapRequest.count({
-          where: {
-            status: SwapStatus.COMPLETED,
-            OR: [{ senderId: userId }, { receiverId: userId }],
-          },
-        }),
-        prisma.report.count({
-          where: {
-            reporterId: userId,
-            status: { in: [ReportStatus.OPEN, ReportStatus.REVIEWING] },
-          },
-        }),
-        prisma.notification.count({ where: { userId, isRead: false } }),
         prisma.dealMessage.count({
           where: {
             senderId: { not: userId },
@@ -189,35 +138,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             isRead: false,
             thread: { OR: [{ buyerId: userId }, { ownerId: userId }] },
           },
-        }),
-        prisma.swapRequest.findMany({
-          where: { receiverId: userId, status: SwapStatus.PENDING },
-          include: {
-            sender: { select: { name: true } },
-            senderItem: { select: { title: true } },
-            receiverItem: { select: { title: true } },
-          },
-          orderBy: { createdAt: "desc" },
-          take: 2,
-        }),
-        prisma.swapRequest.findMany({
-          where: {
-            status: SwapStatus.ACCEPTED,
-            OR: [{ senderId: userId }, { receiverId: userId }],
-          },
-          include: {
-            sender: { select: { name: true } },
-            receiver: { select: { name: true } },
-            senderItem: { select: { title: true } },
-            receiverItem: { select: { title: true } },
-          },
-          orderBy: { updatedAt: "desc" },
-          take: 2,
-        }),
-        prisma.notification.findMany({
-          where: { userId, isRead: false },
-          orderBy: { createdAt: "desc" },
-          take: 3,
         }),
         prisma.swapRequest.findMany({
           where: {
@@ -242,7 +162,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         prisma.itemThread.findMany({
           where: { OR: [{ buyerId: userId }, { ownerId: userId }] },
           include: {
-            item: { select: { id: true, title: true } },
+            item: { select: { title: true } },
             buyer: { select: { name: true } },
             owner: { select: { name: true } },
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
@@ -255,34 +175,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
           take: 4,
         }),
-        prisma.itemView.findMany({
-          where: {
-            userId,
-            item: {
-              status: ItemStatus.ACTIVE,
-              ownerId: { not: userId },
-              owner: { status: UserStatus.ACTIVE },
-            },
-          },
-          include: {
-            item: {
-              include: {
-                owner: { select: { id: true, name: true, city: true, image: true } },
-                images: true,
-                favorites: { where: { userId }, select: { userId: true } },
-                _count: { select: { favorites: true } },
-              },
-            },
-          },
-          orderBy: [{ viewedAt: "desc" }, { itemId: "desc" }],
-          take: 12,
-        }),
-        prisma.userBlock.findMany({
-          where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
-          select: { blockerId: true, blockedId: true },
-        }),
       ])
-    : [[], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [], [], [], [], [], [], []];
+    : [[], [], 0, 0, 0, 0, 0, [], []];
 
   const itemCounts: Record<ItemStatus, number> = {
     [ItemStatus.ACTIVE]: 0,
@@ -292,46 +186,20 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   };
   for (const entry of itemGroups) itemCounts[entry.status] = entry._count._all;
 
-  const activeItems = itemCounts[ItemStatus.ACTIVE];
-  const pausedItems = itemCounts[ItemStatus.PAUSED];
-  const inDealItems = itemCounts[ItemStatus.IN_DEAL];
-  const archivedItems = itemCounts[ItemStatus.ARCHIVED];
   const unreadMessages = unreadDealMessages + unreadItemMessages;
-  const activeSwaps = incomingPending + outgoingPending + acceptedSwaps;
-  const blockedProfileOwnerIds = new Set(
-    profileBlockRows.map((block) =>
-      block.blockerId === userId ? block.blockedId : block.blockerId,
-    ),
-  );
-  const recentViews = recentViewRows
-    .filter(({ item }) => !blockedProfileOwnerIds.has(item.ownerId))
-    .slice(0, 4);
-
-  const activation = user
-    ? buildProfileActivation({
-        emailVerified: Boolean(user.emailVerified),
-        hasProfileBasics: Boolean(user.name?.trim() && user.city?.trim()),
-        activeItems,
-        pausedItems,
-        sentProposals,
-        outgoingPending,
-        completedSwaps,
-        incomingPending,
-        acceptedSwaps,
-      })
-    : null;
-
   const chats = [
     ...recentDealChats.map((swap) => {
       const isSender = swap.senderId === userId;
       const partner = isSender ? swap.receiver : swap.sender;
-      const contextItem = isSender ? swap.receiverItem : swap.senderItem;
+      const yourItem = isSender ? swap.senderItem : swap.receiverItem;
+      const theirItem = isSender ? swap.receiverItem : swap.senderItem;
       const lastMessage = swap.messages[0];
       return {
         id: `deal-${swap.id}`,
         title: partner.name ?? "Участник Менариум",
-        context: `Обмен · ${contextItem.title}`,
-        preview: lastMessage?.text ?? "Обмен принят. Договоритесь о деталях.",
+        context: `Обмен · ${theirItem.title}`,
+        ownContext: `Ваше предложение: ${yourItem.title}`,
+        preview: lastMessage?.text ?? "Сообщений пока нет",
         href: exchangeChatHref({ id: swap.id, status: swap.status, isSender }),
         unread: swap._count.messages,
         at: lastMessage?.createdAt ?? swap.updatedAt,
@@ -344,7 +212,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         id: `item-${thread.id}`,
         title: partner.name ?? "Участник Менариум",
         context: `Объявление · ${thread.item.title}`,
-        preview: lastMessage?.text ?? "Диалог создан, сообщений пока нет.",
+        ownContext: null,
+        preview: lastMessage?.text ?? "Сообщений пока нет",
         href: `/profile/chats/item/${thread.id}`,
         unread: thread._count.messages,
         at: lastMessage?.createdAt ?? thread.updatedAt,
@@ -354,56 +223,21 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     .sort((left, right) => right.at.getTime() - left.at.getTime())
     .slice(0, 4);
 
-  const welcomeEmailSent =
-    params.welcome === "1"
-      ? params.emailSent === "1"
-        ? true
-        : params.emailSent === "0"
-          ? false
-          : null
-      : null;
   const initialEmailDeliveryState =
-    welcomeEmailSent === true ? "sent" : welcomeEmailSent === false ? "failed" : "unknown";
-
-  const metrics = [
-    {
-      label: "Нужно ответить",
-      value: incomingPending,
-      href: "/exchange?tab=incoming",
-      icon: Clock3,
-      urgent: incomingPending > 0,
-    },
-    {
-      label: "Новых сообщений",
-      value: unreadMessages,
-      href: "/profile/chats",
-      icon: MessageCircle,
-      urgent: unreadMessages > 0,
-    },
-    {
-      label: "Опубликовано",
-      value: activeItems,
-      href: "/my-items?status=active",
-      icon: PackageCheck,
-      urgent: false,
-    },
-    {
-      label: "Активных обменов",
-      value: activeSwaps,
-      href: "/exchange",
-      icon: BrandGlyph,
-      urgent: false,
-    },
-  ];
+    params.welcome === "1" && params.emailSent === "1"
+      ? "sent"
+      : params.welcome === "1" && params.emailSent === "0"
+        ? "failed"
+        : "unknown";
 
   return (
     <AppShell>
       <div className="page-enter min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
-        <div className="mx-auto max-w-[1360px] space-y-5">
+        <div className="mx-auto max-w-[1360px]">
           {!user ? (
             <EmptyState
               title="Войдите в личный кабинет"
-              description="Здесь находятся ваши объявления, обмены, чаты и настройки."
+              description="Здесь находятся ваши объявления, обмены, сообщения и настройки."
               actionHref={loginHref("/profile")}
               actionLabel="Войти"
             />
@@ -415,468 +249,246 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <ProfileNotice kind="welcome" />
               ) : null}
 
-              <GlassCard className="overflow-hidden border border-white/8 p-4 sm:p-6">
+              <GlassCard className="mb-5 overflow-hidden border border-white/8 p-4 sm:p-5">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-                  <div className="flex min-w-0 items-center gap-3.5 sm:gap-5">
-                    <div className="relative shrink-0">
-                      {user.image ? (
-                        <Image
-                          src={user.image}
-                          alt={user.name ?? "Аватар"}
-                          width={72}
-                          height={72}
-                          className="h-14 w-14 rounded-[18px] object-cover shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px] sm:rounded-[20px]"
-                        />
-                      ) : (
-                        <div className="flex h-14 w-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-blue-500 to-teal-400 shadow-lg shadow-blue-500/15 sm:h-[72px] sm:w-[72px] sm:rounded-[20px]">
-                          <span className="text-xl font-bold">{getInitials(user.name, user.email)}</span>
-                        </div>
-                      )}
-                      <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[#0a0e16] bg-teal-400" />
-                    </div>
-
+                  <div className="flex min-w-0 items-center gap-3.5 sm:gap-4">
+                    {user.image ? (
+                      <Image
+                        src={user.image}
+                        alt={user.name ?? "Аватар"}
+                        width={64}
+                        height={64}
+                        className="h-14 w-14 shrink-0 rounded-[18px] object-cover sm:h-16 sm:w-16"
+                      />
+                    ) : (
+                      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-blue-500 to-teal-400 text-lg font-bold sm:h-16 sm:w-16">
+                        {getInitials(user.name, user.email)}
+                      </span>
+                    )}
                     <div className="min-w-0">
-                      <p className="type-kicker text-white/52">
-                        Личный кабинет
-                      </p>
+                      <p className="type-kicker text-white/48">Личный кабинет</p>
                       <h1 className="type-page-title mt-1 truncate text-2xl sm:text-3xl">
                         {user.name ?? "Участник Менариум"}
                       </h1>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        {user.emailVerified ? (
-                          <Badge variant="teal">
-                            <CheckCircle2 className="h-3 w-3" />
-                            Почта подтверждена
-                          </Badge>
-                        ) : (
-                          <Badge variant="gold">Подтвердите почту</Badge>
-                        )}
-                        <Badge variant="glass">
-                          <MapPin className="h-3 w-3" />
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/48">
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
                           {user.city ?? "Город не указан"}
-                        </Badge>
-                        <span className="text-xs text-white/50">
-                          С нами с {new Intl.DateTimeFormat("ru-RU", {
-                            month: "long",
-                            year: "numeric",
-                          }).format(user.createdAt)}
                         </span>
+                        <span>С нами с {new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(user.createdAt)}</span>
+                        {user.emailVerified ? (
+                          <span className="inline-flex items-center gap-1.5 text-teal-200/70">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Почта подтверждена
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                    <MenariumLinkButton href="/favorites" variant="ghost" size="sm" className="w-full sm:w-auto">
-                      <Heart className="h-4 w-4" />
-                      Избранное
-                      {favoriteCount > 0 ? (
-                        <span className="rounded-full bg-rose-300/14 px-1.5 py-0.5 text-[10px] text-rose-100/80">
-                          {favoriteCount}
-                        </span>
-                      ) : null}
-                    </MenariumLinkButton>
-                    <MenariumLinkButton href={`/user/${user.id}`} variant="ghost" size="sm" className="w-full sm:w-auto">
-                      <Eye className="h-4 w-4" />
+                  <div className="flex flex-wrap gap-2">
+                    <MenariumLinkButton href={`/user/${user.id}`} variant="secondary" size="sm">
                       Моя страница
                     </MenariumLinkButton>
-                    <MenariumLinkButton href="/profile/edit" variant="secondary" size="sm" className="w-full sm:w-auto">
+                    <MenariumLinkButton href="/profile/edit" variant="ghost" size="sm">
+                      <Settings className="h-4 w-4" />
                       Настройки
                     </MenariumLinkButton>
-                    <SignOutButton className="w-full sm:w-auto" />
+                    <SignOutButton />
                   </div>
                 </div>
               </GlassCard>
 
-              <SurfaceCard
-                className="grid grid-cols-2 gap-px overflow-hidden bg-white/[0.07] p-px lg:grid-cols-4"
-                aria-label="Сводка профиля"
-              >
-                {metrics.map((metric) => {
-                  const Icon = metric.icon;
-                  return (
-                    <Link
-                      key={metric.label}
-                      href={metric.href}
-                      className={cn(
-                        "group flex min-h-24 items-center gap-3 bg-[#0d131d] p-4 transition-colors hover:bg-[#121b28] sm:p-5",
-                        metric.urgent && "bg-amber-300/[0.055] hover:bg-amber-300/[0.08]",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border",
-                          metric.urgent
-                            ? "border-amber-300/18 bg-amber-300/10 text-amber-200"
-                            : "border-white/8 bg-white/[0.035] text-teal-200/75",
-                        )}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-2">
-                          <strong className="text-2xl font-semibold leading-none sm:text-3xl">
-                            {metric.value}
-                          </strong>
-                          {metric.urgent ? <span className="h-2 w-2 rounded-full bg-amber-300" /> : null}
-                        </span>
-                        <span className="mt-1.5 block text-xs text-white/56">{metric.label}</span>
-                      </span>
-                    </Link>
-                  );
-                })}
-              </SurfaceCard>
-
-              {!user.emailVerified ? (
-                <EmailVerifyBanner
-                  email={user.email}
-                  initialDeliveryState={initialEmailDeliveryState}
-                />
-              ) : null}
-              {activation && activation.nextAction.href !== "#verify-email" ? (
-                <ActivationPanel activation={activation} />
-              ) : null}
-
-              {recentViews.length > 0 ? (
-                <section
-                  className="border-y border-white/[0.07] py-7 sm:py-9"
-                  aria-labelledby="recently-viewed-title"
-                >
-                  <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-sky-200/62">
-                        <History className="h-4 w-4" />
-                        Вернуться к находкам
-                      </p>
-                      <h2
-                        id="recently-viewed-title"
-                        className="mt-2 text-2xl font-semibold tracking-[-0.035em]"
-                      >
-                        Продолжить просмотр
-                      </h2>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
-                        Последние вещи, которые вы открывали. Недоступные объявления исчезнут автоматически.
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <ClearRecentViewsButton />
-                      <MenariumLinkButton href="/catalog" variant="ghost" size="sm" className="w-full sm:w-auto">
-                        Смотреть новое
-                        <ArrowRight className="h-4 w-4" />
-                      </MenariumLinkButton>
-                    </div>
-                  </div>
-                  <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                    {recentViews.map(({ item, viewedAt }) => {
-                      const card = toItemCardView(
-                        serializeItem(item),
-                        item._count.favorites,
-                      );
-
+              <div className="grid items-start gap-5 lg:grid-cols-[250px_minmax(0,1fr)]">
+                <SurfaceCard className="hidden p-2 lg:sticky lg:top-28 lg:block">
+                  <nav className="grid gap-1" aria-label="Разделы личного кабинета">
+                    {[
+                      { href: "#my-listings", label: "Мои объявления", icon: PackageCheck, count: itemCounts[ItemStatus.ACTIVE], active: true },
+                      { href: "/profile/chats", label: "Сообщения", icon: MessageCircle, count: unreadMessages },
+                      { href: "/exchange", label: "Обмены", icon: Repeat2, count: pendingIncoming + acceptedSwaps },
+                      { href: "/favorites", label: "Избранное", icon: Heart, count: favoriteCount },
+                      { href: "/profile/edit", label: "Профиль и настройки", icon: UserRound, count: 0 },
+                      { href: "/profile/safety", label: "Безопасность", icon: ShieldCheck, count: 0 },
+                    ].map((entry) => {
+                      const Icon = entry.icon;
                       return (
-                        <ItemCard
-                          key={item.id}
-                          {...card}
-                          returnHref="/profile"
-                          isFavorite={item.favorites.length > 0}
-                          canFavorite
-                          recommendationReason={recentViewLabel(viewedAt)}
-                        />
+                        <Link
+                          key={entry.label}
+                          href={entry.href}
+                          aria-current={entry.active ? "page" : undefined}
+                          className={cn(
+                            "flex min-h-11 items-center gap-3 rounded-[15px] px-3.5 text-sm transition",
+                            entry.active
+                              ? "bg-white/[0.08] text-white"
+                              : "text-white/52 hover:bg-white/[0.045] hover:text-white",
+                          )}
+                        >
+                          <Icon className={cn("h-4 w-4", entry.active ? "text-teal-200" : "text-white/38")} />
+                          <span className="min-w-0 flex-1 truncate">{entry.label}</span>
+                          {entry.count > 0 ? (
+                            <span className="rounded-full bg-teal-300/12 px-2 py-0.5 text-[10px] font-semibold text-teal-100/75">
+                              {entry.count > 99 ? "99+" : entry.count}
+                            </span>
+                          ) : null}
+                        </Link>
                       );
                     })}
-                  </div>
-                </section>
-              ) : null}
+                  </nav>
+                </SurfaceCard>
 
-              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-                <div className="space-y-5">
-                  <GlassCard className="border border-white/8 p-5 sm:p-6">
-                    <div className="mb-5 flex items-center justify-between gap-4">
-                      <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                        Сейчас
-                      </h2>
-                      <MenariumLinkButton href="/exchange" variant="ghost" size="sm">
-                        Все обмены
-                      </MenariumLinkButton>
-                    </div>
-
-                    {recentIncoming.length > 0 ? (
-                      <div className="space-y-3">
-                        {recentIncoming.map((swap) => (
-                          <div
-                            key={swap.id}
-                            className="rounded-[20px] border border-amber-300/16 bg-amber-300/[0.045] p-4"
-                          >
-                            <Link
-                              href={`/exchange?tab=incoming&swap=${swap.id}`}
-                              className="mb-3 flex items-start justify-between gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70"
-                            >
-                              <div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <p className="font-semibold">{swap.sender.name ?? "Участник Менариум"}</p>
-                                  <Badge variant="gold">Нужно ответить</Badge>
-                                </div>
-                                <p className="mt-1 text-sm text-white/48">
-                                  {swap.receiverItem.title}
-                                  <BrandGlyph className="mx-2 inline-block h-4 w-4 align-middle text-teal-200/70" />
-                                  {swap.senderItem.title}
-                                </p>
-                              </div>
-                              <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-white/35" />
-                            </Link>
-                            <ExchangeActionPanel
-                              swapId={swap.id}
-                              status={swap.status}
-                              isSender={false}
-                              isReceiver
-                              senderCompleted={swap.senderCompleted}
-                              receiverCompleted={swap.receiverCompleted}
-                            />
-                          </div>
-                        ))}
-                        {incomingPending > recentIncoming.length ? (
-                          <MenariumLinkButton
-                            href="/exchange?tab=incoming"
-                            variant="secondary"
-                            size="sm"
-                            className="w-full"
-                          >
-                            Ещё предложений: {incomingPending - recentIncoming.length}
-                          </MenariumLinkButton>
-                        ) : null}
+                <main className="min-w-0 space-y-5">
+                  <GlassCard id="my-listings" className="scroll-mt-28 border border-white/8 p-4 sm:p-5">
+                    <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                      <div>
+                        <p className="type-kicker text-teal-200/55">Ваши вещи и услуги</p>
+                        <h2 className="mt-1 text-2xl font-semibold tracking-tight">Мои объявления</h2>
                       </div>
-                    ) : recentAccepted.length > 0 ? (
-                      <div className="space-y-3">
-                        {recentAccepted.map((swap) => {
-                          const isSender = swap.senderId === userId;
-                          const partner = isSender ? swap.receiver : swap.sender;
-                          const yourItem = isSender ? swap.senderItem : swap.receiverItem;
-                          const theirItem = isSender ? swap.receiverItem : swap.senderItem;
+                      <MenariumLinkButton href="/new" size="sm">Добавить</MenariumLinkButton>
+                    </header>
+
+                    <nav className="mt-5 grid grid-cols-2 gap-1 rounded-[18px] border border-white/7 bg-black/10 p-1 sm:grid-cols-4" aria-label="Статус объявлений">
+                      {[
+                        { label: "Активные", count: itemCounts[ItemStatus.ACTIVE], href: "/my-items?status=active" },
+                        { label: "В обмене", count: itemCounts[ItemStatus.IN_DEAL], href: "/my-items?status=deal" },
+                        { label: "На паузе", count: itemCounts[ItemStatus.PAUSED], href: "/my-items?status=paused" },
+                        { label: "История", count: itemCounts[ItemStatus.ARCHIVED], href: "/my-items?status=history" },
+                      ].map((entry, index) => (
+                        <Link
+                          key={entry.label}
+                          href={entry.href}
+                          className={cn(
+                            "flex items-center justify-center gap-2 rounded-[13px] px-3 py-2.5 text-sm transition",
+                            index === 0 ? "bg-white/[0.08] text-white" : "text-white/48 hover:bg-white/[0.045] hover:text-white",
+                          )}
+                        >
+                          {entry.label}
+                          <span className={index === 0 ? "text-teal-200" : "text-white/30"}>{entry.count}</span>
+                        </Link>
+                      ))}
+                    </nav>
+
+                    {ownItems.length > 0 ? (
+                      <div className="mt-5 grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {ownItems.map((item, index) => {
+                          const publicItem = serializeItem(item);
+                          const card = toItemCardView(publicItem, item._count.favorites);
                           return (
-                            <Link
-                              key={swap.id}
-                              href={`/exchange?tab=matches&swap=${swap.id}`}
-                              className="flex items-center justify-between gap-4 rounded-[20px] border border-teal-300/16 bg-teal-300/[0.045] p-4 transition hover:bg-teal-300/[0.075]"
-                            >
-                              <div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <p className="font-semibold">{partner.name ?? "Участник Менариум"}</p>
-                                  <Badge variant="teal">Договоритесь в чате</Badge>
-                                </div>
-                                <p className="mt-1 text-sm text-white/48">
-                                  {yourItem.title}
-                                  <BrandGlyph className="mx-2 inline-block h-4 w-4 align-middle text-teal-200/70" />
-                                  {theirItem.title}
-                                </p>
-                              </div>
-                              <ArrowRight className="h-4 w-4 shrink-0 text-teal-200/70" />
-                            </Link>
+                            <div key={item.id} className="relative min-w-0">
+                              <ItemCard {...card} priority={index < 2} />
+                              <Link
+                                href={`/item/${item.id}/edit`}
+                                aria-label={`Редактировать «${item.title}»`}
+                                className="absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-[13px] border border-white/12 bg-[#090d14]/82 text-white/72 shadow-lg backdrop-blur-xl transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Link>
+                              {item.status !== ItemStatus.ACTIVE ? (
+                                <Badge
+                                  variant={item.status === ItemStatus.IN_DEAL ? "teal" : "glass"}
+                                  className="absolute bottom-4 left-4 z-20 bg-[#090d14]/86"
+                                >
+                                  {item.status === ItemStatus.IN_DEAL ? "В обмене" : "На паузе"}
+                                </Badge>
+                              ) : null}
+                            </div>
                           );
                         })}
                       </div>
-                    ) : unreadMessages > 0 ? (
-                      <Link
-                        href="/profile/chats"
-                        className="flex items-center justify-between gap-4 rounded-[20px] border border-blue-300/16 bg-blue-400/[0.05] p-4 transition hover:bg-blue-400/[0.08]"
-                      >
-                        <div>
-                          <p className="font-semibold">Есть непрочитанные сообщения</p>
-                          <p className="mt-1 text-sm text-white/45">Ответь людям, чтобы обмен не потерял темп.</p>
-                        </div>
-                        <Badge variant="purple">{unreadMessages}</Badge>
-                      </Link>
                     ) : (
-                      <div className="flex flex-col items-start justify-between gap-4 rounded-[20px] border border-teal-300/12 bg-teal-300/[0.035] p-5 sm:flex-row sm:items-center">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-300" />
-                          <div>
-                            <p className="font-semibold">Всё под контролем</p>
-                            <p className="mt-1 text-sm text-white/43">Новых решений и непрочитанных сообщений сейчас нет.</p>
-                          </div>
-                        </div>
-                        <MenariumLinkButton href="/swipe" variant="secondary" size="sm">
-                          Найти обмен
-                        </MenariumLinkButton>
+                      <div className="mt-5">
+                        <EmptyState
+                          title="Объявлений пока нет"
+                          description="Добавьте вещь или услугу, чтобы начать обмениваться."
+                          actionHref="/new"
+                          actionLabel="Добавить объявление"
+                        />
                       </div>
                     )}
+
+                    {ownItems.length > 0 ? (
+                      <div className="mt-5 flex justify-end border-t border-white/7 pt-4">
+                        <Link href="/my-items" className="inline-flex items-center gap-2 text-sm font-medium text-teal-200/75 transition hover:text-teal-100">
+                          Все объявления <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    ) : null}
                   </GlassCard>
 
-                  <GlassCard className="border border-white/8 p-5 sm:p-6">
-                    <div className="mb-4 flex items-end justify-between gap-4">
+                  <SurfaceCard className="overflow-hidden">
+                    <header className="flex items-center justify-between gap-4 border-b border-white/7 px-4 py-4 sm:px-5">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-200/60">
-                          Диалоги
-                        </p>
-                        <h2 className="mt-1 text-xl font-semibold tracking-tight">Последние сообщения</h2>
+                        <p className="type-kicker text-white/40">Сообщения</p>
+                        <h2 className="mt-1 text-xl font-semibold tracking-tight">Последние разговоры</h2>
                       </div>
-                      <MenariumLinkButton href="/profile/chats" variant="ghost" size="sm">
-                        Все чаты
-                      </MenariumLinkButton>
-                    </div>
-
+                      <Link href="/profile/chats" className="text-sm font-medium text-teal-200/70 transition hover:text-teal-100">Все чаты</Link>
+                    </header>
                     {chats.length > 0 ? (
-                      <div className="divide-y divide-white/[0.055]">
+                      <div>
                         {chats.map((chat) => (
                           <Link
                             key={chat.id}
                             href={chat.href}
-                            className="flex items-start gap-3 rounded-[16px] px-2 py-3.5 transition hover:bg-white/[0.035] sm:items-center"
+                            className={cn(
+                              "group flex items-start gap-3 border-b border-white/[0.05] px-4 py-4 transition last:border-b-0 hover:bg-white/[0.035] sm:items-center sm:px-5",
+                              chat.unread > 0 && "bg-blue-400/[0.025]",
+                            )}
                           >
-                            <span
-                              className={cn(
-                                "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
-                                chat.unread
-                                  ? "bg-gradient-to-br from-blue-500/55 to-teal-400/45 text-white"
-                                  : "bg-white/[0.055] text-white/38",
-                              )}
-                            >
+                            <span className={cn(
+                              "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]",
+                              chat.unread > 0 ? "bg-gradient-to-br from-blue-500/60 to-teal-400/50" : "bg-white/[0.05] text-white/38",
+                            )}>
                               <MessageCircle className="h-5 w-5" />
-                              {chat.unread ? (
-                                <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-amber-300 px-1 text-[9px] font-bold text-[#171008]">
+                              {chat.unread > 0 ? (
+                                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-300 px-1 text-[9px] font-bold text-[#171008]">
                                   {chat.unread > 9 ? "9+" : chat.unread}
                                 </span>
                               ) : null}
                             </span>
                             <span className="min-w-0 flex-1">
-                              <span className="flex items-center gap-2">
-                                <span className="truncate text-sm font-semibold text-white">{chat.title}</span>
-                                {chat.unread ? <span className="h-1.5 w-1.5 rounded-full bg-amber-300" /> : null}
+                              <span className="flex min-w-0 items-center gap-2">
+                                <strong className="truncate text-sm">{chat.title}</strong>
+                                <span className="truncate text-xs text-white/36">{chat.context}</span>
                               </span>
-                              <span className="mt-0.5 block truncate text-xs text-white/35">{chat.context}</span>
-                              <span className="mt-1 block truncate text-sm text-white/58">{chat.preview}</span>
+                              {chat.ownContext ? <span className="mt-0.5 block truncate text-xs text-teal-200/48">{chat.ownContext}</span> : null}
+                              <span className={cn("mt-1 block truncate text-sm", chat.unread > 0 ? "text-white/78" : "text-white/48")}>{chat.preview}</span>
                             </span>
-                            <time className="shrink-0 pt-1 text-xs text-white/28" dateTime={chat.at.toISOString()}>
-                              {formatChatTime(chat.at)}
-                            </time>
+                            <time className="shrink-0 text-xs text-white/28" dateTime={chat.at.toISOString()}>{formatChatTime(chat.at)}</time>
                           </Link>
                         ))}
                       </div>
                     ) : (
-                      <p className="rounded-[18px] border border-white/7 bg-white/[0.02] px-4 py-5 text-sm text-white/40">
-                        Диалогов пока нет. Они появятся после вопроса по объявлению или принятого обмена.
-                      </p>
+                      <div className="px-5 py-8 text-sm text-white/45">Разговоров пока нет.</div>
                     )}
-                  </GlassCard>
-
-                  <SurfaceCard className="grid overflow-hidden p-2 sm:grid-cols-2">
-                    <Link
-                      href="/exchange?tab=matches&filter=history"
-                      className="flex items-center gap-3 rounded-[17px] px-3 py-3.5 transition-colors hover:bg-white/[0.045]"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-white/[0.045] text-white/60">
-                        <History className="h-5 w-5" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-semibold">История обменов</span>
-                        <span className="mt-0.5 block text-xs text-white/45">
-                          Завершено: {completedSwaps}
-                        </span>
-                      </span>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-white/28" />
-                    </Link>
-                    <Link
-                      href="/profile/safety"
-                      className="flex items-center gap-3 rounded-[17px] border-t border-white/[0.06] px-3 py-3.5 transition-colors hover:bg-white/[0.045] sm:border-l sm:border-t-0"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300/10 text-teal-200">
-                        <ShieldCheck className="h-5 w-5" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold">Безопасность</span>
-                          {activeSafetyReports > 0 ? (
-                            <Badge variant="gold">{activeSafetyReports} в работе</Badge>
-                          ) : null}
-                        </span>
-                        <span className="mt-0.5 block text-xs text-white/45">
-                          Обращения и защита аккаунта
-                        </span>
-                      </span>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-white/28" />
-                    </Link>
                   </SurfaceCard>
-                </div>
 
-                <aside className="space-y-5">
-                  <SurfaceCard className="p-5">
-                    <div className="mb-4 flex items-center justify-between">
+                  <SurfaceCard className="p-4 sm:p-5">
+                    <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-teal-200/60">Ваши вещи</p>
-                        <h2 className="mt-1 text-lg font-semibold">Мои объявления</h2>
+                        <p className="type-kicker text-white/40">Аккаунт</p>
+                        <h2 className="mt-1 text-lg font-semibold">Профиль и безопасность</h2>
                       </div>
-                      <MenariumLinkButton href="/new" size="sm">Добавить</MenariumLinkButton>
+                      <MenariumLinkButton href="/profile/edit" variant="ghost" size="sm">Настройки</MenariumLinkButton>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { label: "Опубликовано", value: activeItems, href: "/my-items?status=active", icon: PackageCheck },
-                        { label: "В сделке", value: inDealItems, href: "/my-items?status=deal", icon: BrandGlyph },
-                        { label: "На паузе", value: pausedItems, href: "/my-items?status=paused", icon: CirclePause },
-                        { label: "История", value: archivedItems, href: "/my-items?status=history", icon: CheckCircle2 },
-                      ].map((entry) => {
-                        const Icon = entry.icon;
-                        return (
-                          <Link
-                            key={entry.label}
-                            href={entry.href}
-                            className="rounded-[16px] border border-white/7 bg-white/[0.025] p-3 transition hover:bg-white/[0.055]"
-                          >
-                            <Icon className="h-4 w-4 text-teal-200/65" />
-                            <span className="mt-3 block text-xl font-semibold">{entry.value}</span>
-                            <span className="mt-0.5 block text-[11px] text-white/48">{entry.label}</span>
-                          </Link>
-                        );
-                      })}
+                    {!user.emailVerified ? (
+                      <EmailVerifyBanner
+                        email={user.email}
+                        initialDeliveryState={initialEmailDeliveryState}
+                        compact
+                      />
+                    ) : null}
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      <Link href="/profile/edit" className="flex items-center gap-3 rounded-[16px] border border-white/7 bg-white/[0.025] p-3.5 transition hover:bg-white/[0.05]">
+                        <Settings className="h-4 w-4 text-teal-200/65" />
+                        <span className="min-w-0 flex-1 text-sm font-medium">Личные данные</span>
+                        <ArrowRight className="h-4 w-4 text-white/25" />
+                      </Link>
+                      <Link href="/profile/safety" className="flex items-center gap-3 rounded-[16px] border border-white/7 bg-white/[0.025] p-3.5 transition hover:bg-white/[0.05]">
+                        <ShieldCheck className="h-4 w-4 text-teal-200/65" />
+                        <span className="min-w-0 flex-1 text-sm font-medium">Безопасность</span>
+                        <ArrowRight className="h-4 w-4 text-white/25" />
+                      </Link>
                     </div>
-                    <Link
-                      href="/favorites"
-                      className="mt-3 flex items-center gap-3 rounded-[16px] border border-rose-300/12 bg-rose-300/[0.045] px-3.5 py-3 transition hover:border-rose-300/22 hover:bg-rose-300/[0.08]"
-                    >
-                      <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-rose-300/10 text-rose-100/75">
-                        <Heart className="h-4 w-4" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-semibold text-white/86">Избранное</span>
-                        <span className="block text-[11px] text-white/50">Сохранённые вещи и рекомендации</span>
-                      </span>
-                      <strong className="text-lg text-white/82">{favoriteCount}</strong>
-                    </Link>
-                    <MenariumLinkButton href="/my-items" variant="secondary" size="sm" className="mt-3 w-full">
-                      Управлять объявлениями
-                    </MenariumLinkButton>
                   </SurfaceCard>
-
-                  <SurfaceCard className="p-5">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <Bell className="h-4 w-4 text-blue-200/70" />
-                        <h2 className="font-semibold">Непрочитанное</h2>
-                      </div>
-                      {unreadNotifications > 0 ? <Badge variant="purple">{unreadNotifications}</Badge> : null}
-                    </div>
-                    {recentNotifications.length > 0 ? (
-                      <div className="space-y-2">
-                        {recentNotifications.map((notification) => (
-                          <Link
-                            key={notification.id}
-                            href={getSafeNotificationHref(notification.href) ?? "/notifications"}
-                            className="block rounded-[15px] border border-white/7 bg-white/[0.025] px-3.5 py-3 transition hover:bg-white/[0.055]"
-                          >
-                            <p className="line-clamp-1 text-sm font-medium">{notification.title}</p>
-                            <p className="mt-1 line-clamp-2 text-xs leading-4 text-white/50">{notification.message}</p>
-                          </Link>
-                        ))}
-                        <MenariumLinkButton href="/notifications" variant="ghost" size="sm" className="w-full">
-                          Все уведомления
-                        </MenariumLinkButton>
-                      </div>
-                    ) : (
-                      <div className="rounded-[16px] border border-teal-300/10 bg-teal-300/[0.03] p-4">
-                        <p className="text-sm font-medium text-white/70">Всё прочитано</p>
-                        <p className="mt-1 text-xs leading-4 text-white/48">Новые события появятся здесь и в верхней панели.</p>
-                      </div>
-                    )}
-                  </SurfaceCard>
-
-                </aside>
+                </main>
               </div>
             </>
           )}

@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { ChatConversation, type ChatMessageView } from "@/components/chat/chat-conversation";
+import { BrandMark } from "@/components/menarium/brand";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
+import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
 type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
@@ -204,6 +206,7 @@ export function ExchangeDealPanel({
   partnerName,
   messages,
   nextCursor,
+  itemContext,
 }: ExchangeSnapshot & {
   swapId: string;
   isSender: boolean;
@@ -214,6 +217,12 @@ export function ExchangeDealPanel({
   nextCursor: string | null;
   communicationBlocked: boolean;
   acceptedHref?: string;
+  itemContext: {
+    yourTitle: string;
+    yourImage: string;
+    theirTitle: string;
+    theirImage: string;
+  };
 }) {
   const [snapshot, setSnapshot] = useState<ExchangeSnapshot>({
     status,
@@ -242,6 +251,21 @@ export function ExchangeDealPanel({
         {communicationBlocked ? (
           <p className="mt-1 text-xs text-white/52">Новые сообщения недоступны.</p>
         ) : null}
+      </div>
+      <div className="mx-4 mt-4 grid grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)_44px] items-center gap-2 rounded-[16px] border border-white/8 bg-white/[0.035] p-2.5">
+        <span className="relative h-11 w-11 overflow-hidden rounded-[12px] border border-white/8 bg-white/[0.03]">
+          <ItemCoverImage src={itemContext.yourImage} alt="" sizes="44px" />
+        </span>
+        <span className="min-w-0 truncate text-right text-xs font-medium text-white/64">
+          {itemContext.yourTitle}
+        </span>
+        <BrandMark size="xs" className="h-6 w-6" />
+        <span className="min-w-0 truncate text-xs font-medium text-white/76">
+          {itemContext.theirTitle}
+        </span>
+        <span className="relative h-11 w-11 overflow-hidden rounded-[12px] border border-white/8 bg-white/[0.03]">
+          <ItemCoverImage src={itemContext.theirImage} alt="" sizes="44px" />
+        </span>
       </div>
       <div className="min-w-0 p-4">
         <ChatConversation

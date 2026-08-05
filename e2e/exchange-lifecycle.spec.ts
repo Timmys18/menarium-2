@@ -128,7 +128,7 @@ test.describe("критический жизненный цикл обмена",
 
       await test.step("Дмитрий получает предложение и принимает его", async () => {
         await openNotification(dmitry, "Новое предложение обмена");
-        await expect(pick(main(dmitry).getByText("Вы предлагаете", { exact: true }))).toBeVisible();
+        await expect(pick(main(dmitry).getByText("Вы предложили", { exact: true }))).toBeVisible();
         await expect(pick(main(dmitry).getByText("Вы получаете", { exact: true }))).toBeVisible();
         await confirmAction(dmitry, "Принять", "Принять обмен");
         await expect(dmitry).toHaveURL(/\/exchange\?.*tab=matches.*notice=accepted/);

@@ -1,5 +1,17 @@
-import { expect, test } from "@playwright/test";
+import { devices, expect, test } from "@playwright/test";
 import { spawnSync } from "node:child_process";
+
+const MARIA = {
+  email: "maria@menarium.ru",
+  password: "MenariumDemo2026!",
+};
+const iphone13 = {
+  userAgent: devices["iPhone 13"].userAgent,
+  viewport: devices["iPhone 13"].viewport,
+  deviceScaleFactor: devices["iPhone 13"].deviceScaleFactor,
+  isMobile: devices["iPhone 13"].isMobile,
+  hasTouch: devices["iPhone 13"].hasTouch,
+};
 
 function resetSeedData() {
   const result = spawnSync(process.execPath, ["prisma/seed.mjs"], {
@@ -13,19 +25,34 @@ function resetSeedData() {
   }
 }
 
+async function login(page: import("@playwright/test").Page) {
+  await page.goto("/auth/login");
+  const content = page.locator("main");
+  await content.getByLabel("Электронная почта").fill(MARIA.email);
+  await content.getByLabel("Пароль").fill(MARIA.password);
+  await content.getByRole("button", { name: "Войти" }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
+}
+
 test.describe("Мобильное открытие каталога", () => {
-  test.use({ viewport: { width: 390, height: 844 } });
+  test.use(iphone13);
   test.beforeEach(() => resetSeedData());
 
-  test("главная помещается на экран и показывает ключевые разделы", async ({ page }) => {
-    await page.goto("/");
+  test("личный кабинет помещается на экран и показывает ключевые разделы", async ({ page }) => {
+    await login(page);
+    await page.goto("/profile");
 
     const navigation = page.getByRole("navigation", { name: "Мобильная навигация" });
     await expect(navigation).toBeVisible();
 
-    for (const label of ["Каталог", "Свайп", "Создать", "Обмены", "Профиль"]) {
+    for (const label of ["Каталог", "Свайп", "Создать", "Обмены", "Сообщения"]) {
       await expect(navigation.getByRole("link", { name: label, exact: true })).toBeVisible();
     }
+
+    const itemHeights = await navigation.getByRole("link").evaluateAll((links) =>
+      links.map((link) => Math.round(link.getBoundingClientRect().height)),
+    );
+    expect(new Set(itemHeights).size).toBe(1);
 
     const hasHorizontalOverflow = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth,

@@ -10,9 +10,11 @@ type DeliveryState = "unknown" | "sent" | "failed";
 export function EmailVerifyBanner({
   email,
   initialDeliveryState = "unknown",
+  compact = false,
 }: {
   email: string;
   initialDeliveryState?: DeliveryState;
+  compact?: boolean;
 }) {
   const router = useRouter();
   const [isSending, setIsSending] = useState(false);
@@ -45,6 +47,28 @@ export function EmailVerifyBanner({
     } finally {
       setIsSending(false);
     }
+  }
+
+  if (compact) {
+    return (
+      <div id="verify-email" className="scroll-mt-28 border-t border-white/[0.06] py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-amber-200/75" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white/82">Подтвердите почту</p>
+              <p className="mt-0.5 truncate text-xs text-white/45">{email}</p>
+              {message ? <p className="mt-1 text-xs text-teal-200" aria-live="polite">{message}</p> : null}
+              {error ? <p className="mt-1 text-xs text-red-200" role="alert">{error}</p> : null}
+            </div>
+          </div>
+          <MenariumButton variant="ghost" size="sm" onClick={resend} disabled={isSending} className="shrink-0 self-start sm:self-auto">
+            {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {deliveryState === "sent" ? "Отправить снова" : "Отправить письмо"}
+          </MenariumButton>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -13,14 +13,28 @@ export async function AppShell({
   mode?: "app" | "auth";
 }) {
   const userId = mode === "app" ? await getCurrentUserId() : null;
-  const [unreadCount, pendingSwaps] = userId
+  const [unreadNotifications, unreadDealMessages, unreadItemMessages, pendingSwaps] = userId
     ? await Promise.all([
         prisma.notification.count({ where: { userId, isRead: false } }).catch(() => 0),
+        prisma.dealMessage.count({
+          where: {
+            senderId: { not: userId },
+            isRead: false,
+            swap: { OR: [{ senderId: userId }, { receiverId: userId }] },
+          },
+        }).catch(() => 0),
+        prisma.itemThreadMessage.count({
+          where: {
+            senderId: { not: userId },
+            isRead: false,
+            thread: { OR: [{ buyerId: userId }, { ownerId: userId }] },
+          },
+        }).catch(() => 0),
         prisma.swapRequest
           .count({ where: { receiverId: userId, status: "PENDING" } })
           .catch(() => 0),
       ])
-    : [0, 0];
+    : [0, 0, 0, 0];
 
   return (
     <RealtimeProvider enabled={Boolean(userId)}>
@@ -32,7 +46,11 @@ export async function AppShell({
         <div aria-hidden="true" className="pointer-events-none fixed -left-40 -top-52 h-[34rem] w-[34rem] rounded-full bg-teal-400/[0.12] blur-[150px]" />
         <div aria-hidden="true" className="pointer-events-none fixed -right-48 top-10 h-[38rem] w-[38rem] rounded-full bg-blue-500/[0.12] blur-[160px]" />
         {mode === "app" ? (
-          <NavigationWithPolling initialUnreadCount={unreadCount} initialPendingSwaps={pendingSwaps} />
+          <NavigationWithPolling
+            initialUnreadNotifications={unreadNotifications}
+            initialUnreadMessages={unreadDealMessages + unreadItemMessages}
+            initialPendingSwaps={pendingSwaps}
+          />
         ) : null}
         <main id="main-content" className="relative z-10">{children}</main>
         {mode === "app" ? <SiteFooter /> : null}

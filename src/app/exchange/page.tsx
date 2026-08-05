@@ -142,70 +142,6 @@ function statusPresentation(
   };
 }
 
-function DealProgress({ status }: { status: SwapStatus }) {
-  if (
-    status === SwapStatus.DECLINED ||
-    status === SwapStatus.CANCELLED ||
-    status === SwapStatus.EXPIRED
-  ) {
-    return null;
-  }
-
-  const activeIndex =
-    status === SwapStatus.COMPLETED
-      ? 2
-      : status === SwapStatus.ACCEPTED
-        ? 1
-        : 0;
-  const steps = [
-    { label: "Предложение", mobileLabel: "Предложение", hint: "Решение" },
-    { label: "Договорённость", mobileLabel: "Чат", hint: "В чате" },
-    { label: "Завершение", mobileLabel: "Готово", hint: "Обе стороны" },
-  ];
-
-  return (
-    <ol className="my-4 grid grid-cols-3 gap-2" aria-label="Этапы обмена">
-      {steps.map((step, index) => {
-        const completed = status === SwapStatus.COMPLETED || index < activeIndex;
-        const current = status !== SwapStatus.COMPLETED && index === activeIndex;
-
-        return (
-          <li
-            key={step.label}
-            aria-current={current ? "step" : undefined}
-            className={cn(
-              "min-w-0 rounded-[14px] border px-1.5 py-3 text-center sm:px-2.5",
-              completed
-                ? "border-teal-300/18 bg-teal-300/[0.065]"
-                : current
-                  ? "border-blue-300/25 bg-blue-400/[0.08]"
-                  : "border-white/7 bg-white/[0.02]",
-            )}
-          >
-            <span
-              className={cn(
-                "mx-auto flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold",
-                completed
-                  ? "bg-teal-300/16 text-teal-200"
-                  : current
-                    ? "bg-blue-300/16 text-blue-100"
-                    : "bg-white/[0.07] text-white/48",
-              )}
-            >
-              {completed ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
-            </span>
-            <span className={cn("mt-2 block text-xs font-semibold", completed || current ? "text-white/82" : "text-white/48")}>
-              <span className="sm:hidden">{step.mobileLabel}</span>
-              <span className="hidden sm:inline">{step.label}</span>
-            </span>
-            <span className="mt-0.5 hidden truncate text-[11px] text-white/48 sm:block">{step.hint}</span>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
 export default async function ExchangePage({ searchParams }: Props) {
   const userId = await getCurrentUserId();
   const params = await searchParams;
@@ -628,40 +564,41 @@ export default async function ExchangePage({ searchParams }: Props) {
                                 <Badge variant={presentation.variant}>{presentation.label}</Badge>
                               </div>
 
-                              <div className="mt-3 grid grid-cols-[minmax(0,1fr)_42px_minmax(0,1fr)] items-center gap-2">
-                                <div className="min-w-0">
-                                  <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] border border-white/8 bg-white/[0.03]">
-                                    <ItemCoverImage
-                                      src={yourCard.image}
-                                      alt={yourItem.title}
-                                      sizes="(max-width: 768px) 38vw, 210px"
-                                      imageClassName="transition-transform duration-500 group-hover:scale-105"
-                                    />
-                                  </div>
-                                  <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/42">Вы предлагаете</span>
-                                  <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{yourItem.title}</h3>
-                                </div>
-                                <BrandMark
-                                  size="md"
-                                  className="justify-self-center rounded-[13px] shadow-[0_12px_30px_rgba(0,0,0,0.38)] ring-white/16"
-                                />
-                                <div className="min-w-0">
-                                  <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] border border-white/8 bg-white/[0.03]">
+                              <div className="mt-3 overflow-hidden rounded-[17px] border border-white/8 bg-[#0a111b]/72">
+                                <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] sm:grid-cols-[9rem_minmax(0,1fr)]">
+                                  <div className="relative min-h-32 overflow-hidden bg-white/[0.03] sm:min-h-36">
                                     <ItemCoverImage
                                       src={theirCard.image}
                                       alt={theirItem.title}
-                                      sizes="(max-width: 768px) 38vw, 210px"
+                                      sizes="(max-width: 640px) 120px, 144px"
                                       imageClassName="transition-transform duration-500 group-hover:scale-105"
                                     />
                                   </div>
-                                  <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/42">Вы получаете</span>
-                                  <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{theirItem.title}</h3>
+                                  <div className="flex min-w-0 flex-col justify-center p-3.5 sm:p-4">
+                                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-200/70">Вы получаете</span>
+                                    <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-white">{theirItem.title}</h3>
+                                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/48">{theirCard.category} · {theirCard.city}</p>
+                                  </div>
+                                </div>
+                                <div className="mx-3 flex items-center gap-3 border-t border-white/7 py-3">
+                                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[12px] border border-white/8 bg-white/[0.03]">
+                                    <ItemCoverImage src={yourCard.image} alt={yourItem.title} sizes="44px" />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-200/60">Вы предложили</span>
+                                    <span className="mt-0.5 block truncate text-sm font-semibold text-white/82">{yourItem.title}</span>
+                                  </div>
+                                  <BrandMark size="xs" className="h-7 w-7" />
                                 </div>
                               </div>
 
-                              <p className="mt-3 border-t border-white/7 pt-3 text-xs leading-5 text-white/58">
-                                {presentation.description}
-                              </p>
+                              <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/7 pt-3 text-xs">
+                                <span className="line-clamp-1 text-white/48">{presentation.description}</span>
+                                <span className="inline-flex shrink-0 items-center gap-1.5 font-medium text-teal-200">
+                                  {swap.status === SwapStatus.ACCEPTED ? <MessageCircle className="h-3.5 w-3.5" /> : null}
+                                  {swap.status === SwapStatus.ACCEPTED ? "Открыть чат" : "Подробнее"}
+                                </span>
+                              </div>
                             </article>
                           </Link>
                         );
@@ -739,7 +676,36 @@ export default async function ExchangePage({ searchParams }: Props) {
                         </p>
                       ) : null}
 
-                      <DealProgress status={selectedSwap.status} />
+                      <div className="mb-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] sm:items-center">
+                        {[
+                          { label: "Вы отдаёте", item: selectedYourItem, card: toItemCardView(selectedYourItem) },
+                          { label: "Вы получаете", item: selectedTheirItem, card: toItemCardView(selectedTheirItem) },
+                        ].map((entry, index) => (
+                          <div key={entry.item.id} className={cn("contents", index === 1 && "sm:contents")}>
+                            {index === 1 ? (
+                              <div className="flex items-center gap-3 sm:block">
+                                <span className="h-px flex-1 bg-white/8 sm:hidden" />
+                                <BrandMark size="md" className="h-10 w-10 sm:mx-auto" />
+                                <span className="h-px flex-1 bg-white/8 sm:hidden" />
+                              </div>
+                            ) : null}
+                            <article className="overflow-hidden rounded-[20px] border border-white/8 bg-white/[0.025]">
+                              <div className="relative aspect-[16/10] overflow-hidden bg-white/[0.03]">
+                                <ItemCoverImage
+                                  src={entry.card.image}
+                                  alt={entry.item.title}
+                                  sizes="(max-width: 640px) 100vw, 320px"
+                                />
+                              </div>
+                              <div className="p-4">
+                                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-200/65">{entry.label}</span>
+                                <h3 className="mt-1.5 line-clamp-2 min-h-10 font-semibold text-white">{entry.item.title}</h3>
+                                <p className="mt-2 text-xs text-white/45">{entry.card.category} · {entry.card.city}</p>
+                              </div>
+                            </article>
+                          </div>
+                        ))}
+                      </div>
 
                       {selectedSwap.status === SwapStatus.COMPLETED ? (
                         <ExchangeReviewPanel
@@ -781,6 +747,12 @@ export default async function ExchangePage({ searchParams }: Props) {
                         partnerName={selectedPartner?.name ?? "участником"}
                         messages={selectedMessages}
                         nextCursor={selectedMessagePage.nextCursor}
+                        itemContext={{
+                          yourTitle: selectedYourItem.title,
+                          yourImage: toItemCardView(selectedYourItem).image,
+                          theirTitle: selectedTheirItem.title,
+                          theirImage: toItemCardView(selectedTheirItem).image,
+                        }}
                         acceptedHref={`/exchange?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
                       />
 

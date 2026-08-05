@@ -5,19 +5,23 @@ import { Navigation } from "@/components/layout/navigation";
 import { useRealtime } from "@/components/hooks/use-realtime";
 
 type InboxCounts = {
-  unreadCount: number;
+  unreadNotifications: number;
+  unreadMessages: number;
   pendingSwaps: number;
 };
 
 export function NavigationWithPolling({
-  initialUnreadCount,
+  initialUnreadNotifications,
+  initialUnreadMessages,
   initialPendingSwaps,
 }: {
-  initialUnreadCount: number;
+  initialUnreadNotifications: number;
+  initialUnreadMessages: number;
   initialPendingSwaps: number;
 }) {
   const [counts, setCounts] = useState<InboxCounts>({
-    unreadCount: initialUnreadCount,
+    unreadNotifications: initialUnreadNotifications,
+    unreadMessages: initialUnreadMessages,
     pendingSwaps: initialPendingSwaps,
   });
 
@@ -28,7 +32,8 @@ export function NavigationWithPolling({
       const body = await response.json();
       if (!body?.data) return;
       setCounts({
-        unreadCount: body.data.unreadCount ?? 0,
+        unreadNotifications: body.data.unreadNotifications ?? 0,
+        unreadMessages: body.data.unreadMessages ?? 0,
         pendingSwaps: body.data.pendingSwaps ?? 0,
       });
     } catch {
@@ -49,5 +54,11 @@ export function NavigationWithPolling({
     };
   }, [refreshCounts]);
 
-  return <Navigation unreadCount={counts.unreadCount} pendingSwaps={counts.pendingSwaps} />;
+  return (
+    <Navigation
+      unreadNotifications={counts.unreadNotifications}
+      unreadMessages={counts.unreadMessages}
+      pendingSwaps={counts.pendingSwaps}
+    />
+  );
 }

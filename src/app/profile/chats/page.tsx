@@ -151,12 +151,14 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
   const dealChats = dealSwaps.map((swap) => {
     const isSender = swap.senderId === userId;
     const partner = isSender ? swap.receiver : swap.sender;
-    const contextItem = isSender ? swap.receiverItem : swap.senderItem;
+    const theirItem = isSender ? swap.receiverItem : swap.senderItem;
+    const yourItem = isSender ? swap.senderItem : swap.receiverItem;
     const lastMessage = swap.messages[0];
     return {
       id: `deal-${swap.id}`,
       title: partner.name ?? "Участник Менариум",
-      context: `Обмен · ${contextItem.title}`,
+      context: `Обмен · ${theirItem.title}`,
+      ownContext: `Ваше предложение: ${yourItem.title}`,
       href: dealChatHref({ id: swap.id, status: swap.status, isSender }),
       unread: swap._count.messages,
       preview: lastMessage?.text ?? "Сделка активна. Обсудите детали обмена.",
@@ -171,6 +173,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
       id: `item-${thread.id}`,
       title: partner.name ?? "Участник Менариум",
       context: `Объявление · ${thread.item.title}`,
+      ownContext: null,
       href: `/profile/chats/item/${thread.id}`,
       unread: thread._count.messages,
       preview: lastMessage?.text ?? "Диалог создан, сообщений пока нет.",
@@ -262,6 +265,9 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                           <Badge variant={chat.kind === "Обмен" ? "teal" : "purple"}>{chat.kind}</Badge>
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-white/35">{chat.context}</span>
+                        {chat.ownContext ? (
+                          <span className="mt-0.5 block truncate text-xs text-teal-200/48">{chat.ownContext}</span>
+                        ) : null}
                         <span className={cn("mt-1 block truncate text-sm", chat.unread ? "text-white/78" : "text-white/52")}>
                           {chat.preview}
                         </span>

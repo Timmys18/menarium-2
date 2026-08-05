@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Compass, Heart, Plus, Repeat2, Sparkles, UserRound } from "lucide-react";
+import { Bell, Compass, Heart, MessageCircle, Plus, Repeat2, Sparkles, UserRound } from "lucide-react";
 import { BrandLockup, BrandMark } from "@/components/menarium/brand";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ const desktopItems = [
   { href: "/favorites", label: "Избранное", icon: Heart },
   { href: "/swipe", label: "Свайп", icon: Sparkles },
   { href: "/exchange", label: "Обмены", icon: Repeat2 },
+  { href: "/profile/chats", label: "Сообщения", icon: MessageCircle },
 ];
 
 const mobileItems = [
@@ -18,7 +19,7 @@ const mobileItems = [
   { href: "/swipe", label: "Свайп", icon: Sparkles },
   { href: "/new", label: "Создать", icon: Plus, primary: true },
   { href: "/exchange", label: "Обмены", icon: Repeat2 },
-  { href: "/profile", label: "Профиль", icon: UserRound },
+  { href: "/profile/chats", label: "Сообщения", icon: MessageCircle },
 ];
 
 function isActivePath(pathname: string, href: string) {
@@ -49,14 +50,15 @@ function CountBadge({ count, compact = false }: { count: number; compact?: boole
 }
 
 export function Navigation({
-  unreadCount = 0,
+  unreadNotifications = 0,
+  unreadMessages = 0,
   pendingSwaps = 0,
 }: {
-  unreadCount?: number;
+  unreadNotifications?: number;
+  unreadMessages?: number;
   pendingSwaps?: number;
 }) {
   const pathname = usePathname();
-  const inboxBadge = unreadCount;
 
   return (
     <>
@@ -81,7 +83,7 @@ export function Navigation({
                 {desktopItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActivePath(pathname, item.href);
-                  const count = item.href === "/exchange" ? pendingSwaps : 0;
+                  const count = item.href === "/exchange" ? pendingSwaps : item.href === "/profile/chats" ? unreadMessages : 0;
                   return (
                     <Link
                       key={item.href}
@@ -123,7 +125,7 @@ export function Navigation({
                   )}
                 >
                   <Bell className="h-4.5 w-4.5" />
-                  <CountBadge count={inboxBadge} compact />
+                  <CountBadge count={unreadNotifications} compact />
                 </Link>
                 <Link
                   href="/profile"
@@ -158,20 +160,35 @@ export function Navigation({
               textClassName="text-lg"
             />
           </Link>
-          <Link
-            href="/notifications"
-            aria-label="Уведомления"
-            aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
-            className={cn(
-              "relative flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
-              isActivePath(pathname, "/notifications")
-                ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                : "border-white/[0.08] bg-white/[0.04] text-white/58",
-            )}
-          >
-            <Bell className="h-4.5 w-4.5" />
-            <CountBadge count={inboxBadge} compact />
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <Link
+              href="/notifications"
+              aria-label="Уведомления"
+              aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
+              className={cn(
+                "relative flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                isActivePath(pathname, "/notifications")
+                  ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
+                  : "border-white/[0.08] bg-white/[0.04] text-white/58",
+              )}
+            >
+              <Bell className="h-4.5 w-4.5" />
+              <CountBadge count={unreadNotifications} compact />
+            </Link>
+            <Link
+              href="/profile"
+              aria-label="Личный кабинет"
+              aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                isActivePath(pathname, "/profile")
+                  ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
+                  : "border-white/[0.08] bg-white/[0.04] text-white/58",
+              )}
+            >
+              <UserRound className="h-4.5 w-4.5" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -181,18 +198,18 @@ export function Navigation({
           style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
         >
           <div className="mx-auto max-w-lg rounded-[24px] border border-white/10 bg-[#090d14]/88 px-1.5 py-1.5 shadow-[0_-14px_54px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
-            <div className="grid grid-cols-5 items-end gap-0.5">
+            <div className="grid grid-cols-5 items-stretch gap-0.5">
               {mobileItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActivePath(pathname, item.href);
-                const count = item.href === "/exchange" ? pendingSwaps : 0;
+                const count = item.href === "/exchange" ? pendingSwaps : item.href === "/profile/chats" ? unreadMessages : 0;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex min-h-[54px] min-w-0 flex-col items-center justify-end gap-1 rounded-[18px] px-0.5 pb-1.5 text-[11px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                      "relative grid min-h-[58px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[10px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                       active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/62",
                       item.primary && "text-white/86",
                     )}
@@ -201,14 +218,14 @@ export function Navigation({
                       className={cn(
                         "relative flex items-center justify-center transition",
                         item.primary
-                          ? "-mt-5 h-12 w-12 rounded-[17px] border border-white/20 bg-gradient-to-br from-blue-500 to-teal-400 text-white shadow-[0_12px_30px_rgba(77,141,255,0.34)] ring-4 ring-[#080c13]"
+                          ? "h-8 w-10 rounded-xl text-white"
                           : active
                             ? "h-8 w-10 rounded-xl bg-white/[0.1] text-teal-200"
                             : "h-8 w-10 rounded-xl text-white/62",
                       )}
                     >
                       {item.primary ? (
-                        <BrandMark size="sm" className="h-7 w-7" decorative />
+                        <BrandMark size="xs" className="h-6 w-6" decorative />
                       ) : (
                         <Icon className="h-5 w-5" />
                       )}

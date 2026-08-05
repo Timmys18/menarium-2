@@ -37,20 +37,17 @@ test.describe("первый вход и личный кабинет", () => {
 
       await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });
       await expect(content.getByText("Аккаунт создан", { exact: true })).toBeVisible();
-      await expect(content.getByRole("heading", { name: "Почта не подтверждена" })).toBeVisible();
+      await expect(content.getByText("Подтвердите почту", { exact: true })).toBeVisible();
       await expect(content.getByRole("button", { name: "Отправить письмо" })).toBeVisible();
 
       const user = await prisma.user.findUniqueOrThrow({ where: { email } });
       await prisma.user.update({ where: { id: user.id }, data: { emailVerified: new Date() } });
       await page.goto("/profile");
 
-      await expect(content.getByRole("heading", { name: "Расскажите о себе" })).toBeVisible();
-      await expect(content.getByRole("progressbar", { name: "Прогресс до первого обмена" })).toHaveAttribute(
-        "aria-valuenow",
-        "20",
-      );
+      await expect(content.getByRole("heading", { name: "Мои объявления" })).toBeVisible();
+      await expect(content.getByText("Почта подтверждена", { exact: true })).toBeVisible();
 
-      await content.getByRole("link", { name: "Заполнить профиль" }).click();
+      await content.getByRole("link", { name: "Профиль и настройки" }).click();
       await content.getByLabel("Имя").fill("Анна");
       await content.getByLabel("Город").click();
       await content.getByRole("textbox", { name: "Найти город в списке" }).fill("Казань");
@@ -58,11 +55,8 @@ test.describe("первый вход и личный кабинет", () => {
       await content.getByRole("button", { name: "Сохранить" }).click();
 
       await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });
-      await expect(content.getByRole("heading", { name: "Добавьте вещь или услугу" })).toBeVisible();
-      await expect(content.getByRole("progressbar", { name: "Прогресс до первого обмена" })).toHaveAttribute(
-        "aria-valuenow",
-        "40",
-      );
+      await expect(content.getByRole("heading", { name: "Мои объявления" })).toBeVisible();
+      await expect(content.getByRole("link", { name: "Добавить объявление" })).toBeVisible();
     } finally {
       await prisma.verificationToken.deleteMany({ where: { identifier: `email-verify:${email}` } });
       await prisma.user.deleteMany({ where: { email } });
