@@ -131,7 +131,7 @@ test.describe("критический жизненный цикл обмена",
         await expect(pick(main(dmitry).getByText("Вы предложили", { exact: true }))).toBeVisible();
         await expect(pick(main(dmitry).getByText("Вы получаете", { exact: true }))).toBeVisible();
         await confirmAction(dmitry, "Принять", "Принять обмен");
-        await expect(dmitry).toHaveURL(/\/exchange\?.*tab=matches.*notice=accepted/);
+        await expect(dmitry).toHaveURL(/\/profile\/exchanges\?.*tab=matches.*notice=accepted/);
         await expect(main(dmitry).getByText("Обмен принят", { exact: true })).toBeVisible();
         await expect(pick(main(dmitry).getByLabel("Текст сообщения"))).toBeEnabled({ timeout: 20_000 });
       });

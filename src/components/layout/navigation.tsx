@@ -70,7 +70,7 @@ export function Navigation({
                 href="/"
                 aria-label="Менариум — главная"
                 aria-current={pathname === "/" ? "page" : undefined}
-                className="group rounded-2xl px-2 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                className="desktop-brand group rounded-2xl px-2 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
               >
                 <BrandLockup
                   priority
@@ -104,7 +104,7 @@ export function Navigation({
                 })}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="desktop-actions flex items-center gap-2">
                 <Link
                   href="/new"
                   aria-current={isActivePath(pathname, "/new") ? "page" : undefined}
@@ -209,7 +209,7 @@ export function Navigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative grid min-h-[58px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[10px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                      "relative grid min-h-[58px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[9.5px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                       active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/62",
                       item.primary && "text-white/86",
                     )}

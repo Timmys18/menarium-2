@@ -43,7 +43,7 @@ describe("buildProfileActivation", () => {
     });
 
     expect(activation.nextStep?.id).toBe("proposal");
-    expect(activation.nextAction.href).toBe("/my-items?status=paused");
+    expect(activation.nextAction.href).toBe("/profile?status=paused");
   });
 
   it("prioritizes a proposal that needs the user's answer", () => {

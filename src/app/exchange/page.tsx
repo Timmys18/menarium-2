@@ -68,7 +68,7 @@ function exchangeHref(
   search.set("filter", filter);
   if (swapId) search.set("swap", swapId);
   if (page && page > 1) search.set("page", String(page));
-  return `/exchange?${search.toString()}`;
+  return `/profile/exchanges?${search.toString()}`;
 }
 
 function statusPresentation(
@@ -142,7 +142,7 @@ function statusPresentation(
   };
 }
 
-export default async function ExchangePage({ searchParams }: Props) {
+export async function ExchangePageContent({ searchParams }: Props) {
   const userId = await getCurrentUserId();
   const params = await searchParams;
   if (userId) await expirePendingSwapOffers(prisma, { userId });
@@ -349,9 +349,7 @@ export default async function ExchangePage({ searchParams }: Props) {
         ? "активных объявления"
         : "активных объявлений";
   return (
-    <AppShell>
-      <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
-        <div className="mx-auto max-w-7xl">
+    <div className="min-w-0">
           <header
             className={cn(
               "mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end",
@@ -418,7 +416,7 @@ export default async function ExchangePage({ searchParams }: Props) {
             <EmptyState
               title="Войдите, чтобы управлять обменами"
               description="Здесь будут предложения других людей, ваши ответы, договорённости и чат каждой сделки."
-              actionHref={loginHref("/exchange")}
+              actionHref={loginHref("/profile/exchanges")}
               actionLabel="Войти"
             />
           ) : totalSwaps === 0 ? (
@@ -753,7 +751,7 @@ export default async function ExchangePage({ searchParams }: Props) {
                           theirTitle: selectedTheirItem.title,
                           theirImage: toItemCardView(selectedTheirItem).image,
                         }}
-                        acceptedHref={`/exchange?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
+                        acceptedHref={`/profile/exchanges?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
                       />
 
                       {selectedPartner ? (
@@ -796,6 +794,16 @@ export default async function ExchangePage({ searchParams }: Props) {
               </div>
             </>
           )}
+    </div>
+  );
+}
+
+export default function ExchangePage(props: Props) {
+  return (
+    <AppShell>
+      <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
+        <div className="mx-auto max-w-7xl">
+          <ExchangePageContent {...props} />
         </div>
       </div>
     </AppShell>

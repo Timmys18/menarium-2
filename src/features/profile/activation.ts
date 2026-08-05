@@ -166,7 +166,7 @@ export function buildProfileActivation(input: ProfileActivationInput): ProfileAc
       eyebrow: "Объявления",
       title: pausedItems === 1 ? "Верните объявление в каталог" : `На паузе: ${pausedItems}`,
       description: "Данные и фотографии сохранены. Возобновите публикацию, чтобы снова получать предложения.",
-      href: "/my-items?status=paused",
+      href: "/profile?status=paused",
       label: "Открыть объявления на паузе",
       kind: "progress",
     };

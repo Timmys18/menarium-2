@@ -37,6 +37,7 @@ test.describe("первый вход и личный кабинет", () => {
 
       await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });
       await expect(content.getByText("Аккаунт создан", { exact: true })).toBeVisible();
+      await page.goto("/profile/edit");
       await expect(content.getByText("Подтвердите почту", { exact: true })).toBeVisible();
       await expect(content.getByRole("button", { name: "Отправить письмо" })).toBeVisible();
 

@@ -2,32 +2,19 @@ import { Skeleton } from "@/components/menarium/skeleton";
 
 export default function ProfileLoading() {
   return (
-    <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
-      <div className="mx-auto max-w-[1360px] space-y-5">
-        <div className="flex items-center gap-4 rounded-[28px] border border-white/7 p-5 sm:p-6">
-          <Skeleton className="h-[72px] w-[72px] rounded-[20px]" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-8 w-52 max-w-full" />
-            <Skeleton className="h-5 w-72 max-w-full" />
-          </div>
+    <div className="rounded-[28px] border border-white/8 p-4 sm:p-5">
+      <div className="flex items-end justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-8 w-52 max-w-full" />
         </div>
-        <Skeleton className="h-32 rounded-[28px]" />
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-28 rounded-[28px]" />
-          ))}
-        </div>
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="space-y-5">
-            <Skeleton className="h-72 rounded-[28px]" />
-            <Skeleton className="h-80 rounded-[28px]" />
-          </div>
-          <div className="space-y-5">
-            <Skeleton className="h-72 rounded-[28px]" />
-            <Skeleton className="h-56 rounded-[28px]" />
-          </div>
-        </div>
+        <Skeleton className="h-10 w-24 rounded-[14px]" />
+      </div>
+      <Skeleton className="mt-5 h-14 w-full rounded-[18px]" />
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Skeleton key={index} className="h-96 rounded-[24px]" />
+        ))}
       </div>
     </div>
   );

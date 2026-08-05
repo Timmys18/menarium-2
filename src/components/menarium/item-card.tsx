@@ -24,6 +24,7 @@ export type ItemCardProps = {
   canFavorite?: boolean;
   favoriteLoginHref?: string;
   recommendationReason?: string;
+  reserveTopRight?: boolean;
 };
 
 export function ItemCard({
@@ -34,6 +35,7 @@ export function ItemCard({
   wanted,
   city,
   type,
+  reserveTopRight = false,
   isOnline,
   likes,
   flexible,
@@ -67,8 +69,13 @@ export function ItemCard({
             imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d131d] to-transparent" />
-          <div className={cn("absolute left-4 top-4 flex flex-wrap items-start gap-2", showFavorite ? "right-16" : "right-4")}>
-            <Badge className="bg-[#090d14]/78">{category}</Badge>
+          <div className={cn(
+            "absolute left-4 top-4 flex flex-wrap items-start gap-2",
+            reserveTopRight ? "right-28" : showFavorite ? "right-16" : "right-4",
+          )}>
+            <Badge className={cn("bg-[#090d14]/78", reserveTopRight && "max-w-full truncate whitespace-nowrap")}>
+              {category}
+            </Badge>
             <Badge variant={isOnline ? "teal" : "glass"} className="bg-[#090d14]/78">
               {isOnline ? <Globe2 className="h-3 w-3" /> : null}
               {isOnline ? "Онлайн" : type === "SERVICE" ? "Услуга" : "Предмет"}

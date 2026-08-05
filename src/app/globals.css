@@ -300,7 +300,7 @@ a {
 }
 
 /* Browser zoom must not turn a mouse-and-keyboard desktop into the mobile app shell. */
-@media (any-hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .desktop-navigation {
     display: block !important;
   }
@@ -311,15 +311,58 @@ a {
 }
 
 /* When a desktop browser is zoomed in, retain the desktop actions without letting labels overflow. */
-@media (max-width: 767px) and (any-hover: hover) {
+@media (max-width: 767px) and (hover: hover) and (pointer: fine) {
+  .desktop-navigation > div {
+    padding-inline: 0.35rem;
+  }
+
   .desktop-navigation .surface-card {
     padding: 0.5rem;
   }
 
+  .desktop-navigation .surface-card > div {
+    gap: 0.3rem;
+  }
+
+  .desktop-navigation .desktop-brand {
+    padding-inline: 0.15rem;
+  }
+
+  .desktop-navigation .desktop-brand > span {
+    gap: 0;
+  }
+
+  .desktop-navigation .desktop-brand > span > span:last-child {
+    display: none;
+  }
+
   .desktop-navigation .desktop-nav-link {
     gap: 0;
-    padding-inline: 0.7rem;
+    min-height: 2.5rem;
+    padding-inline: 0.55rem;
     font-size: 0;
+  }
+
+  .desktop-navigation .desktop-actions {
+    gap: 0.2rem;
+  }
+
+  .desktop-navigation .desktop-actions > a {
+    height: 2.5rem;
+    min-height: 2.5rem;
+    width: 2.5rem;
+    padding-inline: 0;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 767px) and (any-pointer: coarse) {
+  .desktop-navigation {
+    display: none !important;
+  }
+
+  .mobile-navigation {
+    display: block !important;
   }
 }
 

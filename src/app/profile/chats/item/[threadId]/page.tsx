@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ItemStatus } from "@prisma/client";
 import { ArrowLeft, MessageCircle, UserRound } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
 import { ChatConversation } from "@/components/chat/chat-conversation";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
@@ -64,9 +63,7 @@ export default async function ItemThreadPage({ params }: Props) {
   const itemImage = thread?.item.images[0]?.url ?? "/menarium-placeholder.svg";
 
   return (
-    <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
-        <div className="mx-auto max-w-4xl">
+    <div className="max-w-4xl">
           {!userId ? (
             <EmptyState
               title="Войдите, чтобы открыть диалог"
@@ -167,8 +164,6 @@ export default async function ItemThreadPage({ params }: Props) {
               </GlassCard>
             </>
           ) : null}
-        </div>
-      </div>
-    </AppShell>
+    </div>
   );
 }

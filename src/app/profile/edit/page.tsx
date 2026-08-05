@@ -1,12 +1,12 @@
-import Link from "next/link";
-import { ArrowLeft, ShieldCheck, UserRound } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
+import { ShieldCheck, UserRound } from "lucide-react";
 import { MenariumLinkButton } from "@/components/menarium/button";
+import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { loginHref } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { ProfileEditForm } from "./profile-edit-form";
+import { EmailVerifyBanner } from "../email-verify-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -15,21 +15,20 @@ export default async function ProfileEditPage() {
   const user = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
-        select: { id: true, name: true, city: true, cityId: true, image: true },
+        select: {
+          id: true,
+          name: true,
+          city: true,
+          cityId: true,
+          image: true,
+          email: true,
+          emailVerified: true,
+        },
       })
     : null;
 
   return (
-    <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
-        <div className="mx-auto max-w-3xl">
-          <Link
-            href="/profile"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-white/48 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Назад в профиль
-          </Link>
+    <div className="max-w-3xl">
           <div className="mb-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
@@ -54,7 +53,14 @@ export default async function ProfileEditPage() {
             ) : null}
           </div>
           {user ? (
-            <ProfileEditForm user={user} />
+            <>
+              <ProfileEditForm user={user} />
+              {!user.emailVerified ? (
+                <GlassCard className="mt-5 border border-white/8 px-4 sm:px-5">
+                  <EmailVerifyBanner email={user.email} compact />
+                </GlassCard>
+              ) : null}
+            </>
           ) : (
             <EmptyState
               title="Войдите, чтобы редактировать профиль"
@@ -63,8 +69,6 @@ export default async function ProfileEditPage() {
               actionLabel="Войти"
             />
           )}
-        </div>
-      </div>
-    </AppShell>
+    </div>
   );
 }

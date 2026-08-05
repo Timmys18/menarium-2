@@ -20,7 +20,7 @@ export function DeleteItemButton({ itemId }: { itemId: string }) {
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Не удалось удалить объявление");
       setDialogOpen(false);
-      router.push(body.data?.archived ? "/my-items?notice=archived" : "/my-items?notice=deleted");
+      router.push(body.data?.archived ? "/profile?status=history" : "/profile");
       router.refresh();
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : "Не удалось удалить объявление");

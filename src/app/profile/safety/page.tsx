@@ -8,7 +8,6 @@ import {
   MessageCircleWarning,
   ShieldCheck,
 } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
@@ -128,9 +127,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
     : [0, 0, 0, []];
 
   return (
-    <AppShell>
-      <div className="page-enter min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
-        <div className="mx-auto max-w-5xl">
+    <div className="max-w-5xl">
           <header className="mb-7">
             <div className="flex items-center gap-3 text-teal-200/70">
               <ShieldCheck className="h-5 w-5" />
@@ -170,7 +167,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                     </div>
                   </div>
                   <Link
-                    href="/exchange"
+                    href="/profile/exchanges"
                     className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.055] px-4 text-sm font-semibold text-white/72 transition hover:bg-white/[0.09] hover:text-white"
                   >
                     Открыть обмены
@@ -227,7 +224,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                         report.targetUser?.name ??
                         "Объект больше недоступен";
                     const contextHref = report.swap
-                      ? `/exchange?swap=${report.swap.id}`
+                      ? `/profile/exchanges?swap=${report.swap.id}`
                       : report.item
                         ? `/item/${report.item.id}`
                         : report.targetUser
@@ -326,8 +323,6 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
               )}
             </div>
           )}
-        </div>
-      </div>
-    </AppShell>
+    </div>
   );
 }

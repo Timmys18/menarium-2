@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Prisma, SwapStatus } from "@prisma/client";
 import { ArrowRight, MessageCircle } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { GlassCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
@@ -44,12 +43,12 @@ function dealChatHref({
   isSender: boolean;
 }) {
   if (status === SwapStatus.ACCEPTED) {
-    return `/exchange?tab=matches&swap=${encodeURIComponent(id)}`;
+    return `/profile/exchanges?tab=matches&swap=${encodeURIComponent(id)}`;
   }
   if (status === SwapStatus.COMPLETED) {
-    return `/exchange?tab=matches&filter=history&swap=${encodeURIComponent(id)}`;
+    return `/profile/exchanges?tab=matches&filter=history&swap=${encodeURIComponent(id)}`;
   }
-  return `/exchange?tab=${isSender ? "outgoing" : "incoming"}&filter=history&swap=${encodeURIComponent(id)}`;
+  return `/profile/exchanges?tab=${isSender ? "outgoing" : "incoming"}&filter=history&swap=${encodeURIComponent(id)}`;
 }
 
 function formatChatTime(value: Date) {
@@ -189,15 +188,11 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
     .slice((page - 1) * CHAT_CENTER_PAGE_SIZE, page * CHAT_CENTER_PAGE_SIZE);
 
   return (
-    <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
-        <div className="mx-auto max-w-5xl">
-          <header className="mb-7">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
-              Все разговоры
-            </p>
-            <h1 className="type-page-title text-4xl md:text-5xl">Мои чаты</h1>
-          </header>
+    <div className="space-y-5">
+      <header>
+        <p className="type-kicker text-teal-200/55">Все разговоры</p>
+        <h2 className="mt-1 text-2xl font-semibold tracking-tight">Сообщения</h2>
+      </header>
 
           {userId ? <ChatCenterRefresh /> : null}
           {!userId ? (
@@ -317,8 +312,6 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
               ) : null}
             </>
           )}
-        </div>
-      </div>
-    </AppShell>
+    </div>
   );
 }

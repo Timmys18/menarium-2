@@ -2,8 +2,7 @@ import { Skeleton } from "@/components/menarium/skeleton";
 
 export default function ProfileEditLoading() {
   return (
-    <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
-      <div className="mx-auto max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-6">
         <Skeleton className="h-5 w-36" />
         <div className="space-y-3">
           <Skeleton className="h-4 w-20" />
@@ -24,7 +23,6 @@ export default function ProfileEditLoading() {
         </div>
         <Skeleton className="h-80 rounded-[28px]" />
         <Skeleton className="h-64 rounded-[28px]" />
-      </div>
     </div>
   );
 }

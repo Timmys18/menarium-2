@@ -48,27 +48,21 @@ type FavoritesPageProps = {
 };
 
 function favoritesHref(page: number) {
-  return page > 1 ? `/favorites?page=${page}` : "/favorites";
+  return page > 1 ? `/profile/favorites?page=${page}` : "/profile/favorites";
 }
 
-export default async function FavoritesPage({ searchParams }: FavoritesPageProps) {
+export async function FavoritesPageContent({ searchParams }: FavoritesPageProps) {
   const userId = await getCurrentUserId();
 
   if (!userId) {
     return (
-      <AppShell>
-        <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
-          <div className="mx-auto max-w-5xl">
-            <EmptyState
-              icon={<Heart className="h-7 w-7" />}
-              title="Соберите личную подборку"
-              description="Войдите, чтобы сохранять интересные вещи и возвращаться к ним с любого устройства."
-              actionHref={loginHref("/favorites")}
-              actionLabel="Войти"
-            />
-          </div>
-        </div>
-      </AppShell>
+      <EmptyState
+        icon={<Heart className="h-7 w-7" />}
+        title="Соберите личную подборку"
+        description="Войдите, чтобы сохранять интересные вещи и возвращаться к ним с любого устройства."
+        actionHref={loginHref("/profile/favorites")}
+        actionLabel="Войти"
+      />
     );
   }
 
@@ -223,9 +217,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
   const currentHref = favoritesHref(page);
 
   return (
-    <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
-        <div className="mx-auto max-w-[1500px]">
+    <div className="min-w-0">
           <FavoritesLiveState
             key={`${total}:${favoriteIds.join(",")}`}
             initialTotal={total}
@@ -366,7 +358,7 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
                     <ItemCard
                       key={item.id}
                       {...card}
-                      returnHref="/favorites"
+                      returnHref="/profile/favorites"
                       canFavorite
                       recommendationReason={
                         reasons[0] ??
@@ -381,6 +373,16 @@ export default async function FavoritesPage({ searchParams }: FavoritesPageProps
             </section>
           ) : null}
           </FavoritesLiveState>
+    </div>
+  );
+}
+
+export default function FavoritesPage(props: FavoritesPageProps) {
+  return (
+    <AppShell>
+      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
+        <div className="mx-auto max-w-[1500px]">
+          <FavoritesPageContent {...props} />
         </div>
       </div>
     </AppShell>
