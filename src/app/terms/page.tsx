@@ -30,16 +30,16 @@ export default function TermsPage() {
       <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
         <GlassCard className="mx-auto max-w-4xl space-y-5 p-8">
           <h1 className="text-4xl font-bold">Пользовательское соглашение</h1>
-          <p className="text-white/60">
+          <p className="text-white/62">
             Правила использования сервиса Менариум.
           </p>
           {sections.map((section) => (
             <section key={section.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
               <h2 className="mb-2 text-xl font-semibold">{section.title}</h2>
-              <p className="text-white/60">{section.text}</p>
+              <p className="text-white/62">{section.text}</p>
             </section>
           ))}
-          <p className="text-sm text-white/40">Перед публичным запуском соглашение должно пройти финальную юридическую вычитку под российскую юрисдикцию.</p>
+          <p className="text-sm text-white/62">Перед публичным запуском соглашение должно пройти финальную юридическую вычитку под российскую юрисдикцию.</p>
         </GlassCard>
       </div>
     </AppShell>

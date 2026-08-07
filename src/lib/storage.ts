@@ -2,7 +2,7 @@ import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client
 import { nanoid } from "nanoid";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { inspectImage } from "@/features/media/image-metadata";
+import { normalizePublicImage } from "@/features/media/normalize-image";
 
 const maxUploadBytes = 8 * 1024 * 1024;
 
@@ -30,15 +30,16 @@ function getS3Client() {
   });
 }
 
-export async function storeImageUpload(file: File, ownerId: string): Promise<StoredUpload> {
+export async function storeImageUpload(file: File): Promise<StoredUpload> {
   if (file.size <= 0) throw new Error("EMPTY_FILE");
   if (file.size > maxUploadBytes) {
     throw new Error("FILE_TOO_LARGE");
   }
 
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const metadata = inspectImage(bytes, file.type);
-  const key = `uploads/${ownerId}/${Date.now()}-${nanoid(10)}.${metadata.extension}`;
+  const sourceBytes = Buffer.from(await file.arrayBuffer());
+  const { bytes, metadata } = await normalizePublicImage(sourceBytes, file.type);
+  // Object keys must not disclose who owns an image or make accounts linkable.
+  const key = `uploads/${nanoid(24)}.${metadata.extension}`;
 
   if (process.env.STORAGE_PROVIDER === "s3") {
     const bucket = process.env.STORAGE_BUCKET;
@@ -60,7 +61,7 @@ export async function storeImageUpload(file: File, ownerId: string): Promise<Sto
       key,
       url: `${publicBaseUrl.replace(/\/$/, "")}/${key}`,
       contentType: metadata.contentType,
-      sizeBytes: file.size,
+      sizeBytes: bytes.byteLength,
       width: metadata.width,
       height: metadata.height,
     };
@@ -76,7 +77,7 @@ export async function storeImageUpload(file: File, ownerId: string): Promise<Sto
     key,
     url: `${publicBase.replace(/\/$/, "")}/${key.replace(/^uploads\//, "")}`,
     contentType: metadata.contentType,
-    sizeBytes: file.size,
+    sizeBytes: bytes.byteLength,
     width: metadata.width,
     height: metadata.height,
   };

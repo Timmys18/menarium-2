@@ -44,7 +44,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form className="space-y-4" onSubmit={submit}>
-      <p className="text-sm text-white/55">Укажите email — мы пришлём ссылку для нового пароля.</p>
+      <p className="text-sm text-white/62">Укажите email — мы пришлём ссылку для нового пароля.</p>
       <div className="space-y-2.5">
         <label htmlFor="forgot-password-email" className="block text-sm font-medium text-white/75">
           Электронная почта

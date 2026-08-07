@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { actionResponse, errorResponse, getPaging, listResponse, parseJson } from "@/lib/api";
 import { pendingSwapOfferKey } from "@/lib/domain";
-import { checkActionRateLimit } from "@/lib/rate-limit";
+import { checkActionRateLimit, checkExchangeCreationRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeSwap } from "@/features/exchange/serializers";
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
   const auth = await requireUserId();
   if (!auth.ok) return auth.response;
 
-  const rate = await checkActionRateLimit(auth.userId, "exchange:create");
+  const rate = await checkExchangeCreationRateLimit(auth.userId, auth.emailVerified);
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
   const body = await parseJson(req);

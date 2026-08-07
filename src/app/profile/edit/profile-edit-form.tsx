@@ -183,7 +183,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Загрузить аватар
             </label>
-            <p className="mt-2 text-xs text-white/40">PNG, JPG, WEBP или GIF до 8 МБ.</p>
+            <p className="mt-2 text-xs text-white/62">PNG, JPG, WEBP или GIF до 8 МБ.</p>
             {image ? (
               <button
                 type="button"
@@ -225,7 +225,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               setProfileError(null);
             }}
           />
-          <p className="text-xs leading-5 text-white/40">Помогает находить удобные обмены рядом.</p>
+          <p className="text-xs leading-5 text-white/62">Помогает находить удобные обмены рядом.</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -253,7 +253,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
       <GlassCard className="space-y-4 p-5 sm:p-8">
         <h2 className="text-lg font-semibold">Смена пароля</h2>
-        <p className="text-sm leading-5 text-white/48">
+        <p className="text-sm leading-5 text-white/62">
           После смены пароля мы завершим текущий сеанс. Войти снова можно будет уже с новым паролем.
         </p>
         {passwordError ? (
@@ -281,7 +281,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               type="button"
               onClick={() => setShowCurrentPassword((visible) => !visible)}
               aria-label={showCurrentPassword ? "Скрыть текущий пароль" : "Показать текущий пароль"}
-              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/38 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
             >
               {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -309,7 +309,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               type="button"
               onClick={() => setShowNewPassword((visible) => !visible)}
               aria-label={showNewPassword ? "Скрыть новый пароль" : "Показать новый пароль"}
-              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/38 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
             >
               {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -321,7 +321,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
                 className={
                   check.passed
                     ? "inline-flex items-center gap-1.5 rounded-full bg-teal-300/10 px-2.5 py-1 text-xs text-teal-200"
-                    : "inline-flex items-center gap-1.5 rounded-full bg-white/[0.045] px-2.5 py-1 text-xs text-white/38"
+                    : "inline-flex items-center gap-1.5 rounded-full bg-white/[0.045] px-2.5 py-1 text-xs text-white/62"
                 }
               >
                 <Check className="h-3 w-3" aria-hidden="true" />
@@ -343,7 +343,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
       <GlassCard className="space-y-4 border border-red-500/20 p-5 sm:p-8">
         <h2 className="text-lg font-semibold text-red-200">Удаление аккаунта</h2>
-        <p className="text-sm text-white/50">
+        <p className="text-sm text-white/62">
           Личные данные будут удалены, объявления сняты с публикации. История завершённых сделок
           сохранится у участников в обезличенном виде.
         </p>

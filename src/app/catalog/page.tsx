@@ -54,7 +54,7 @@ function filterLinkClass(active: boolean, compact = false) {
     compact ? "min-w-0 justify-center px-2.5 py-2.5" : "w-full px-3 py-2.5",
     active
       ? "border border-teal-300/18 bg-teal-300/[0.085] text-white"
-      : "border border-transparent text-white/52 hover:bg-white/[0.045] hover:text-white",
+      : "border border-transparent text-white/62 hover:bg-white/[0.045] hover:text-white",
   );
 }
 
@@ -108,7 +108,7 @@ export default async function CatalogPage({ searchParams }: Props) {
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
-              <div className="rounded-full border border-white/[0.075] bg-white/[0.035] px-4 py-2 text-sm text-white/45">
+              <div className="rounded-full border border-white/[0.075] bg-white/[0.035] px-4 py-2 text-sm text-white/62">
                 Найдено: <span className="font-semibold text-white/85">{total}</span>
               </div>
               <MenariumLinkButton href="/new" size="sm" className="hidden sm:inline-flex">
@@ -120,7 +120,7 @@ export default async function CatalogPage({ searchParams }: Props) {
 
           <form action="/catalog" className="sticky top-[72px] z-30 mb-6 md:static">
             <GlassCard className="flex items-center gap-2 rounded-[18px] bg-[#0b111a]/92 p-2 shadow-[0_18px_50px_rgba(0,0,0,0.34)] sm:gap-3 sm:p-2.5 md:bg-transparent md:shadow-[var(--shadow-card)]">
-              <Search className="ml-2 h-5 w-5 shrink-0 text-white/36 sm:ml-3" />
+              <Search className="ml-2 h-5 w-5 shrink-0 text-white/62 sm:ml-3" />
               <label htmlFor="catalog-search" className="sr-only">
                 Найти вещь или услугу
               </label>
@@ -129,7 +129,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                 defaultValue={q}
                 name="q"
                 placeholder="Что хочешь найти?"
-                className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-white/32 sm:text-lg"
+                className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-white/62 sm:text-lg"
               />
               {selectedCity ? <input type="hidden" name="city" value={selectedCity} /> : null}
               {selectedCategory ? <input type="hidden" name="category" value={selectedCategory} /> : null}
@@ -159,7 +159,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                     aria-current={active ? "page" : undefined}
                     className={cn(filterLinkClass(active, true), "flex-col gap-1 text-xs")}
                   >
-                    <Icon className={cn("h-3.5 w-3.5", active ? "text-teal-200" : "text-white/48")} />
+                    <Icon className={cn("h-3.5 w-3.5", active ? "text-teal-200" : "text-white/62")} />
                     <span className="truncate">{item.label}</span>
                   </Link>
                 );
@@ -172,13 +172,13 @@ export default async function CatalogPage({ searchParams }: Props) {
                   <SlidersHorizontal className="h-4 w-4 text-teal-200" />
                   Фильтры
                 </span>
-                <span className="text-xs text-white/55">
+                <span className="text-xs text-white/62">
                   {activeFilterCount > 0 ? `Выбрано: ${activeFilterCount}` : "Категория, тип, город"}
                 </span>
               </summary>
               <div className="border-t border-white/[0.065] p-4">
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Тип предложения</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Тип предложения</p>
                   <div className="grid grid-cols-3 gap-1.5">
                     {typeOptions.map((entry) => {
                       const active = (entry.id === undefined && !parsedType) || entry.id === parsedType;
@@ -198,12 +198,12 @@ export default async function CatalogPage({ searchParams }: Props) {
                 </div>
 
                 <div className="mt-5">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Категория</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Категория</p>
                   <CatalogCategoryFilter value={selectedCategory} />
                 </div>
 
                 <div className="mt-5">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Город</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Город</p>
                   <CatalogCityFilter value={selectedCity} />
                 </div>
 
@@ -211,7 +211,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                   <Link
                     href={buildCatalogHref({ q, sort })}
                     scroll={false}
-                    className="mt-5 flex items-center justify-center gap-2 rounded-[13px] border border-white/[0.075] bg-white/[0.035] px-4 py-3 text-sm text-white/55"
+                    className="mt-5 flex items-center justify-center gap-2 rounded-[13px] border border-white/[0.075] bg-white/[0.035] px-4 py-3 text-sm text-white/62"
                   >
                     <X className="h-4 w-4" />
                     Сбросить фильтры
@@ -250,7 +250,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <p className="mb-2 mt-6 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Сортировка</p>
+                <p className="mb-2 mt-6 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Сортировка</p>
                 <div className="space-y-1">
                   {sortOptions.map((item) => {
                     const Icon = item.icon;
@@ -265,7 +265,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                 </div>
 
                 <div className="my-5 h-px bg-white/[0.065]" />
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Тип</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Тип</p>
                 <div className="space-y-1">
                   {typeOptions.map((entry) => {
                     const active = (entry.id === undefined && !parsedType) || entry.id === parsedType;
@@ -279,11 +279,11 @@ export default async function CatalogPage({ searchParams }: Props) {
                 </div>
 
                 <div className="my-5 h-px bg-white/[0.065]" />
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Категории</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Категории</p>
                 <CatalogCategoryFilter value={selectedCategory} />
 
                 <div className="my-5 h-px bg-white/[0.065]" />
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/32">Город</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Город</p>
                 <CatalogCityFilter value={selectedCity} />
               </SurfaceCard>
             </aside>
@@ -294,7 +294,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                   <h2 className="text-lg font-semibold tracking-[-0.02em] text-white">
                     {q ? `По запросу «${q}»` : activeFilterCount > 0 ? "Подходящие предложения" : "Все предложения"}
                   </h2>
-                  <p className="mt-1 text-xs text-white/52">
+                  <p className="mt-1 text-xs text-white/62">
                     {total} {total === 1 ? "предложение" : total >= 2 && total <= 4 ? "предложения" : "предложений"} · {sortOptions.find((option) => option.id === sort)?.label.toLowerCase()} · страница {page} из {totalPages}
                   </p>
                 </div>
@@ -325,7 +325,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                           ← Назад
                         </Link>
                       ) : null}
-                      <span className="text-sm text-white/42">Страница {page} из {totalPages}</span>
+                      <span className="text-sm text-white/62">Страница {page} из {totalPages}</span>
                       {hasMore ? (
                         <Link href={buildCatalogHref({ ...catalogBase, page: page + 1 })} className="rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.18)]">
                           Следующая страница →

@@ -9,9 +9,9 @@ export function SiteFooter() {
           <Link href="/" className="inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
             <BrandLockup markClassName="h-8 w-8 rounded-[10px]" textClassName="text-lg" />
           </Link>
-          <p className="mt-3 text-sm text-white/38">© 2026 Менариум</p>
+          <p className="mt-3 text-sm text-white/62">© 2026 Менариум</p>
         </div>
-        <nav aria-label="Ссылки в подвале" className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/48">
+        <nav aria-label="Ссылки в подвале" className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/62">
           <Link href="/catalog" className="transition hover:text-white">
             Каталог
           </Link>

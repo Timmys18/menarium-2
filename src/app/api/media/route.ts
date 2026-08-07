@@ -4,6 +4,7 @@ import { actionResponse, errorResponse } from "@/lib/api";
 import { checkMediaDeleteRateLimit, checkMediaUploadRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { deleteStoredUpload, storeImageUpload } from "@/lib/storage";
+import { readFormDataWithinLimit, RequestBodyTooLargeError } from "@/lib/request-body";
 import { runSerializableTransaction } from "@/lib/transactions";
 import { requireUserId } from "@/server/session";
 import { reportError } from "@/lib/logger";
@@ -51,12 +52,11 @@ export async function POST(req: Request) {
   const rate = await checkMediaUploadRateLimit(auth.userId);
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
-  const contentLength = Number(req.headers.get("content-length"));
-  if (Number.isFinite(contentLength) && contentLength > MAX_MULTIPART_REQUEST_BYTES) {
-    return errorResponse("Файл слишком большой. Максимум 8 МБ", 413);
-  }
-
-  const formData = await req.formData().catch(() => null);
+  const formData = await readFormDataWithinLimit(req, MAX_MULTIPART_REQUEST_BYTES).catch((error) => {
+    if (error instanceof RequestBodyTooLargeError) return "too-large" as const;
+    return null;
+  });
+  if (formData === "too-large") return errorResponse("Файл слишком большой. Максимум 8 МБ", 413);
   if (!formData) return errorResponse("Не удалось прочитать загружаемый файл", 400);
   const file = formData.get("file");
   const rawOwnerType = formData.get("ownerType");
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
       return errorResponse("Превышен лимит незавершённых загрузок", 413);
     }
 
-    const stored = await storeImageUpload(file, auth.userId);
+    const stored = await storeImageUpload(file);
     let asset;
     try {
       asset = await runSerializableTransaction(async (tx) => {

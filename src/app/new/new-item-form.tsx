@@ -366,16 +366,16 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                       "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
                       isCurrent && "bg-blue-400 text-white",
                       isComplete && "bg-teal-300 text-[#07110f]",
-                      !isCurrent && !isComplete && "bg-white/8 text-white/45",
+                      !isCurrent && !isComplete && "bg-white/8 text-white/62",
                     )}
                   >
                     {isComplete ? <Check className="h-3.5 w-3.5" /> : index + 1}
                   </span>
-                  <span className={cn("text-xs font-semibold sm:text-sm", isCurrent ? "text-white" : "text-white/55")}>
+                  <span className={cn("text-xs font-semibold sm:text-sm", isCurrent ? "text-white" : "text-white/62")}>
                     {entry.title}
                   </span>
                 </div>
-                <p className="hidden pl-8 text-xs text-white/38 sm:block">{entry.hint}</p>
+                <p className="hidden pl-8 text-xs text-white/62 sm:block">{entry.hint}</p>
               </li>
             );
           })}
@@ -387,7 +387,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 1 из 3</p>
                 <h2 ref={stepHeadingRef} id="new-item-step-one" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что вы предлагаете?</h2>
-                <p className="mt-2 text-sm leading-6 text-white/50">Название и хорошее первое фото помогают получить больше осмысленных предложений.</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">Название и хорошее первое фото помогают получить больше осмысленных предложений.</p>
               </div>
 
               <fieldset>
@@ -413,7 +413,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                       )}
                     >
                       <span className="block font-semibold text-white">{label}</span>
-                      <span className="mt-1 hidden text-xs text-white/40 sm:block">{hint}</span>
+                      <span className="mt-1 hidden text-xs text-white/62 sm:block">{hint}</span>
                     </button>
                   ))}
                 </div>
@@ -429,7 +429,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                     maxLength={120}
                     autoComplete="off"
                   />
-                  <span className="block text-right text-xs text-white/30">{title.length}/120</span>
+                  <span className="block text-right text-xs text-white/62">{title.length}/120</span>
                 </label>
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-white/70">Категория</span>
@@ -464,7 +464,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                   <span className="block font-semibold text-white">
                     {images.length ? "Добавить ещё фото" : "Добавить фотографии"}
                   </span>
-                  <span className="mt-1 block text-xs text-white/40">До 8 изображений, каждое до 8 МБ</span>
+                  <span className="mt-1 block text-xs text-white/62">До 8 изображений, каждое до 8 МБ</span>
                 </label>
 
                 {images.length > 0 ? (
@@ -509,13 +509,13 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 2 из 3</p>
                 <h2 ref={stepHeadingRef} id="new-item-step-two" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Расскажи честно и по делу</h2>
-                <p className="mt-2 text-sm leading-6 text-white/50">Состояние, комплектация и нюансы заранее снимают лишние вопросы.</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">Состояние, комплектация и нюансы заранее снимают лишние вопросы.</p>
               </div>
 
               <label className="block space-y-2">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-sm font-medium text-white/70">Описание</span>
-                  <span className="text-xs text-white/30">{description.length}/4000</span>
+                  <span className="text-xs text-white/62">{description.length}/4000</span>
                 </div>
                 <MenariumTextarea
                   value={description}
@@ -547,7 +547,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 />
                 <span>
                   <span className="block font-semibold text-white">Можно обменяться онлайн</span>
-                  <span className="mt-1 block text-sm leading-5 text-white/45">
+                  <span className="mt-1 block text-sm leading-5 text-white/62">
                     Подходит для цифровых товаров и удалённых услуг.
                   </span>
                 </span>
@@ -560,7 +560,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 3 из 3</p>
                 <h2 ref={stepHeadingRef} id="new-item-step-three" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что будет хорошим обменом?</h2>
-                <p className="mt-2 text-sm leading-6 text-white/50">Дай людям ориентир, но оставь пространство для неожиданно классных предложений.</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">Дай людям ориентир, но оставь пространство для неожиданно классных предложений.</p>
               </div>
 
               <label className="block space-y-2">
@@ -570,7 +570,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                   onChange={(event) => setDesiredText(event.target.value)}
                   placeholder="Через запятую: фотоаппарат, наушники, часы"
                 />
-                <span className="block text-xs text-white/35">До 12 вариантов, каждый — не длиннее 80 символов.</span>
+                <span className="block text-xs text-white/62">До 12 вариантов, каждый — не длиннее 80 символов.</span>
               </label>
 
               <div className="flex flex-wrap gap-2">
@@ -607,14 +607,14 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 />
                 <span>
                   <span className="block font-semibold text-white">Открыт к любым предложениям</span>
-                  <span className="mt-1 block text-sm leading-5 text-white/45">
+                  <span className="mt-1 block text-sm leading-5 text-white/62">
                     Отметь, если готов рассмотреть идеи вне списка выше.
                   </span>
                 </span>
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-white/70">Дополнительные условия <span className="font-normal text-white/35">· необязательно</span></span>
+                <span className="text-sm font-medium text-white/70">Дополнительные условия <span className="font-normal text-white/62">· необязательно</span></span>
                 <MenariumTextarea
                   value={extraOfferText}
                   onChange={(event) => setExtraOfferText(event.target.value)}
@@ -629,7 +629,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-300" />
                   <div>
                     <p className="font-semibold text-white">Всё готово к публикации</p>
-                    <p className="mt-1 text-sm leading-5 text-white/48">
+                    <p className="mt-1 text-sm leading-5 text-white/62">
                       Объявление сразу появится в каталоге. Его можно будет изменить или снять с публикации в профиле.
                     </p>
                   </div>
@@ -651,7 +651,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 Назад
               </MenariumButton>
             ) : (
-              <span className="text-xs text-white/30">Черновик сохраняется автоматически</span>
+              <span className="text-xs text-white/62">Черновик сохраняется автоматически</span>
             )}
 
             {step < steps.length - 1 ? (
@@ -681,7 +681,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 className="object-cover"
               />
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white/28">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white/62">
                 <Camera className="mb-3 h-9 w-9" />
                 <span className="text-xs">Здесь появится обложка</span>
               </div>
@@ -694,13 +694,13 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
               <Badge variant="glass">{categoryLabel(categoryId) ?? "Категория"}</Badge>
               {isOnline ? <Badge variant="teal">Онлайн</Badge> : null}
             </div>
-            <h3 className={cn("text-xl font-bold leading-tight", title ? "text-white" : "text-white/30")}>
+            <h3 className={cn("text-xl font-bold leading-tight", title ? "text-white" : "text-white/62")}>
               {title || "Название появится здесь"}
             </h3>
-            <p className="mt-3 line-clamp-3 text-sm leading-5 text-white/45">
+            <p className="mt-3 line-clamp-3 text-sm leading-5 text-white/62">
               {description || "Короткое и честное описание поможет быстрее найти подходящий обмен."}
             </p>
-            <div className="mt-4 flex items-center gap-2 text-xs text-white/40">
+            <div className="mt-4 flex items-center gap-2 text-xs text-white/62">
               <MapPin className="h-3.5 w-3.5" />
               {getCity(cityId)?.name ?? "Город не указан"}
             </div>
@@ -709,7 +709,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 <Sparkles className="h-3.5 w-3.5" />
                 Интересно взамен
               </div>
-              <p className="text-sm leading-5 text-white/60">
+              <p className="text-sm leading-5 text-white/62">
                 {desired.length > 0
                   ? desired.join(", ")
                   : acceptsAnything

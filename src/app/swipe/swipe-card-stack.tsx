@@ -175,7 +175,7 @@ export function SwipeCardStack({
         <GlassCard className="mx-auto flex min-h-[420px] max-w-[460px] flex-col items-center justify-center border border-white/8 p-8 text-center md:min-h-[510px]">
           <Loader2 className="mb-4 h-7 w-7 animate-spin text-teal-200" />
           <h2 className="text-xl font-semibold">Ищем новые варианты</h2>
-          <p className="mt-2 max-w-xs text-sm leading-6 text-white/48">
+          <p className="mt-2 max-w-xs text-sm leading-6 text-white/62">
             Очередь просмотрена. Через несколько секунд проверим свежие объявления.
           </p>
         </GlassCard>
@@ -237,7 +237,7 @@ export function SwipeCardStack({
 
             <div className="px-4 pb-4 pt-3.5 sm:px-5 md:px-6 md:pb-5 md:pt-4">
               <h2 className="line-clamp-1 text-xl font-bold tracking-tight sm:text-2xl">{card.title}</h2>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/58 md:mt-2">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/62 md:mt-2">
                 <span className="flex items-center gap-1.5">
                   <UserRound className="h-3.5 w-3.5" />
                   {card.ownerName}
@@ -290,7 +290,7 @@ export function SwipeCardStack({
         </button>
       </div>
 
-      <p className="mx-auto mt-3 hidden max-w-[460px] text-center text-xs text-white/48 md:block">
+      <p className="mx-auto mt-3 hidden max-w-[460px] text-center text-xs text-white/62 md:block">
         Можно тянуть карточку влево или вправо
       </p>
 

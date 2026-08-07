@@ -1,19 +1,13 @@
 import { getServerSession } from "next-auth";
-import { UserStatus } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { errorResponse } from "@/lib/api";
-import { prisma } from "@/lib/prisma";
 
 export async function getCurrentUserIdentity() {
   const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  if (!userId) return null;
+  const user = session?.user;
+  if (!user?.id || !user.email) return null;
 
-  const user = await prisma.user.findFirst({
-    where: { id: userId, status: UserStatus.ACTIVE },
-    select: { id: true, email: true },
-  });
-  return user ?? null;
+  return { id: user.id, email: user.email, emailVerified: Boolean(user.emailVerified) };
 }
 
 export async function getCurrentUserId() {
@@ -21,9 +15,9 @@ export async function getCurrentUserId() {
 }
 
 export async function requireUserId() {
-  const userId = await getCurrentUserId();
-  if (!userId) {
+  const identity = await getCurrentUserIdentity();
+  if (!identity) {
     return { ok: false as const, response: errorResponse("Необходимо войти в систему.", 401) };
   }
-  return { ok: true as const, userId };
+  return { ok: true as const, userId: identity.id, emailVerified: Boolean(identity.emailVerified) };
 }

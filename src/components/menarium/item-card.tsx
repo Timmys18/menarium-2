@@ -109,7 +109,7 @@ export function ItemCard({
             <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="line-clamp-2 text-lg font-semibold leading-6 tracking-[-0.02em] text-white">{title}</h3>
             {likes ? (
-              <span className="flex shrink-0 items-center gap-1 text-sm text-white/55">
+              <span className="flex shrink-0 items-center gap-1 text-sm text-white/62">
                 <Heart className="h-4 w-4 text-blue-300" />
                 {likes}
               </span>
@@ -122,7 +122,7 @@ export function ItemCard({
             </span>
             <span className="line-clamp-2 block text-sm leading-5 text-white/74">{wanted}</span>
           </div>
-          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/58">
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/62">
             {city ? (
               <span className="flex min-w-0 items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />

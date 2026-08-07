@@ -12,13 +12,13 @@
   --accent-purple: #8177ff;
   --accent-fuchsia: #bb74ff;
   --accent-amber: #ffbc72;
-  --surface-glass: rgba(15, 21, 31, 0.74);
-  --surface-glass-hover: rgba(22, 30, 43, 0.86);
+  --surface-glass: #0f151f;
+  --surface-glass-hover: #161e2b;
   --surface-soft: rgba(255, 255, 255, 0.045);
   --border-glass: rgba(255, 255, 255, 0.105);
   --border-strong: rgba(255, 255, 255, 0.17);
   --text-muted: rgba(230, 236, 247, 0.68);
-  --text-subtle: rgba(230, 236, 247, 0.48);
+  --text-subtle: rgba(230, 236, 247, 0.62);
   --shadow-card: 0 22px 70px rgba(0, 0, 0, 0.3);
   --mobile-nav-clearance: calc(7rem + env(safe-area-inset-bottom));
 }
@@ -137,8 +137,6 @@ a {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 46%),
     var(--surface-glass);
-  backdrop-filter: blur(20px) saturate(145%);
-  -webkit-backdrop-filter: blur(20px) saturate(145%);
   border: 1px solid var(--border-glass);
   box-shadow:
     var(--shadow-card),

@@ -46,7 +46,7 @@ export function CatalogCategoryFilter({ value, className }: { value?: string; cl
         value={selectedSubcategory}
         disabled={!root}
         onChange={(event) => navigate("category", event.target.value || root?.id)}
-        className="min-h-11 w-full rounded-[13px] border border-white/10 bg-[#111723] px-3 text-sm text-white outline-none transition disabled:cursor-not-allowed disabled:border-white/[0.06] disabled:text-white/30 focus-visible:ring-2 focus-visible:ring-blue-300/65"
+        className="min-h-11 w-full rounded-[13px] border border-white/10 bg-[#111723] px-3 text-sm text-white outline-none transition disabled:cursor-not-allowed disabled:border-white/[0.06] disabled:text-white/62 focus-visible:ring-2 focus-visible:ring-blue-300/65"
       >
         <option value="">{root ? "Все подкатегории" : "Сначала выберите категорию"}</option>
         {root?.children.map((child) => <option key={child.id} value={child.id}>{child.label}</option>)}
@@ -62,7 +62,7 @@ export function CatalogCityFilter({ value, className }: { value?: string; classN
     <div className={cn("space-y-2", className)}>
       <CityPicker value={value ?? ""} inline onChange={(city) => navigate("city", city.id)} />
       {selected ? (
-        <button type="button" onClick={() => navigate("city")} className="inline-flex items-center gap-1.5 text-xs text-white/48 transition hover:text-white">
+        <button type="button" onClick={() => navigate("city")} className="inline-flex items-center gap-1.5 text-xs text-white/62 transition hover:text-white">
           <X className="h-3.5 w-3.5" /> Сбросить «{selected.name}»
         </button>
       ) : null}

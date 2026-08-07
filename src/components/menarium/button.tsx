@@ -8,7 +8,7 @@ type ButtonSize = "sm" | "md" | "lg";
 const variants: Record<ButtonVariant, string> = {
   primary: "border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow-[0_14px_34px_rgba(77,141,255,0.22)] hover:shadow-[0_18px_42px_rgba(56,214,178,0.2)]",
   secondary: "border border-white/12 bg-white/[0.055] text-white font-semibold shadow-sm hover:border-white/20 hover:bg-white/[0.09]",
-  ghost: "text-white/60 hover:bg-white/[0.055] hover:text-white",
+  ghost: "text-white/62 hover:bg-white/[0.055] hover:text-white",
   danger: "bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25",
 };
 

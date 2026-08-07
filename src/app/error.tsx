@@ -24,7 +24,7 @@ export default function Error({
           <AlertTriangle className="h-8 w-8" />
         </div>
         <h1 className="text-3xl font-bold">Что-то пошло не так</h1>
-        <p className="mt-3 text-white/55">
+        <p className="mt-3 text-white/62">
           Не удалось загрузить страницу. Попробуйте обновить — если ошибка повторится, напишите в поддержку.
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">

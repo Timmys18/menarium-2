@@ -3,6 +3,7 @@ import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { publishUserEvents } from "@/lib/realtime";
+import { recordAdminAction } from "@/server/admin-audit";
 import { requireAdmin } from "@/server/admin";
 
 type Context = { params: Promise<{ id: string }> };
@@ -76,7 +77,7 @@ export async function PATCH(req: Request, context: Context) {
       });
     }
 
-    return tx.user.update({
+    const result = await tx.user.update({
       where: { id },
       data:
         parsed.data.status === "SUSPENDED"
@@ -94,6 +95,15 @@ export async function PATCH(req: Request, context: Context) {
             },
       select: { id: true, status: true, suspendedAt: true, suspensionReason: true },
     });
+    await recordAdminAction(tx, {
+      actorId: admin.admin.id,
+      action: parsed.data.status === "SUSPENDED" ? "user.suspended" : "user.restored",
+      targetType: "User",
+      targetId: id,
+      reason: parsed.data.reason,
+      metadata: { previousStatus: user.status, nextStatus: result.status },
+    });
+    return result;
   });
 
   await publishUserEvents([...affectedUsers], { type: "swap" });

@@ -69,7 +69,7 @@ export function MenariumDialog({
               {title}
             </h2>
             {description ? (
-              <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-white/55">
+              <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-white/62">
                 {description}
               </p>
             ) : null}
@@ -79,7 +79,7 @@ export function MenariumDialog({
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="rounded-xl p-2 text-white/45 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+            className="rounded-xl p-2 text-white/62 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
           >
             <X className="h-5 w-5" />
           </button>

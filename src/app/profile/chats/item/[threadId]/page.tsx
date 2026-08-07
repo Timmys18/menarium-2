@@ -75,7 +75,7 @@ export default async function ItemThreadPage({ params }: Props) {
             <>
               <Link
                 href="/profile/chats"
-                className="mb-5 inline-flex items-center gap-2 rounded-xl text-sm text-white/45 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                className="mb-5 inline-flex items-center gap-2 rounded-xl text-sm text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Все чаты
@@ -89,7 +89,7 @@ export default async function ItemThreadPage({ params }: Props) {
                         <UserRound className="h-5 w-5" />
                       </span>
                       <div className="min-w-0">
-                        <p className="text-xs text-white/35">Диалог по объявлению</p>
+                        <p className="text-xs text-white/62">Диалог по объявлению</p>
                         <h1 className="mt-0.5 truncate text-xl font-semibold">
                           {partner?.name ?? "Участник Менариум"}
                         </h1>
@@ -133,7 +133,7 @@ export default async function ItemThreadPage({ params }: Props) {
                           <ItemCoverImage src={itemImage} alt={thread.item.title} sizes="180px" />
                         </div>
                         <p className="mt-3 line-clamp-2 text-sm font-semibold text-white/80">{thread.item.title}</p>
-                        <p className="mt-1 text-xs leading-4 text-white/32">Объявление больше не опубликовано</p>
+                        <p className="mt-1 text-xs leading-4 text-white/62">Объявление больше не опубликовано</p>
                       </div>
                     )}
                   </aside>

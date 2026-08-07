@@ -66,7 +66,7 @@ export function UserModerationActions({
   }
 
   if (status === "DELETED") {
-    return <p className="text-xs text-white/35">Удалённый аккаунт нельзя восстановить здесь</p>;
+    return <p className="text-xs text-white/62">Удалённый аккаунт нельзя восстановить здесь</p>;
   }
 
   return (
@@ -129,7 +129,7 @@ export function UserModerationActions({
         </label>
         <div className="mt-2 flex items-start justify-between gap-4">
           {error ? <p role="alert" className="text-sm text-red-300">{error}</p> : <span />}
-          <p className="shrink-0 text-xs text-white/35">{reason.length}/1000</p>
+          <p className="shrink-0 text-xs text-white/62">{reason.length}/1000</p>
         </div>
       </MenariumDialog>
     </>

@@ -8,7 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { CATALOG_PAGE_SIZE } from "@/features/items/catalog-url";
 import { categoryScope } from "@/features/taxonomy/catalog";
 import { getCity } from "@/features/locations/cities";
-import { findSearchItemIds, searchPhrases } from "@/features/items/search";
+import { findSearchItemPage, searchPhrases } from "@/features/items/search";
+import { getRedis } from "@/lib/redis";
 
 // Демо-карточки при недоступной БД показываем ТОЛЬКО вне production.
 // В production поломка БД должна честно приводить к ошибке (error.tsx),
@@ -22,6 +23,74 @@ const itemInclude = {
   images: true,
   _count: { select: { favorites: true } },
 } as const;
+
+const CATALOG_FACETS_CACHE_KEY = "menarium:catalog:facets:v1";
+const CATALOG_FACETS_CACHE_TTL_SECONDS = 10 * 60;
+
+type CatalogFacets = {
+  categories: string[];
+  cities: string[];
+};
+
+function parseCatalogFacets(value: string | null): CatalogFacets | null {
+  if (!value) return null;
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      !Array.isArray((parsed as CatalogFacets).categories) ||
+      !Array.isArray((parsed as CatalogFacets).cities)
+    ) {
+      return null;
+    }
+
+    return {
+      categories: (parsed as CatalogFacets).categories.filter((value): value is string => typeof value === "string"),
+      cities: (parsed as CatalogFacets).cities.filter((value): value is string => typeof value === "string"),
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function loadCatalogFacets(): Promise<CatalogFacets> {
+  let redis: ReturnType<typeof getRedis> = null;
+
+  try {
+    redis = getRedis();
+    const cached = parseCatalogFacets(redis ? await redis.get(CATALOG_FACETS_CACHE_KEY) : null);
+    if (cached) return cached;
+  } catch {
+    // The catalog remains available if the optional cache is temporarily unavailable.
+  }
+
+  const [categoryRows, cityRows] = await Promise.all([
+    prisma.item.findMany({
+      where: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
+      distinct: ["category"],
+      select: { category: true },
+      orderBy: { category: "asc" },
+    }),
+    prisma.item.findMany({
+      where: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
+      distinct: ["city"],
+      select: { city: true },
+      orderBy: { city: "asc" },
+    }),
+  ]);
+  const facets = {
+    categories: categoryRows.map((entry) => entry.category),
+    cities: cityRows.map((entry) => entry.city),
+  };
+
+  if (redis) {
+    void redis.set(CATALOG_FACETS_CACHE_KEY, JSON.stringify(facets), "EX", CATALOG_FACETS_CACHE_TTL_SECONDS).catch(() => undefined);
+  }
+
+  return facets;
+}
 
 export type ItemCardsLoadResult = {
   cards: ItemCardView[];
@@ -96,9 +165,20 @@ export async function loadCatalogItemCards(input: {
   const offset = (page - 1) * pageSize;
 
   try {
-    const searchItemIds = input.q ? await findSearchItemIds(input.q) : undefined;
+    const searchPage = input.q
+      ? await findSearchItemPage(input.q, {
+          categoryIds: selectedCategoryScope.ids,
+          categoryLabels: selectedCategoryScope.labels,
+          cityId: input.city,
+          cityName: selectedCity?.name,
+          type: input.type,
+          sort: input.sort,
+          offset,
+          limit: pageSize,
+        })
+      : undefined;
     const conditions: Prisma.ItemWhereInput[] = [
-      ...(input.q ? [{ id: { in: searchItemIds ?? [] } }] : []),
+      ...(searchPage ? [{ id: { in: searchPage.ids } }] : []),
       ...(selectedCategory
         ? [{ OR: [{ categoryId: { in: selectedCategoryScope.ids } }, { category: { in: selectedCategoryScope.labels } }] }]
         : []),
@@ -124,29 +204,21 @@ export async function loadCatalogItemCards(input: {
           ? [{ updatedAt: "desc" }, { createdAt: "desc" }]
           : [{ createdAt: "desc" }];
 
-    const [items, total, categoryRows, cityRows] = await Promise.all([
-      prisma.item.findMany({ where, include: itemInclude, orderBy, skip: offset, take: pageSize }),
-      prisma.item.count({ where }),
-      prisma.item.findMany({
-        where: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
-        distinct: ["category"],
-        select: { category: true },
-        orderBy: { category: "asc" },
-      }),
-      prisma.item.findMany({
-        where: { status: ItemStatus.ACTIVE, owner: { status: UserStatus.ACTIVE } },
-        distinct: ["city"],
-        select: { city: true },
-        orderBy: { city: "asc" },
-      }),
+    const [loadedItems, total, facets] = await Promise.all([
+      prisma.item.findMany({ where, include: itemInclude, orderBy, skip: searchPage ? 0 : offset, take: pageSize }),
+      searchPage ? Promise.resolve(searchPage.total) : prisma.item.count({ where }),
+      loadCatalogFacets(),
     ]);
+    const items = searchPage
+      ? searchPage.ids.map((id) => loadedItems.find((item) => item.id === id)).filter((item): item is (typeof loadedItems)[number] => Boolean(item))
+      : loadedItems;
 
-    const liveCategories = ["Все", ...categoryRows.map((entry) => entry.category)];
+    const liveCategories = ["Все", ...facets.categories];
     return {
       cards: items.map((item) => toItemCardView(serializeItem(item), item._count.favorites)),
       preview: false,
       categoryList: liveCategories.length > 1 ? liveCategories : input.fallbackCategories,
-      cityList: cityRows.map((entry) => entry.city),
+      cityList: facets.cities,
       total,
       page,
       pageSize,

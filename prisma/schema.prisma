@@ -125,6 +125,7 @@ model User {
   productEvents      ProductEvent[]
   pushSubscriptions  PushSubscription[]
   chatPreferences    ChatPreference[]
+  adminActions       AdminAction[]       @relation("AdminActions")
 
   @@index([createdAt])
   @@index([status, createdAt])
@@ -501,4 +502,21 @@ model ProductEvent {
   @@index([sessionId, occurredAt])
   @@index([entityType, entityId])
   @@index([occurredAt])
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String
+  targetType String
+  targetId   String
+  reason     String?  @db.Text
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  actor User @relation("AdminActions", fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@index([createdAt])
 }

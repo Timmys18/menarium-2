@@ -1,6 +1,5 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { isPrismaError } from "@/lib/transactions";
 import { reportError } from "@/lib/logger";
 
 export const SERVER_PRODUCT_EVENT_NAMES = [
@@ -44,6 +43,44 @@ type TrackProductEventInput = {
   dedupeKey?: string | null;
 };
 
+type QueuedEvent = Prisma.ProductEventCreateManyInput;
+
+const globalAnalytics = globalThis as unknown as {
+  queue?: QueuedEvent[];
+  flushTimer?: ReturnType<typeof setTimeout>;
+  flushPromise?: Promise<void>;
+};
+
+function eventQueue() {
+  if (!globalAnalytics.queue) globalAnalytics.queue = [];
+  return globalAnalytics.queue;
+}
+
+async function flushProductEvents() {
+  if (globalAnalytics.flushPromise) return globalAnalytics.flushPromise;
+  const batch = eventQueue().splice(0, 100);
+  if (!batch.length) return;
+
+  globalAnalytics.flushPromise = prisma.productEvent
+    .createMany({ data: batch, skipDuplicates: true })
+    .then(() => undefined)
+    .catch((error) => reportError("product_analytics.record_failed", error, { batchSize: batch.length }))
+    .finally(() => {
+      globalAnalytics.flushPromise = undefined;
+      if (eventQueue().length) void flushProductEvents();
+    });
+  return globalAnalytics.flushPromise;
+}
+
+function scheduleProductEventFlush() {
+  if (globalAnalytics.flushTimer) return;
+  globalAnalytics.flushTimer = setTimeout(() => {
+    globalAnalytics.flushTimer = undefined;
+    void flushProductEvents();
+  }, 2_000);
+  globalAnalytics.flushTimer.unref?.();
+}
+
 export function isProductAnalyticsEnabled() {
   return process.env.PRODUCT_ANALYTICS_ENABLED === "true";
 }
@@ -61,27 +98,20 @@ export function sanitizeProductEventProperties(
   return safeEntries.length ? Object.fromEntries(safeEntries) : undefined;
 }
 
-export async function trackProductEvent(input: TrackProductEventInput) {
+export function trackProductEvent(input: TrackProductEventInput) {
   if (!isProductAnalyticsEnabled()) return;
 
-  try {
-    await prisma.productEvent.create({
-      data: {
-        name: input.name,
-        actorId: input.actorId ?? null,
-        anonymousId: input.anonymousId ?? null,
-        sessionId: input.sessionId ?? null,
-        entityType: input.entityType,
-        entityId: input.entityId ?? null,
-        path: input.path ?? null,
-        properties: sanitizeProductEventProperties(input.properties),
-        dedupeKey: input.dedupeKey ?? null,
-      },
-    });
-  } catch (error) {
-    if (isPrismaError(error, "P2002")) return;
-
-    // Product actions must remain available even when observability is degraded.
-    reportError("product_analytics.record_failed", error, { productEvent: input.name });
-  }
+  eventQueue().push({
+    name: input.name,
+    actorId: input.actorId ?? null,
+    anonymousId: input.anonymousId ?? null,
+    sessionId: input.sessionId ?? null,
+    entityType: input.entityType ?? null,
+    entityId: input.entityId ?? null,
+    path: input.path ?? null,
+    properties: sanitizeProductEventProperties(input.properties),
+    dedupeKey: input.dedupeKey ?? null,
+  });
+  if (eventQueue().length >= 100) void flushProductEvents();
+  else scheduleProductEventFlush();
 }

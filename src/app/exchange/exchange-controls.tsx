@@ -105,7 +105,7 @@ export function ExchangeActionPanel({
         <h3 id="exchange-actions-title" className="text-sm font-semibold text-white/88">
           {actionTitle}
         </h3>
-        <p className="mt-1 text-xs leading-5 text-white/60">{actionDescription}</p>
+        <p className="mt-1 text-xs leading-5 text-white/62">{actionDescription}</p>
       </div>
       {waitingForPartner ? (
         <p aria-live="polite" className="rounded-xl border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm text-teal-200">
@@ -249,7 +249,7 @@ export function ExchangeDealPanel({
           Чат с {partnerName}
         </h3>
         {communicationBlocked ? (
-          <p className="mt-1 text-xs text-white/52">Новые сообщения недоступны.</p>
+          <p className="mt-1 text-xs text-white/62">Новые сообщения недоступны.</p>
         ) : null}
       </div>
       <div className="mx-4 mt-4 grid grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)_44px] items-center gap-2 rounded-[16px] border border-white/8 bg-white/[0.035] p-2.5">

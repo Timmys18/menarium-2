@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { checkLoginRateLimit, resetLoginRateLimit } from "./rate-limit";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { checkItemCreationRateLimit, checkLoginRateLimit, resetLoginRateLimit } from "./rate-limit";
 
 describe("login rate limit", () => {
   const originalRedisUrl = process.env.REDIS_URL;
@@ -24,5 +24,24 @@ describe("login rate limit", () => {
     await resetLoginRateLimit(email, ip);
 
     expect((await checkLoginRateLimit(email, ip)).ok).toBe(true);
+  });
+
+  it("gives unverified accounts a lower publishing allowance", async () => {
+    const userId = `unverified-${Date.now()}`;
+    vi.useFakeTimers();
+    try {
+      expect((await checkItemCreationRateLimit(userId, false)).ok).toBe(true);
+      vi.advanceTimersByTime(3_100);
+      expect((await checkItemCreationRateLimit(userId, false)).ok).toBe(true);
+      vi.advanceTimersByTime(3_100);
+      expect((await checkItemCreationRateLimit(userId, false)).ok).toBe(true);
+      vi.advanceTimersByTime(3_100);
+
+      const limited = await checkItemCreationRateLimit(userId, false);
+      expect(limited.ok).toBe(false);
+      if (!limited.ok) expect(limited.status).toBe(429);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

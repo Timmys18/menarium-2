@@ -88,7 +88,7 @@ export default async function ProductAnalyticsPage() {
         <div className="mx-auto max-w-7xl">
           <Link
             href="/admin"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-white/50 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60"
           >
             <ArrowLeft className="h-4 w-4" />
             К модерации
@@ -101,7 +101,7 @@ export default async function ProductAnalyticsPage() {
                 Product intelligence
               </div>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Пульс Менариум</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/62 sm:text-base">
                 Путь от первого визита до завершённого обмена. Только first-party данные без рекламных трекеров,
                 содержимого сообщений и персональных полей.
               </p>
@@ -112,7 +112,7 @@ export default async function ProductAnalyticsPage() {
                   <span className="h-2 w-2 rounded-full bg-teal-300 shadow-[0_0_14px_rgba(94,234,212,0.8)]" />
                   Данные обновлены
                 </div>
-                <p className="mt-1 text-xs text-white/35">{generatedAtFormatter.format(dashboard.generatedAt)} МСК</p>
+                <p className="mt-1 text-xs text-white/62">{generatedAtFormatter.format(dashboard.generatedAt)} МСК</p>
               </div>
             ) : null}
           </header>
@@ -132,7 +132,7 @@ export default async function ProductAnalyticsPage() {
                     <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
                     <div>
                       <p className="font-medium text-amber-100">Сбор посещений выключен</p>
-                      <p className="mt-1 text-sm leading-6 text-white/50">
+                      <p className="mt-1 text-sm leading-6 text-white/62">
                         Бизнес-метрики продолжают считаться из основных данных, но для трафика установите
                         PRODUCT_ANALYTICS_ENABLED=true.
                       </p>
@@ -153,9 +153,9 @@ export default async function ProductAnalyticsPage() {
                       <strong className="text-6xl leading-none text-white">
                         {numberFormatter.format(dashboard.business.swapsCompleted)}
                       </strong>
-                      <span className="pb-1 text-sm text-white/40">завершённых обменов</span>
+                      <span className="pb-1 text-sm text-white/62">завершённых обменов</span>
                     </div>
-                    <p className="mt-5 max-w-md text-sm leading-6 text-white/50">
+                    <p className="mt-5 max-w-md text-sm leading-6 text-white/62">
                       Обе стороны подтвердили обмен, объявления перешли в историю.
                     </p>
                   </div>
@@ -166,13 +166,13 @@ export default async function ProductAnalyticsPage() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-400/10 text-sky-300">
                       <Eye className="h-5 w-5" />
                     </div>
-                    <span className="text-xs text-white/30">30 дней</span>
+                    <span className="text-xs text-white/62">30 дней</span>
                   </div>
                   <strong className="mt-5 block text-4xl font-semibold">
                     {numberFormatter.format(dashboard.traffic.uniqueVisitors)}
                   </strong>
-                  <p className="mt-1 text-sm text-white/45">уникальных посетителей</p>
-                  <p className="mt-4 text-xs text-white/30">
+                  <p className="mt-1 text-sm text-white/62">уникальных посетителей</p>
+                  <p className="mt-4 text-xs text-white/62">
                     {numberFormatter.format(dashboard.traffic.pageViews)} просмотров · {numberFormatter.format(dashboard.traffic.sessions)} сессий
                   </p>
                 </GlassCard>
@@ -182,13 +182,13 @@ export default async function ProductAnalyticsPage() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
                       <Handshake className="h-5 w-5" />
                     </div>
-                    <span className="text-xs text-white/30">качество мэтчинга</span>
+                    <span className="text-xs text-white/62">качество мэтчинга</span>
                   </div>
                   <strong className="mt-5 block text-4xl font-semibold">
                     {formatPercent(dashboard.business.acceptanceRate)}
                   </strong>
-                  <p className="mt-1 text-sm text-white/45">предложений приняты</p>
-                  <p className="mt-4 text-xs text-white/30">
+                  <p className="mt-1 text-sm text-white/62">предложений приняты</p>
+                  <p className="mt-4 text-xs text-white/62">
                     {numberFormatter.format(dashboard.business.proposalsAccepted)} из {numberFormatter.format(dashboard.business.swapsProposed)}
                   </p>
                 </GlassCard>
@@ -202,11 +202,11 @@ export default async function ProductAnalyticsPage() {
                         <Route className="h-5 w-5 text-teal-300" />
                         <h2 className="text-xl font-semibold">Активация новой когорты</h2>
                       </div>
-                      <p className="mt-2 text-sm text-white/40">
+                      <p className="mt-2 text-sm text-white/62">
                         Пользователи, зарегистрированные за последние 30 дней. Процент считается от регистраций.
                       </p>
                     </div>
-                    <span className="rounded-full bg-white/[0.05] px-3 py-1.5 text-xs text-white/45">
+                    <span className="rounded-full bg-white/[0.05] px-3 py-1.5 text-xs text-white/62">
                       {numberFormatter.format(dashboard.cohort[0]!.value)} человек
                     </span>
                   </div>
@@ -218,14 +218,14 @@ export default async function ProductAnalyticsPage() {
                         <div key={step.key}>
                           <div className="mb-2 flex items-baseline justify-between gap-3">
                             <div className="flex items-center gap-3">
-                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 text-[11px] text-white/45">
+                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 text-[11px] text-white/62">
                                 {index + 1}
                               </span>
                               <span className="text-sm font-medium">{step.label}</span>
                             </div>
                             <div className="text-right">
                               <span className="font-semibold">{numberFormatter.format(step.value)}</span>
-                              <span className="ml-2 text-xs text-white/35">{formatPercent(step.rate)}</span>
+                              <span className="ml-2 text-xs text-white/62">{formatPercent(step.rate)}</span>
                             </div>
                           </div>
                           <div className="ml-9 h-2 overflow-hidden rounded-full bg-white/[0.05]">
@@ -245,7 +245,7 @@ export default async function ProductAnalyticsPage() {
                     <Sparkles className="h-5 w-5 text-amber-300" />
                     <h2 className="text-xl font-semibold">Сигналы продукта</h2>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-white/40">
+                  <p className="mt-2 text-sm leading-6 text-white/62">
                     Стартовые внутренние пороги. После накопления данных заменим их целями по когортам.
                   </p>
 
@@ -269,11 +269,11 @@ export default async function ProductAnalyticsPage() {
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
                     <div className="rounded-2xl bg-white/[0.035] p-4">
-                      <p className="text-xs text-white/35">Активация предложения</p>
+                      <p className="text-xs text-white/62">Активация предложения</p>
                       <strong className="mt-2 block text-2xl">{formatPercent(dashboard.cohort[2]!.rate)}</strong>
                     </div>
                     <div className="rounded-2xl bg-white/[0.035] p-4">
-                      <p className="text-xs text-white/35">Принято → завершено</p>
+                      <p className="text-xs text-white/62">Принято → завершено</p>
                       <strong className="mt-2 block text-2xl">{formatPercent(dashboard.business.completionRate)}</strong>
                     </div>
                   </div>
@@ -288,9 +288,9 @@ export default async function ProductAnalyticsPage() {
                         <BarChart3 className="h-5 w-5 text-sky-300" />
                         <h2 className="text-xl font-semibold">Ежедневный импульс</h2>
                       </div>
-                      <p className="mt-2 text-sm text-white/40">14 дней · московское время</p>
+                      <p className="mt-2 text-sm text-white/62">14 дней · московское время</p>
                     </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-white/45">
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-white/62">
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-sky-400" />Регистрации</span>
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-teal-400" />Вещи</span>
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-amber-300" />Предложения</span>
@@ -323,21 +323,21 @@ export default async function ProductAnalyticsPage() {
                     <Clock3 className="h-5 w-5 text-violet-300" />
                     <h2 className="text-xl font-semibold">Время до обмена</h2>
                   </div>
-                  <p className="mt-2 text-sm text-white/40">Медиана за 30 дней</p>
+                  <p className="mt-2 text-sm text-white/62">Медиана за 30 дней</p>
 
                   <div className="mt-7 space-y-5">
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-white/40"><Box className="h-4 w-4" />Регистрация → первая вещь</div>
+                      <div className="flex items-center gap-2 text-xs text-white/62"><Box className="h-4 w-4" />Регистрация → первая вещь</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianFirstItemHours)}</strong>
                     </div>
                     <div className="h-px bg-white/[0.06]" />
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-white/40"><Users className="h-4 w-4" />Предложение → принятие</div>
+                      <div className="flex items-center gap-2 text-xs text-white/62"><Users className="h-4 w-4" />Предложение → принятие</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianAcceptHours)}</strong>
                     </div>
                     <div className="h-px bg-white/[0.06]" />
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-white/40"><ShieldCheck className="h-4 w-4" />Принятие → завершение</div>
+                      <div className="flex items-center gap-2 text-xs text-white/62"><ShieldCheck className="h-4 w-4" />Принятие → завершение</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianCompleteHours)}</strong>
                     </div>
                   </div>

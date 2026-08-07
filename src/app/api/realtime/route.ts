@@ -17,6 +17,7 @@ export async function GET(req: Request) {
 
   let cleanup: (() => Promise<void>) | undefined;
   let heartbeat: ReturnType<typeof setInterval> | undefined;
+  let maxLifetime: ReturnType<typeof setTimeout> | undefined;
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -26,6 +27,7 @@ export async function GET(req: Request) {
         if (closed) return;
         closed = true;
         if (heartbeat) clearInterval(heartbeat);
+        if (maxLifetime) clearTimeout(maxLifetime);
         req.signal.removeEventListener("abort", onAbort);
         await cleanup?.();
         try {
@@ -56,6 +58,9 @@ export async function GET(req: Request) {
         heartbeat = setInterval(() => {
           if (!closed) controller.enqueue(encoder.encode(": keep-alive\n\n"));
         }, 15_000);
+        // Let the browser renew long-lived connections instead of retaining
+        // abandoned sockets forever after a network change.
+        maxLifetime = setTimeout(() => void close(), 55 * 60 * 1000);
         req.signal.addEventListener("abort", onAbort, { once: true });
       } catch (error) {
         reportError("realtime.subscription_failed", error, { userId: auth.userId });
@@ -64,6 +69,7 @@ export async function GET(req: Request) {
     },
     async cancel() {
       if (heartbeat) clearInterval(heartbeat);
+      if (maxLifetime) clearTimeout(maxLifetime);
       await cleanup?.();
     },
   });

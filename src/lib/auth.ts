@@ -10,6 +10,7 @@ import { checkLoginRateLimit, getClientIp, resetLoginRateLimit } from "@/lib/rat
 // bcrypt.compare выполняется всегда, чтобы нельзя было по времени определить,
 // существует ли email (защита от enumeration).
 const DUMMY_HASH = "$2a$12$C6UzMDM.H6dfI/f/IKcEeO0000000000000000000000000000000000";
+const SESSION_REVALIDATION_MS = 5 * 60 * 1000;
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -65,6 +66,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           image: user.image,
           sessionVersion: user.sessionVersion,
+          emailVerified: Boolean(user.emailVerified),
         };
       },
     }),
@@ -73,18 +75,24 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user?.id) {
         token.sub = user.id;
-        token.sessionVersion = (user as { sessionVersion?: number }).sessionVersion ?? 0;
+        token.sessionVersion = user.sessionVersion ?? 0;
+        token.emailVerified = Boolean(user.emailVerified);
+        token.sessionCheckedAt = Date.now();
       }
 
-      if (token.sub) {
+      const lastCheckedAt = typeof token.sessionCheckedAt === "number" ? token.sessionCheckedAt : 0;
+      if (token.sub && Date.now() - lastCheckedAt >= SESSION_REVALIDATION_MS) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { status: true, sessionVersion: true },
+          select: { status: true, sessionVersion: true, emailVerified: true },
         });
         if (!dbUser || dbUser.status !== UserStatus.ACTIVE) {
           token.invalid = true;
         } else if (typeof token.sessionVersion === "number" && dbUser.sessionVersion !== token.sessionVersion) {
           token.invalid = true;
+        } else {
+          token.emailVerified = Boolean(dbUser.emailVerified);
+          token.sessionCheckedAt = Date.now();
         }
       }
 
@@ -96,6 +104,7 @@ export const authOptions: NextAuthOptions = {
       }
       if (session.user && token.sub) {
         session.user.id = token.sub;
+        session.user.emailVerified = Boolean(token.emailVerified);
       }
       return session;
     },

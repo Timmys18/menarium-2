@@ -21,6 +21,9 @@ type Listener = (event: RealtimeEvent) => void;
 
 const globalRealtime = globalThis as unknown as {
   realtimeEmitter?: EventEmitter;
+  redisSubscriber?: Redis;
+  redisSubscriberReady?: Promise<void>;
+  userListeners?: Map<string, Set<Listener>>;
 };
 
 function emitter() {
@@ -33,6 +36,41 @@ function emitter() {
 
 function userChannel(userId: string) {
   return `menarium:realtime:user:${userId}`;
+}
+
+function listenersForUsers() {
+  if (!globalRealtime.userListeners) globalRealtime.userListeners = new Map();
+  return globalRealtime.userListeners;
+}
+
+async function ensureSharedRedisSubscriber(redis: Redis) {
+  if (globalRealtime.redisSubscriberReady) return globalRealtime.redisSubscriberReady;
+
+  const subscriber = redis.duplicate({ maxRetriesPerRequest: null, enableReadyCheck: true });
+  const ready: Promise<void> = subscriber
+    .psubscribe("menarium:realtime:user:*")
+    .then(() => undefined)
+    .catch(async (error) => {
+      globalRealtime.redisSubscriber = undefined;
+      globalRealtime.redisSubscriberReady = undefined;
+      await subscriber.quit().catch(() => undefined);
+      throw error;
+    });
+
+  subscriber.on("pmessage", (_pattern, channel, message) => {
+    const prefix = "menarium:realtime:user:";
+    if (!channel.startsWith(prefix)) return;
+    try {
+      const event = JSON.parse(message) as RealtimeEvent;
+      for (const listener of listenersForUsers().get(channel.slice(prefix.length)) ?? []) listener(event);
+    } catch {
+      // A malformed event must not close other users' live connections.
+    }
+  });
+
+  globalRealtime.redisSubscriber = subscriber;
+  globalRealtime.redisSubscriberReady = ready;
+  return ready;
 }
 
 export async function publishUserEvent(
@@ -68,25 +106,15 @@ export async function subscribeToUserEvents(userId: string, listener: Listener) 
     };
   }
 
-  const subscriber: Redis = redis.duplicate({
-    maxRetriesPerRequest: null,
-    enableReadyCheck: true,
-  });
-  const onMessage = (incomingChannel: string, message: string) => {
-    if (incomingChannel !== channel) return;
-    try {
-      listener(JSON.parse(message) as RealtimeEvent);
-    } catch {
-      // Ignore malformed pub/sub payloads; the connection remains healthy.
-    }
-  };
-
-  subscriber.on("message", onMessage);
-  await subscriber.subscribe(channel);
+  await ensureSharedRedisSubscriber(redis);
+  const listeners = listenersForUsers();
+  const userListeners = listeners.get(userId) ?? new Set<Listener>();
+  userListeners.add(listener);
+  listeners.set(userId, userListeners);
 
   return async () => {
-    subscriber.off("message", onMessage);
-    await subscriber.unsubscribe(channel).catch(() => undefined);
-    await subscriber.quit().catch(() => undefined);
+    const current = listeners.get(userId);
+    current?.delete(listener);
+    if (current?.size === 0) listeners.delete(userId);
   };
 }

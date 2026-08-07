@@ -3,7 +3,7 @@ import { z } from "zod";
 import { reportBelongsToSwap } from "@/features/trust/report-context";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { checkActionRateLimit } from "@/lib/rate-limit";
+import { checkReportCreationRateLimit } from "@/lib/rate-limit";
 import { requireUserId } from "@/server/session";
 
 const reportSchema = z.object({
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const auth = await requireUserId();
   if (!auth.ok) return auth.response;
 
-  const rate = await checkActionRateLimit(auth.userId, "reports:create");
+  const rate = await checkReportCreationRateLimit(auth.userId, auth.emailVerified);
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
   const parsed = reportSchema.safeParse(await parseJson(req));

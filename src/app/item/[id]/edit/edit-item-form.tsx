@@ -180,9 +180,9 @@ export function EditItemForm({ item }: { item: PublicItem }) {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/65">Фотографии</p>
             <h2 className="mt-1.5 text-2xl font-bold">Фотографии</h2>
-            <p className="mt-2 text-sm text-white/45">Первое изображение станет обложкой. Можно добавить до 8 фото.</p>
+            <p className="mt-2 text-sm text-white/62">Первое изображение станет обложкой. Можно добавить до 8 фото.</p>
           </div>
-          <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/45">
+          <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/62">
             {images.length}/8
           </span>
         </div>
@@ -213,7 +213,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             <Camera className="h-5 w-5" />
             {images.length ? "Добавить ещё фото" : "Добавить фотографии"}
           </span>
-          <span className="mt-1 block text-xs text-white/40">PNG, JPEG, WebP или GIF, каждое до 8 МБ</span>
+          <span className="mt-1 block text-xs text-white/62">PNG, JPEG, WebP или GIF, каждое до 8 МБ</span>
         </label>
         {images.length > 0 ? (
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -254,7 +254,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/65">Описание обмена</p>
           <h2 className="mt-1.5 text-2xl font-bold">Обнови детали</h2>
-          <p className="mt-2 text-sm text-white/45">Изменения сразу появятся в каталоге после сохранения.</p>
+          <p className="mt-2 text-sm text-white/62">Изменения сразу появятся в каталоге после сохранения.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
@@ -265,7 +265,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
               maxLength={120}
               required
             />
-            <span className="block text-right text-xs text-white/30">{title.length}/120</span>
+            <span className="block text-right text-xs text-white/62">{title.length}/120</span>
           </label>
           <label className="space-y-2">
             <span className="text-sm font-medium text-white/70">Город</span>
@@ -306,7 +306,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             maxLength={4000}
             required
           />
-          <span className="block text-right text-xs text-white/30">{description.length}/4000</span>
+          <span className="block text-right text-xs text-white/62">{description.length}/4000</span>
         </label>
 
         <label className="space-y-2">
@@ -316,7 +316,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             onChange={(event) => setDesiredText(event.target.value)}
             placeholder="Например: наушники, винил, камера"
           />
-          <span className="block text-xs text-white/35">Разделяй варианты запятыми, максимум 12.</span>
+          <span className="block text-xs text-white/62">Разделяй варианты запятыми, максимум 12.</span>
         </label>
 
         <div className="flex flex-wrap gap-2">
@@ -353,7 +353,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             maxLength={1000}
             className="min-h-24"
           />
-          <span className="block text-right text-xs text-white/30">{extraOfferText.length}/1000</span>
+          <span className="block text-right text-xs text-white/62">{extraOfferText.length}/1000</span>
         </label>
 
         {error ? (

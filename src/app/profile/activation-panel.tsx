@@ -63,7 +63,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
       {!activation.complete ? (
         <div className="relative mt-5 border-t border-white/[0.07] pt-4">
           <div className="mb-3 flex items-center justify-between gap-4">
-            <p className="text-xs font-medium text-white/50">Путь до первого обмена</p>
+            <p className="text-xs font-medium text-white/62">Путь до первого обмена</p>
             <p className="text-xs font-semibold text-teal-200/78">
               {activation.completedCount} из {activation.steps.length}
             </p>
@@ -90,7 +90,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
                   <span
                     className={cn(
                       "mx-auto flex h-8 w-8 items-center justify-center rounded-[10px] border transition-colors sm:mx-0",
-                      step.done ? "bg-teal-400 text-[#071311]" : "bg-white/10 text-white/55",
+                      step.done ? "bg-teal-400 text-[#071311]" : "bg-white/10 text-white/62",
                       step.done && "border-teal-300/40",
                       current && "border-white/30 bg-white/[0.12] text-white",
                       !step.done && !current && "border-white/[0.06]",
@@ -101,7 +101,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
                   <p
                     className={cn(
                       "mt-2 hidden truncate text-[11px] sm:block",
-                      current ? "font-semibold text-white/78" : "text-white/40",
+                      current ? "font-semibold text-white/78" : "text-white/62",
                     )}
                     title={step.label}
                   >

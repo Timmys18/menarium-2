@@ -119,11 +119,11 @@ export default async function ProfilePage({
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex items-center justify-center gap-2 rounded-[13px] px-3 py-2.5 text-sm transition-colors",
-                  active ? "bg-white/[0.08] text-white" : "text-white/48 hover:bg-white/[0.045] hover:text-white",
+                  active ? "bg-white/[0.08] text-white" : "text-white/62 hover:bg-white/[0.045] hover:text-white",
                 )}
               >
                 {entry.label}
-                <span className={active ? "text-teal-200" : "text-white/30"}>{counts[entry.status]}</span>
+                <span className={active ? "text-teal-200" : "text-white/62"}>{counts[entry.status]}</span>
               </Link>
             );
           })}

@@ -77,7 +77,7 @@ export function ResetPasswordForm() {
 
   return (
     <form className="space-y-4" onSubmit={submit}>
-      <p className="text-sm text-white/55">Придумайте новый пароль для {email}</p>
+      <p className="text-sm text-white/62">Придумайте новый пароль для {email}</p>
       <div className="space-y-2.5">
         <label htmlFor="reset-password" className="block text-sm font-medium text-white/75">
           Новый пароль
@@ -100,7 +100,7 @@ export function ResetPasswordForm() {
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Скрыть введённые символы" : "Показать введённые символы"}
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/38 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70"
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70"
           >
             {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
           </button>
@@ -112,7 +112,7 @@ export function ResetPasswordForm() {
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition ${
                 check.passed
                   ? "border-teal-300/20 bg-teal-300/[0.08] text-teal-100"
-                  : "border-white/8 bg-white/[0.025] text-white/32"
+                  : "border-white/8 bg-white/[0.025] text-white/62"
               }`}
             >
               <Check className="h-3 w-3" />

@@ -50,7 +50,7 @@ export function ItemChatPanel({
       <div className="mb-5">
         <h2 className="text-xl font-semibold">Чат по объявлению</h2>
         {!canWrite ? (
-          <p className="mt-1 text-sm text-white/45">Новые сообщения недоступны.</p>
+          <p className="mt-1 text-sm text-white/62">Новые сообщения недоступны.</p>
         ) : null}
       </div>
       <ChatConversation

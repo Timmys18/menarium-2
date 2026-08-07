@@ -1,9 +1,11 @@
-import { ItemStatus } from "@prisma/client";
+import { ItemStatus, SwapStatus } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { getPaging, listResponse } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeItem } from "@/features/items/serializers";
+
+const SWIPE_PASS_RESHOW_AFTER_DAYS = 180;
 
 export async function GET(req: NextRequest) {
   const auth = await requireUserId();
@@ -11,15 +13,17 @@ export async function GET(req: NextRequest) {
 
   const { limit, offset } = getPaging(req, 12, 30);
 
-  const { getSwipeExclusions } = await import("@/features/items/swipe-exclusions");
-  const exclusions = await getSwipeExclusions(auth.userId);
+  const passCutoff = new Date(Date.now() - SWIPE_PASS_RESHOW_AFTER_DAYS * 24 * 60 * 60 * 1000);
   const where = {
     status: ItemStatus.ACTIVE,
-    ownerId: {
-      not: auth.userId,
-      ...(exclusions.ownerIds.length ? { notIn: exclusions.ownerIds } : {}),
+    owner: {
+      id: { not: auth.userId },
+      status: "ACTIVE" as const,
+      blocksCreated: { none: { blockedId: auth.userId } },
+      blocksReceived: { none: { blockerId: auth.userId } },
     },
-    ...(exclusions.itemIds.length ? { id: { notIn: exclusions.itemIds } } : {}),
+    swipePasses: { none: { userId: auth.userId, createdAt: { gte: passCutoff } } },
+    receivedSwaps: { none: { senderId: auth.userId, status: SwapStatus.PENDING } },
   };
 
   const [items, total] = await Promise.all([

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { ItemType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 const synonyms: Record<string, readonly string[]> = {
@@ -37,33 +37,92 @@ export function searchPhrases(query: string): string[] {
   return [...expanded].slice(0, 8);
 }
 
-export async function findSearchItemIds(query: string): Promise<string[]> {
-  const phrases = searchPhrases(query);
-  if (phrases.length === 0) return [];
+export type SearchItemPageInput = {
+  categoryIds?: string[];
+  categoryLabels?: string[];
+  cityId?: string;
+  cityName?: string;
+  type?: ItemType;
+  acceptsAnything?: boolean;
+  sort?: "new" | "popular" | "trends";
+  offset: number;
+  limit: number;
+};
 
-  const text = Prisma.sql`coalesce(i."title", '') || ' ' || coalesce(i."description", '') || ' ' || coalesce(array_to_string(i."desired", ' '), '') || ' ' || coalesce(i."category", '')`;
+export type SearchItemPage = {
+  ids: string[];
+  total: number;
+};
+
+/**
+ * Search, filtering, relevance, pagination and the total are deliberately one
+ * database query. Returning a giant ID list first makes totals lie and loses
+ * relevance ordering as the catalog grows.
+ */
+export async function findSearchItemPage(
+  query: string,
+  input: SearchItemPageInput,
+): Promise<SearchItemPage> {
+  const phrases = searchPhrases(query);
+  if (phrases.length === 0) return { ids: [], total: 0 };
+
   const matches = Prisma.join(
     phrases.map(
       (phrase) => Prisma.sql`
-        to_tsvector('russian', ${text}) @@ websearch_to_tsquery('russian', ${phrase})
-        OR word_similarity(lower(${phrase}), lower(${text})) >= 0.42
-        OR translate(lower(${text}), 'ё', 'е') LIKE '%' || lower(${phrase}) || '%'
-        OR ${text} LIKE '%' || ${phrase} || '%'
+        i."searchVector" @@ websearch_to_tsquery('russian', ${phrase})
+        OR i."searchText" %> lower(${phrase})
       `,
     ),
     " OR ",
   );
 
-  const rows = await prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-    SELECT i."id"
-    FROM "Item" i
-    INNER JOIN "User" u ON u."id" = i."ownerId"
-    WHERE i."status" = 'ACTIVE' AND u."status" = 'ACTIVE' AND (${matches})
-    ORDER BY
-      GREATEST(${Prisma.join(phrases.map((phrase) => Prisma.sql`ts_rank_cd(to_tsvector('russian', ${text}), websearch_to_tsquery('russian', ${phrase}))`), ", ")}) DESC,
-      i."updatedAt" DESC
-    LIMIT 2000
+  const filters: Prisma.Sql[] = [
+    Prisma.sql`i."status" = 'ACTIVE'`,
+    Prisma.sql`u."status" = 'ACTIVE'`,
+    Prisma.sql`(${matches})`,
+  ];
+  if (input.categoryIds?.length || input.categoryLabels?.length) {
+    const categoryFilters: Prisma.Sql[] = [];
+    if (input.categoryIds?.length) categoryFilters.push(Prisma.sql`i."categoryId" IN (${Prisma.join(input.categoryIds)})`);
+    if (input.categoryLabels?.length) categoryFilters.push(Prisma.sql`i."category" IN (${Prisma.join(input.categoryLabels)})`);
+    filters.push(Prisma.sql`(${Prisma.join(categoryFilters, " OR ")})`);
+  }
+  if (input.cityId || input.cityName) {
+    const cityFilters: Prisma.Sql[] = [];
+    if (input.cityId) cityFilters.push(Prisma.sql`i."cityId" = ${input.cityId}`);
+    if (input.cityName) cityFilters.push(Prisma.sql`i."city" ILIKE ${input.cityName}`);
+    filters.push(Prisma.sql`(${Prisma.join(cityFilters, " OR ")})`);
+  }
+  if (input.type) filters.push(Prisma.sql`i."type" = ${input.type}`);
+  if (input.acceptsAnything) filters.push(Prisma.sql`i."acceptsAnything" = true`);
+
+  const score = Prisma.join(
+    phrases.map((phrase) => Prisma.sql`ts_rank_cd(i."searchVector", websearch_to_tsquery('russian', ${phrase}))`),
+    ", ",
+  );
+  const orderBy =
+    input.sort === "popular"
+      ? Prisma.sql`"popularity" DESC, "score" DESC, "updatedAt" DESC`
+      : input.sort === "trends"
+        ? Prisma.sql`"updatedAt" DESC, "score" DESC`
+        : Prisma.sql`"score" DESC, "updatedAt" DESC`;
+
+  const rows = await prisma.$queryRaw<Array<{ id: string; total: bigint }>>(Prisma.sql`
+    WITH matches AS (
+      SELECT
+        i."id",
+        i."updatedAt",
+        GREATEST(${score}) AS "score",
+        (SELECT count(*) FROM "Favorite" f WHERE f."itemId" = i."id") AS "popularity"
+      FROM "Item" i
+      INNER JOIN "User" u ON u."id" = i."ownerId"
+      WHERE ${Prisma.join(filters, " AND ")}
+    )
+    SELECT "id", count(*) OVER () AS "total"
+    FROM matches
+    ORDER BY ${orderBy}
+    LIMIT ${input.limit} OFFSET ${input.offset}
   `);
 
-  return rows.map((row) => row.id);
+  return { ids: rows.map((row) => row.id), total: rows[0] ? Number(rows[0].total) : 0 };
 }

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/server/admin";
+import { recordAdminAction } from "@/server/admin-audit";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -26,10 +27,20 @@ export async function PATCH(req: Request, context: Context) {
     return errorResponse("Нельзя модерировать объявление, пока оно находится в активной сделке", 409);
   }
 
-  const updated = await prisma.item.update({
-    where: { id },
-    data: { status: parsed.data.status },
-    select: { id: true, status: true },
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.item.update({
+      where: { id },
+      data: { status: parsed.data.status },
+      select: { id: true, status: true },
+    });
+    await recordAdminAction(tx, {
+      actorId: auth.admin.id,
+      action: parsed.data.status === ItemStatus.ARCHIVED ? "item.archived" : "item.restored",
+      targetType: "Item",
+      targetId: id,
+      metadata: { previousStatus: item.status, nextStatus: result.status },
+    });
+    return result;
   });
 
   return actionResponse(updated);

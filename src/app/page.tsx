@@ -71,7 +71,7 @@ export default async function Home() {
                 <ArrowRight className="h-5 w-5" />
               </MenariumLinkButton>
             </div>
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/58">
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/62">
               {[
                 "Вещи и услуги",
                 "Любые сочетания",
@@ -112,7 +112,7 @@ export default async function Home() {
                     <div className="p-4 sm:p-5">
                       <p className="text-xs uppercase tracking-[0.14em] text-teal-200/72">{item.category}</p>
                       <h2 className="mt-1 line-clamp-1 text-base font-semibold sm:text-lg">{item.title}</h2>
-                      <p className="mt-2 line-clamp-1 text-xs text-white/42">Ищу: {item.wanted}</p>
+                      <p className="mt-2 line-clamp-1 text-xs text-white/62">Ищу: {item.wanted}</p>
                     </div>
                   </Link>
                 ))}
@@ -126,7 +126,7 @@ export default async function Home() {
                 <div>
                   <Compass className="mx-auto h-10 w-10 text-teal-200" />
                   <p className="mt-4 text-lg font-semibold">Предложений пока нет</p>
-                  <p className="mt-2 text-sm text-white/45">Добавьте вещь или услугу.</p>
+                  <p className="mt-2 text-sm text-white/62">Добавьте вещь или услугу.</p>
                 </div>
               </div>
             )}
@@ -204,14 +204,14 @@ export default async function Home() {
                       <Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-6 text-lg font-semibold">{step.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-white/58">{step.text}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/62">{step.text}</p>
                   </SurfaceCard>
                 );
               })}
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3 text-xs text-white/42">
+          <div className="mt-8 flex flex-wrap gap-3 text-xs text-white/62">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.03] px-3 py-2">
               <ShieldCheck className="h-4 w-4 text-teal-200" />
               Статусы видны обеим сторонам

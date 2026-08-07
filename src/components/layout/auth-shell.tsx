@@ -52,7 +52,7 @@ export function AuthShell({
                   <div key={step.number} className="rounded-[20px] border border-white/8 bg-white/[0.04] p-4 backdrop-blur-xl">
                     <div className="flex items-center justify-between">
                       <Icon className="h-5 w-5 text-teal-200" />
-                      <span className="font-display text-xs font-semibold text-white/48">{step.number}</span>
+                      <span className="font-display text-xs font-semibold text-white/62">{step.number}</span>
                     </div>
                     <p className="mt-5 text-sm font-medium text-white/76">{step.label}</p>
                   </div>
@@ -61,7 +61,7 @@ export function AuthShell({
             </div>
           </div>
 
-          <p className="relative flex items-center gap-2 text-sm text-white/56">
+          <p className="relative flex items-center gap-2 text-sm text-white/62">
             <ShieldCheck className="h-4 w-4 text-teal-200/75" />
             Личные данные и история сделок доступны только вам.
           </p>
@@ -95,12 +95,12 @@ export function AuthShell({
             {children}
           </GlassCard>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/54">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/62">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-teal-200/65" />
               Защищённое соединение
             </span>
-            <Link href="/catalog" className="rounded-lg text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
+            <Link href="/catalog" className="rounded-lg text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
               Сначала посмотреть каталог
             </Link>
           </div>

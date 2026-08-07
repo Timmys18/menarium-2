@@ -2,7 +2,7 @@ import { ItemStatus, ItemType, Prisma } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { actionResponse, errorResponse, getPaging, listResponse, parseJson } from "@/lib/api";
-import { checkActionRateLimit } from "@/lib/rate-limit";
+import { checkItemCreationRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { serializeItem } from "@/features/items/serializers";
@@ -13,7 +13,7 @@ import { runSerializableTransaction } from "@/lib/transactions";
 import { reportError } from "@/lib/logger";
 import { categoryLabel, legacyCategoryId } from "@/features/taxonomy/catalog";
 import { findCityByName, getCity } from "@/features/locations/cities";
-import { findSearchItemIds } from "@/features/items/search";
+import { findSearchItemPage } from "@/features/items/search";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -27,13 +27,24 @@ export async function GET(req: NextRequest) {
   const acceptsAnything = searchParams.get("acceptsAnything");
 
   const parsedType = type === ItemType.THING || type === ItemType.SERVICE ? type : undefined;
-  const [searchItemIds, selectedCategoryLabel, selectedCity] = await Promise.all([
-    q ? findSearchItemIds(q) : Promise.resolve(undefined),
+  const [selectedCategoryLabel, selectedCity] = await Promise.all([
     Promise.resolve(categoryLabel(category)),
     Promise.resolve(getCity(city)),
   ]);
+  const searchPage = q
+    ? await findSearchItemPage(q, {
+        categoryIds: category ? [category] : undefined,
+        categoryLabels: selectedCategoryLabel ? [selectedCategoryLabel] : undefined,
+        cityId: city,
+        cityName: selectedCity?.name,
+        type: parsedType,
+        acceptsAnything: acceptsAnything === "true",
+        offset,
+        limit,
+      })
+    : undefined;
   const filters: Prisma.ItemWhereInput[] = [
-    ...(q ? [{ id: { in: searchItemIds ?? [] } }] : []),
+    ...(searchPage ? [{ id: { in: searchPage.ids } }] : []),
     ...(category
       ? [{ OR: [{ categoryId: category }, ...(selectedCategoryLabel ? [{ category: selectedCategoryLabel }] : [])] }]
       : []),
@@ -48,16 +59,19 @@ export async function GET(req: NextRequest) {
     ...(acceptsAnything === "true" ? { acceptsAnything: true } : {}),
   };
 
-  const [items, total] = await Promise.all([
+  const [loadedItems, total] = await Promise.all([
     prisma.item.findMany({
       where,
       include: { owner: { select: { id: true, name: true, city: true, image: true } }, images: true },
       orderBy: { createdAt: "desc" },
-      skip: offset,
+      skip: searchPage ? 0 : offset,
       take: limit,
     }),
-    prisma.item.count({ where }),
+    searchPage ? Promise.resolve(searchPage.total) : prisma.item.count({ where }),
   ]);
+  const items = searchPage
+    ? searchPage.ids.map((id) => loadedItems.find((item) => item.id === id)).filter((item): item is (typeof loadedItems)[number] => Boolean(item))
+    : loadedItems;
 
   return listResponse(items.map(serializeItem), { limit, offset }, total);
 }
@@ -66,7 +80,7 @@ export async function POST(req: Request) {
   const auth = await requireUserId();
   if (!auth.ok) return auth.response;
 
-  const rate = await checkActionRateLimit(auth.userId, "items:create");
+  const rate = await checkItemCreationRateLimit(auth.userId, auth.emailVerified);
   if (!rate.ok) return errorResponse(rate.error, rate.status, { retryAfterSec: rate.retryAfterSec });
 
   const body = await parseJson(req);

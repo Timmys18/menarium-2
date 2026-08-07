@@ -217,11 +217,11 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                       "rounded-[14px] px-4 py-2.5 text-sm font-medium transition",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/45 hover:bg-white/[0.055] hover:text-white",
+                        : "text-white/62 hover:bg-white/[0.055] hover:text-white",
                     )}
                   >
                     {label}
-                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/75" : "text-white/28")}>
+                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/75" : "text-white/62")}>
                       {count}
                     </span>
                   </Link>
@@ -244,7 +244,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                           "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] sm:h-12 sm:w-12",
                           chat.unread
                             ? "bg-gradient-to-br from-blue-500/60 to-teal-400/50 text-white"
-                            : "bg-white/[0.05] text-white/38",
+                            : "bg-white/[0.05] text-white/62",
                         )}
                       >
                         <MessageCircle className="h-5 w-5" />
@@ -259,16 +259,16 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                           <span className="truncate font-semibold text-white">{chat.title}</span>
                           <Badge variant={chat.kind === "Обмен" ? "teal" : "purple"}>{chat.kind}</Badge>
                         </span>
-                        <span className="mt-0.5 block truncate text-xs text-white/35">{chat.context}</span>
+                        <span className="mt-0.5 block truncate text-xs text-white/62">{chat.context}</span>
                         {chat.ownContext ? (
                           <span className="mt-0.5 block truncate text-xs text-teal-200/48">{chat.ownContext}</span>
                         ) : null}
-                        <span className={cn("mt-1 block truncate text-sm", chat.unread ? "text-white/78" : "text-white/52")}>
+                        <span className={cn("mt-1 block truncate text-sm", chat.unread ? "text-white/78" : "text-white/62")}>
                           {chat.preview}
                         </span>
                       </span>
                       <span className="flex shrink-0 items-center gap-2 pt-1 sm:pt-0">
-                        <time dateTime={chat.at.toISOString()} className="text-xs text-white/30">
+                        <time dateTime={chat.at.toISOString()} className="text-xs text-white/62">
                           {formatChatTime(chat.at)}
                         </time>
                         <ArrowRight className="hidden h-4 w-4 text-white/20 transition group-hover:translate-x-0.5 group-hover:text-teal-200 sm:block" />
@@ -299,7 +299,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                       ← Назад
                     </Link>
                   ) : null}
-                  <span className="text-xs text-white/35">{page} из {totalPages}</span>
+                  <span className="text-xs text-white/62">{page} из {totalPages}</span>
                   {page < totalPages ? (
                     <Link
                       href={chatsHref(activeFilter, page + 1)}

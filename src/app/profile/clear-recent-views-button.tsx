@@ -33,7 +33,7 @@ export function ClearRecentViewsButton() {
         onClick={clearHistory}
         disabled={pending}
         aria-describedby={error ? "clear-recent-views-error" : undefined}
-        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.035] px-3.5 text-xs font-semibold text-white/52 transition hover:border-rose-300/20 hover:bg-rose-300/[0.055] hover:text-rose-100/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200/65 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.035] px-3.5 text-xs font-semibold text-white/62 transition hover:border-rose-300/20 hover:bg-rose-300/[0.055] hover:text-rose-100/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200/65 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
       >
         {pending ? (
           <LoaderCircle className="h-3.5 w-3.5 animate-spin" />

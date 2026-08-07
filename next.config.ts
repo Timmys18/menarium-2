@@ -5,34 +5,8 @@ const storagePublicBaseUrl = process.env.STORAGE_PUBLIC_BASE_URL;
 const storageHost = storagePublicBaseUrl?.startsWith("http")
   ? new URL(storagePublicBaseUrl).hostname
   : undefined;
-const storageOrigin = storagePublicBaseUrl?.startsWith("http")
-  ? new URL(storagePublicBaseUrl).origin
-  : undefined;
-const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
-const sentryOrigin = sentryDsn?.startsWith("http") ? new URL(sentryDsn).origin : undefined;
-const isDevelopment = process.env.NODE_ENV === "development";
-const enforceHttps = new Set(["staging", "production"]).has(process.env.APP_ENVIRONMENT ?? "");
-
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
-  "script-src-attr 'none'",
-  "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' blob: data: https://storage.yandexcloud.net${storageOrigin ? ` ${storageOrigin}` : ""}`,
-  "font-src 'self' data:",
-  `connect-src 'self'${storageOrigin ? ` ${storageOrigin}` : ""}${sentryOrigin ? ` ${sentryOrigin}` : ""}`,
-  `media-src 'self' blob:${storageOrigin ? ` ${storageOrigin}` : ""}`,
-  "worker-src 'self' blob:",
-  "manifest-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  ...(enforceHttps ? ["upgrade-insecure-requests"] : []),
-].join("; ");
 
 const securityHeaders = [
-  { key: "Content-Security-Policy", value: contentSecurityPolicy },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-DNS-Prefetch-Control", value: "off" },

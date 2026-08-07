@@ -123,11 +123,11 @@ export default async function NotificationsPage({ searchParams }: Props) {
                       "rounded-[14px] px-4 py-2.5 text-sm font-medium transition",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/45 hover:bg-white/[0.055] hover:text-white",
+                        : "text-white/62 hover:bg-white/[0.055] hover:text-white",
                     )}
                   >
                     {label}
-                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/75" : "text-white/28")}>
+                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/75" : "text-white/62")}>
                       {count}
                     </span>
                   </Link>
@@ -140,7 +140,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                     <section key={group.label} aria-labelledby={`notifications-${group.label}`}>
                       <h2
                         id={`notifications-${group.label}`}
-                        className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/48"
+                        className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/62"
                       >
                         {group.label}
                       </h2>
@@ -154,7 +154,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                                 className={cn(
                                   "flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
                                   notification.isRead
-                                    ? "bg-white/[0.045] text-white/35"
+                                    ? "bg-white/[0.045] text-white/62"
                                     : "bg-gradient-to-br from-blue-500/55 to-teal-400/45 text-white",
                                 )}
                               >
@@ -165,10 +165,10 @@ export default async function NotificationsPage({ searchParams }: Props) {
                                   <h3 className="font-semibold text-white">{notification.title}</h3>
                                   {!notification.isRead ? <Badge variant="teal">Новое</Badge> : null}
                                 </div>
-                                <p className="mt-1 text-sm leading-5 text-white/60">{notification.message}</p>
+                                <p className="mt-1 text-sm leading-5 text-white/62">{notification.message}</p>
                                 <time
                                   dateTime={notification.createdAt.toISOString()}
-                                  className="mt-2 block text-xs text-white/42"
+                                  className="mt-2 block text-xs text-white/62"
                                 >
                                   {notification.createdAt.toLocaleString("ru-RU", {
                                     day: "numeric",
@@ -237,7 +237,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                       ← Назад
                     </Link>
                   ) : null}
-                  <span className="text-xs text-white/35">{page} из {totalPages}</span>
+                  <span className="text-xs text-white/62">{page} из {totalPages}</span>
                   {page < totalPages ? (
                     <Link
                       href={notificationsHref(activeFilter, page + 1)}

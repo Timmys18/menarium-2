@@ -208,7 +208,7 @@ export default async function MyItemsPage({
                 Управление предложениями
               </p>
               <h1 className="type-page-title text-4xl md:text-5xl">Мои объявления</h1>
-              <p className="mt-3 max-w-2xl text-white/55">
+              <p className="mt-3 max-w-2xl text-white/62">
                 Публикуй, приостанавливай и возвращай объявления в каталог без потери данных.
               </p>
             </div>
@@ -259,7 +259,7 @@ export default async function MyItemsPage({
                       <span
                         className={cn(
                           "flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px]",
-                          selected ? "bg-blue-400/18 text-teal-200" : "bg-white/[0.05] text-white/35",
+                          selected ? "bg-blue-400/18 text-teal-200" : "bg-white/[0.05] text-white/62",
                         )}
                       >
                         <Icon className="h-5 w-5" />
@@ -267,11 +267,11 @@ export default async function MyItemsPage({
                       <span className="min-w-0">
                         <span className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-white">{entry.label}</span>
-                          <span className={cn("text-xs", selected ? "text-teal-200" : "text-white/30")}>
+                          <span className={cn("text-xs", selected ? "text-teal-200" : "text-white/62")}>
                             {counts[entry.status]}
                           </span>
                         </span>
-                        <span className="mt-1 hidden text-xs text-white/35 sm:block">{entry.description}</span>
+                        <span className="mt-1 hidden text-xs text-white/62 sm:block">{entry.description}</span>
                       </span>
                     </Link>
                   );
@@ -325,7 +325,7 @@ export default async function MyItemsPage({
                         </Link>
 
                         <div className="flex flex-1 flex-col p-5">
-                          <div className="flex items-center justify-between gap-3 text-xs text-white/35">
+                          <div className="flex items-center justify-between gap-3 text-xs text-white/62">
                             <span>{item.category}</span>
                             <span className="flex items-center gap-1">
                               <MapPin className="h-3.5 w-3.5" />
@@ -338,10 +338,10 @@ export default async function MyItemsPage({
                             </h2>
                           </Link>
                           <div className="mt-4 rounded-[16px] border border-white/7 bg-white/[0.025] px-4 py-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/30">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/62">
                               Текущее состояние
                             </p>
-                            <p className="mt-1.5 text-sm leading-5 text-white/55">{presentation.copy}</p>
+                            <p className="mt-1.5 text-sm leading-5 text-white/62">{presentation.copy}</p>
                           </div>
 
                           {liveSwapCount > 0 ? (
@@ -433,7 +433,7 @@ export default async function MyItemsPage({
                       ← Назад
                     </Link>
                   ) : null}
-                  <span className="text-xs text-white/35">{page} из {totalPages}</span>
+                  <span className="text-xs text-white/62">{page} из {totalPages}</span>
                   {page < totalPages ? (
                     <Link
                       href={filterHref(activeFilter, page + 1)}

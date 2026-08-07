@@ -89,7 +89,7 @@ export function ExchangeReviewPanel({
           <h3 id="exchange-review-title" className="text-sm font-semibold text-white/90">
             Подтверждённый отзыв
           </h3>
-          <p className="mt-1 text-xs leading-5 text-white/40">
+          <p className="mt-1 text-xs leading-5 text-white/62">
             Оценку могут оставить только участники завершённого обмена.
           </p>
         </div>
@@ -99,10 +99,10 @@ export function ExchangeReviewPanel({
         <div className="rounded-[15px] border border-white/8 bg-white/[0.025] p-3.5">
           <div className="flex items-center justify-between gap-3">
             <Stars rating={review.rating} label={`Ваша оценка: ${review.rating} из 5`} />
-            <span className="text-xs text-white/35">{ratingLabels[review.rating]}</span>
+            <span className="text-xs text-white/62">{ratingLabels[review.rating]}</span>
           </div>
           {review.comment ? <p className="mt-3 text-sm leading-6 text-white/64">{review.comment}</p> : null}
-          <div className="mt-3 flex items-start gap-2 border-t border-white/7 pt-3 text-xs leading-5 text-white/40">
+          <div className="mt-3 flex items-start gap-2 border-t border-white/7 pt-3 text-xs leading-5 text-white/62">
             {review.isVisible ? (
               <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-300" />
             ) : (
@@ -136,8 +136,8 @@ export function ExchangeReviewPanel({
           <p className="mt-2 min-h-5 text-xs text-amber-100/55">
             {rating ? ratingLabels[rating] : "Выберите оценку"}
           </p>
-          <label htmlFor="exchange-review-comment" className="mt-3 block text-xs font-medium text-white/52">
-            Комментарий <span className="text-white/28">необязательно</span>
+          <label htmlFor="exchange-review-comment" className="mt-3 block text-xs font-medium text-white/62">
+            Комментарий <span className="text-white/62">необязательно</span>
           </label>
           <MenariumTextarea
             id="exchange-review-comment"
@@ -147,7 +147,7 @@ export function ExchangeReviewPanel({
             placeholder="Что было особенно хорошо или что стоит улучшить?"
             className="mt-2 min-h-24"
           />
-          <div className="mt-2 flex items-center justify-between gap-3 text-xs text-white/30">
+          <div className="mt-2 flex items-center justify-between gap-3 text-xs text-white/62">
             <span>Партнёр не увидит отзыв до своей оценки.</span>
             <span>{comment.length}/600</span>
           </div>
@@ -197,11 +197,11 @@ export function ExchangeReviewPanel({
                 {ratingLabels[rating]}
               </span>
             </div>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/60">
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/62">
               {comment.trim() || "Без дополнительного комментария."}
             </p>
           </div>
-          <p className="flex items-start gap-2 text-xs leading-5 text-white/40">
+          <p className="flex items-start gap-2 text-xs leading-5 text-white/62">
             <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-200/65" />
             Слепая публикация не позволяет второй стороне подстроить свою оценку под вашу.
           </p>

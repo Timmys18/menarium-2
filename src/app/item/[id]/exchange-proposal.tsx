@@ -66,7 +66,7 @@ export function ExchangeProposal({
           <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-teal-100/76">
             Вы отдаёте
           </label>
-          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-white/56">
+          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-white/62">
             Получаете: {receiverTitle}
           </p>
         </div>

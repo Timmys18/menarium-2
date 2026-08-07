@@ -373,7 +373,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                   </div>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/55 md:self-auto">
+                <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/62 md:self-auto">
                   <CheckCircle2 className="h-4 w-4 text-teal-300" />
                   Новых решений не требуется
                 </div>
@@ -388,7 +388,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
               </span>
               <div>
                 <p className="font-semibold text-white">Предложение отправлено</p>
-                <p className="mt-1 text-sm leading-6 text-white/60">
+                <p className="mt-1 text-sm leading-6 text-white/62">
                   Партнёр уже получил уведомление. До ответа вы можете отозвать предложение в карточке обмена.
                 </p>
               </div>
@@ -402,7 +402,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
               </span>
               <div className="min-w-0">
                 <p className="font-semibold text-white">Обмен принят</p>
-                <p className="mt-1 text-sm leading-6 text-white/60">
+                <p className="mt-1 text-sm leading-6 text-white/62">
                   Обе вещи теперь в сделке. Чат уже открыт: напишите партнёру, чтобы согласовать детали обмена.
                 </p>
                 <a href="#exchange-chat" className="mt-3 inline-block text-sm font-semibold text-teal-200 transition hover:text-teal-100">
@@ -454,12 +454,12 @@ export async function ExchangePageContent({ searchParams }: Props) {
                         "min-w-0 overflow-hidden rounded-[15px] px-2 py-2.5 text-xs font-medium transition sm:shrink-0 sm:px-4 sm:text-sm",
                         tab === activeTab
                           ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white shadow-[0_10px_24px_rgba(77,141,255,0.18)]"
-                          : "text-white/48 hover:bg-white/[0.06] hover:text-white",
+                          : "text-white/62 hover:bg-white/[0.06] hover:text-white",
                       )}
                     >
                       <span className="sm:hidden">{mobileLabel}</span>
                       <span className="hidden sm:inline">{label}</span>
-                      <span className={cn("ml-1.5 text-[11px] sm:ml-2 sm:text-xs", tab === activeTab ? "text-white/78" : "text-white/48")}>
+                      <span className={cn("ml-1.5 text-[11px] sm:ml-2 sm:text-xs", tab === activeTab ? "text-white/78" : "text-white/62")}>
                         {count}
                       </span>
                     </Link>
@@ -479,7 +479,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                         "rounded-[13px] px-4 py-2 text-sm transition",
                         activeFilter === filter
                           ? "bg-white/[0.11] text-white"
-                          : "text-white/58 hover:bg-white/[0.05] hover:text-white/80",
+                          : "text-white/62 hover:bg-white/[0.05] hover:text-white/80",
                       )}
                     >
                       {label}
@@ -505,11 +505,11 @@ export async function ExchangePageContent({ searchParams }: Props) {
                             ? "Твои предложения"
                             : "Взаимные обмены"}
                       </h2>
-                      <p className="mt-1 text-xs text-white/54">
+                      <p className="mt-1 text-xs text-white/62">
                         {activeFilter === "active" ? "Актуальные обмены" : "Завершённые и отменённые"}
                       </p>
                     </div>
-                    <span className="text-xs text-white/50">{tabCounts[activeTab]} всего</span>
+                    <span className="text-xs text-white/62">{tabCounts[activeTab]} всего</span>
                   </div>
 
                   {swapsPage.length === 0 ? (
@@ -555,7 +555,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                           >
                             <article>
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="flex items-center gap-1.5 text-xs text-white/60">
+                                <span className="flex items-center gap-1.5 text-xs text-white/62">
                                   <UserRound className="h-3.5 w-3.5" />
                                   {partner?.name ?? "Участник Менариум"}
                                 </span>
@@ -575,7 +575,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                   <div className="flex min-w-0 flex-col justify-center p-3.5 sm:p-4">
                                     <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-200/70">Вы получаете</span>
                                     <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-white">{theirItem.title}</h3>
-                                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/48">{theirCard.category} · {theirCard.city}</p>
+                                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/62">{theirCard.category} · {theirCard.city}</p>
                                   </div>
                                 </div>
                                 <div className="mx-3 flex items-center gap-3 border-t border-white/7 py-3">
@@ -591,7 +591,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                               </div>
 
                               <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/7 pt-3 text-xs">
-                                <span className="line-clamp-1 text-white/48">{presentation.description}</span>
+                                <span className="line-clamp-1 text-white/62">{presentation.description}</span>
                                 <span className="inline-flex shrink-0 items-center gap-1.5 font-medium text-teal-200">
                                   {swap.status === SwapStatus.ACCEPTED ? <MessageCircle className="h-3.5 w-3.5" /> : null}
                                   {swap.status === SwapStatus.ACCEPTED ? "Открыть чат" : "Подробнее"}
@@ -614,7 +614,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                           ← Назад
                         </Link>
                       ) : null}
-                      <span className="text-xs text-white/35">
+                      <span className="text-xs text-white/62">
                         {page} из {exchangeTotalPages}
                       </span>
                       {exchangeHasMore ? (
@@ -641,7 +641,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {params.swap ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page)}
-                          className="mb-4 inline-flex rounded-xl px-2 py-1.5 text-sm text-white/58 transition hover:bg-white/5 hover:text-white lg:hidden"
+                          className="mb-4 inline-flex rounded-xl px-2 py-1.5 text-sm text-white/62 transition hover:bg-white/5 hover:text-white lg:hidden"
                         >
                           ← Все обмены
                         </Link>
@@ -655,7 +655,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                             <h2 className="truncate font-semibold">
                               {selectedPartner?.name ?? "Участник Менариум"}
                             </h2>
-                            <p className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-white/56">
+                            <p className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-white/62">
                               <span className="truncate">{selectedYourItem.title}</span>
                               <BrandGlyph className="h-4 w-4 shrink-0 text-teal-200/70" />
                               <span className="truncate">{selectedTheirItem.title}</span>
@@ -668,7 +668,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       </div>
 
                       {selectedSwap.status === SwapStatus.PENDING ? (
-                        <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-white/58">
+                        <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-white/62">
                           <Clock3 className="h-3.5 w-3.5 text-amber-200/65" />
                           Ответ до {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(selectedSwap.expiresAt)}
                         </p>
@@ -698,7 +698,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                               <div className="p-4">
                                 <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-200/65">{entry.label}</span>
                                 <h3 className="mt-1.5 line-clamp-2 min-h-10 font-semibold text-white">{entry.item.title}</h3>
-                                <p className="mt-2 text-xs text-white/45">{entry.card.category} · {entry.card.city}</p>
+                                <p className="mt-2 text-xs text-white/62">{entry.card.category} · {entry.card.city}</p>
                               </div>
                             </article>
                           </div>
@@ -767,7 +767,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                               <h3 id="exchange-safety-title" className="text-sm font-semibold">
                                 Безопасность сделки
                               </h3>
-                              <p className="mt-1 text-xs leading-4 text-white/45">
+                              <p className="mt-1 text-xs leading-4 text-white/62">
                                 Если что-то пошло не по договорённости, сообщите нам прямо из этого обмена.
                               </p>
                             </div>
@@ -785,9 +785,9 @@ export async function ExchangePageContent({ searchParams }: Props) {
                     </>
                   ) : (
                     <div className="py-12 text-center">
-                      <MessageCircle className="mx-auto h-8 w-8 text-white/38" />
+                      <MessageCircle className="mx-auto h-8 w-8 text-white/62" />
                       <h2 className="mt-4 font-semibold">Выбери обмен</h2>
-                      <p className="mt-2 text-sm text-white/60">Здесь появятся детали, действия и чат.</p>
+                      <p className="mt-2 text-sm text-white/62">Здесь появятся детали, действия и чат.</p>
                     </div>
                   )}
                 </GlassCard>

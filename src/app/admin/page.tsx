@@ -142,7 +142,7 @@ export default async function AdminPage() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold">Админ-панель</h1>
-                <p className="mt-1 text-white/55">Пользователи, объявления и обращения.</p>
+                <p className="mt-1 text-white/62">Пользователи, объявления и обращения.</p>
               </div>
             </div>
             {admin ? (
@@ -169,7 +169,7 @@ export default async function AdminPage() {
                     <GlassCard key={stat.label} className="p-5">
                       <Icon className={`mb-3 h-5 w-5 ${stat.color}`} />
                       <div className="text-3xl font-semibold">{stat.value}</div>
-                      <p className="mt-1 text-xs text-white/40">{stat.label}</p>
+                      <p className="mt-1 text-xs text-white/62">{stat.label}</p>
                     </GlassCard>
                   );
                 })}
@@ -180,7 +180,7 @@ export default async function AdminPage() {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h2 className="text-xl font-semibold">Очередь жалоб</h2>
-                      <p className="mt-1 text-sm text-white/45">
+                      <p className="mt-1 text-sm text-white/62">
                         Новые обращения и жалобы, которые уже находятся на проверке.
                       </p>
                     </div>
@@ -193,7 +193,7 @@ export default async function AdminPage() {
                   <div className="px-5 py-10 text-center">
                     <CheckCircle2 className="mx-auto h-8 w-8 text-teal-300" />
                     <p className="mt-3 font-medium">Все жалобы обработаны</p>
-                    <p className="mt-1 text-sm text-white/45">Новые обращения появятся здесь.</p>
+                    <p className="mt-1 text-sm text-white/62">Новые обращения появятся здесь.</p>
                   </div>
                 ) : (
                   reports.map((report) => {
@@ -226,7 +226,7 @@ export default async function AdminPage() {
                                 {reportStatusLabels[report.status]}
                               </Badge>
                               <Badge variant="purple">{reportReasonLabels[report.reason]}</Badge>
-                              <time className="text-xs text-white/35" dateTime={report.createdAt.toISOString()}>
+                              <time className="text-xs text-white/62" dateTime={report.createdAt.toISOString()}>
                                 {new Intl.DateTimeFormat("ru-RU", {
                                   dateStyle: "medium",
                                   timeStyle: "short",
@@ -236,7 +236,7 @@ export default async function AdminPage() {
 
                             <div className="grid gap-3 md:grid-cols-2">
                               <div className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
-                                <p className="text-xs font-medium uppercase tracking-wide text-white/35">
+                                <p className="text-xs font-medium uppercase tracking-wide text-white/62">
                                   Объект жалобы
                                 </p>
                                 {target ? (
@@ -247,14 +247,14 @@ export default async function AdminPage() {
                                     >
                                       {target.label}
                                     </Link>
-                                    <p className="mt-1 text-sm text-white/45">{target.meta}</p>
+                                    <p className="mt-1 text-sm text-white/62">{target.meta}</p>
                                   </>
                                 ) : (
-                                  <p className="mt-2 text-sm text-white/45">Объект больше недоступен</p>
+                                  <p className="mt-2 text-sm text-white/62">Объект больше недоступен</p>
                                 )}
                               </div>
                               <div className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
-                                <p className="text-xs font-medium uppercase tracking-wide text-white/35">
+                                <p className="text-xs font-medium uppercase tracking-wide text-white/62">
                                   Репортёр
                                 </p>
                                 <Link
@@ -263,12 +263,12 @@ export default async function AdminPage() {
                                 >
                                   {report.reporter.name ?? "Без имени"}
                                 </Link>
-                                <p className="mt-1 break-all text-sm text-white/45">{report.reporter.email}</p>
+                                <p className="mt-1 break-all text-sm text-white/62">{report.reporter.email}</p>
                               </div>
                             </div>
 
                             <div>
-                              <p className="text-xs font-medium uppercase tracking-wide text-white/35">
+                              <p className="text-xs font-medium uppercase tracking-wide text-white/62">
                                 Детали
                               </p>
                               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
@@ -282,7 +282,7 @@ export default async function AdminPage() {
                                 </p>
                                 <div className="mt-3 grid gap-3 md:grid-cols-2">
                                   <div>
-                                    <p className="text-xs text-white/35">Отправитель</p>
+                                    <p className="text-xs text-white/62">Отправитель</p>
                                     <Link
                                       href={`/user/${report.swap.sender.id}`}
                                       className="mt-1 block text-sm font-medium hover:text-teal-200"
@@ -291,13 +291,13 @@ export default async function AdminPage() {
                                     </Link>
                                     <Link
                                       href={`/item/${report.swap.senderItem.id}`}
-                                      className="mt-1 block text-xs text-white/48 hover:text-white/75"
+                                      className="mt-1 block text-xs text-white/62 hover:text-white/75"
                                     >
                                       {report.swap.senderItem.title}
                                     </Link>
                                   </div>
                                   <div>
-                                    <p className="text-xs text-white/35">Получатель</p>
+                                    <p className="text-xs text-white/62">Получатель</p>
                                     <Link
                                       href={`/user/${report.swap.receiver.id}`}
                                       className="mt-1 block text-sm font-medium hover:text-teal-200"
@@ -306,7 +306,7 @@ export default async function AdminPage() {
                                     </Link>
                                     <Link
                                       href={`/item/${report.swap.receiverItem.id}`}
-                                      className="mt-1 block text-xs text-white/48 hover:text-white/75"
+                                      className="mt-1 block text-xs text-white/62 hover:text-white/75"
                                     >
                                       {report.swap.receiverItem.title}
                                     </Link>
@@ -342,7 +342,7 @@ export default async function AdminPage() {
               <GlassCard className="overflow-hidden">
                 <div className="border-b border-white/[0.06] px-5 py-4">
                   <h2 className="text-xl font-semibold">Последние объявления</h2>
-                  <p className="mt-1 text-sm text-white/45">Быстрая модерация: архивировать или вернуть объявление.</p>
+                  <p className="mt-1 text-sm text-white/62">Быстрая модерация: архивировать или вернуть объявление.</p>
                 </div>
                 {recentItems.map((item) => (
                   <div key={item.id} className="flex flex-col gap-4 border-b border-white/[0.04] px-5 py-4 last:border-b-0 md:flex-row md:items-center">
@@ -355,7 +355,7 @@ export default async function AdminPage() {
                           {itemStatusLabels[item.status]}
                         </Badge>
                       </div>
-                      <p className="text-sm text-white/45">
+                      <p className="text-sm text-white/62">
                         {item.category} · {item.city} · {item.owner.name ?? item.owner.email}
                       </p>
                     </div>
@@ -367,7 +367,7 @@ export default async function AdminPage() {
               <GlassCard className="overflow-hidden">
                 <div className="border-b border-white/[0.06] px-5 py-4">
                   <h2 className="text-xl font-semibold">Пользователи</h2>
-                  <p className="mt-1 text-sm text-white/45">
+                  <p className="mt-1 text-sm text-white/62">
                     Последние регистрации, состояние аккаунта и действия модерации.
                   </p>
                 </div>
@@ -393,7 +393,7 @@ export default async function AdminPage() {
                           {user.emailVerified ? "Email подтверждён" : "Email не подтверждён"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-white/45">
+                      <p className="text-sm text-white/62">
                         {user.email}
                         {user.city ? ` · ${user.city}` : ""}
                         {" · "}
@@ -408,7 +408,7 @@ export default async function AdminPage() {
                         </p>
                       ) : null}
                     </div>
-                    <div className="flex flex-wrap gap-2 text-xs text-white/50">
+                    <div className="flex flex-wrap gap-2 text-xs text-white/62">
                       <span className="rounded-xl bg-white/5 px-3 py-1.5">{user._count.items} объявл.</span>
                       <span className="rounded-xl bg-white/5 px-3 py-1.5">
                         {user._count.sentSwaps + user._count.receivedSwaps} обменов

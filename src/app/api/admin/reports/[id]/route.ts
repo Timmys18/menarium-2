@@ -5,6 +5,7 @@ import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { publishUserEvents } from "@/lib/realtime";
 import { requireAdmin } from "@/server/admin";
+import { recordAdminAction } from "@/server/admin-audit";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -84,6 +85,15 @@ export async function PATCH(req: Request, context: Context) {
         entityId: id,
       });
     }
+
+    await recordAdminAction(tx, {
+      actorId: admin.admin.id,
+      action: "report.status_changed",
+      targetType: "Report",
+      targetId: id,
+      reason: parsed.data.resolutionNote,
+      metadata: { previousStatus: existing.status, nextStatus: parsed.data.status },
+    });
 
     return tx.report.findUniqueOrThrow({
       where: { id },

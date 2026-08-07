@@ -7,7 +7,7 @@ export default function LoginPage() {
   return (
     <AppShell mode="auth">
       <AuthShell title="С возвращением" subtitle="Войди — и продолжай обмены, чаты и свайп.">
-        <Suspense fallback={<div className="text-sm text-white/45">Загрузка формы...</div>}>
+        <Suspense fallback={<div className="text-sm text-white/62">Загрузка формы...</div>}>
           <LoginForm />
         </Suspense>
       </AuthShell>

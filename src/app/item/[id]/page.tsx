@@ -443,12 +443,12 @@ export default async function ItemPage({ params, searchParams }: Props) {
                         <DeleteItemButton itemId={publicItem.id} />
                       </div>
                     ) : (
-                      <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/60">
+                      <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/62">
                         Объявление не опубликовано. Оно доступно вам для просмотра, но обмен и редактирование закрыты.
                       </div>
                     )
                   ) : !canInteract ? (
-                    <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/60">
+                    <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/62">
                       Объявление снято с публикации и недоступно для новых контактов.
                     </div>
                   ) : userId && !communicationBlocked ? (
@@ -478,7 +478,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/60">
+                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/62">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-300/72" />
                   Статус обмена виден обеим сторонам. Не передавайте коды и данные банковских карт в сообщениях.
                 </div>
@@ -515,7 +515,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                         </span>
                       )}
                       <span className="min-w-0 flex-1">
-                        <span className="block text-xs text-white/40">Владелец</span>
+                        <span className="block text-xs text-white/62">Владелец</span>
                         <span className="block truncate text-sm font-semibold text-white/86">
                           {publicItem.owner.name ?? "Пользователь Менариум"}
                         </span>
@@ -532,11 +532,11 @@ export default async function ItemPage({ params, searchParams }: Props) {
                           {ownerReputation.averageRating.toFixed(1)} · {ownerReputation.reviewCount} отзывов
                         </span>
                       ) : (
-                        <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/46">
+                        <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/62">
                           {ownerReputation.label}
                         </span>
                       )}
-                      <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/46">
+                      <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/62">
                         {ownerCompletedSwaps} завершённых обменов
                       </span>
                       {item.owner.emailVerified ? (
@@ -552,21 +552,21 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 <h2 className="mb-4 text-lg font-semibold">Детали</h2>
                 <div className="divide-y divide-white/7 text-sm">
                   <div className="flex items-center justify-between gap-4 py-3 first:pt-0">
-                    <span className="text-white/58">Город</span>
+                    <span className="text-white/62">Город</span>
                     <span className="text-right text-white/82">{publicItem.city}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3">
-                    <span className="text-white/58">Категория</span>
+                    <span className="text-white/62">Категория</span>
                     <span className="text-right text-white/82">{publicItem.category}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3">
-                    <span className="text-white/58">Формат</span>
+                    <span className="text-white/62">Формат</span>
                     <span className="text-right text-white/82">
                       {publicItem.isOnline ? "Можно онлайн" : `Лично · ${publicItem.city}`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3 last:pb-0">
-                    <span className="text-white/58">Статус</span>
+                    <span className="text-white/62">Статус</span>
                     <span className="text-right font-medium text-teal-200/82">
                       {itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}
                     </span>
@@ -602,7 +602,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   >
                     Похожие варианты
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/62">
                     Подборка учитывает эту вещь
                     {userId ? ", ваши сохранения и активные предложения." : " и близкие варианты в каталоге."}
                   </p>

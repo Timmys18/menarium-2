@@ -63,6 +63,12 @@ export default async function ProfileLayout({ children }: { children: React.Reac
         }),
       ])
     : [0, 0, 0, 0, 0];
+  const accountCounts = {
+    listings,
+    messages: unreadDealMessages + unreadItemMessages,
+    exchanges,
+    favorites,
+  };
 
   return (
     <AppShell>
@@ -86,11 +92,11 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                     </span>
                   )}
                   <div className="min-w-0">
-                    <p className="type-kicker text-white/48">Личный кабинет</p>
+                    <p className="type-kicker text-white/62">Личный кабинет</p>
                     <h1 className="type-page-title mt-1 truncate text-2xl sm:text-3xl">
                       {user.name ?? "Участник Менариум"}
                     </h1>
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/48">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/62">
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5" />
                         {user.city ?? "Город не указан"}
@@ -122,17 +128,24 @@ export default async function ProfileLayout({ children }: { children: React.Reac
           <div className={user ? "grid items-start gap-5 lg:grid-cols-[250px_minmax(0,1fr)]" : ""}>
             {user ? (
               <SurfaceCard className="hidden p-2 lg:sticky lg:top-28 lg:block">
-                <AccountNavigation
-                  counts={{
-                    listings,
-                    messages: unreadDealMessages + unreadItemMessages,
-                    exchanges,
-                    favorites,
-                  }}
-                />
+                <AccountNavigation counts={accountCounts} />
               </SurfaceCard>
             ) : null}
-            <div className="min-w-0">{children}</div>
+            <div className="min-w-0">
+              {user ? (
+                <SurfaceCard className="mb-4 p-2 lg:hidden">
+                  <details>
+                    <summary className="cursor-pointer list-none px-3 py-2 text-sm font-semibold text-white marker:hidden">
+                      Разделы профиля
+                    </summary>
+                    <div className="border-t border-white/8 pt-2">
+                      <AccountNavigation counts={accountCounts} />
+                    </div>
+                  </details>
+                </SurfaceCard>
+              ) : null}
+              {children}
+            </div>
           </div>
         </div>
       </div>

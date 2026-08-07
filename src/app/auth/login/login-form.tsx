@@ -112,7 +112,7 @@ export function LoginForm() {
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Скрыть введённые символы" : "Показать введённые символы"}
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/58 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70"
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70"
           >
             {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
           </button>
@@ -130,13 +130,13 @@ export function LoginForm() {
 
       <div className="flex items-center gap-3 py-0.5" aria-hidden="true">
         <span className="h-px flex-1 bg-white/8" />
-        <span className="text-xs text-white/52">Первый раз здесь?</span>
+        <span className="text-xs text-white/62">Первый раз здесь?</span>
         <span className="h-px flex-1 bg-white/8" />
       </div>
       <MenariumLinkButton href={registerHref} variant="secondary" className="w-full">
         Создать аккаунт
       </MenariumLinkButton>
-      <p className="flex items-center justify-center gap-2 text-center text-xs text-white/54">
+      <p className="flex items-center justify-center gap-2 text-center text-xs text-white/62">
         <LockKeyhole className="h-3.5 w-3.5 text-teal-200/60" />
         Мы не передаём данные для входа другим пользователям.
       </p>

@@ -179,7 +179,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
               )}
               <div className="flex-1">
                 <h1 className="type-page-title text-3xl">{user.name ?? "Пользователь Менариум"}</h1>
-                <p className="mt-2 text-white/55">{user.city ?? "Город не указан"}</p>
+                <p className="mt-2 text-white/62">{user.city ?? "Город не указан"}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge variant="teal">{completedSwaps} завершённых обменов</Badge>
                   {reviewCount > 0 && averageRating ? (
@@ -238,14 +238,14 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                     <p className="text-5xl font-semibold tracking-[-0.06em] text-white">
                       {averageRating?.toFixed(1) ?? "—"}
                     </p>
-                    <p className="pb-1.5 text-sm text-white/38">
+                    <p className="pb-1.5 text-sm text-white/62">
                       {reviewCount > 0 ? "из 5" : "нет оценок"}
                     </p>
                   </div>
                   <h2 id="reputation-title" className="mt-4 text-xl font-semibold">
                     {reputation.label}
                   </h2>
-                  <p className="mt-2 max-w-md text-sm leading-5 text-white/48">
+                  <p className="mt-2 max-w-md text-sm leading-5 text-white/62">
                     {reputation.description}
                   </p>
                 </div>
@@ -263,7 +263,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[15px] border border-white/7 bg-black/10 px-3 py-3">
                     <p className="text-lg font-semibold text-white/88">{value}</p>
-                    <p className="mt-0.5 text-[11px] text-white/35">{label}</p>
+                    <p className="mt-0.5 text-[11px] text-white/62">{label}</p>
                   </div>
                 ))}
               </div>
@@ -272,10 +272,10 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
             <GlassCard className="border border-white/8 p-6 sm:p-7">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-white/32">
+                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-white/62">
                     Распределение оценок
                   </p>
-                  <p className="mt-2 text-sm leading-5 text-white/48">
+                  <p className="mt-2 text-sm leading-5 text-white/62">
                     Видны все опубликованные отзывы, а не только лучшие.
                   </p>
                 </div>
@@ -287,7 +287,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   const width = reviewCount > 0 ? (count / reviewCount) * 100 : 0;
                   return (
                     <div key={rating} className="grid grid-cols-[28px_1fr_28px] items-center gap-3">
-                      <span className="text-xs text-white/48">{rating}</span>
+                      <span className="text-xs text-white/62">{rating}</span>
                       <span className="h-2 overflow-hidden rounded-full bg-white/[0.055]">
                         <span
                           className={cn(
@@ -299,12 +299,12 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                           style={{ width: `${width}%` }}
                         />
                       </span>
-                      <span className="text-right text-xs text-white/32">{count}</span>
+                      <span className="text-right text-xs text-white/62">{count}</span>
                     </div>
                   );
                 })}
               </div>
-              <p className="mt-5 border-t border-white/7 pt-4 text-xs leading-5 text-white/34">
+              <p className="mt-5 border-t border-white/7 pt-4 text-xs leading-5 text-white/62">
                 Оценку можно оставить только после обмена, подтверждённого обеими сторонами.
                 Отзывы публикуются после ответа партнёра или окончания слепого периода.
               </p>
@@ -324,7 +324,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-white">{averageRating?.toFixed(1)}</p>
-                  <p className="text-xs text-white/35">из 5</p>
+                  <p className="text-xs text-white/62">из 5</p>
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
@@ -341,7 +341,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                             className="h-10 w-10 shrink-0 rounded-[13px] object-cover"
                           />
                         ) : (
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-white/[0.055] text-white/50">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-white/[0.055] text-white/62">
                             <MessageSquareQuote className="h-4 w-4" />
                           </span>
                         )}
@@ -349,14 +349,14 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                           <Link href={`/user/${review.reviewer.id}`} className="block truncate text-sm font-semibold text-white/82 hover:text-teal-200">
                             {review.reviewer.name ?? "Участник Менариум"}
                           </Link>
-                          <time dateTime={review.createdAt.toISOString()} className="mt-0.5 block text-xs text-white/32">
+                          <time dateTime={review.createdAt.toISOString()} className="mt-0.5 block text-xs text-white/62">
                             {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(review.createdAt)}
                           </time>
                         </div>
                       </div>
                       <ReviewStars rating={review.rating} />
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-white/58">
+                    <p className="mt-4 text-sm leading-6 text-white/62">
                       {review.comment || "Обмен завершён без дополнительного комментария."}
                     </p>
                   </GlassCard>
@@ -375,7 +375,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                       ← Новее
                     </Link>
                   ) : null}
-                  <span className="text-xs text-white/35">
+                  <span className="text-xs text-white/62">
                     {reviewsPage} из {totalReviewPages}
                   </span>
                   {reviewsPage < totalReviewPages ? (

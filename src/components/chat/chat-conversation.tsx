@@ -507,7 +507,7 @@ export function ChatConversation({
               type="button"
               onClick={() => void enablePush()}
               disabled={isChangingPush}
-              className="inline-flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs text-white/55 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+              className="inline-flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs text-white/62 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
             >
               {isChangingPush ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
               Получать вне сайта
@@ -523,7 +523,7 @@ export function ChatConversation({
               "inline-flex h-9 w-9 items-center justify-center rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70",
               muted
                 ? "bg-amber-300/10 text-amber-200/75"
-                : "text-white/42 hover:bg-white/[0.06] hover:text-white",
+                : "text-white/62 hover:bg-white/[0.06] hover:text-white",
             )}
           >
             {isChangingPreference ? (
@@ -574,7 +574,7 @@ export function ChatConversation({
                 {showDay ? (
                   <div className="my-4 flex items-center gap-3" aria-label={formatDay(message.createdAt)}>
                     <span className="h-px flex-1 bg-white/[0.06]" />
-                    <span className="text-[11px] font-medium text-white/35">{formatDay(message.createdAt)}</span>
+                    <span className="text-[11px] font-medium text-white/62">{formatDay(message.createdAt)}</span>
                     <span className="h-px flex-1 bg-white/[0.06]" />
                   </div>
                 ) : null}
@@ -584,7 +584,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 rounded-lg p-1.5 text-white/0 transition group-hover:text-white/38 hover:!bg-white/[0.06] hover:!text-white/75 focus-visible:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/28"
+                      className="mb-1 rounded-lg p-1.5 text-white/0 transition group-hover:text-white/62 hover:!bg-white/[0.06] hover:!text-white/75 focus-visible:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/62"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>
@@ -599,7 +599,7 @@ export function ChatConversation({
                     )}
                   >
                     {message.replyTo ? (
-                      <div className="mb-2 border-l-2 border-teal-300/45 pl-2.5 text-xs text-white/55">
+                      <div className="mb-2 border-l-2 border-teal-300/45 pl-2.5 text-xs text-white/62">
                         <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-teal-200/65">
                           {message.replyTo.senderId === currentUserId ? "Вы" : "Собеседник"}
                         </span>
@@ -630,7 +630,7 @@ export function ChatConversation({
                       </div>
                     ) : null}
                     {message.text ? <p className="whitespace-pre-wrap break-words">{message.text}</p> : null}
-                    <div className="mt-1.5 flex items-center justify-end gap-1.5 text-[10px] text-white/44">
+                    <div className="mt-1.5 flex items-center justify-end gap-1.5 text-[10px] text-white/62">
                       <time dateTime={message.createdAt} suppressHydrationWarning>
                         {formatMessageTime(message.createdAt)}
                       </time>
@@ -650,7 +650,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 rounded-lg p-1.5 text-white/0 transition group-hover:text-white/38 hover:!bg-white/[0.06] hover:!text-white/75 focus-visible:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/28"
+                      className="mb-1 rounded-lg p-1.5 text-white/0 transition group-hover:text-white/62 hover:!bg-white/[0.06] hover:!text-white/75 focus-visible:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/62"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>
@@ -660,7 +660,7 @@ export function ChatConversation({
             );
           })
         ) : (
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4 text-sm text-white/58">
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4 text-sm text-white/62">
             {emptyMessage}
           </div>
         )}
@@ -688,13 +688,13 @@ export function ChatConversation({
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-200/65">
                 Ответ
               </p>
-              <p className="truncate text-xs text-white/58">{messageSummary(replyingTo)}</p>
+              <p className="truncate text-xs text-white/62">{messageSummary(replyingTo)}</p>
             </div>
             <button
               type="button"
               onClick={() => setReplyingTo(null)}
               aria-label="Отменить ответ"
-              className="rounded-lg p-1.5 text-white/35 transition hover:bg-white/[0.06] hover:text-white"
+              className="rounded-lg p-1.5 text-white/62 transition hover:bg-white/[0.06] hover:text-white"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -744,7 +744,7 @@ export function ChatConversation({
             onClick={() => fileInputRef.current?.click()}
             disabled={!canWrite || isSending || isUploading || attachments.length >= 4}
             aria-label="Добавить фотографию"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-white/42 transition hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-white/62 transition hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
           >
             <ImagePlus className="h-4.5 w-4.5" />
           </button>
@@ -762,7 +762,7 @@ export function ChatConversation({
             maxLength={2000}
             rows={1}
             aria-label="Текст сообщения"
-            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-1 py-2 text-sm shadow-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-white/55 disabled:placeholder:text-white/48"
+            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-1 py-2 text-sm shadow-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-white/62 disabled:placeholder:text-white/62"
             placeholder={canWrite ? placeholder : disabledPlaceholder}
           />
           <MenariumButton
@@ -784,7 +784,7 @@ export function ChatConversation({
           {error ? (
             <p role="alert" className="text-red-300">{error}</p>
           ) : text.trim() ? (
-            <span className="text-white/38">Черновик сохранён</span>
+            <span className="text-white/62">Черновик сохранён</span>
           ) : (
             <span />
           )}
@@ -796,7 +796,7 @@ export function ChatConversation({
               Уведомления включены
             </span>
           ) : pushState === "blocked" ? (
-            <span className="shrink-0 text-white/36">Уведомления запрещены в браузере</span>
+            <span className="shrink-0 text-white/62">Уведомления запрещены в браузере</span>
           ) : null}
         </div>
       </form>

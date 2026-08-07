@@ -230,7 +230,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
               </h1>
             </div>
             <div className="flex items-center gap-2 self-start sm:self-auto">
-              <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/48">
+              <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/62">
                 Сохранено: <FavoriteCount />
               </span>
               <MenariumLinkButton href="/catalog" variant="secondary" size="sm">
@@ -244,7 +244,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
             <GlassCard className="mb-7 flex flex-col gap-4 border border-teal-300/18 bg-gradient-to-r from-teal-300/[0.08] via-blue-400/[0.055] to-transparent p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div>
                 <h2 className="text-xl font-semibold tracking-[-0.025em]">Добавьте своё объявление</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/62">
                   Оно понадобится, чтобы предложить обмен на сохранённый вариант.
                 </p>
               </div>
@@ -273,7 +273,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
                   <h2 id="saved-items-title" className="text-xl font-semibold tracking-[-0.02em]">
                     Сохранённые варианты
                   </h2>
-                  <p className="mt-1 text-xs text-white/35">
+                  <p className="mt-1 text-xs text-white/62">
                     Страница {page} из {totalPages}
                   </p>
                 </div>
@@ -301,7 +301,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
                       ← Назад
                     </Link>
                   ) : null}
-                  <span className="text-sm text-white/42">{page} из {totalPages}</span>
+                  <span className="text-sm text-white/62">{page} из {totalPages}</span>
                   {page < totalPages ? (
                     <Link href={favoritesHref(page + 1)} className="rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white">
                       Дальше →
@@ -333,7 +333,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
                     <h2 id="recommendations-title" className="mt-2 text-2xl font-semibold tracking-[-0.03em]">
                       Возможно, подойдёт
                     </h2>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-white/48">
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-white/62">
                       {interestProfile.signalCount > 0
                         ? "Подбираем по сохранённым вариантам и вашим активным объявлениям."
                         : "Пока знакомимся с вашими интересами — показываем свежие и популярные варианты."}
@@ -342,7 +342,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
                   {preferenceLabels.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {preferenceLabels.map((interest) => (
-                        <span key={interest} className="rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-xs text-white/58">
+                        <span key={interest} className="rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-xs text-white/62">
                           {interest}
                         </span>
                       ))}

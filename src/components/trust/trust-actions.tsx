@@ -155,7 +155,7 @@ export function TrustActions({
             maxLength={1000}
             placeholder="Опишите ситуацию — это поможет модератору разобраться."
           />
-          <p className="text-right text-xs text-white/35">{details.length}/1000</p>
+          <p className="text-right text-xs text-white/62">{details.length}/1000</p>
         </div>
       </MenariumDialog>
 

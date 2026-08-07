@@ -88,6 +88,56 @@ export function checkActionRateLimit(userId: string, action: string) {
   });
 }
 
+type PublishingLimits = {
+  verified: { perHour: number; perDay: number };
+  unverified: { perHour: number; perDay: number };
+};
+
+async function checkPublishingRateLimit(
+  userId: string,
+  action: string,
+  emailVerified: boolean,
+  limits: PublishingLimits,
+): Promise<RateLimitResult> {
+  const immediate = await checkActionRateLimit(userId, `${action}:immediate`);
+  if (!immediate.ok) return immediate;
+
+  const threshold = emailVerified ? limits.verified : limits.unverified;
+  const hourly = await checkRateLimit(`publishing:${userId}:${action}:hour`, {
+    limit: threshold.perHour,
+    windowSec: 60 * 60,
+    error: "Слишком много действий за последний час. Попробуйте позже.",
+  });
+  if (!hourly.ok) return hourly;
+
+  return checkRateLimit(`publishing:${userId}:${action}:day`, {
+    limit: threshold.perDay,
+    windowSec: 24 * 60 * 60,
+    error: "Дневной лимит исчерпан. Попробуйте завтра.",
+  });
+}
+
+export function checkItemCreationRateLimit(userId: string, emailVerified: boolean) {
+  return checkPublishingRateLimit(userId, "items:create", emailVerified, {
+    verified: { perHour: 10, perDay: 30 },
+    unverified: { perHour: 3, perDay: 8 },
+  });
+}
+
+export function checkExchangeCreationRateLimit(userId: string, emailVerified: boolean) {
+  return checkPublishingRateLimit(userId, "exchange:create", emailVerified, {
+    verified: { perHour: 30, perDay: 100 },
+    unverified: { perHour: 10, perDay: 30 },
+  });
+}
+
+export function checkReportCreationRateLimit(userId: string, emailVerified: boolean) {
+  return checkPublishingRateLimit(userId, "reports:create", emailVerified, {
+    verified: { perHour: 10, perDay: 20 },
+    unverified: { perHour: 4, perDay: 10 },
+  });
+}
+
 export async function checkMediaUploadRateLimit(userId: string) {
   const burst = await checkRateLimit(`media:${userId}:minute`, {
     limit: 16,

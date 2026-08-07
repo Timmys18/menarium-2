@@ -57,7 +57,7 @@ export function EmailVerifyBanner({
             <Mail className="mt-0.5 h-4 w-4 shrink-0 text-amber-200/75" />
             <div className="min-w-0">
               <p className="text-sm font-medium text-white/82">Подтвердите почту</p>
-              <p className="mt-0.5 truncate text-xs text-white/45">{email}</p>
+              <p className="mt-0.5 truncate text-xs text-white/62">{email}</p>
               {message ? <p className="mt-1 text-xs text-teal-200" aria-live="polite">{message}</p> : null}
               {error ? <p className="mt-1 text-xs text-red-200" role="alert">{error}</p> : null}
             </div>

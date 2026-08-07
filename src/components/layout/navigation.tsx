@@ -2,24 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Compass, Heart, MessageCircle, Plus, Repeat2, Sparkles, UserRound } from "lucide-react";
+import { Bell, Compass, MessageCircle, Plus, Repeat2, Sparkles, UserRound } from "lucide-react";
 import { BrandLockup, BrandMark } from "@/components/menarium/brand";
 import { cn } from "@/lib/utils";
 
-const desktopItems = [
-  { href: "/catalog", label: "Каталог", icon: Compass },
-  { href: "/favorites", label: "Избранное", icon: Heart },
-  { href: "/swipe", label: "Свайп", icon: Sparkles },
-  { href: "/exchange", label: "Обмены", icon: Repeat2 },
-  { href: "/profile/chats", label: "Сообщения", icon: MessageCircle },
+const primaryItems = [
+  { href: "/catalog", label: "Каталог", icon: Compass, primary: false },
+  { href: "/swipe", label: "Свайп", icon: Sparkles, primary: false },
+  { href: "/exchange", label: "Обмены", icon: Repeat2, primary: false },
+  { href: "/profile/chats", label: "Сообщения", icon: MessageCircle, primary: false },
 ];
 
 const mobileItems = [
-  { href: "/catalog", label: "Каталог", icon: Compass },
-  { href: "/swipe", label: "Свайп", icon: Sparkles },
+  primaryItems[0],
+  primaryItems[1],
   { href: "/new", label: "Создать", icon: Plus, primary: true },
-  { href: "/exchange", label: "Обмены", icon: Repeat2 },
-  { href: "/profile/chats", label: "Сообщения", icon: MessageCircle },
+  primaryItems[2],
+  primaryItems[3],
 ];
 
 function isActivePath(pathname: string, href: string) {
@@ -80,7 +79,7 @@ export function Navigation({
               </Link>
 
               <div className="flex items-center gap-1 rounded-2xl border border-white/[0.06] bg-black/10 p-1">
-                {desktopItems.map((item) => {
+                {primaryItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActivePath(pathname, item.href);
                   const count = item.href === "/exchange" ? pendingSwaps : item.href === "/profile/chats" ? unreadMessages : 0;
@@ -93,10 +92,10 @@ export function Navigation({
                         "desktop-nav-link relative flex min-h-11 items-center gap-2 rounded-[14px] px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 lg:px-5",
                         active
                           ? "border border-white/10 bg-white/[0.09] text-white shadow-inner shadow-white/[0.03]"
-                          : "border border-transparent text-white/58 hover:bg-white/[0.055] hover:text-white",
+                          : "border border-transparent text-white/62 hover:bg-white/[0.055] hover:text-white",
                       )}
                     >
-                      <Icon className={cn("h-4 w-4", active ? "text-teal-300" : "text-white/42")} />
+                      <Icon className={cn("h-4 w-4", active ? "text-teal-300" : "text-white/62")} />
                       {item.label}
                       <CountBadge count={count} />
                     </Link>
@@ -121,7 +120,7 @@ export function Navigation({
                     "relative flex h-11 w-11 items-center justify-center rounded-[14px] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                     isActivePath(pathname, "/notifications")
                       ? "border-white/14 bg-white/[0.09] text-white"
-                      : "border-white/[0.07] bg-white/[0.035] text-white/50 hover:bg-white/[0.07] hover:text-white",
+                      : "border-white/[0.07] bg-white/[0.035] text-white/62 hover:bg-white/[0.07] hover:text-white",
                   )}
                 >
                   <Bell className="h-4.5 w-4.5" />
@@ -135,7 +134,7 @@ export function Navigation({
                     "flex h-11 w-11 items-center justify-center rounded-[14px] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                     isActivePath(pathname, "/profile")
                       ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                      : "border-white/[0.07] bg-white/[0.035] text-white/50 hover:bg-white/[0.07] hover:text-white",
+                      : "border-white/[0.07] bg-white/[0.035] text-white/62 hover:bg-white/[0.07] hover:text-white",
                   )}
                 >
                   <UserRound className="h-4.5 w-4.5" />
@@ -169,7 +168,7 @@ export function Navigation({
                 "relative flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                 isActivePath(pathname, "/notifications")
                   ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                  : "border-white/[0.08] bg-white/[0.04] text-white/58",
+                  : "border-white/[0.08] bg-white/[0.04] text-white/62",
               )}
             >
               <Bell className="h-4.5 w-4.5" />
@@ -183,7 +182,7 @@ export function Navigation({
                 "flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                 isActivePath(pathname, "/profile")
                   ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                  : "border-white/[0.08] bg-white/[0.04] text-white/58",
+                  : "border-white/[0.08] bg-white/[0.04] text-white/62",
               )}
             >
               <UserRound className="h-4.5 w-4.5" />
@@ -209,7 +208,7 @@ export function Navigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative grid min-h-[58px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[9.5px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                      "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[11px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                       active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/62",
                       item.primary && "text-white/86",
                     )}

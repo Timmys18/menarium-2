@@ -35,7 +35,7 @@ export default async function ProfileEditPage() {
                 Аккаунт
               </p>
               <h1 className="type-page-title text-3xl sm:text-4xl">Настройки профиля</h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-white/52 sm:text-base">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/62 sm:text-base">
                 Управляйте тем, как вас видят другие участники, доступом и безопасностью аккаунта.
               </p>
             </div>

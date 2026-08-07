@@ -70,9 +70,9 @@ export function CityPicker({
       >
         <span className="flex min-w-0 items-center gap-2">
           <MapPin className="h-4 w-4 shrink-0 text-teal-200" />
-          <span className={cn("truncate", selected ? "text-white" : "text-white/42")}>{selected ? selected.name : "Выберите город"}</span>
+          <span className={cn("truncate", selected ? "text-white" : "text-white/62")}>{selected ? selected.name : "Выберите город"}</span>
         </span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/48 transition", open && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/62 transition", open && "rotate-180")} />
       </button>
 
       {open ? (
@@ -80,7 +80,7 @@ export function CityPicker({
           "w-full overflow-hidden rounded-[18px] border border-white/12 bg-[#101722] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
           inline ? "relative mt-2" : cn("absolute left-0 z-[70]", placement === "up" ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"),
         )}>
-          <label className="flex items-center gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-white/45">
+          <label className="flex items-center gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-white/62">
             <Search className="h-4 w-4 shrink-0" />
             <span className="sr-only">Найти город в списке</span>
             <input
@@ -94,10 +94,10 @@ export function CityPicker({
                 }
               }}
               placeholder="Начните печатать город"
-              className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/35"
+              className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/62"
             />
             {query ? (
-              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="text-white/45 hover:text-white">
+              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="text-white/62 hover:text-white">
                 <X className="h-4 w-4" />
               </button>
             ) : null}
@@ -123,13 +123,13 @@ export function CityPicker({
                 >
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium text-white">{city.name}</span>
-                    <span className="block truncate text-xs text-white/42">{city.region}</span>
+                    <span className="block truncate text-xs text-white/62">{city.region}</span>
                   </span>
                   {active ? <Check className="h-4 w-4 shrink-0 text-teal-200" /> : null}
                 </button>
               );
             })}
-            {cities.length === 0 ? <p className="px-3 py-5 text-center text-sm text-white/42">Город не найден в справочнике.</p> : null}
+            {cities.length === 0 ? <p className="px-3 py-5 text-center text-sm text-white/62">Город не найден в справочнике.</p> : null}
           </div>
         </div>
       ) : null}
