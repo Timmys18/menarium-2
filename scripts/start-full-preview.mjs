@@ -116,12 +116,7 @@ async function startPostgresInstance(instance, databaseDir) {
 
 async function main() {
   updateEnvFile();
-
-  if (await isSiteReady()) {
-    log("Site is already running at http://localhost:3000");
-    log("Demo login: maria@menarium.ru / MenariumDemo2026!");
-    return;
-  }
+  const siteAlreadyRunning = await isSiteReady();
 
   const databaseDir = path.join(root, ".data", "postgres");
 
@@ -147,6 +142,14 @@ async function main() {
 
   log("Loading demo users and listings...");
   await run("node", ["prisma/seed.mjs"]);
+
+  // The site may have answered with a temporary error before its database was
+  // started above. Check once more before trying to launch a second dev server.
+  if (siteAlreadyRunning || (await isSiteReady())) {
+    log("Site is already running at http://localhost:3000");
+    log("Demo login: maria@menarium.ru / MenariumDemo2026!");
+    return;
+  }
 
   log("");
   log("Full preview is ready.");
