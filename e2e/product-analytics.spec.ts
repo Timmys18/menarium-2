@@ -14,7 +14,7 @@ const ADMIN = {
   password: "MenariumAdmin2026!",
 };
 
-function resetSeedData() {
+async function resetSeedData() {
   const result = spawnSync(process.execPath, ["prisma/seed.mjs"], {
     cwd: process.cwd(),
     env: { ...process.env, ALLOW_PROD_SEED: "true" },
@@ -23,6 +23,15 @@ function resetSeedData() {
 
   if (result.status !== 0) {
     throw new Error(`Seed reset failed:\n${result.stdout}\n${result.stderr}`);
+  }
+
+  const response = await fetch(`${process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3001"}/api/test/reset-rate-limits`, {
+    method: "POST",
+    headers: { "x-e2e-reset-key": process.env.E2E_TEST_RESET_KEY ?? "local-e2e-reset-key" },
+  });
+
+  if (response.status !== 204) {
+    throw new Error(`Rate limit reset failed: ${response.status}`);
   }
 }
 
@@ -60,9 +69,9 @@ async function gotoAndWaitForPageView(page: Page, url: string, expectedPath: str
 }
 
 test.describe("privacy-first product analytics", () => {
-  test.beforeEach(({}, testInfo) => {
+  test.beforeEach(async ({}, testInfo) => {
     testInfo.setTimeout(90_000);
-    resetSeedData();
+    await resetSeedData();
   });
 
   test.afterAll(() => prisma.$disconnect());
@@ -147,7 +156,7 @@ test.describe("privacy-first product analytics", () => {
 
   test("keeps the product dashboard private and available to admins", async ({ browser, page }) => {
     await page.goto("/admin/analytics");
-    await expect(page.getByRole("heading", { name: "Доступ только для администратора" })).toBeVisible();
+    await expect(page).toHaveURL(/\/auth\/login\?callbackUrl=%2Fadmin%2Fanalytics/);
 
     const adminContext = await browser.newContext();
     try {

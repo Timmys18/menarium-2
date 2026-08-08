@@ -64,6 +64,8 @@ jobs:
       STORAGE_PROVIDER: local
       STORAGE_PUBLIC_BASE_URL: /uploads
       PRODUCT_ANALYTICS_ENABLED: "true"
+      E2E_TEST_MODE: "true"
+      E2E_TEST_RESET_KEY: ci-e2e-reset-key
       PLAYWRIGHT_BASE_URL: http://localhost:3000
       CI: true
       APP_RELEASE: ci-e2e

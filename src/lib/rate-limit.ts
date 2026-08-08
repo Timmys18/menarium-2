@@ -7,6 +7,24 @@ type RateLimitResult =
 
 const devMemory = new Map<string, number[]>();
 
+export async function clearRateLimitsForE2e() {
+  if (process.env.E2E_TEST_MODE !== "true") {
+    throw new Error("Rate limit reset is only available in the E2E test process");
+  }
+
+  devMemory.clear();
+
+  const redis = getRedis();
+  if (!redis) return;
+
+  let cursor = "0";
+  do {
+    const [nextCursor, keys] = await redis.scan(cursor, "MATCH", "rate:*", "COUNT", 200);
+    cursor = nextCursor;
+    if (keys.length) await redis.del(...keys);
+  } while (cursor !== "0");
+}
+
 function prune(values: number[], windowMs: number) {
   const cutoff = Date.now() - windowMs;
   return values.filter((value) => value > cutoff);
