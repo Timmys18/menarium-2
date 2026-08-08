@@ -3,6 +3,7 @@ import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
+import { invalidateUserSessionState } from "@/lib/auth";
 import { requireUserId } from "@/server/session";
 
 const passwordSchema = z.object({
@@ -43,6 +44,7 @@ export async function PATCH(req: Request) {
     where: { id: auth.userId },
     data: { passwordHash, sessionVersion: { increment: 1 } },
   });
+  await invalidateUserSessionState(auth.userId);
 
   return actionResponse({ ok: true, reauthenticate: true }, { ok: true });
 }

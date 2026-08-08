@@ -9,6 +9,7 @@ import {
   passwordHasLetter,
 } from "@/lib/password-policy";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { invalidateUserSessionState } from "@/lib/auth";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
     }),
   );
   if (!consumed.ok) return errorResponse("Ссылка недействительна или устарела", 400);
+  await invalidateUserSessionState(consumed.value.id);
 
   return actionResponse({ reset: true });
 }

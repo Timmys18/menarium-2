@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { publishUserEvents } from "@/lib/realtime";
 import { recordAdminAction } from "@/server/admin-audit";
 import { requireAdmin } from "@/server/admin";
+import { invalidateUserSessionState } from "@/lib/auth";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -106,6 +107,7 @@ export async function PATCH(req: Request, context: Context) {
     return result;
   });
 
+  await invalidateUserSessionState(id);
   await publishUserEvents([...affectedUsers], { type: "swap" });
   return actionResponse(updated, {
     message:

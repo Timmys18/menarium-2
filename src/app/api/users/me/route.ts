@@ -7,6 +7,7 @@ import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/server/session";
 import { deleteMediaObjects } from "@/features/media/cleanup";
+import { invalidateUserSessionState } from "@/lib/auth";
 import { runSerializableTransaction } from "@/lib/transactions";
 import { reportError } from "@/lib/logger";
 import { getCity } from "@/features/locations/cities";
@@ -213,6 +214,7 @@ export async function DELETE(req: Request) {
   });
 
   await deleteMediaObjects(profileMedia.map((asset) => asset.key));
+  await invalidateUserSessionState(auth.userId);
 
   return actionResponse(
     { ok: true, anonymized: true },

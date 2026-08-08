@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { UserStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getRedis } from "@/lib/redis";
 import { trackProductEvent } from "@/lib/product-analytics";
 import { checkLoginRateLimit, getClientIp, resetLoginRateLimit } from "@/lib/rate-limit";
 
@@ -10,7 +11,48 @@ import { checkLoginRateLimit, getClientIp, resetLoginRateLimit } from "@/lib/rat
 // bcrypt.compare выполняется всегда, чтобы нельзя было по времени определить,
 // существует ли email (защита от enumeration).
 const DUMMY_HASH = "$2a$12$C6UzMDM.H6dfI/f/IKcEeO0000000000000000000000000000000000";
-const SESSION_REVALIDATION_MS = 5 * 60 * 1000;
+const SESSION_STATE_TTL_SECONDS = 5 * 60;
+
+type SessionState = {
+  status: UserStatus;
+  sessionVersion: number;
+  emailVerified: boolean;
+};
+
+function sessionStateKey(userId: string) {
+  return `menarium:session-state:${userId}`;
+}
+
+async function getSessionState(userId: string): Promise<SessionState | null> {
+  const redis = getRedis();
+  if (redis) {
+    const cached = await redis.get(sessionStateKey(userId));
+    if (cached) {
+      try {
+        return JSON.parse(cached) as SessionState;
+      } catch {
+        await redis.del(sessionStateKey(userId));
+      }
+    }
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { status: true, sessionVersion: true, emailVerified: true },
+  });
+  if (!user) return null;
+
+  const state = { ...user, emailVerified: Boolean(user.emailVerified) };
+  if (redis) {
+    await redis.set(sessionStateKey(userId), JSON.stringify(state), "EX", SESSION_STATE_TTL_SECONDS);
+  }
+  return state;
+}
+
+export async function invalidateUserSessionState(userId: string) {
+  const redis = getRedis();
+  if (redis) await redis.del(sessionStateKey(userId));
+}
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -77,22 +119,16 @@ export const authOptions: NextAuthOptions = {
         token.sub = user.id;
         token.sessionVersion = user.sessionVersion ?? 0;
         token.emailVerified = Boolean(user.emailVerified);
-        token.sessionCheckedAt = Date.now();
       }
 
-      const lastCheckedAt = typeof token.sessionCheckedAt === "number" ? token.sessionCheckedAt : 0;
-      if (token.sub && Date.now() - lastCheckedAt >= SESSION_REVALIDATION_MS) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { status: true, sessionVersion: true, emailVerified: true },
-        });
+      if (token.sub) {
+        const dbUser = await getSessionState(token.sub);
         if (!dbUser || dbUser.status !== UserStatus.ACTIVE) {
           token.invalid = true;
         } else if (typeof token.sessionVersion === "number" && dbUser.sessionVersion !== token.sessionVersion) {
           token.invalid = true;
         } else {
           token.emailVerified = Boolean(dbUser.emailVerified);
-          token.sessionCheckedAt = Date.now();
         }
       }
 
