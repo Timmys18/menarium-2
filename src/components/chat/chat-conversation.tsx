@@ -263,14 +263,19 @@ export function ChatConversation({
   });
 
   useRealtime(Boolean(target), (event) => {
+    if (!target || event.entityId !== target.entityId) return;
+
     if (
-      !target ||
-      event.entityId !== target.entityId ||
-      event.type !== "chat-typing" ||
-      event.actorId === currentUserId
+      realtimeTypes.includes(event.type) &&
+      event.actorId !== currentUserId &&
+      document.visibilityState === "visible"
     ) {
-      return;
+      // An open, visible conversation is the user's reading surface. Mark incoming
+      // messages read immediately instead of leaving a misleading unread badge.
+      void fetch(target.endpoint, { cache: "no-store" }).catch(() => undefined);
     }
+
+    if (event.type !== "chat-typing" || event.actorId === currentUserId) return;
     if (partnerTypingTimeoutRef.current) window.clearTimeout(partnerTypingTimeoutRef.current);
     setPartnerTyping(event.state === "active");
     if (event.state === "active") {

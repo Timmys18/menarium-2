@@ -25,7 +25,9 @@ export default defineConfig({
     baseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    // Local failure videos can consume several gigabytes and hide the real result.
+    // CI keeps them for investigation; a local run keeps screenshots and trace instead.
+    video: process.env.CI ? "retain-on-failure" : "off",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: process.env.CI || useExternalServer

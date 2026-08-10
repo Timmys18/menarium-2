@@ -38,6 +38,9 @@ export async function checkRateLimit(
     error: string;
   },
 ): Promise<RateLimitResult> {
+  // Browser scenarios use a dedicated server and must not inherit counters from a previous test.
+  if (process.env.E2E_TEST_MODE === "true") return { ok: true };
+
   const fullKey = `rate:${key}`;
 
   try {

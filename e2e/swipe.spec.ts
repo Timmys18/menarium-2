@@ -24,7 +24,7 @@ async function login(page: Page) {
   await content.locator('input[type="email"]').filter({ visible: true }).first().fill(MARIA.email);
   const password = content.locator('input[type="password"]').filter({ visible: true }).first();
   await password.fill(MARIA.password);
-  await password.press("Enter");
+  await content.getByRole("button", { name: "Войти", exact: true }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
 }
 

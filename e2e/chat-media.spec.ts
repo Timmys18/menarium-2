@@ -34,7 +34,7 @@ async function login(context: BrowserContext, account = MARIA) {
   await content.locator('input[type="email"]').filter({ visible: true }).first().fill(account.email);
   const password = content.locator('input[type="password"]').filter({ visible: true }).first();
   await password.fill(account.password);
-  await password.press("Enter");
+  await content.getByRole("button", { name: "Войти", exact: true }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
   await page.close();
 }
@@ -269,6 +269,20 @@ test.describe("chat history and media hardening", () => {
           },
         }),
       ).toBe(1);
+
+      // A normal chat refresh clears the badge for a conversation the user has opened.
+      const readChat = await mariaContext.request.get(`/api/exchange/${swap.id}/messages`);
+      expect(readChat.status(), await readChat.text()).toBe(200);
+      expect(
+        await prisma.notification.count({
+          where: {
+            userId: maria.id,
+            type: NotificationType.DEAL_MESSAGE_RECEIVED,
+            entityId: swap.id,
+            isRead: false,
+          },
+        }),
+      ).toBe(0);
 
       const muted = await mariaContext.request.patch("/api/chat/preferences", {
         data: { kind: "DEAL", entityId: swap.id, muted: true },
