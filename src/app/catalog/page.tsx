@@ -51,7 +51,7 @@ const typeOptions = [
 function filterLinkClass(active: boolean, compact = false) {
   return cn(
     "flex items-center justify-between gap-2 rounded-[13px] text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65",
-    compact ? "min-w-0 justify-center px-2.5 py-2.5" : "w-full px-3 py-2.5",
+    compact ? "min-h-11 min-w-0 justify-center px-2.5 py-2.5" : "min-h-11 w-full px-3 py-2.5",
     active
       ? "border border-teal-300/18 bg-teal-300/[0.085] text-white"
       : "border border-transparent text-white/62 hover:bg-white/[0.045] hover:text-white",
@@ -130,7 +130,7 @@ export default async function CatalogPage({ searchParams }: Props) {
           </div>
 
           <form action="/catalog" className="sticky top-[72px] z-30 mb-6 md:static">
-            <GlassCard className="flex items-center gap-2 rounded-[18px] bg-[#0b111a]/92 p-2 shadow-[0_18px_50px_rgba(0,0,0,0.34)] sm:gap-3 sm:p-2.5 md:bg-transparent md:shadow-[var(--shadow-card)]">
+            <GlassCard className="flex items-center gap-2 rounded-[18px] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.34)] sm:gap-3 sm:p-2.5">
               <Search className="ml-2 h-5 w-5 shrink-0 text-white/62 sm:ml-3" />
               <label htmlFor="catalog-search" className="sr-only">
                 Найти вещь или услугу
@@ -139,7 +139,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                 id="catalog-search"
                 defaultValue={q}
                 name="q"
-                placeholder="Что хочешь найти?"
+                placeholder="Что вы ищете?"
                 className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-white/62 sm:text-lg"
               />
               {selectedCity ? <input type="hidden" name="city" value={selectedCity} /> : null}
@@ -222,7 +222,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                   <Link
                     href={buildCatalogHref({ q, sort })}
                     scroll={false}
-                    className="mt-5 flex items-center justify-center gap-2 rounded-[13px] border border-white/[0.075] bg-white/[0.035] px-4 py-3 text-sm text-white/62"
+                    className="mt-5 flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-white/[0.075] bg-white/[0.035] px-4 py-3 text-sm text-white/78 transition hover:bg-white/[0.075] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65"
                   >
                     <X className="h-4 w-4" />
                     Сбросить фильтры
@@ -234,13 +234,13 @@ export default async function CatalogPage({ searchParams }: Props) {
             {activeFilterCount > 0 || q ? (
               <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 text-xs">
                 {q ? (
-                  <Link href={buildCatalogHref({ ...catalogBase, q: undefined })} scroll={false} className="flex shrink-0 items-center gap-1.5 rounded-full border border-teal-300/15 bg-teal-300/[0.055] px-3 py-2 text-teal-100/75">
+                  <Link href={buildCatalogHref({ ...catalogBase, q: undefined })} scroll={false} className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-teal-300/15 bg-teal-300/[0.055] px-3 py-2 text-teal-100/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/75">
                     Запрос: {q} <X className="h-3 w-3" />
                   </Link>
                 ) : null}
                 <CatalogFilterChip kind="category" value={selectedCategory} />
                 {parsedType ? (
-                  <Link href={buildCatalogHref({ ...catalogBase, type: undefined })} scroll={false} className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/62">
+                  <Link href={buildCatalogHref({ ...catalogBase, type: undefined })} scroll={false} className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65">
                     {typeLabel} <X className="h-3 w-3" />
                   </Link>
                 ) : null}
@@ -255,7 +255,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-semibold">Настроить выдачу</h2>
                   {activeFilterCount > 0 ? (
-                    <Link href={buildCatalogHref({ q, sort })} scroll={false} className="text-xs text-teal-200/75 hover:text-teal-200">
+                    <Link href={buildCatalogHref({ q, sort })} scroll={false} className="inline-flex min-h-11 items-center px-2 text-xs text-teal-200/90 hover:text-teal-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65">
                       Сбросить
                     </Link>
                   ) : null}
@@ -321,7 +321,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                       <ItemCard
                         key={item.id}
                         {...item}
-                        priority={index < 2}
+                        priority={index < 3}
                         returnHref={currentCatalogHref}
                         isFavorite={favoriteIds.has(item.id)}
                         canFavorite={Boolean(userId && item.ownerId !== userId)}
@@ -332,13 +332,13 @@ export default async function CatalogPage({ searchParams }: Props) {
                   {totalPages > 1 ? (
                     <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                       {page > 1 ? (
-                        <Link href={buildCatalogHref({ ...catalogBase, page: page - 1 })} className="rounded-[14px] border border-white/10 bg-white/[0.045] px-5 py-3 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white">
+                        <Link href={buildCatalogHref({ ...catalogBase, page: page - 1 })} className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.045] px-5 py-3 text-sm text-white/78 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65">
                           ← Назад
                         </Link>
                       ) : null}
                       <span className="text-sm text-white/62">Страница {page} из {totalPages}</span>
                       {hasMore ? (
-                        <Link href={buildCatalogHref({ ...catalogBase, page: page + 1 })} className="rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.18)]">
+                        <Link href={buildCatalogHref({ ...catalogBase, page: page + 1 })} className="inline-flex min-h-11 items-center rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75">
                           Следующая страница →
                         </Link>
                       ) : null}

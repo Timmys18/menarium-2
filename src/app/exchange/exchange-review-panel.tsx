@@ -126,7 +126,7 @@ export function ExchangeReviewPanel({
                   onClick={() => setRating(value)}
                   aria-label={`${value} из 5 — ${ratingLabels[value]}`}
                   aria-pressed={rating === value}
-                  className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-white/8 bg-white/[0.035] transition hover:border-amber-200/28 hover:bg-amber-200/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/60"
+                  className="flex h-11 w-11 items-center justify-center rounded-[12px] border border-white/8 bg-white/[0.035] transition hover:border-amber-200/28 hover:bg-amber-200/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/60"
                 >
                   <Star className={cn("h-5 w-5", value <= rating ? "fill-amber-300 text-amber-300" : "text-white/24")} />
                 </button>

@@ -78,7 +78,7 @@ export function AuthShell({
             </Link>
             <Link
               href="/"
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm text-white/64 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
             >
               <ArrowLeft className="h-4 w-4" />
               На главную

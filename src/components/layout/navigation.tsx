@@ -63,13 +63,13 @@ export function Navigation({
     <>
       <nav aria-label="Основная навигация" className="desktop-navigation fixed inset-x-0 top-0 z-50 hidden md:block">
         <div className="mx-auto max-w-[1480px] px-4 py-3 lg:px-6">
-          <div className="surface-card rounded-[24px] px-3 py-2.5">
+          <div className="app-chrome rounded-[24px] px-3 py-2.5">
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/"
                 aria-label="Менариум — главная"
                 aria-current={pathname === "/" ? "page" : undefined}
-                className="desktop-brand group rounded-2xl px-2 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                className="desktop-brand group flex min-h-11 items-center rounded-2xl px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
               >
                 <BrandLockup
                   priority
@@ -147,12 +147,12 @@ export function Navigation({
       </nav>
 
       <header className="mobile-navigation fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden">
-        <div className="mx-auto flex max-w-lg items-center justify-between rounded-[24px] border border-white/10 bg-[#090d14]/88 px-3 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
+        <div className="app-chrome mx-auto flex max-w-lg items-center justify-between rounded-[24px] px-3 py-2">
           <Link
             href="/"
             aria-label="Менариум — главная"
             aria-current={pathname === "/" ? "page" : undefined}
-            className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+            className="flex min-h-11 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
           >
             <BrandLockup
               priority
@@ -194,7 +194,7 @@ export function Navigation({
 
       <nav aria-label="Мобильная навигация" className="mobile-navigation fixed inset-x-0 bottom-0 z-50 md:hidden">
         <div className="mobile-navigation-bottom-inset px-2.5 pt-5">
-          <div className="mx-auto max-w-lg rounded-[24px] border border-white/10 bg-[#090d14]/88 px-1.5 py-1.5 shadow-[0_-14px_54px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
+          <div className="app-chrome mx-auto max-w-lg rounded-[24px] px-1.5 py-1.5">
             <div className="grid grid-cols-5 items-stretch gap-0.5">
               {mobileItems.map((item) => {
                 const Icon = item.icon;

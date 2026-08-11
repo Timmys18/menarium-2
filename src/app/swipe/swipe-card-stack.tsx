@@ -161,7 +161,7 @@ export function SwipeCardStack({
         type="button"
         onClick={() => void undoLastPass()}
         disabled={undoing}
-        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-3 font-semibold text-teal-200 transition hover:bg-teal-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/70 disabled:opacity-50"
+        className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 font-semibold text-teal-200 transition hover:bg-teal-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/70 disabled:opacity-50"
       >
         {undoing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
         Вернуть

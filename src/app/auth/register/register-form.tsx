@@ -183,7 +183,7 @@ export function RegisterForm() {
       <p className="text-xs leading-5 text-white/62">
         После регистрации предложим подтвердить почту. Повторно отправить письмо всегда можно из профиля.
       </p>
-      <p className="text-xs leading-relaxed text-white/62">
+      <p className="text-xs leading-relaxed text-white/78">
         Регистрируясь, вы соглашаетесь с{" "}
         <Link href="/terms" className="text-teal-300 hover:underline">
           пользовательским соглашением

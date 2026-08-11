@@ -547,7 +547,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                             href={`${exchangeHref(activeTab, swap.id, activeFilter, page)}#exchange-detail`}
                             aria-current={selected ? "true" : undefined}
                             className={cn(
-                              "group block rounded-[20px] border p-3.5 transition sm:p-4",
+                              "group block rounded-[20px] border p-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75 sm:p-4",
                               selected
                                 ? "border-blue-300/30 bg-blue-400/[0.075] shadow-[0_14px_34px_rgba(0,0,0,0.16)]"
                                 : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.05]",
@@ -609,7 +609,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {page > 1 ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page - 1)}
-                          className="rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                          className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/78 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65"
                         >
                           ← Назад
                         </Link>
@@ -620,7 +620,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {exchangeHasMore ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page + 1)}
-                          className="rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
+                          className="inline-flex min-h-11 items-center rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
                         >
                           Дальше →
                         </Link>
@@ -641,7 +641,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {params.swap ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page)}
-                          className="mb-4 inline-flex rounded-xl px-2 py-1.5 text-sm text-white/62 transition hover:bg-white/5 hover:text-white lg:hidden"
+                          className="mb-4 inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-white/78 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65 lg:hidden"
                         >
                           ← Все обмены
                         </Link>

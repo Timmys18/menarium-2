@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ArrowRight, CircleDashed } from "lucide-react";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { MenariumLinkButton } from "@/components/menarium/button";
 
 export function EmptyState({
@@ -23,20 +23,17 @@ export function EmptyState({
   secondaryActionLabel?: string;
 }) {
   return (
-    <GlassCard className="relative flex min-h-72 flex-col items-center justify-center overflow-hidden px-6 py-10 text-center sm:min-h-80 sm:p-12">
-      <div aria-hidden="true" className="absolute -top-24 h-56 w-56 rounded-full bg-blue-400/10 blur-3xl" />
-      <div aria-hidden="true" className="absolute -bottom-28 right-[12%] h-52 w-52 rounded-full bg-teal-300/[0.08] blur-3xl" />
-      <div className="relative mb-6 flex h-16 w-16 items-center justify-center rounded-[21px] border border-teal-200/18 bg-gradient-to-br from-blue-400/14 to-teal-300/10 text-teal-100 shadow-[0_18px_50px_rgba(56,214,178,0.12)]">
-        <span aria-hidden="true" className="absolute -inset-2 rounded-[27px] border border-white/[0.045]" />
-        <span className="relative">{icon}</span>
+    <SurfaceCard className="flex min-h-72 flex-col items-center justify-center px-6 py-10 text-center sm:min-h-80 sm:p-12">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[21px] border border-teal-200/18 bg-teal-300/[0.08] text-teal-100">
+        <span>{icon}</span>
       </div>
       {eyebrow ? (
-        <p className="type-kicker relative mb-2 text-teal-200/68">{eyebrow}</p>
+        <p className="type-kicker mb-2 text-teal-200/90">{eyebrow}</p>
       ) : null}
-      <h2 className="relative mb-2 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
-      <p className="relative max-w-md text-sm leading-6 text-white/66 sm:text-base">{description}</p>
+      <h2 className="mb-2 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
+      <p className="max-w-md text-sm leading-6 text-white/78 sm:text-base">{description}</p>
       {actionHref && actionLabel ? (
-        <div className="relative mt-6 flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
+        <div className="mt-6 flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
           <MenariumLinkButton href={actionHref} className="w-full sm:w-auto">
             {actionLabel}
             <ArrowRight className="h-4 w-4" />
@@ -48,6 +45,6 @@ export function EmptyState({
           ) : null}
         </div>
       ) : null}
-    </GlassCard>
+    </SurfaceCard>
   );
 }

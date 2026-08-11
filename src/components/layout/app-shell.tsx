@@ -14,13 +14,10 @@ export async function AppShell({
   const userId = mode === "app" ? await getCurrentUserId() : null;
   return (
     <RealtimeProvider enabled={Boolean(userId)}>
-      <div className="relative min-h-screen overflow-x-clip">
+      <div id="menarium-app" className="relative min-h-screen overflow-x-clip">
         <a href="#main-content" className="skip-link">
           К содержимому
         </a>
-        <div aria-hidden="true" className="dot-grid-bg pointer-events-none fixed inset-0 opacity-50" />
-        <div aria-hidden="true" className="pointer-events-none fixed -left-40 -top-52 h-[34rem] w-[34rem] rounded-full bg-teal-400/[0.12] blur-[150px]" />
-        <div aria-hidden="true" className="pointer-events-none fixed -right-48 top-10 h-[38rem] w-[38rem] rounded-full bg-blue-500/[0.12] blur-[160px]" />
         {mode === "app" ? (
           <NavigationWithPolling
             initialUnreadNotifications={0}

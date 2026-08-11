@@ -68,7 +68,7 @@ export function ItemCard({
             sizes="(max-width: 640px) 100vw, (max-width: 1535px) 50vw, 33vw"
             imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
           />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d131d] to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0d131d]/85 to-transparent" />
           <div className={cn(
             "absolute left-4 top-4 flex flex-wrap items-start gap-2",
             reserveTopRight ? "right-28" : showFavorite ? "right-16" : "right-4",
@@ -93,7 +93,7 @@ export function ItemCard({
             />
           ) : null}
           {flexible ? (
-            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#090d14]/78 px-3 py-1.5 text-[11px] font-medium text-white/76 backdrop-blur-xl">
+            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#090d14]/88 px-3 py-1.5 text-[11px] font-medium text-white/82">
               <Sparkles className="h-3 w-3 text-teal-200" />
               Открыт к вариантам
             </div>
@@ -109,20 +109,20 @@ export function ItemCard({
             <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="line-clamp-2 text-base font-semibold leading-5.5 tracking-[-0.02em] text-white sm:text-lg sm:leading-6">{title}</h3>
             {likes ? (
-              <span className="flex shrink-0 items-center gap-1 text-sm text-white/62">
+              <span className="flex shrink-0 items-center gap-1 text-sm text-white/78">
                 <Heart className="h-4 w-4 text-blue-300" />
                 {likes}
               </span>
             ) : null}
           </div>
           <div className="mt-auto rounded-[15px] border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
-            <span className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-100/58">
+            <span className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-100/78">
               <ArrowRightLeft className="h-3.5 w-3.5 text-teal-200" />
               Ищу взамен
             </span>
-            <span className="line-clamp-2 block text-sm leading-5 text-white/74">{wanted}</span>
+            <span className="line-clamp-2 block text-sm leading-5 text-white/82">{wanted}</span>
           </div>
-          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/62">
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/78">
             {city ? (
               <span className="flex min-w-0 items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />

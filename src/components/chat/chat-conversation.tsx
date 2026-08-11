@@ -512,7 +512,7 @@ export function ChatConversation({
               type="button"
               onClick={() => void enablePush()}
               disabled={isChangingPush}
-              className="inline-flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs text-white/62 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs text-white/78 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
             >
               {isChangingPush ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
               Получать вне сайта
@@ -525,7 +525,7 @@ export function ChatConversation({
             aria-label={muted ? "Включить уведомления этого чата" : "Отключить уведомления этого чата"}
             title={muted ? "Уведомления этого чата отключены" : "Отключить уведомления этого чата"}
             className={cn(
-              "inline-flex h-9 w-9 items-center justify-center rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70",
+              "inline-flex h-11 w-11 items-center justify-center rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70",
               muted
                 ? "bg-amber-300/10 text-amber-200/75"
                 : "text-white/62 hover:bg-white/[0.06] hover:text-white",
@@ -589,7 +589,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 rounded-lg p-1.5 text-white/0 transition group-hover:text-white/62 hover:!bg-white/[0.06] hover:!text-white/75 focus-visible:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/62"
+                      className="mb-1 flex h-11 w-11 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.06] hover:!text-white/85 focus-visible:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/78"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>
@@ -600,7 +600,7 @@ export function ChatConversation({
                       "max-w-[88%] overflow-hidden rounded-[19px] px-3.5 py-2.5 text-sm sm:max-w-[78%]",
                       isOwn
                         ? "rounded-br-[7px] bg-gradient-to-br from-blue-500/28 to-teal-400/18 text-white/92"
-                        : "rounded-bl-[7px] border border-white/[0.07] bg-white/[0.045] text-white/78",
+                        : "rounded-bl-[7px] border border-white/[0.07] bg-white/[0.045] text-white/82",
                     )}
                   >
                     {message.replyTo ? (
@@ -655,7 +655,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 rounded-lg p-1.5 text-white/0 transition group-hover:text-white/62 hover:!bg-white/[0.06] hover:!text-white/75 focus-visible:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/62"
+                      className="mb-1 flex h-11 w-11 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.06] hover:!text-white/85 focus-visible:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/78"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>
@@ -665,7 +665,7 @@ export function ChatConversation({
             );
           })
         ) : (
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4 text-sm text-white/62">
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4 text-sm text-white/78">
             {emptyMessage}
           </div>
         )}
@@ -699,7 +699,7 @@ export function ChatConversation({
               type="button"
               onClick={() => setReplyingTo(null)}
               aria-label="Отменить ответ"
-              className="rounded-lg p-1.5 text-white/62 transition hover:bg-white/[0.06] hover:text-white"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-white/78 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -718,7 +718,7 @@ export function ChatConversation({
                   type="button"
                   onClick={() => void removeAttachment(attachment)}
                   aria-label="Убрать фотографию"
-                  className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white/75 backdrop-blur"
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/80 text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -749,7 +749,7 @@ export function ChatConversation({
             onClick={() => fileInputRef.current?.click()}
             disabled={!canWrite || isSending || isUploading || attachments.length >= 4}
             aria-label="Добавить фотографию"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-white/62 transition hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] text-white/78 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 disabled:cursor-not-allowed disabled:opacity-35"
           >
             <ImagePlus className="h-4.5 w-4.5" />
           </button>
@@ -767,14 +767,14 @@ export function ChatConversation({
             maxLength={2000}
             rows={1}
             aria-label="Текст сообщения"
-            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-1 py-2 text-sm shadow-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-white/62 disabled:placeholder:text-white/62"
+            className="max-h-32 min-h-11 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-1 py-2 text-sm shadow-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-white/78 disabled:placeholder:text-white/78"
             placeholder={canWrite ? placeholder : disabledPlaceholder}
           />
           <MenariumButton
             type="submit"
             size="sm"
             aria-label="Отправить сообщение"
-            className="h-10 w-10 shrink-0 rounded-[13px] px-0"
+            className="h-11 w-11 shrink-0 rounded-[13px] px-0"
             disabled={
               !canWrite ||
               isSending ||

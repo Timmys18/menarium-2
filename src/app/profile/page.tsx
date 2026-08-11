@@ -118,12 +118,12 @@ export default async function ProfilePage({
                 scroll={false}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center justify-center gap-2 rounded-[13px] px-3 py-2.5 text-sm transition-colors",
-                  active ? "bg-white/[0.08] text-white" : "text-white/62 hover:bg-white/[0.045] hover:text-white",
+                  "flex min-h-11 items-center justify-center gap-2 rounded-[13px] px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                  active ? "bg-white/[0.08] text-white" : "text-white/78 hover:bg-white/[0.045] hover:text-white",
                 )}
               >
                 {entry.label}
-                <span className={active ? "text-teal-200" : "text-white/62"}>{counts[entry.status]}</span>
+                <span className={active ? "text-teal-200" : "text-white/78"}>{counts[entry.status]}</span>
               </Link>
             );
           })}
@@ -157,7 +157,7 @@ export default async function ProfilePage({
                       <Link
                         href={`/item/${item.id}/edit`}
                         aria-label={`Редактировать «${item.title}»`}
-                        className="flex h-10 w-10 items-center justify-center rounded-[13px] border border-white/12 bg-[#090d14]/82 text-white/72 shadow-lg backdrop-blur-xl transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+                        className="flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[#090d14]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>

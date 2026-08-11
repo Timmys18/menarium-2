@@ -478,7 +478,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/62">
+                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/78">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-300/72" />
                   Статус обмена виден обеим сторонам. Не передавайте коды и данные банковских карт в сообщениях.
                 </div>

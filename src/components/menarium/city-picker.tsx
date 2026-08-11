@@ -76,7 +76,7 @@ export function CityPicker({
           "w-full overflow-hidden rounded-[18px] border border-white/12 bg-[#101722] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
           inline ? "relative mt-2" : cn("absolute left-0 z-[70]", placement === "up" ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"),
         )}>
-          <label className="flex items-center gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-white/62">
+          <label className="flex min-h-11 items-center gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-white/78">
             <Search className="h-4 w-4 shrink-0" />
             <span className="sr-only">Найти город в списке</span>
             <input
@@ -93,7 +93,7 @@ export function CityPicker({
               className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/62"
             />
             {query ? (
-              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="text-white/62 hover:text-white">
+              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="-mr-3 flex h-11 w-11 items-center justify-center text-white/78 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65">
                 <X className="h-4 w-4" />
               </button>
             ) : null}
@@ -113,7 +113,7 @@ export function CityPicker({
                     setQuery("");
                   }}
                   className={cn(
-                    "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[0.06]",
+                    "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/65",
                     active && "bg-teal-300/[0.09]",
                   )}
                 >

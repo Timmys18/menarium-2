@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useId, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { cn } from "@/lib/utils";
@@ -31,7 +32,14 @@ export function MenariumDialog({
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const appRoot = document.getElementById("menarium-app");
+    const previousInert = appRoot?.inert ?? false;
+    const previousAriaHidden = appRoot?.getAttribute("aria-hidden") ?? null;
     document.body.style.overflow = "hidden";
+    if (appRoot) {
+      appRoot.inert = true;
+      appRoot.setAttribute("aria-hidden", "true");
+    }
 
     // Tab stays inside the dialog so the page behind it cannot be reached.
     const focusDialog = () => {
@@ -66,15 +74,20 @@ export function MenariumDialog({
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
+      if (appRoot) {
+        appRoot.inert = previousInert;
+        if (previousAriaHidden === null) appRoot.removeAttribute("aria-hidden");
+        else appRoot.setAttribute("aria-hidden", previousAriaHidden);
+      }
       previousFocus?.focus({ preventScroll: true });
     };
   }, [open]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/70 p-4 backdrop-blur-md sm:items-center"
+      className="dialog-backdrop fixed inset-0 z-[100] flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -86,7 +99,7 @@ export function MenariumDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
-        className="glass-card w-full max-w-lg rounded-[28px] border border-white/15 bg-[#101017]/95 p-6 shadow-2xl shadow-black/60 sm:p-7"
+        className="dialog-panel app-chrome w-full max-w-lg rounded-[28px] p-6 shadow-2xl shadow-black/60 sm:p-7"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -100,7 +113,7 @@ export function MenariumDialog({
               {title}
             </h2>
             {description ? (
-              <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-white/62">
+              <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-white/78">
                 {description}
               </p>
             ) : null}
@@ -109,7 +122,7 @@ export function MenariumDialog({
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="rounded-xl p-2 text-white/62 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white/78 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
           >
             <X className="h-5 w-5" />
           </button>
@@ -117,7 +130,8 @@ export function MenariumDialog({
         {children ? <div className="mt-5">{children}</div> : null}
         {footer ? <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">{footer}</div> : null}
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
