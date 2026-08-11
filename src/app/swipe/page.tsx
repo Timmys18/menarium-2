@@ -63,7 +63,7 @@ export default async function SwipePage() {
               <span className="gradient-text">Свайп</span> обмена
             </h1>
             <p className="mx-auto max-w-xl text-sm text-white/66 md:text-base">
-              Тяни влево — пропустить, вправо — предложить обмен. Или используй кнопки ниже.
+              Проведите влево, чтобы пропустить, или вправо, чтобы предложить обмен. Можно использовать и кнопки ниже.
             </p>
           </div>
 

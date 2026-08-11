@@ -60,7 +60,7 @@ export function ItemCard({
       >
         <span className="sr-only">Открыть объявление «{title}»</span>
       </Link>
-        <div className="relative aspect-[4/3] overflow-hidden">
+        <div className="relative aspect-[16/10] overflow-hidden sm:aspect-[4/3]">
           <ItemCoverImage
             src={image}
             alt={title}
@@ -99,7 +99,7 @@ export function ItemCard({
             </div>
           ) : null}
         </div>
-        <div className="flex flex-1 flex-col p-5 sm:p-5.5">
+        <div className="flex flex-1 flex-col p-4 sm:p-5.5">
           {recommendationReason ? (
             <div className="mb-3 flex items-start gap-2 rounded-[13px] border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">
               <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
@@ -107,7 +107,7 @@ export function ItemCard({
             </div>
           ) : null}
             <div className="mb-4 flex items-start justify-between gap-3">
-            <h3 className="line-clamp-2 text-lg font-semibold leading-6 tracking-[-0.02em] text-white">{title}</h3>
+            <h3 className="line-clamp-2 text-base font-semibold leading-5.5 tracking-[-0.02em] text-white sm:text-lg sm:leading-6">{title}</h3>
             {likes ? (
               <span className="flex shrink-0 items-center gap-1 text-sm text-white/62">
                 <Heart className="h-4 w-4 text-blue-300" />
@@ -115,7 +115,7 @@ export function ItemCard({
               </span>
             ) : null}
           </div>
-          <div className="mt-auto rounded-[15px] border border-teal-300/[0.12] bg-teal-300/[0.05] px-3.5 py-3">
+          <div className="mt-auto rounded-[15px] border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
             <span className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-100/58">
               <ArrowRightLeft className="h-3.5 w-3.5 text-teal-200" />
               Ищу взамен

@@ -307,7 +307,7 @@ export default async function ProductAnalyticsPage() {
                           <span className="w-1/4 rounded-t-sm bg-amber-300/80" style={{ height: `${Math.max(day.proposals ? 4 : 0, (day.proposals / maxDailyActivity) * 100)}%` }} />
                           <span className="w-1/4 rounded-t-sm bg-emerald-300/80" style={{ height: `${Math.max(day.completions ? 4 : 0, (day.completions / maxDailyActivity) * 100)}%` }} />
                         </div>
-                        <span className="mt-2 text-center text-[9px] text-white/25 sm:text-[10px]">
+                        <span className="mt-2 text-center text-[10px] text-white/62">
                           <span className="sm:hidden">{Number(day.day.slice(-2))}</span>
                           <span className="hidden sm:inline">
                             {shortDateFormatter.format(new Date(`${day.day}T12:00:00Z`)).replace(".", "")}

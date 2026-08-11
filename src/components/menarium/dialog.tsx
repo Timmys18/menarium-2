@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useEffectEvent, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { cn } from "@/lib/utils";
@@ -24,22 +24,51 @@ export function MenariumDialog({
 }) {
   const titleId = useId();
   const descriptionId = useId();
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const close = useEffectEvent(onClose);
 
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
+
+    // Tab stays inside the dialog so the page behind it cannot be reached.
+    const focusDialog = () => {
+      const focusable = dialogRef.current?.querySelector<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      (focusable ?? dialogRef.current)?.focus({ preventScroll: true });
+    };
+
+    queueMicrotask(focusDialog);
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+      if (event.key !== "Tab" || !dialogRef.current) return;
+
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.getClientRects().length > 0);
+      const first = focusable[0] ?? dialogRef.current;
+      const last = focusable.at(-1) ?? dialogRef.current;
+
+      if (event.shiftKey ? document.activeElement === first : document.activeElement === last) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
+      previousFocus?.focus({ preventScroll: true });
     };
-  }, [onClose, open]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -51,6 +80,8 @@ export function MenariumDialog({
       }}
     >
       <section
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -75,7 +106,6 @@ export function MenariumDialog({
             ) : null}
           </div>
           <button
-            ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Закрыть"

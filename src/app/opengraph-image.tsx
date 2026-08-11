@@ -8,7 +8,7 @@ export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
   const [logoData, onestRegular, onestBold] = await Promise.all([
-    readFile(join(process.cwd(), "public/brand/menarium-logo.png"), "base64"),
+    readFile(join(process.cwd(), "public/brand/menarium-exchange.png"), "base64"),
     readFile(join(process.cwd(), "assets/fonts/Onest-Regular.ttf")),
     readFile(join(process.cwd(), "assets/fonts/Onest-Bold.ttf")),
   ]);

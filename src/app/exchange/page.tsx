@@ -92,7 +92,7 @@ function statusPresentation(
         }
       : {
           label: "Нужно ответить",
-          description: "Посмотри предложение и реши, подходит ли тебе этот обмен.",
+          description: "Откройте предложение и решите, подходит ли вам этот обмен.",
           variant: "teal",
         };
   }
@@ -101,7 +101,7 @@ function statusPresentation(
     return completedByUser
       ? {
           label: "Ждём партнёра",
-          description: "Ты подтвердил завершение. Осталось подтверждение второй стороны.",
+          description: "Вы подтвердили завершение. Осталось подтверждение второй стороны.",
           variant: "teal",
         }
       : {
@@ -500,7 +500,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                     <div>
                       <h2 className="text-lg font-semibold">
                         {activeTab === "incoming"
-                          ? "Предложения для тебя"
+                          ? "Предложения для вас"
                           : activeTab === "outgoing"
                             ? "Твои предложения"
                             : "Взаимные обмены"}
@@ -518,7 +518,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                         activeTab === "incoming"
                           ? "Новых предложений пока нет"
                           : activeTab === "outgoing"
-                            ? "Ты пока ничего не предложил"
+                            ? "Вы пока ничего не предложили"
                             : "Взаимных обменов пока нет"
                       }
                       description={

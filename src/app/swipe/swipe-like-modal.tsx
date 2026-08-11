@@ -96,7 +96,7 @@ export function SwipeLikeModal({
 
       <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center gap-2 rounded-[18px] border border-white/8 bg-white/[0.035] p-4">
         <div className="min-w-0">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/62">Ты отдаёшь</span>
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/62">Вы отдаёте</span>
           <span className="mt-1 block truncate text-sm font-medium text-white">{senderTitle}</span>
         </div>
         <ArrowRightLeft className="h-4 w-4 justify-self-center text-teal-200" />

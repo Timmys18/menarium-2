@@ -93,6 +93,7 @@ export default async function CatalogPage({ searchParams }: Props) {
   const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
   const totalPages = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));
   const activeFilterCount = [selectedCategory, selectedCity, parsedType].filter(Boolean).length;
+  const hasSearchControls = Boolean(q || activeFilterCount > 0 || sort !== "new");
   const typeLabel = typeOptions.find((entry) => entry.id === parsedType)?.label;
 
   return (
@@ -111,6 +112,16 @@ export default async function CatalogPage({ searchParams }: Props) {
               <div className="rounded-full border border-white/[0.075] bg-white/[0.035] px-4 py-2 text-sm text-white/62">
                 Найдено: <span className="font-semibold text-white/85">{total}</span>
               </div>
+              {hasSearchControls ? (
+                <Link
+                  href="/catalog"
+                  scroll={false}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[13px] border border-white/10 bg-white/[0.035] px-3 text-sm text-white/70 transition hover:bg-white/[0.075] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65"
+                >
+                  <X className="h-4 w-4" />
+                  Очистить
+                </Link>
+              ) : null}
               <MenariumLinkButton href="/new" size="sm" className="hidden sm:inline-flex">
                 <Plus className="h-4 w-4" />
                 Добавить своё
@@ -305,7 +316,7 @@ export default async function CatalogPage({ searchParams }: Props) {
               </div>
               {cards.length > 0 ? (
                 <>
-                  <div className="reveal-grid grid grid-cols-1 gap-5 sm:grid-cols-2 2xl:grid-cols-3">
+                  <div className="reveal-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5 xl:grid-cols-3">
                     {cards.map((item, index) => (
                       <ItemCard
                         key={item.id}

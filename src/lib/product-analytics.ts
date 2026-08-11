@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { reportError } from "@/lib/logger";
 
@@ -56,13 +56,37 @@ function eventQueue() {
   return globalAnalytics.queue;
 }
 
+async function persistProductEvents(batch: QueuedEvent[]) {
+  try {
+    await prisma.productEvent.createMany({ data: batch, skipDuplicates: true });
+    return;
+  } catch (error) {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2003") throw error;
+  }
+
+  // A user can be deleted between queuing an event and its background flush.
+  // Keep the event but remove only a stale actor reference, not the entire batch.
+  const actorIds = [...new Set(batch.flatMap((event) => (event.actorId ? [event.actorId] : [])))];
+  const existingActors = new Set(
+    (
+      await prisma.user.findMany({
+        where: { id: { in: actorIds } },
+        select: { id: true },
+      })
+    ).map((user) => user.id),
+  );
+  await prisma.productEvent.createMany({
+    data: batch.map((event) => (event.actorId && !existingActors.has(event.actorId) ? { ...event, actorId: null } : event)),
+    skipDuplicates: true,
+  });
+}
+
 async function flushProductEvents() {
   if (globalAnalytics.flushPromise) return globalAnalytics.flushPromise;
   const batch = eventQueue().splice(0, 100);
   if (!batch.length) return;
 
-  globalAnalytics.flushPromise = prisma.productEvent
-    .createMany({ data: batch, skipDuplicates: true })
+  globalAnalytics.flushPromise = persistProductEvents(batch)
     .then(() => undefined)
     .catch((error) => reportError("product_analytics.record_failed", error, { batchSize: batch.length }))
     .finally(() => {

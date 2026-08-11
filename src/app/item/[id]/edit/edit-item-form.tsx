@@ -316,7 +316,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             onChange={(event) => setDesiredText(event.target.value)}
             placeholder="Например: наушники, винил, камера"
           />
-          <span className="block text-xs text-white/62">Разделяй варианты запятыми, максимум 12.</span>
+          <span className="block text-xs text-white/62">Разделяйте варианты запятыми, максимум 12.</span>
         </label>
 
         <div className="flex flex-wrap gap-2">

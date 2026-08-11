@@ -317,8 +317,8 @@ export function SwipeCardStack({
       <MenariumDialog
         open={createPromptOpen}
         onClose={() => setCreatePromptOpen(false)}
-        title="Сначала добавим твоё предложение"
-        description={`Чтобы предложить обмен на «${card.title}», нужно показать, что ты отдаёшь. После публикации мы вернём тебя к этой карточке.`}
+        title="Сначала добавьте своё предложение"
+        description={`Чтобы предложить обмен на «${card.title}», нужно показать, что вы отдаёте. После публикации мы вернём вас к этой карточке.`}
         footer={
           <>
             <MenariumButton variant="secondary" onClick={() => setCreatePromptOpen(false)}>

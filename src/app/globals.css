@@ -170,34 +170,38 @@ a {
 }
 
 .page-enter {
-  animation: page-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: page-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .reveal-grid > * {
-  animation: surface-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: surface-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .reveal-grid > :nth-child(2) {
-  animation-delay: 70ms;
+  animation-delay: 40ms;
 }
 
 .reveal-grid > :nth-child(3) {
-  animation-delay: 140ms;
+  animation-delay: 80ms;
 }
 
 .reveal-grid > :nth-child(4) {
-  animation-delay: 210ms;
+  animation-delay: 120ms;
 }
 
 .mobile-action-dock {
   bottom: var(--mobile-nav-clearance);
-  animation: dock-enter 520ms 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: dock-enter 220ms 80ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mobile-navigation-bottom-inset {
+  padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
 }
 
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -208,7 +212,7 @@ a {
 @keyframes surface-enter {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.985);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -219,7 +223,7 @@ a {
 @keyframes dock-enter {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.97);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;

@@ -79,7 +79,7 @@ const statusPresentation = {
   },
   [ItemStatus.PAUSED]: {
     label: "На паузе",
-    copy: "Объявление видишь только ты. Его можно изменить и вернуть в каталог.",
+    copy: "Объявление видите только вы. Его можно изменить и вернуть в каталог.",
     variant: "purple",
   },
   [ItemStatus.IN_DEAL]: {

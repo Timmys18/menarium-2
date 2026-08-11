@@ -9,8 +9,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "Менариум";
   const options = {
     body: payload.body || "У вас новое уведомление",
-    icon: "/brand/menarium-logo.png",
-    badge: "/brand/menarium-logo.png",
+    icon: "/brand/menarium-exchange.png",
+    badge: "/brand/menarium-exchange.png",
     tag: payload.tag || "menarium-notification",
     renotify: true,
     data: { href: payload.href || "/notifications" },

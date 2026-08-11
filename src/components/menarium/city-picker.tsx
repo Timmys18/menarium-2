@@ -24,7 +24,6 @@ export function CityPicker({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [placement, setPlacement] = useState<"up" | "down">("down");
-  const [listHeight, setListHeight] = useState(224);
   const selected = getCity(value);
   const cities = searchCities(query);
 
@@ -46,11 +45,8 @@ export function CityPicker({
     const rect = inline ? null : containerRef.current?.getBoundingClientRect();
     if (rect) {
       const roomAbove = rect.top;
-      const roomBelow = window.innerHeight - rect.bottom;
       const openUpwards = rect.bottom > window.innerHeight * 0.55 && roomAbove > 210;
-      const available = openUpwards ? roomAbove : roomBelow;
       setPlacement(openUpwards ? "up" : "down");
-      setListHeight(Math.max(136, Math.min(248, available - 92)));
     }
 
     setQuery("");
@@ -63,7 +59,7 @@ export function CityPicker({
         id={id}
         type="button"
         aria-expanded={open}
-        aria-controls={listId}
+        aria-controls={open ? listId : undefined}
         aria-haspopup="listbox"
         onClick={toggleList}
         className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-left text-white outline-none transition hover:border-white/20 focus-visible:ring-2 focus-visible:ring-blue-300/50"
@@ -102,7 +98,7 @@ export function CityPicker({
               </button>
             ) : null}
           </label>
-          <div id={listId} role="listbox" aria-label="Города" style={{ maxHeight: listHeight }} className="menarium-scrollbar mt-2 overflow-y-auto overscroll-contain pr-1">
+          <div id={listId} role="listbox" aria-label="Города" className="menarium-scrollbar mt-2 max-h-[min(15.5rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain pr-1">
             {cities.map((city) => {
               const active = city.id === value;
               return (

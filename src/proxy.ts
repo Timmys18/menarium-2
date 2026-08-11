@@ -32,6 +32,10 @@ function createContentSecurityPolicy(nonce: string) {
     }`,
     "script-src-attr 'none'",
     `style-src 'self' 'nonce-${nonce}'`,
+    // React and Motion update a small number of element styles at runtime
+    // (for example, a drag position). Keep style tags nonce-protected while
+    // allowing those attributes; scripts remain strictly nonce-only.
+    "style-src-attr 'unsafe-inline'",
     `img-src 'self' blob: data: https://storage.yandexcloud.net${storageOrigin ? ` ${storageOrigin}` : ""}`,
     "font-src 'self' data:",
     `connect-src 'self'${storageOrigin ? ` ${storageOrigin}` : ""}${sentryOrigin ? ` ${sentryOrigin}` : ""}`,

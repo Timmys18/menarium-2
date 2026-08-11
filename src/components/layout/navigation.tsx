@@ -106,6 +106,7 @@ export function Navigation({
               <div className="desktop-actions flex items-center gap-2">
                 <Link
                   href="/new"
+                  aria-label="Добавить объявление"
                   aria-current={isActivePath(pathname, "/new") ? "page" : undefined}
                   className="inline-flex min-h-11 items-center gap-2 rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 lg:px-5"
                 >
@@ -165,7 +166,7 @@ export function Navigation({
               aria-label="Уведомления"
               aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
               className={cn(
-                "relative flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                "relative flex h-11 w-11 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                 isActivePath(pathname, "/notifications")
                   ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
                   : "border-white/[0.08] bg-white/[0.04] text-white/62",
@@ -179,7 +180,7 @@ export function Navigation({
               aria-label="Личный кабинет"
               aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                "flex h-11 w-11 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                 isActivePath(pathname, "/profile")
                   ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
                   : "border-white/[0.08] bg-white/[0.04] text-white/62",
@@ -192,10 +193,7 @@ export function Navigation({
       </header>
 
       <nav aria-label="Мобильная навигация" className="mobile-navigation fixed inset-x-0 bottom-0 z-50 md:hidden">
-        <div
-          className="px-2.5 pt-5"
-          style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
-        >
+        <div className="mobile-navigation-bottom-inset px-2.5 pt-5">
           <div className="mx-auto max-w-lg rounded-[24px] border border-white/10 bg-[#090d14]/88 px-1.5 py-1.5 shadow-[0_-14px_54px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
             <div className="grid grid-cols-5 items-stretch gap-0.5">
               {mobileItems.map((item) => {
