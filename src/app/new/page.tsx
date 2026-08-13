@@ -41,7 +41,7 @@ export default async function NewItemPage({ searchParams }: NewItemPageProps) {
             </div>
             <h1 className="type-page-title mb-3 text-3xl md:text-5xl">Что выставим на обмен?</h1>
             <p className="mx-auto max-w-2xl text-white/62">
-              Три коротких шага. Черновик сохранится на этом устройстве, если решишь продолжить позже.
+              Три коротких шага. Черновик сохранится на этом устройстве, если решите продолжить позже.
             </p>
           </div>
 

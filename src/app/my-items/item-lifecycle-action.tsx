@@ -40,6 +40,7 @@ export function ItemLifecycleAction({
       }
       setConfirmOpen(false);
       router.push(successHref);
+      router.refresh();
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Не удалось изменить объявление");
     } finally {

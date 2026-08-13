@@ -90,7 +90,7 @@ export function LoginForm() {
           </label>
           <Link
             href={forgotPasswordHref}
-            className="rounded-lg text-sm text-teal-200/80 transition hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-teal-200/80 transition hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
           >
           Забыли пароль?
           </Link>

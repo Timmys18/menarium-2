@@ -1,4 +1,5 @@
 import { NotificationType, SwapStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { checkActionRateLimit } from "@/lib/rate-limit";
 import { trackProductEvent } from "@/lib/product-analytics";
@@ -111,6 +112,9 @@ export async function POST(
         type: "notification",
         entityId: swapId,
       });
+      for (const userId of result.notificationUserIds) {
+        revalidatePath(`/user/${userId}`);
+      }
     }
     await trackProductEvent({
       name: "review_submitted",

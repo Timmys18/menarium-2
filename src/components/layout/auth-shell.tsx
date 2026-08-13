@@ -43,9 +43,9 @@ export function AuthShell({
 
             <div className="mt-9 grid gap-3 xl:grid-cols-3">
               {[
-                { icon: ArrowRightLeft, number: "01", label: "Выбери вещь" },
-                { icon: MessageCircle, number: "02", label: "Договорись" },
-                { icon: ShieldCheck, number: "03", label: "Заверши обмен" },
+                { icon: ArrowRightLeft, number: "01", label: "Выберите вещь" },
+                { icon: MessageCircle, number: "02", label: "Договоритесь" },
+                { icon: ShieldCheck, number: "03", label: "Завершите обмен" },
               ].map((step) => {
                 const Icon = step.icon;
                 return (
@@ -72,7 +72,7 @@ export function AuthShell({
             <Link
               href="/"
               aria-label="Менариум — на главную"
-              className="inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+              className="inline-flex min-h-11 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
             >
               <BrandLockup priority />
             </Link>
@@ -100,7 +100,7 @@ export function AuthShell({
               <ShieldCheck className="h-3.5 w-3.5 text-teal-200/65" />
               Защищённое соединение
             </span>
-            <Link href="/catalog" className="rounded-lg text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
+            <Link href="/catalog" className="inline-flex min-h-11 items-center rounded-lg text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
               Сначала посмотреть каталог
             </Link>
           </div>

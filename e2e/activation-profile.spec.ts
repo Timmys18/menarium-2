@@ -46,7 +46,9 @@ test.describe("первый вход и личный кабинет", () => {
       await page.goto("/profile");
 
       await expect(content.getByRole("heading", { name: "Мои объявления" })).toBeVisible();
-      await expect(content.getByText("Почта подтверждена", { exact: true })).toBeVisible();
+      const verifiedStatus = content.getByLabel("Статус почты: подтверждена");
+      await expect(verifiedStatus).toHaveCount(1);
+      await expect(verifiedStatus).toBeVisible();
 
       await content.getByRole("link", { name: "Профиль и настройки" }).click();
       await content.getByLabel("Имя").fill("Анна");

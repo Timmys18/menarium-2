@@ -36,6 +36,10 @@ yarn-error.log*
 .pnpm-debug.log*
 /debug.log
 /.codex-*.log
+/.next-e2e-server*.log
+/.next-e2e-server.pid
+/.ui-acceptance-progress.log
+cloudflared.exe
 /.codex-share/
 /public/uploads/
 

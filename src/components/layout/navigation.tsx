@@ -18,7 +18,7 @@ const mobileItems = [
   primaryItems[1],
   { href: "/new", label: "Создать", icon: Plus, primary: true },
   primaryItems[2],
-  primaryItems[3],
+  { ...primaryItems[3], label: "Чаты" },
 ];
 
 function isActivePath(pathname: string, href: string) {

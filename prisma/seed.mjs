@@ -223,13 +223,19 @@ async function main() {
       },
     }),
   ]);
+  // Reset every non-fixture listing owned by the well-known demo accounts.
+  // Browser scenarios create listings with different titles, and leaving any
+  // of them behind makes later exchange and screenshot checks non-deterministic.
   await prisma.item.deleteMany({
     where: {
       ownerId: { in: demoUserIds },
-      title: { startsWith: "[E2E]" },
+      title: { notIn: itemFixtures.map((fixture) => fixture.title) },
     },
   });
-  await Promise.all(itemFixtures.map((fixture) => upsertItem(fixture, owners)));
+  // Keep updatedAt ordering stable for screenshot and browser acceptance runs.
+  for (const fixture of itemFixtures) {
+    await upsertItem(fixture, owners);
+  }
 
   console.log("Seed complete:");
   console.log("- admin@menarium.ru / MenariumAdmin2026!");

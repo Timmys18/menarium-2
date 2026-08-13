@@ -36,7 +36,8 @@ test("диалог удерживает фокус и возвращает ег�
   await page.getByLabel("Пароль").fill(MARIA.password);
   await page.getByRole("button", { name: "Войти" }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"));
-  await page.goto("/profile");
+  await page.goto("/profile", { waitUntil: "domcontentloaded" });
+  await page.locator("#main-content").first().waitFor({ state: "visible" });
 
   const trigger = page.getByRole("button", { name: "Поставить объявление на паузу" }).first();
   await expect(trigger).toBeVisible();

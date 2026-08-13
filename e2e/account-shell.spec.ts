@@ -30,6 +30,13 @@ async function login(page: Page) {
   await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"));
 }
 
+async function waitForStableAccountShell(page: Page) {
+  await page.waitForFunction(() => document.querySelectorAll("#main-content").length === 1);
+  await expect(page.locator("#main-content")).toHaveCount(1);
+  await expect(page.locator("#main-content").getByText("Личный кабинет", { exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Разделы личного кабинета" })).toBeVisible();
+}
+
 test.describe("единый каркас личного кабинета", () => {
   test.beforeEach(({}, testInfo) => {
     testInfo.setTimeout(120_000);
@@ -40,7 +47,8 @@ test.describe("единый каркас личного кабинета", () =>
     await login(page);
     await page.goto("/profile");
 
-    const accountHeader = page.getByText("Личный кабинет", { exact: true });
+    await waitForStableAccountShell(page);
+    const accountHeader = page.locator("#main-content").getByText("Личный кабинет", { exact: true });
     const accountNavigation = page.getByRole("navigation", { name: "Разделы личного кабинета" });
     await expect(accountHeader).toBeVisible();
     await expect(accountNavigation).toBeVisible();
@@ -50,6 +58,7 @@ test.describe("единый каркас личного кабинета", () =>
 
     await page.getByRole("link", { name: /В обмене/ }).click();
     await expect(page).toHaveURL(/\/profile\?status=deal/);
+    await waitForStableAccountShell(page);
     await expect(accountHeader).toBeVisible();
     await expect(accountNavigation).toBeVisible();
     await expect(page.getByRole("link", { name: /В обмене/ })).toHaveAttribute("aria-current", "page");
@@ -65,6 +74,7 @@ test.describe("единый каркас личного кабинета", () =>
     ] as const) {
       await accountNavigation.getByRole("link", { name: new RegExp(label) }).click();
       await expect(page).toHaveURL(new RegExp(`${path.replaceAll("/", "\\/")}(?:\\?|$)`));
+      await waitForStableAccountShell(page);
       await expect(accountHeader).toBeVisible();
       await expect(accountNavigation).toBeVisible();
       await expect.poll(() => page.evaluate(() => (window as Window & { __accountShellMarker?: string }).__accountShellMarker)).toBe("preserved");

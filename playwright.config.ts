@@ -4,7 +4,6 @@ import { loadEnvConfig } from "@next/env";
 loadEnvConfig(process.cwd());
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3001";
-const useExternalServer = Boolean(process.env.PLAYWRIGHT_BASE_URL);
 
 export default defineConfig({
   testDir: "./e2e",
@@ -30,21 +29,6 @@ export default defineConfig({
     video: process.env.CI ? "retain-on-failure" : "off",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: process.env.CI || useExternalServer
-    ? undefined
-    : {
-        command: "npm run dev -- --port 3001",
-        url: baseURL,
-        reuseExistingServer: false,
-        // The first Next development build on Windows can exceed two minutes.
-        timeout: 300_000,
-        env: {
-          ...process.env,
-          NEXT_DIST_DIR: ".next-e2e",
-          NEXTAUTH_URL: baseURL,
-          APP_URL: baseURL,
-          E2E_TEST_MODE: "true",
-          E2E_TEST_RESET_KEY: "local-e2e-reset-key",
-        },
-      },
+  // `npm run test:e2e` owns the production server lifecycle on every platform.
+  webServer: undefined,
 });

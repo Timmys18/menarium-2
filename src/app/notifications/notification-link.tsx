@@ -31,7 +31,7 @@ export function NotificationLink({
   }
 
   return (
-    <Link href={href} onClick={() => void markReadIfNeeded()} className={cn(className)}>
+    <Link href={href} prefetch={false} onClick={() => void markReadIfNeeded()} className={cn(className)}>
       {children}
     </Link>
   );

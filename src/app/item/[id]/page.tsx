@@ -408,7 +408,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   {publicItem.owner?.id ? (
                     <Link
                       href={`/user/${publicItem.owner.id}`}
-                      className="inline-flex items-center gap-1.5 text-white/66 transition hover:text-teal-200"
+                      className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-white/78 transition hover:bg-white/[0.045] hover:text-teal-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       <UserRound className="h-4 w-4" />
                       {publicItem.owner.name ?? "Пользователь Менариум"}
@@ -470,7 +470,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     <MenariumLinkButton
                       href={userId ? chatHref : loginHref(chatHref)}
                       variant="secondary"
-                      className="flex-1"
+                      className="min-w-12 flex-1"
                     >
                       <MessageCircle className="h-5 w-5" />
                       Написать
@@ -680,7 +680,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 href={userId ? chatHref : loginHref(chatHref)}
                 variant="secondary"
                 size="sm"
-                className="px-3"
+                className="min-w-11 px-3"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span className="sr-only sm:not-sr-only">Написать</span>

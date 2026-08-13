@@ -41,6 +41,10 @@ function itemCard(page: Page) {
   return main(page).getByRole("article").filter({ has: heading }).first();
 }
 
+function managedItem(page: Page) {
+  return itemCard(page).locator("..");
+}
+
 test.describe("жизненный цикл объявления", () => {
   test.beforeEach(() => resetSeedData());
 
@@ -63,21 +67,21 @@ test.describe("жизненный цикл объявления", () => {
     await expect(content.getByRole("heading", { name: "Теперь найдём встречный вариант" })).toBeVisible();
     await expect(content.getByRole("link", { name: "Найти вариант" })).toHaveAttribute("href", "/swipe");
 
-    await page.goto("/my-items?status=active");
+    await page.goto("/profile");
     await expect(itemCard(page)).toBeVisible();
-    await itemCard(page).getByRole("button", { name: "На паузу" }).click();
+    await managedItem(page).getByRole("button", { name: "Поставить объявление на паузу" }).click();
     const dialog = page.getByRole("dialog", { name: "Приостановить объявление?" });
     await dialog.getByRole("button", { name: "Приостановить", exact: true }).click();
-    await expect(page).toHaveURL(/\/my-items\?status=paused&notice=paused/);
-    await expect(itemCard(page).getByText("На паузе", { exact: true })).toBeVisible();
+    await expect(page).toHaveURL(/\/profile\?status=paused/);
+    await expect(managedItem(page).getByText("На паузе", { exact: true })).toBeVisible();
 
     await page.goto(`/catalog?q=${encodeURIComponent(itemTitle)}`);
     await expect(main(page).getByText(itemTitle, { exact: true })).toHaveCount(0);
 
-    await page.goto("/my-items?status=paused");
-    await itemCard(page).getByRole("button", { name: "Вернуть в каталог" }).click();
-    await expect(page).toHaveURL(/\/my-items\?status=active&notice=resumed/);
-    await expect(itemCard(page).getByText("Опубликовано", { exact: true })).toBeVisible();
+    await page.goto("/profile?status=paused");
+    await managedItem(page).getByRole("button", { name: "Вернуть объявление в каталог" }).click();
+    await expect(page).toHaveURL(/\/profile$/);
+    await expect(itemCard(page)).toBeVisible();
 
     await page.goto(`/catalog?q=${encodeURIComponent(itemTitle)}`);
     await expect(pick(main(page).getByText(itemTitle, { exact: true }))).toBeVisible();

@@ -190,7 +190,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                     href={safetyHref(filter)}
                     aria-current={activeFilter === filter ? "page" : undefined}
                     className={cn(
-                      "rounded-[14px] px-3 py-2.5 text-center text-sm font-medium transition",
+                      "flex min-h-11 items-center justify-center rounded-[14px] px-3 py-2.5 text-center text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
                         : "text-white/62 hover:bg-white/[0.055] hover:text-white",
@@ -279,7 +279,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                               {contextHref ? (
                                 <Link
                                   href={contextHref}
-                                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-teal-200 transition hover:text-teal-100"
+                                  className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-sm font-semibold text-teal-100 transition hover:bg-teal-300/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/75"
                                 >
                                   Открыть контекст
                                   <ArrowRight className="h-3.5 w-3.5" />

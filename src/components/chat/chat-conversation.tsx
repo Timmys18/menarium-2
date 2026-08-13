@@ -589,7 +589,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 flex h-11 w-11 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.06] hover:!text-white/85 focus-visible:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/78"
+                      className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.06] hover:!text-white/85 focus-visible:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/78"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>
@@ -655,7 +655,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 flex h-11 w-11 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.06] hover:!text-white/85 focus-visible:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/78"
+                      className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.06] hover:!text-white/85 focus-visible:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 max-sm:text-white/78"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>

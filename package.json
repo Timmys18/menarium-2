@@ -19,7 +19,7 @@
     "preview:full": "node scripts/start-full-preview.mjs",
     "preview:setup": "node scripts/start-full-preview.mjs",
     "verify": "npm run release:check && npm run lint && npm run test && npm run typecheck && npm run build",
-    "test:e2e": "playwright test",
+    "test:e2e": "node scripts/run-playwright.mjs",
     "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
@@ -49,6 +49,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

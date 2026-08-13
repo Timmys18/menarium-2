@@ -476,7 +476,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       href={exchangeHref(activeTab, undefined, filter)}
                       aria-current={activeFilter === filter ? "page" : undefined}
                       className={cn(
-                        "rounded-[13px] px-4 py-2 text-sm transition",
+                        "inline-flex min-h-11 items-center rounded-[13px] px-4 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                         activeFilter === filter
                           ? "bg-white/[0.11] text-white"
                           : "text-white/62 hover:bg-white/[0.05] hover:text-white/80",
@@ -502,7 +502,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                         {activeTab === "incoming"
                           ? "Предложения для вас"
                           : activeTab === "outgoing"
-                            ? "Твои предложения"
+                            ? "Ваши предложения"
                             : "Взаимные обмены"}
                       </h2>
                       <p className="mt-1 text-xs text-white/62">
@@ -786,7 +786,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                   ) : (
                     <div className="py-12 text-center">
                       <MessageCircle className="mx-auto h-8 w-8 text-white/62" />
-                      <h2 className="mt-4 font-semibold">Выбери обмен</h2>
+                      <h2 className="mt-4 font-semibold">Выберите обмен</h2>
                       <p className="mt-2 text-sm text-white/62">Здесь появятся детали, действия и чат.</p>
                     </div>
                   )}

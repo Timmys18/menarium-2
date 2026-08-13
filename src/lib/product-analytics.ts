@@ -57,26 +57,32 @@ function eventQueue() {
 }
 
 async function persistProductEvents(batch: QueuedEvent[]) {
+  const actorIds = [...new Set(batch.flatMap((event) => (event.actorId ? [event.actorId] : [])))];
+  const existingActors = new Set(
+    actorIds.length
+      ? (
+          await prisma.user.findMany({
+            where: { id: { in: actorIds } },
+            select: { id: true },
+          })
+        ).map((user) => user.id)
+      : [],
+  );
+  const normalizedBatch = batch.map((event) =>
+    event.actorId && !existingActors.has(event.actorId) ? { ...event, actorId: null } : event,
+  );
+
   try {
-    await prisma.productEvent.createMany({ data: batch, skipDuplicates: true });
+    await prisma.productEvent.createMany({ data: normalizedBatch, skipDuplicates: true });
     return;
   } catch (error) {
     if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2003") throw error;
   }
 
-  // A user can be deleted between queuing an event and its background flush.
-  // Keep the event but remove only a stale actor reference, not the entire batch.
-  const actorIds = [...new Set(batch.flatMap((event) => (event.actorId ? [event.actorId] : [])))];
-  const existingActors = new Set(
-    (
-      await prisma.user.findMany({
-        where: { id: { in: actorIds } },
-        select: { id: true },
-      })
-    ).map((user) => user.id),
-  );
+  // The account may disappear between the existence check and the insert.
+  // Preserve the analytics event without retaining a stale account reference.
   await prisma.productEvent.createMany({
-    data: batch.map((event) => (event.actorId && !existingActors.has(event.actorId) ? { ...event, actorId: null } : event)),
+    data: normalizedBatch.map((event) => (event.actorId ? { ...event, actorId: null } : event)),
     skipDuplicates: true,
   });
 }

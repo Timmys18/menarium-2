@@ -103,7 +103,10 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                       </span>
                       <span>С нами с {new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(user.createdAt)}</span>
                       {user.emailVerified ? (
-                        <span className="inline-flex items-center gap-1.5 text-teal-200/70">
+                        <span
+                          className="inline-flex items-center gap-1.5 text-teal-200/70"
+                          aria-label="Статус почты: подтверждена"
+                        >
                           <CheckCircle2 className="h-3.5 w-3.5" />
                           Почта подтверждена
                         </span>

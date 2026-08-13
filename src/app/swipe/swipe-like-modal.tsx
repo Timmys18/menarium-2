@@ -65,7 +65,7 @@ export function SwipeLikeModal({
       open={open}
       onClose={close}
       title="Проверим предложение"
-      description="Выбери вещь или услугу, которую готов отдать. Перед отправкой всё можно изменить."
+      description="Выберите вещь или услугу, которую готовы отдать. Перед отправкой всё можно изменить."
       footer={
         <>
           <MenariumButton variant="secondary" onClick={close} disabled={loading}>

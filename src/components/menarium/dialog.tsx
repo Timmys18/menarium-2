@@ -122,7 +122,7 @@ export function MenariumDialog({
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white/78 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white/78 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
           >
             <X className="h-5 w-5" />
           </button>

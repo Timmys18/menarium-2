@@ -261,7 +261,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-white/62">{chat.context}</span>
                         {chat.ownContext ? (
-                          <span className="mt-0.5 block truncate text-xs text-teal-200/48">{chat.ownContext}</span>
+                          <span className="mt-0.5 block truncate text-xs text-teal-100">{chat.ownContext}</span>
                         ) : null}
                         <span className={cn("mt-1 block truncate text-sm", chat.unread ? "text-white/78" : "text-white/62")}>
                           {chat.preview}

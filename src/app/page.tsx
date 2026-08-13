@@ -199,7 +199,6 @@ export default async function Home() {
                 const Icon = step.icon;
                 return (
                   <SurfaceCard key={step.number} className="relative overflow-hidden p-6">
-                    <span className="absolute right-5 top-4 font-display text-4xl font-semibold text-white/[0.07]">{step.number}</span>
                     <div className="flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.05] text-teal-200">
                       <Icon className="h-5 w-5" />
                     </div>

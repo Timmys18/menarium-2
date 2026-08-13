@@ -75,7 +75,7 @@ export default async function ItemThreadPage({ params }: Props) {
             <>
               <Link
                 href="/profile/chats"
-                className="mb-5 inline-flex items-center gap-2 rounded-xl text-sm text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm text-white/78 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Все чаты
@@ -125,7 +125,7 @@ export default async function ItemThreadPage({ params }: Props) {
                           />
                         </div>
                         <p className="mt-3 line-clamp-2 text-sm font-semibold text-white/80">{thread.item.title}</p>
-                        <p className="mt-1 text-xs text-teal-200/65">Открыть объявление →</p>
+                        <p className="mt-1 text-xs text-teal-100">Открыть объявление →</p>
                       </Link>
                     ) : (
                       <div>

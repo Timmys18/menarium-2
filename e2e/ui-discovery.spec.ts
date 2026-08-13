@@ -40,12 +40,13 @@ test.describe("Мобильное открытие каталога", () => {
 
   test("личный кабинет помещается на экран и показывает ключевые разделы", async ({ page }) => {
     await login(page);
-    await page.goto("/profile");
+    await page.goto("/profile", { waitUntil: "domcontentloaded" });
+    await page.locator("#main-content").first().waitFor({ state: "visible" });
 
     const navigation = page.getByRole("navigation", { name: "Мобильная навигация" });
     await expect(navigation).toBeVisible();
 
-    for (const label of ["Каталог", "Свайп", "Создать", "Обмены", "Сообщения"]) {
+    for (const label of ["Каталог", "Свайп", "Создать", "Обмены", "Чаты"]) {
       await expect(navigation.getByRole("link", { name: label, exact: true })).toBeVisible();
     }
 
@@ -61,7 +62,8 @@ test.describe("Мобильное открытие каталога", () => {
   });
 
   test("фильтр города меняет выдачу и сохраняется при сортировке", async ({ page }) => {
-    await page.goto("/catalog");
+    await page.goto("/catalog", { waitUntil: "domcontentloaded" });
+    await page.locator("#main-content").first().waitFor({ state: "visible" });
 
     await expect(page.getByRole("button", { name: "Найти" })).toBeVisible();
     await page.locator("summary").filter({ visible: true }).click();

@@ -178,7 +178,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             />
             <label
               htmlFor="avatar-upload"
-              className="glass-card inline-flex cursor-pointer items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold focus-within:ring-2 focus-within:ring-teal-400/60"
+              className="glass-card inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold focus-within:ring-2 focus-within:ring-teal-400/60"
             >
               {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Загрузить аватар
@@ -188,7 +188,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               <button
                 type="button"
                 onClick={() => void removeAvatar()}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs text-red-200/80 transition hover:text-red-100"
+                className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-sm text-red-200/90 transition hover:bg-red-500/10 hover:text-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/75"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Удалить аватар

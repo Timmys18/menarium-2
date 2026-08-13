@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowRightLeft, Globe2, Heart, MapPin, Sparkles } from "lucide-react";
+import { ItemContextLink } from "@/components/catalog/item-context-link";
 import { Badge } from "@/components/menarium/badge";
 import { HoverCard } from "@/components/menarium/card";
 import { FavoriteButton } from "@/components/menarium/favorite-button";
@@ -53,13 +53,14 @@ export function ItemCard({
   const showFavorite = Boolean(canFavorite || favoriteLoginHref);
 
   return (
-    <HoverCard className="group relative flex h-full flex-col overflow-hidden">
-      <Link
+    <HoverCard role="article" className="group relative flex h-full flex-col overflow-hidden">
+      <ItemContextLink
         href={itemHref}
+        returnHref={returnHref}
         className="absolute inset-0 z-10 rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70 sm:rounded-[28px]"
       >
         <span className="sr-only">Открыть объявление «{title}»</span>
-      </Link>
+      </ItemContextLink>
         <div className="relative aspect-[16/10] overflow-hidden sm:aspect-[4/3]">
           <ItemCoverImage
             src={image}

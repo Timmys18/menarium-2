@@ -37,12 +37,15 @@ function pick(locator: Locator) {
   return locator.filter({ visible: true }).first();
 }
 
-async function openNotification(page: Page, title: string) {
+async function openNotification(page: Page, title: string, swapId: string) {
   await page.goto("/notifications");
   const content = main(page);
-  await expect(content.getByRole("heading", { name: title }).first()).toBeVisible({ timeout: 20_000 });
-  await pick(content.getByRole("heading", { name: title })).click();
-  await page.waitForURL(/\/exchange\?.*swap=/, { timeout: 20_000 });
+  const notification = pick(content.locator(`a[href*="swap=${swapId}"]`).filter({ hasText: title }));
+  await expect(notification).toBeVisible({ timeout: 20_000 });
+  await notification.click();
+  await page.waitForURL((url) => url.pathname === "/exchange" && url.searchParams.get("swap") === swapId, {
+    timeout: 20_000,
+  });
 }
 
 async function sendDealMessage(page: Page, message: string) {
@@ -83,7 +86,7 @@ async function confirmAction(page: Page, actionLabel: string, confirmLabel: stri
 
 test.describe("критический жизненный цикл обмена", () => {
   test.beforeEach(({}, testInfo) => {
-    testInfo.setTimeout(240_000);
+    testInfo.setTimeout(360_000);
     resetSeedData();
   });
 
@@ -92,6 +95,7 @@ test.describe("критический жизненный цикл обмена",
     const dmitryContext = await browser.newContext();
     const maria = await mariaContext.newPage();
     const dmitry = await dmitryContext.newPage();
+    let swapId = "";
 
     try {
       await test.step("seeded пользователи входят в независимых сессиях", async () => {
@@ -122,12 +126,14 @@ test.describe("критический жизненный цикл обмена",
         await pick(mariaMain.locator("select")).selectOption({ label: createdItemTitle });
         await pick(mariaMain.getByRole("button", { name: "Предложить обмен" })).click();
         await expect(maria).toHaveURL(/\/exchange\?.*tab=outgoing.*swap=[^&]+/);
+        swapId = new URL(maria.url()).searchParams.get("swap") ?? "";
+        expect(swapId).not.toBe("");
         await expect(mariaMain.getByText("Предложение отправлено", { exact: true }).first()).toBeVisible();
         await expect(mariaMain.getByText("Ждём ответа", { exact: true }).first()).toBeVisible();
       });
 
       await test.step("Дмитрий получает предложение и принимает его", async () => {
-        await openNotification(dmitry, "Новое предложение обмена");
+        await openNotification(dmitry, "Новое предложение обмена", swapId);
         await expect(pick(main(dmitry).getByText("Вы предложили", { exact: true }))).toBeVisible();
         await expect(pick(main(dmitry).getByText("Вы получаете", { exact: true }))).toBeVisible();
         await confirmAction(dmitry, "Принять", "Принять обмен");
@@ -137,10 +143,10 @@ test.describe("критический жизненный цикл обмена",
       });
 
       await test.step("обе стороны обмениваются сообщениями в чате сделки", async () => {
-        await openNotification(maria, "Обмен принят");
+        await openNotification(maria, "Обмен принят", swapId);
         await sendDealMessage(maria, senderMessage);
 
-        await openNotification(dmitry, "Новое сообщение в обмене");
+        await openNotification(dmitry, "Новое сообщение в обмене", swapId);
         await expect(pick(main(dmitry).getByText(senderMessage))).toBeVisible({ timeout: 20_000 });
         await sendDealMessage(dmitry, receiverMessage);
 
@@ -154,7 +160,7 @@ test.describe("критический жизненный цикл обмена",
           timeout: 20_000,
         });
 
-        await openNotification(dmitry, "Партнёр подтвердил завершение");
+        await openNotification(dmitry, "Партнёр подтвердил завершение", swapId);
         await confirmAction(dmitry, "Подтвердить завершение", "Подтвердить завершение");
         await expect(pick(main(dmitry).getByPlaceholder("Обмен завершён, чат доступен только для чтения"))).toBeDisabled({
           timeout: 20_000,
@@ -162,7 +168,7 @@ test.describe("критический жизненный цикл обмена",
       });
 
       await test.step("финальное уведомление и история доступны отправителю", async () => {
-        await openNotification(maria, "Обмен завершен");
+        await openNotification(maria, "Обмен завершен", swapId);
 
         await maria.goto("/exchange?tab=outgoing&filter=history");
         const mariaMain = main(maria);

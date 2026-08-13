@@ -15,6 +15,7 @@ import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { CatalogCategoryFilter, CatalogCityFilter, CatalogFilterChip } from "./catalog-reference-filters";
+import { CatalogScrollRestoration } from "@/components/catalog/catalog-scroll-restoration";
 import { legacyCategoryId } from "@/features/taxonomy/catalog";
 import { findCityByName, getCity } from "@/features/locations/cities";
 
@@ -100,12 +101,13 @@ export default async function CatalogPage({ searchParams }: Props) {
     <AppShell>
       {preview ? <PreviewUiNotice /> : null}
       <div className={`page-enter min-h-screen px-4 pb-32 sm:px-6 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
+        <CatalogScrollRestoration href={currentCatalogHref} />
         <div className="mx-auto max-w-[1600px]">
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="type-kicker text-teal-200/70">Вещи и услуги рядом</p>
               <h1 className="type-page-title mt-2 text-4xl sm:text-5xl">
-                Найди встречный <span className="gradient-text">вариант</span>
+                Найдите встречный <span className="gradient-text">вариант</span>
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
@@ -348,7 +350,7 @@ export default async function CatalogPage({ searchParams }: Props) {
               ) : (
                 <EmptyState
                   title="Пока нет подходящих предложений"
-                  description="Измени фильтры или создай собственное объявление — встречный вариант может найтись с другой стороны."
+                  description="Измените фильтры или создайте собственное объявление — встречный вариант может найтись с другой стороны."
                   actionHref={activeFilterCount > 0 || q ? "/catalog" : "/new"}
                   actionLabel={activeFilterCount > 0 || q ? "Сбросить поиск" : "Создать объявление"}
                 />

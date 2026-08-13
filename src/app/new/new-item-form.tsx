@@ -185,36 +185,36 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
   function validateStep(stepToValidate: number) {
     if (stepToValidate === 0) {
       if (title.trim().length < 2) {
-        setError("Добавь понятное название длиной хотя бы в два символа.");
+        setError("Добавьте понятное название длиной хотя бы в два символа.");
         return false;
       }
       if (!categoryLabel(categoryId)) {
-        setError("Выбери категорию объявления.");
+        setError("Выберите категорию объявления.");
         return false;
       }
     }
 
     if (stepToValidate === 1) {
       if (description.trim().length < 10) {
-        setError("Расскажи о предложении чуть подробнее — минимум 10 символов.");
+        setError("Расскажите о предложении чуть подробнее — минимум 10 символов.");
         return false;
       }
       if (!getCity(cityId)) {
-        setError("Укажи город, чтобы людям было проще оценить обмен.");
+        setError("Укажите город, чтобы людям было проще оценить обмен.");
         return false;
       }
     }
 
     if (stepToValidate === 2 && desired.length === 0 && !acceptsAnything) {
-      setError("Напиши, что интересно получить, или отметь, что открыт к любым предложениям.");
+      setError("Напишите, что интересно получить, или отметьте, что открыты к любым предложениям.");
       return false;
     }
     if (stepToValidate === 2 && desired.length > 12) {
-      setError("Оставь не больше 12 вариантов для обмена.");
+      setError("Оставьте не больше 12 вариантов для обмена.");
       return false;
     }
     if (stepToValidate === 2 && desired.some((item) => item.length > 80)) {
-      setError("Сократи каждый вариант до 80 символов.");
+      setError("Сократите каждый вариант до 80 символов.");
       return false;
     }
 
@@ -272,14 +272,21 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
   async function removeImage(image: UploadedImage) {
     setError(null);
     setRemovingImageId(image.id);
+    const previousIndex = images.findIndex((entry) => entry.id === image.id);
+    setImages((current) => current.filter((entry) => entry.id !== image.id));
     try {
       const response = await fetch(`/api/media?id=${encodeURIComponent(image.id)}`, {
         method: "DELETE",
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error ?? "Не удалось удалить фото");
-      setImages((current) => current.filter((entry) => entry.id !== image.id));
     } catch (removeError) {
+      setImages((current) => {
+        if (current.some((entry) => entry.id === image.id)) return current;
+        const restored = [...current];
+        restored.splice(Math.max(0, previousIndex), 0, image);
+        return restored;
+      });
       setError(removeError instanceof Error ? removeError.message : "Не удалось удалить фото");
     } finally {
       setRemovingImageId(null);
@@ -475,6 +482,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                           src={image.url}
                           alt={`Фото объявления ${index + 1}`}
                           fill
+                          unoptimized
                           sizes="(max-width: 640px) 45vw, 160px"
                           className="object-cover"
                         />
@@ -488,7 +496,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                           aria-label={`Удалить фото ${index + 1}`}
                           onClick={() => void removeImage(image)}
                           disabled={removingImageId === image.id || isSubmitting}
-                          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-xl transition hover:bg-red-500/70 disabled:opacity-50"
+                          className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d131d] disabled:opacity-50"
                         >
                           {removingImageId === image.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -508,7 +516,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             <section className="space-y-6" aria-labelledby="new-item-step-two">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 2 из 3</p>
-                <h2 ref={stepHeadingRef} id="new-item-step-two" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Расскажи честно и по делу</h2>
+                <h2 ref={stepHeadingRef} id="new-item-step-two" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Расскажите честно и по делу</h2>
                 <p className="mt-2 text-sm leading-6 text-white/62">Состояние, комплектация и нюансы заранее снимают лишние вопросы.</p>
               </div>
 
@@ -560,7 +568,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 3 из 3</p>
                 <h2 ref={stepHeadingRef} id="new-item-step-three" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что будет хорошим обменом?</h2>
-                <p className="mt-2 text-sm leading-6 text-white/62">Дай людям ориентир, но оставь пространство для неожиданно классных предложений.</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">Дайте людям ориентир, но оставьте пространство для неожиданных удачных предложений.</p>
               </div>
 
               <label className="block space-y-2">
@@ -582,7 +590,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                       type="button"
                       aria-pressed={selected}
                       onClick={() => addQuickWant(want)}
-                      className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                      className="inline-flex min-h-11 items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       <Badge variant={selected ? "teal" : "purple"} className="px-3 py-1.5 text-xs">
                         {selected ? <Check className="h-3 w-3" /> : null}
@@ -677,6 +685,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 src={images[0].url}
                 alt=""
                 fill
+                unoptimized
                 sizes="320px"
                 className="object-cover"
               />

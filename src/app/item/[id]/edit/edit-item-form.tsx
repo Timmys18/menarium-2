@@ -58,15 +58,15 @@ export function EditItemForm({ item }: { item: PublicItem }) {
   }
 
   function validate() {
-    if (title.trim().length < 2) return "Добавь понятное название длиной хотя бы в два символа.";
-    if (description.trim().length < 10) return "Расскажи о предложении чуть подробнее — минимум 10 символов.";
-    if (city.trim().length < 2) return "Укажи город, чтобы людям было проще оценить обмен.";
+    if (title.trim().length < 2) return "Добавьте понятное название длиной хотя бы в два символа.";
+    if (description.trim().length < 10) return "Расскажите о предложении чуть подробнее — минимум 10 символов.";
+    if (city.trim().length < 2) return "Укажите город, чтобы людям было проще оценить обмен.";
     if (desired.length === 0 && !acceptsAnything) {
-      return "Напиши, что интересно получить, или отметь, что открыт к любым предложениям.";
+      return "Напишите, что интересно получить, или отметьте, что открыты к любым предложениям.";
     }
-    if (desired.length > 12) return "Оставь не больше 12 вариантов для обмена.";
-    if (desired.some((entry) => entry.length > 80)) return "Сократи каждый вариант до 80 символов.";
-    if (extraOfferText.trim().length > 1000) return "Сократи дополнительные пожелания до 1000 символов.";
+    if (desired.length > 12) return "Оставьте не больше 12 вариантов для обмена.";
+    if (desired.some((entry) => entry.length > 80)) return "Сократите каждый вариант до 80 символов.";
+    if (extraOfferText.trim().length > 1000) return "Сократите дополнительные пожелания до 1000 символов.";
     return null;
   }
 
@@ -101,6 +101,8 @@ export function EditItemForm({ item }: { item: PublicItem }) {
     if (!image.id) return;
     setError(null);
     setRemovingImageId(image.id);
+    const previousIndex = images.findIndex((entry) => entry.id === image.id);
+    setImages((current) => current.filter((entry) => entry.id !== image.id));
     try {
       if (image.isNew) {
         const response = await fetch(`/api/media?id=${encodeURIComponent(image.id)}`, {
@@ -109,8 +111,13 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(body.error ?? "Не удалось удалить фото");
       }
-      setImages((current) => current.filter((entry) => entry.id !== image.id));
     } catch (removeError) {
+      setImages((current) => {
+        if (current.some((entry) => entry.id === image.id)) return current;
+        const restored = [...current];
+        restored.splice(Math.max(0, previousIndex), 0, image);
+        return restored;
+      });
       setError(removeError instanceof Error ? removeError.message : "Не удалось удалить фото");
     } finally {
       setRemovingImageId(null);
@@ -223,6 +230,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                     src={image.url}
                     alt={`Фото объявления ${index + 1}`}
                     fill
+                    unoptimized
                     sizes="(max-width: 640px) 45vw, 180px"
                     className="object-cover"
                   />
@@ -236,7 +244,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                   aria-label={`Удалить фото ${index + 1}`}
                   onClick={() => void removeImage(image)}
                   disabled={removingImageId === image.id || isSubmitting}
-                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-xl transition hover:bg-red-500/70 disabled:opacity-50"
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d131d] disabled:opacity-50"
                 >
                   {removingImageId === image.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -327,7 +335,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
               onClick={() => addQuickWant(want)}
               disabled={desired.includes(want) || desired.length >= 12}
               aria-pressed={desired.includes(want)}
-              className="disabled:opacity-45"
+              className="inline-flex min-h-11 items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 disabled:opacity-45"
             >
               <Badge variant="purple">{want}</Badge>
             </button>

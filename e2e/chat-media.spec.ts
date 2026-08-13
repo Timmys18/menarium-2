@@ -192,14 +192,16 @@ test.describe("chat history and media hardening", () => {
 
       const photo = readFileSync(path.join(process.cwd(), "public", "demo", "items", "canon.png"));
       const mariaPage = await mariaContext.newPage();
-      await mariaPage.goto(`/exchange?tab=matches&swap=${swap.id}`);
+      await mariaPage.goto(`/exchange?tab=matches&swap=${swap.id}`, { waitUntil: "domcontentloaded" });
+      await mariaPage.getByRole("log", { name: "Сообщения чата" }).waitFor();
       const mariaLog = mariaPage.getByRole("log", { name: "Сообщения чата" });
+      const mariaChat = mariaPage.getByRole("region", { name: "Чат с Дмитрий П." });
       const messageText = "[E2E chat 2.0] Фото состояния";
 
       const uploadPromise = mariaPage.waitForResponse(
         (response) => response.url().endsWith("/api/media") && response.request().method() === "POST",
       );
-      await mariaPage.locator('input[type="file"]').setInputFiles({
+      await mariaChat.locator('input[type="file"]').setInputFiles({
         name: "condition.png",
         mimeType: "image/png",
         buffer: photo,
@@ -230,7 +232,8 @@ test.describe("chat history and media hardening", () => {
       expect(boundAsset.dealMessageId).toBe(sentMessage.id);
 
       const dmitryPage = await dmitryContext.newPage();
-      await dmitryPage.goto(`/exchange?tab=matches&swap=${swap.id}`);
+      await dmitryPage.goto(`/exchange?tab=matches&swap=${swap.id}`, { waitUntil: "domcontentloaded" });
+      await dmitryPage.getByRole("log", { name: "Сообщения чата" }).waitFor();
       const dmitryLog = dmitryPage.getByRole("log", { name: "Сообщения чата" });
       await expect(dmitryLog.getByText(messageText, { exact: true })).toBeVisible();
       await expect(mariaLog.getByText("Прочитано", { exact: true })).toBeVisible({ timeout: 15_000 });

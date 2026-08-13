@@ -7,7 +7,7 @@ export function ProfileNotice({ kind }: { kind: "welcome" | "verified" }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const title = kind === "verified" ? "Почта подтверждена" : "Аккаунт создан";
+  const title = kind === "verified" ? "Адрес почты подтверждён" : "Аккаунт создан";
   const description =
     kind === "verified"
       ? "Адрес подтверждён. Уведомления об обменах будут приходить на эту почту."
@@ -31,7 +31,7 @@ export function ProfileNotice({ kind }: { kind: "welcome" | "verified" }) {
           const query = nextParams.toString();
           router.replace(query ? `/profile?${query}` : "/profile", { scroll: false });
         }}
-        className="rounded-xl p-2 text-white/62 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white/78 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/75"
         aria-label="Закрыть сообщение"
       >
         <X className="h-4 w-4" />
