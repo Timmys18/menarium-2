@@ -137,6 +137,7 @@ async function expectVisibleKeyboardFocus(page: Page, selector: string, context:
 }
 
 async function waitForSettledMain(page: Page) {
+  await page.waitForFunction(() => !document.documentElement.hasAttribute("data-view-transition-active"));
   await page.waitForFunction(() => {
     const mains = document.querySelectorAll("#main-content");
     const main = mains.item(0);

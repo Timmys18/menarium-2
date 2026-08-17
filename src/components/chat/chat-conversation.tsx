@@ -534,7 +534,10 @@ export function ChatConversation({
   }
 
   return (
-    <div className="min-w-0 max-w-full">
+    <div
+      className="min-w-0 max-w-full"
+      data-realtime-connected={target ? String(connected) : undefined}
+    >
       {target ? (
         <div className="mb-3 flex items-center justify-end gap-1.5">
           {pushState === "prompt" ? (

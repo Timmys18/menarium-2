@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useState, ViewTransition } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { ChatConversation, type ChatMessageView } from "@/components/chat/chat-conversation";
@@ -8,6 +8,7 @@ import { BrandMark } from "@/components/menarium/brand";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
+import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
 type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
@@ -65,7 +66,7 @@ export function ExchangeActionPanel({
       if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
       setConfirmAction(null);
       if (action === "accept" && acceptedHref) {
-        router.replace(acceptedHref, { transitionTypes: ["exchange-accepted"] });
+        await navigateWithViewTransition(() => router.replace(acceptedHref), ["exchange-accepted"]);
         return;
       }
       if (body.data) {
@@ -253,9 +254,9 @@ function ExchangeProgress({
   ];
 
   return (
-    <ViewTransition key={`${snapshot.status}:${snapshot.senderCompleted}:${snapshot.receiverCompleted}`} update="exchange-progress">
       <section
-        className="mb-5 rounded-[18px] border border-white/10 bg-white/[0.03] p-4"
+        key={`${snapshot.status}:${snapshot.senderCompleted}:${snapshot.receiverCompleted}`}
+        className="exchange-progress-panel mb-5 rounded-[18px] border border-white/10 bg-white/[0.03] p-4"
         aria-labelledby="exchange-progress-title"
         data-exchange-progress={snapshot.status.toLowerCase()}
       >
@@ -304,7 +305,6 @@ function ExchangeProgress({
           })}
         </ol>
       </section>
-    </ViewTransition>
   );
 }
 

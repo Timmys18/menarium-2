@@ -287,6 +287,8 @@ test.describe("chat history and media hardening", () => {
       const dmitryLog = dmitryPage.getByRole("log", { name: "Сообщения чата" });
       await expect(mariaLog.getByText(seedText, { exact: true })).toBeVisible();
       await expect(dmitryLog.getByText(seedText, { exact: true })).toBeVisible();
+      await expect(mariaPage.locator('[data-realtime-connected="true"]')).toBeVisible({ timeout: 20_000 });
+      await expect(dmitryPage.locator('[data-realtime-connected="true"]')).toBeVisible({ timeout: 20_000 });
 
       const dmitryComposer = dmitryPage.getByRole("textbox", { name: "Текст сообщения" });
       await dmitryComposer.fill("Черновик ответа");

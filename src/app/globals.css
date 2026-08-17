@@ -221,7 +221,11 @@ a {
   isolation: auto;
 }
 
-::view-transition-new(.exchange-progress) {
+.item-transition-image {
+  view-transition-class: item-morph;
+}
+
+.exchange-progress-panel {
   animation: exchange-progress-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 

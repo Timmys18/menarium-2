@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ViewTransition } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 
@@ -30,8 +30,10 @@ export function ItemImageGallery({
 
   return (
     <div>
-      <ViewTransition name={`item-image-${itemId}`} share="item-morph">
-        <div className="relative aspect-[4/3] min-h-64 overflow-hidden bg-white/[0.025]">
+        <div
+          className="item-transition-image relative aspect-[4/3] min-h-64 overflow-hidden bg-white/[0.025]"
+          style={{ viewTransitionName: `item-image-${itemId}` }}
+        >
         <ItemCoverImage
           src={active.url}
           alt={images.length > 1 ? `${title} — фото ${activeIndex + 1}` : title}
@@ -62,7 +64,6 @@ export function ItemImageGallery({
           </>
         ) : null}
         </div>
-      </ViewTransition>
       {images.length > 1 ? (
         <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-white/7 p-3 sm:p-4" aria-label="Все фотографии">
           {images.map((image, index) => (
