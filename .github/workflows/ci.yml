@@ -54,9 +54,9 @@ jobs:
     needs: verify
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/menarium2?schema=public
-      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3001
       NEXTAUTH_SECRET: ci-only-secret-change-in-production-must-be-32-chars-min-must-be-32-chars-min
-      APP_URL: http://localhost:3000
+      APP_URL: http://localhost:3001
       REDIS_URL: redis://localhost:6379
       ADMIN_EMAILS: admin@menarium.ru
       SMTP_HOST: localhost
@@ -69,6 +69,9 @@ jobs:
       E2E_TEST_MODE: "true"
       E2E_TEST_RESET_KEY: ci-e2e-reset-key
       PLAYWRIGHT_BASE_URL: http://localhost:3001
+      WEB_PUSH_SUBJECT: mailto:ci@menarium.test
+      NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: BITqOalnjAYW59tvlTsvBpGyBIo1p5CeGm4NsS922anFStL17IaSvQ-v7F2u9UioAlMF8z4kvKhlBpjyIEpIXTs
+      WEB_PUSH_PRIVATE_KEY: xlVRpZLyqcNJZM7QlTcF9qKfreN8CennwLS9EKcSjP4
       CI: true
       APP_RELEASE: ci-e2e
       APP_ENVIRONMENT: ci
