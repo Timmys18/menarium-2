@@ -39,11 +39,10 @@ export function ExchangeProposal({
       });
       const body = await response.json();
       if (!response.ok) throw new Error(typeof body.error === "string" ? body.error : "Не удалось создать обмен");
-      navigateWithViewTransition(
+      await navigateWithViewTransition(
         () => router.push(`/exchange?tab=outgoing&swap=${body.data.id}&notice=sent`),
         ["exchange-proposed"],
       );
-      router.refresh();
     } catch (proposalError) {
       setError(proposalError instanceof Error ? proposalError.message : "Не удалось создать обмен");
     } finally {

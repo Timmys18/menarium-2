@@ -310,11 +310,10 @@ export function SwipeCardStack({
         onClose={() => setLikeOpen(false)}
         onSuccess={(swapId) => {
           setLikeOpen(false);
-          navigateWithViewTransition(
+          void navigateWithViewTransition(
             () => router.push(`/exchange?tab=outgoing&swap=${encodeURIComponent(swapId)}&notice=sent`),
             ["exchange-proposed"],
           );
-          router.refresh();
         }}
       />
 

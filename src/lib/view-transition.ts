@@ -14,7 +14,13 @@ function waitForNavigation(previousUrl: string) {
   });
 }
 
-export function navigateWithViewTransition(navigate: () => void, types: string[]) {
+function waitForCommittedUi() {
+  return new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => resolve());
+  });
+}
+
+export async function navigateWithViewTransition(navigate: () => void, types: string[]) {
   if (
     typeof document.startViewTransition !== "function" ||
     window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -23,12 +29,19 @@ export function navigateWithViewTransition(navigate: () => void, types: string[]
     return;
   }
 
+  // Dialogs and sheets may have been closed in the same event. Let React
+  // commit that state before the browser captures the outgoing screen.
+  await waitForCommittedUi();
   const previousUrl = window.location.href;
-  document.startViewTransition({
+  const transition = document.startViewTransition({
     types,
     update: async () => {
       navigate();
       await waitForNavigation(previousUrl);
     },
   });
+
+  // Keep state updates that follow navigation from invalidating the browser's
+  // snapshot while the new route is still being committed.
+  await transition.finished;
 }

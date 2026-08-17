@@ -115,7 +115,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <MenariumLinkButton href={`/user/${user.id}`} variant="secondary" size="sm">
+                  <MenariumLinkButton href={`/user/${user.id}`} prefetch={false} variant="secondary" size="sm">
                     Моя страница
                   </MenariumLinkButton>
                   <MenariumLinkButton href="/profile/edit" variant="ghost" size="sm">

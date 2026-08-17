@@ -32,7 +32,7 @@ export function ItemContextLink({ href, returnHref, onClick, children, ...props 
           !event.altKey
         ) {
           event.preventDefault();
-          navigateWithViewTransition(() => router.push(href), ["item-open"]);
+          void navigateWithViewTransition(() => router.push(href), ["item-open"]);
         }
       }}
     >

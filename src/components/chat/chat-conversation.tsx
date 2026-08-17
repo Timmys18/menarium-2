@@ -166,6 +166,7 @@ export function ChatConversation({
   const prependHeightRef = useRef<number | null>(null);
   const shouldStickToBottomRef = useRef(true);
   const typingTimeoutRef = useRef<number | null>(null);
+  const typingRetryTimeoutRef = useRef<number | null>(null);
   const partnerTypingTimeoutRef = useRef<number | null>(null);
   const lastTypingSignalRef = useRef(0);
   const messages = mergeMessages(localMessages, initialMessages);
@@ -309,6 +310,7 @@ export function ChatConversation({
   useEffect(() => {
     return () => {
       if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
+      if (typingRetryTimeoutRef.current) window.clearTimeout(typingRetryTimeoutRef.current);
       if (partnerTypingTimeoutRef.current) window.clearTimeout(partnerTypingTimeoutRef.current);
     };
   }, []);
@@ -349,9 +351,14 @@ export function ChatConversation({
     if (value.trim() && now - lastTypingSignalRef.current > 2_500) {
       lastTypingSignalRef.current = now;
       void signalTyping(true);
+      if (typingRetryTimeoutRef.current) window.clearTimeout(typingRetryTimeoutRef.current);
+      typingRetryTimeoutRef.current = window.setTimeout(() => void signalTyping(true), 700);
     }
     if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = window.setTimeout(() => void signalTyping(false), 1_500);
+    typingTimeoutRef.current = window.setTimeout(() => {
+      if (typingRetryTimeoutRef.current) window.clearTimeout(typingRetryTimeoutRef.current);
+      void signalTyping(false);
+    }, 1_500);
   }
 
   async function loadOlder() {

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link, { type LinkProps } from "next/link";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +49,8 @@ export function MenariumLinkButton({
   variant = "primary",
   size = "md",
   ...props
-}: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
+}: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> &
+  Pick<LinkProps, "prefetch"> & {
   href: string;
   children: ReactNode;
   variant?: ButtonVariant;

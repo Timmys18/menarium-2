@@ -66,7 +66,7 @@ export function ExchangeActionPanel({
       if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
       setConfirmAction(null);
       if (action === "accept" && acceptedHref) {
-        navigateWithViewTransition(() => router.replace(acceptedHref), ["exchange-accepted"]);
+        await navigateWithViewTransition(() => router.replace(acceptedHref), ["exchange-accepted"]);
         return;
       }
       if (body.data) {
