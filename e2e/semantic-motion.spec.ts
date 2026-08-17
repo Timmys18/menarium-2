@@ -25,34 +25,38 @@ function prepareAuditFixture(): AuditFixture {
 
 async function trackNativeViewTransitions(page: Page) {
   await page.addInitScript(() => {
-    if (sessionStorage.getItem("menarium-view-transition-ready") === null) {
-      sessionStorage.setItem("menarium-view-transition-ready", "0");
-      sessionStorage.setItem("menarium-view-transition-called", "0");
-      sessionStorage.removeItem("menarium-view-transition-error");
-    }
     const original = document.startViewTransition?.bind(document);
     if (!original) return;
     document.startViewTransition = (options) => {
-      const called = Number(sessionStorage.getItem("menarium-view-transition-called") ?? "0");
-      sessionStorage.setItem("menarium-view-transition-called", String(called + 1));
+      const type =
+        typeof options === "object" && options !== null && "types" in options
+          ? options.types?.[0] ?? "untyped"
+          : "untyped";
+      const prefix = `menarium-view-transition-${type}`;
+      const called = Number(sessionStorage.getItem(`${prefix}-called`) ?? "0");
+      sessionStorage.setItem(`${prefix}-called`, String(called + 1));
+      sessionStorage.removeItem(`${prefix}-error`);
       const transition = original(options);
       void transition.ready.then(() => {
-        const ready = Number(sessionStorage.getItem("menarium-view-transition-ready") ?? "0");
-        sessionStorage.setItem("menarium-view-transition-ready", String(ready + 1));
+        const ready = Number(sessionStorage.getItem(`${prefix}-ready`) ?? "0");
+        sessionStorage.setItem(`${prefix}-ready`, String(ready + 1));
       }).catch((error) => {
-        sessionStorage.setItem("menarium-view-transition-error", String(error));
+        sessionStorage.setItem(`${prefix}-error`, String(error));
       });
       return transition;
     };
   });
 }
 
-async function transitionState(page: Page) {
-  return page.evaluate(() => ({
-    called: Number(sessionStorage.getItem("menarium-view-transition-called") ?? "0"),
-    ready: Number(sessionStorage.getItem("menarium-view-transition-ready") ?? "0"),
-    error: sessionStorage.getItem("menarium-view-transition-error"),
-  }));
+async function transitionState(page: Page, type: string) {
+  return page.evaluate((transitionType) => {
+    const prefix = `menarium-view-transition-${transitionType}`;
+    return {
+      called: Number(sessionStorage.getItem(`${prefix}-called`) ?? "0"),
+      ready: Number(sessionStorage.getItem(`${prefix}-ready`) ?? "0"),
+      error: sessionStorage.getItem(`${prefix}-error`),
+    };
+  }, type);
 }
 
 async function login(page: Page) {
@@ -74,9 +78,9 @@ test("catalog card keeps visual continuity when item opens", async ({ page }) =>
   await expect(itemLink).toBeVisible();
   await itemLink.click();
   await page.waitForURL(/\/item\//, { waitUntil: "commit" });
-  await expect.poll(async () => (await transitionState(page)).called).toBeGreaterThan(0);
-  await expect.poll(async () => (await transitionState(page)).ready).toBeGreaterThan(0);
-  expect((await transitionState(page)).error).toBeNull();
+  await expect.poll(async () => (await transitionState(page, "item-open")).called).toBeGreaterThan(0);
+  await expect.poll(async () => (await transitionState(page, "item-open")).ready).toBeGreaterThan(0);
+  expect((await transitionState(page, "item-open")).error).toBeNull();
 });
 
 test("accepting an exchange transitions into a clear active-deal stage", async ({ page }) => {
@@ -91,7 +95,7 @@ test("accepting an exchange transitions into a clear active-deal stage", async (
   await page.waitForURL(/notice=accepted/, { waitUntil: "commit" });
   await expect(main.getByText("Договоритесь о деталях в чате", { exact: true })).toBeVisible();
   await expect(main.locator("[data-exchange-progress='accepted']")).toBeVisible();
-  await expect.poll(async () => (await transitionState(page)).called).toBeGreaterThan(0);
-  await expect.poll(async () => (await transitionState(page)).ready).toBeGreaterThan(0);
-  expect((await transitionState(page)).error).toBeNull();
+  await expect.poll(async () => (await transitionState(page, "exchange-accepted")).called).toBeGreaterThan(0);
+  await expect.poll(async () => (await transitionState(page, "exchange-accepted")).ready).toBeGreaterThan(0);
+  expect((await transitionState(page, "exchange-accepted")).error).toBeNull();
 });

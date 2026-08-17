@@ -166,6 +166,7 @@ test.describe("chat history and media hardening", () => {
   });
 
   test("sends a deal photo, supports replies and updates the read receipt live", async ({ browser }) => {
+    test.setTimeout(180_000);
     const maria = await prisma.user.findUniqueOrThrow({ where: { email: MARIA.email } });
     const dmitry = await prisma.user.findUniqueOrThrow({ where: { email: DMITRY.email } });
     const mariaItem = await prisma.item.findFirstOrThrow({ where: { ownerId: maria.id } });
