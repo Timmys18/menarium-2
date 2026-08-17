@@ -64,13 +64,13 @@ export function ExchangeActionPanel({
         error?: string;
       };
       if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
-      if (body.data) {
-        onSwapUpdated?.(body.data as ExchangeSnapshot);
-      }
       setConfirmAction(null);
       if (action === "accept" && acceptedHref) {
         navigateWithViewTransition(() => router.replace(acceptedHref), ["exchange-accepted"]);
         return;
+      }
+      if (body.data) {
+        onSwapUpdated?.(body.data as ExchangeSnapshot);
       }
       router.refresh();
     } catch (actionError) {
