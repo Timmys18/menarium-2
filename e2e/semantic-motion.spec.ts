@@ -27,25 +27,54 @@ async function trackNativeViewTransitions(page: Page) {
   await page.addInitScript(() => {
     const original = document.startViewTransition?.bind(document);
     if (!original) return;
+    const expectedTypes = ["item-open", "item-created", "exchange-proposed", "exchange-accepted"];
+    const increment = (type: string, phase: "called" | "ready") => {
+      const key = `menarium-view-transition-${type}-${phase}`;
+      sessionStorage.setItem(key, String(Number(sessionStorage.getItem(key) ?? "0") + 1));
+    };
     document.startViewTransition = (options) => {
-      const type =
+      const explicitTypes =
         typeof options === "object" && options !== null && "types" in options
-          ? options.types?.[0] ?? "untyped"
-          : "untyped";
-      const prefix = `menarium-view-transition-${type}`;
-      const called = Number(sessionStorage.getItem(`${prefix}-called`) ?? "0");
-      sessionStorage.setItem(`${prefix}-called`, String(called + 1));
-      sessionStorage.removeItem(`${prefix}-error`);
+          ? [...(options.types ?? [])]
+          : [];
+      explicitTypes.forEach((type) => increment(type, "called"));
       const transition = original(options);
       void transition.ready.then(() => {
-        const ready = Number(sessionStorage.getItem(`${prefix}-ready`) ?? "0");
-        sessionStorage.setItem(`${prefix}-ready`, String(ready + 1));
+        // Next 16 passes transition types through React.addTransitionType. React
+        // adds them to the active browser transition rather than to `options`.
+        const activeTypes = expectedTypes.filter((type) => {
+          try {
+            return document.documentElement.matches(`:active-view-transition-type(${type})`);
+          } catch {
+            return false;
+          }
+        });
+        const observedTypes = [...new Set([...explicitTypes, ...activeTypes])];
+        observedTypes.forEach((type) => {
+          if (!explicitTypes.includes(type)) increment(type, "called");
+          increment(type, "ready");
+          sessionStorage.removeItem(`menarium-view-transition-${type}-error`);
+        });
+        if (observedTypes.length > 0) sessionStorage.removeItem("menarium-view-transition-last-error");
       }).catch((error) => {
-        sessionStorage.setItem(`${prefix}-error`, String(error));
+        sessionStorage.setItem("menarium-view-transition-last-error", String(error));
+        explicitTypes.forEach((type) => {
+          sessionStorage.setItem(`menarium-view-transition-${type}-error`, String(error));
+        });
       });
       return transition;
     };
   });
+}
+
+async function resetTransitionState(page: Page, type: string) {
+  await page.evaluate((transitionType) => {
+    const prefix = `menarium-view-transition-${transitionType}`;
+    sessionStorage.removeItem(`${prefix}-called`);
+    sessionStorage.removeItem(`${prefix}-ready`);
+    sessionStorage.removeItem(`${prefix}-error`);
+    sessionStorage.removeItem("menarium-view-transition-last-error");
+  }, type);
 }
 
 async function transitionState(page: Page, type: string) {
@@ -54,7 +83,9 @@ async function transitionState(page: Page, type: string) {
     return {
       called: Number(sessionStorage.getItem(`${prefix}-called`) ?? "0"),
       ready: Number(sessionStorage.getItem(`${prefix}-ready`) ?? "0"),
-      error: sessionStorage.getItem(`${prefix}-error`),
+      error:
+        sessionStorage.getItem(`${prefix}-error`) ??
+        sessionStorage.getItem("menarium-view-transition-last-error"),
     };
   }, type);
 }
@@ -74,6 +105,7 @@ test("catalog card keeps visual continuity when item opens", async ({ page }) =>
   await trackNativeViewTransitions(page);
   await page.goto("/catalog");
   expect(await page.evaluate(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches)).toBeFalsy();
+  await resetTransitionState(page, "item-open");
   const itemLink = page.getByRole("link", { name: /Открыть объявление/ }).first();
   await expect(itemLink).toBeVisible();
   await itemLink.click();
@@ -88,6 +120,7 @@ test("accepting an exchange transitions into a clear active-deal stage", async (
   await trackNativeViewTransitions(page);
   await login(page);
   await page.goto(`/exchange?tab=incoming&swap=${fixture.incomingPendingSwapId}`);
+  await resetTransitionState(page, "exchange-accepted");
   const main = page.getByRole("main");
   await expect(main.getByText("Нужно ваше решение", { exact: true })).toBeVisible();
   await main.getByRole("button", { name: "Принять", exact: true }).click();

@@ -165,7 +165,7 @@ test.describe("chat history and media hardening", () => {
     }
   });
 
-  test("sends a deal photo, supports replies and updates the read receipt live", async ({ browser }) => {
+  test("sends a deal photo and updates the read receipt live", async ({ browser }) => {
     test.setTimeout(150_000);
     const maria = await prisma.user.findUniqueOrThrow({ where: { email: MARIA.email } });
     const dmitry = await prisma.user.findUniqueOrThrow({ where: { email: DMITRY.email } });
@@ -241,6 +241,52 @@ test.describe("chat history and media hardening", () => {
       const dmitryLog = dmitryPage.getByRole("log", { name: "Сообщения чата" });
       await expect(dmitryLog.getByText(messageText, { exact: true })).toBeVisible();
       await expect(mariaLog.getByText("Прочитано", { exact: true })).toBeVisible({ timeout: 15_000 });
+    } finally {
+      await mariaContext.close();
+      await dmitryContext.close();
+    }
+  });
+
+  test("shows live typing and supports replies in an open deal chat", async ({ browser }) => {
+    const maria = await prisma.user.findUniqueOrThrow({ where: { email: MARIA.email } });
+    const dmitry = await prisma.user.findUniqueOrThrow({ where: { email: DMITRY.email } });
+    const mariaItem = await prisma.item.findFirstOrThrow({ where: { ownerId: maria.id } });
+    const dmitryItem = await prisma.item.findFirstOrThrow({ where: { ownerId: dmitry.id } });
+    const swap = await prisma.swapRequest.create({
+      data: {
+        status: SwapStatus.ACCEPTED,
+        senderId: maria.id,
+        receiverId: dmitry.id,
+        senderItemId: mariaItem.id,
+        receiverItemId: dmitryItem.id,
+        acceptedAt: new Date(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+    const seedText = "[E2E chat 2.0] Исходное сообщение";
+    const mariaContext = await browser.newContext();
+    const dmitryContext = await browser.newContext();
+
+    try {
+      await login(mariaContext);
+      await login(dmitryContext, DMITRY);
+      const seeded = await mariaContext.request.post(`/api/exchange/${swap.id}/messages`, {
+        data: { text: seedText },
+        timeout: 20_000,
+      });
+      expect(seeded.status(), await seeded.text()).toBe(201);
+      const sentMessage = (await seeded.json()).data as { id: string };
+
+      const mariaPage = await mariaContext.newPage();
+      const dmitryPage = await dmitryContext.newPage();
+      await Promise.all([
+        mariaPage.goto(`/exchange?tab=matches&swap=${swap.id}`, { waitUntil: "domcontentloaded" }),
+        dmitryPage.goto(`/exchange?tab=matches&swap=${swap.id}`, { waitUntil: "domcontentloaded" }),
+      ]);
+      const mariaLog = mariaPage.getByRole("log", { name: "Сообщения чата" });
+      const dmitryLog = dmitryPage.getByRole("log", { name: "Сообщения чата" });
+      await expect(mariaLog.getByText(seedText, { exact: true })).toBeVisible();
+      await expect(dmitryLog.getByText(seedText, { exact: true })).toBeVisible();
 
       const dmitryComposer = dmitryPage.getByRole("textbox", { name: "Текст сообщения" });
       await dmitryComposer.fill("Черновик ответа");
@@ -252,32 +298,29 @@ test.describe("chat history and media hardening", () => {
 
       const reply = await dmitryContext.request.post(`/api/exchange/${swap.id}/messages`, {
         data: { text: "[E2E chat 2.0] Ответ", replyToId: sentMessage.id },
+        timeout: 20_000,
       });
       expect(reply.status(), await reply.text()).toBe(201);
-      const replyMessage = (await reply.json()).data as {
-        replyTo: { id: string; text: string } | null;
-      };
-      expect(replyMessage.replyTo).toEqual({
+      expect((await reply.json()).data.replyTo).toEqual({
         id: sentMessage.id,
         senderId: maria.id,
-        text: messageText,
+        text: seedText,
       });
       const secondReply = await dmitryContext.request.post(`/api/exchange/${swap.id}/messages`, {
         data: { text: "[E2E chat 2.0] Ещё одно сообщение" },
+        timeout: 20_000,
       });
       expect(secondReply.status(), await secondReply.text()).toBe(201);
-      await expect(mariaLog.getByText("[E2E chat 2.0] Ответ", { exact: true })).toBeVisible({ timeout: 15_000 });
-      await expect(mariaLog.getByText("[E2E chat 2.0] Ещё одно сообщение", { exact: true })).toBeVisible({ timeout: 15_000 });
-      await expect.poll(() =>
-        prisma.notification.count({
-          where: {
-            userId: maria.id,
-            type: NotificationType.DEAL_MESSAGE_RECEIVED,
-            entityId: swap.id,
-            isRead: false,
-          },
-        }),
-      ).toBe(0);
+      await expect(mariaLog.getByText("[E2E chat 2.0] Ответ", { exact: true })).toBeVisible();
+      await expect(mariaLog.getByText("[E2E chat 2.0] Ещё одно сообщение", { exact: true })).toBeVisible();
+      await expect.poll(() => prisma.notification.count({
+        where: {
+          userId: maria.id,
+          type: NotificationType.DEAL_MESSAGE_RECEIVED,
+          entityId: swap.id,
+          isRead: false,
+        },
+      })).toBe(0);
     } finally {
       await mariaContext.close();
       await dmitryContext.close();
