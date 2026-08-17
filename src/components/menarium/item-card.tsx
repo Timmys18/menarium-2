@@ -85,17 +85,6 @@ export function ItemCard({
               {isOnline ? "Онлайн" : type === "SERVICE" ? "Услуга" : "Предмет"}
             </Badge>
           </div>
-          {showFavorite ? (
-            <FavoriteButton
-              key={`${id}:${Boolean(isFavorite)}`}
-              itemId={id}
-              itemTitle={title}
-              initialFavorite={isFavorite}
-              authenticated={Boolean(canFavorite)}
-              loginHref={favoriteLoginHref}
-              className="absolute right-4 top-4 z-20"
-            />
-          ) : null}
           {flexible ? (
             <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#090d14]/88 px-3 py-1.5 text-[11px] font-medium text-white/82">
               <Sparkles className="h-3 w-3 text-teal-200" />
@@ -103,6 +92,17 @@ export function ItemCard({
             </div>
           ) : null}
         </div>
+        {showFavorite ? (
+          <FavoriteButton
+            key={`${id}:${Boolean(isFavorite)}`}
+            itemId={id}
+            itemTitle={title}
+            initialFavorite={isFavorite}
+            authenticated={Boolean(canFavorite)}
+            loginHref={favoriteLoginHref}
+            className="absolute right-4 top-4 z-20"
+          />
+        ) : null}
         <div className="flex flex-1 flex-col p-4 sm:p-5.5">
           {recommendationReason ? (
             <div className="mb-3 flex items-start gap-2 rounded-[13px] border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">

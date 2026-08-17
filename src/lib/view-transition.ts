@@ -11,10 +11,13 @@ function waitForNavigation(previousUrl: string) {
     const deadline = performance.now() + 10_000;
     const check = () => {
       if (window.location.href !== previousUrl || performance.now() >= deadline) {
-        void nextPaint().then(resolve);
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        // Rendering is paused while the browser awaits this callback, so a
+        // requestAnimationFrame here would deadlock the transition.
+        window.setTimeout(resolve, 80);
         return;
       }
-      window.requestAnimationFrame(check);
+      window.setTimeout(check, 16);
     };
     check();
   });
@@ -42,7 +45,7 @@ export async function navigateWithViewTransition(navigate: () => void, types: st
   });
 
   try {
-    await transition.finished;
+    await transition.finished.catch(() => undefined);
     await nextPaint();
   } finally {
     delete document.documentElement.dataset.viewTransitionActive;
