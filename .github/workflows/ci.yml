@@ -5,7 +5,9 @@ permissions:
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "codex/**"
   pull_request:
     branches: [main]
 
@@ -14,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/menarium2?schema=public
-      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3001
       NEXTAUTH_SECRET: ci-only-secret-change-in-production-must-be-32-chars-min
-      APP_URL: http://localhost:3000
+      APP_URL: http://localhost:3001
       REDIS_URL: redis://localhost:6379
       ADMIN_EMAILS: admin@menarium.test
       SMTP_HOST: localhost
@@ -66,7 +68,7 @@ jobs:
       PRODUCT_ANALYTICS_ENABLED: "true"
       E2E_TEST_MODE: "true"
       E2E_TEST_RESET_KEY: ci-e2e-reset-key
-      PLAYWRIGHT_BASE_URL: http://localhost:3000
+      PLAYWRIGHT_BASE_URL: http://localhost:3001
       CI: true
       APP_RELEASE: ci-e2e
       APP_ENVIRONMENT: ci
@@ -123,28 +125,6 @@ jobs:
 
       - name: Build application
         run: npm run build
-
-      - name: Prepare standalone runtime
-        run: |
-          cp -r public .next/standalone/
-          mkdir -p .next/standalone/.next
-          cp -r .next/static .next/standalone/.next/
-
-      - name: Start server
-        run: |
-          (
-            cd .next/standalone
-            node server.js
-          ) &
-          for i in $(seq 1 60); do
-            if curl -sf http://localhost:3000/api/health/ready > /dev/null; then
-              echo "Server is ready"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Server failed to start"
-          exit 1
 
       - name: Run Playwright E2E tests
         run: npm run test:e2e

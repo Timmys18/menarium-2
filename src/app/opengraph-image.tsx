@@ -37,18 +37,16 @@ export default async function OpenGraphImage() {
             marginBottom: 32,
           }}
         >
-          {/* ImageResponse does not support next/image. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logoUrl}
-            alt=""
-            width={88}
-            height={88}
+          <div
+            aria-label=""
             style={{
               width: 88,
               height: 88,
               borderRadius: 24,
-              objectFit: "cover",
+              backgroundImage: `url("${logoUrl}")`,
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "contain",
             }}
           />
           <span style={{ fontSize: 72, fontWeight: 700, letterSpacing: -2 }}>Менариум</span>

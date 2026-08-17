@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ViewTransition } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 
 export function ItemImageGallery({
   images,
   title,
+  itemId,
 }: {
   images: { id: string; url: string }[];
   title: string;
+  itemId: string;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const active = images[activeIndex] ?? images[0];
@@ -28,7 +30,8 @@ export function ItemImageGallery({
 
   return (
     <div>
-      <div className="relative aspect-[4/3] min-h-64 overflow-hidden bg-white/[0.025]">
+      <ViewTransition name={`item-image-${itemId}`} share="item-morph">
+        <div className="relative aspect-[4/3] min-h-64 overflow-hidden bg-white/[0.025]">
         <ItemCoverImage
           src={active.url}
           alt={images.length > 1 ? `${title} — фото ${activeIndex + 1}` : title}
@@ -58,7 +61,8 @@ export function ItemImageGallery({
             </span>
           </>
         ) : null}
-      </div>
+        </div>
+      </ViewTransition>
       {images.length > 1 ? (
         <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-white/7 p-3 sm:p-4" aria-label="Все фотографии">
           {images.map((image, index) => (

@@ -26,6 +26,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  experimental: {
+    viewTransition: true,
+  },
   // Playwright uses its own build directory, so local visual review and E2E never fight over .next.
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   poweredByHeader: false,

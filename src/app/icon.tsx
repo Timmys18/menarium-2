@@ -15,20 +15,19 @@ export default function Icon() {
   return new ImageResponse(
     (
       <div
+        aria-label=""
         style={{
           width: "100%",
           height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          display: "block",
           borderRadius: "50%",
           overflow: "hidden",
+          backgroundImage: `url("${logoDataUrl}")`,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "contain",
         }}
-      >
-        {/* ImageResponse needs a plain image element for embedded SVG data. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoDataUrl} width={32} height={32} alt="" />
-      </div>
+      />
     ),
     { ...size },
   );

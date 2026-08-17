@@ -12,7 +12,14 @@ const viewports = [
   { name: "1440x1000", width: 1440, height: 1000, isMobile: false, hasTouch: false },
 ] as const;
 
-type Fixture = { ownItemId: string; otherItemId: string; swapId: string; threadId: string };
+type Fixture = {
+  ownItemId: string;
+  otherItemId: string;
+  swapId: string;
+  incomingPendingSwapId: string;
+  incomingAcceptedSwapId: string;
+  threadId: string;
+};
 
 function logProgress(message: string) {
   console.log(`[ui-acceptance] ${message}`);
@@ -28,7 +35,7 @@ function resetSeedData() {
 }
 
 function createIsolatedFixture(): Fixture {
-  const result = spawnSync(process.execPath, ["scripts/create-ui-acceptance-fixture.mjs"], {
+  const result = spawnSync(process.execPath, ["scripts/create-ui-acceptance-fixture.mjs", "--audit-states"], {
     cwd: process.cwd(),
     env: process.env,
     encoding: "utf8",
@@ -86,6 +93,38 @@ async function assertPageFitsViewport(page: Page, route: string, viewport: strin
   expect(dimensions.scrollWidth, `${route} at ${viewport} overflows horizontally`).toBeLessThanOrEqual(dimensions.viewportWidth + 1);
 }
 
+async function expectVisibleKeyboardFocus(page: Page, selector: string, context: string) {
+  const label = page.getByText(selector, { exact: true });
+  await label.evaluate((element) => {
+    const target = element.closest<HTMLElement>("a, button, input, select, textarea, [tabindex]");
+    if (!target) throw new Error(`No interactive ancestor for ${element.textContent}`);
+    target.dataset.acceptanceFocusTarget = "true";
+    target.scrollIntoView({ behavior: "instant", block: "center" });
+  });
+  const target = page.locator('[data-acceptance-focus-target="true"]');
+  await expect(target, context).toBeVisible();
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  });
+  for (let index = 0; index < 100; index += 1) {
+    await page.keyboard.press("Tab");
+    if (await target.evaluate((element) => document.activeElement === element)) break;
+  }
+  const focusStyle = await target.evaluate((element) => {
+    const style = window.getComputedStyle(element);
+    return {
+      focused: document.activeElement === element,
+      outline: `${style.outlineStyle} ${style.outlineWidth}`,
+      shadow: style.boxShadow,
+    };
+  });
+  expect(focusStyle.focused, `${context}: element did not receive focus`).toBeTruthy();
+  expect(
+    focusStyle.outline !== "none 0px" || (focusStyle.shadow !== "none" && focusStyle.shadow.length > 0),
+    `${context}: no visible focus indicator (${JSON.stringify(focusStyle)})`,
+  ).toBeTruthy();
+}
+
 async function waitForSettledMain(page: Page) {
   await page.waitForFunction(() => {
     const mains = document.querySelectorAll("#main-content");
@@ -141,6 +180,8 @@ test.describe("final UI acceptance matrix", () => {
           `/profile/chats/item/${fixture.threadId}`,
           `/exchange?tab=matches&swap=${fixture.swapId}`,
           `/profile/exchanges?tab=matches&swap=${fixture.swapId}`,
+          `/exchange?tab=incoming&swap=${fixture.incomingPendingSwapId}`,
+          `/profile/exchanges?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`,
         ];
 
         for (const route of routes) {
@@ -161,6 +202,24 @@ test.describe("final UI acceptance matrix", () => {
             logProgress(`${viewport.name} ${route}: done`);
           });
         }
+
+        await page.goto(`/exchange?tab=incoming&swap=${fixture.incomingPendingSwapId}`);
+        await waitForSettledMain(page);
+        logProgress(`${viewport.name} incoming focus`);
+        await expectVisibleKeyboardFocus(
+          page,
+          viewport.width >= 1024 ? "Посмотреть входящие" : "← Все обмены",
+          `${viewport.name}: incoming action`,
+        );
+
+        await page.goto(`/profile/exchanges?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`);
+        await waitForSettledMain(page);
+        logProgress(`${viewport.name} accepted focus`);
+        await expectVisibleKeyboardFocus(
+          page,
+          viewport.width >= 1024 ? "Открыть чат ↓" : "← Все обмены",
+          `${viewport.name}: accepted chat action`,
+        );
 
         logProgress(`${viewport.name} image upload`);
         await page.goto("/new");

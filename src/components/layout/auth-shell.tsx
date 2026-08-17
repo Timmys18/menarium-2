@@ -28,7 +28,7 @@ export function AuthShell({
           <Link
             href="/"
             aria-label="Менариум — на главную"
-            className="relative inline-flex self-start rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+            className="relative inline-flex min-h-12 items-center self-start rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
           >
             <BrandLockup priority markClassName="h-11 w-11 rounded-[15px]" textClassName="text-2xl" />
           </Link>
@@ -72,13 +72,13 @@ export function AuthShell({
             <Link
               href="/"
               aria-label="Менариум — на главную"
-              className="inline-flex min-h-11 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+              className="inline-flex min-h-12 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
             >
               <BrandLockup priority />
             </Link>
             <Link
               href="/"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl px-3 text-sm text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
             >
               <ArrowLeft className="h-4 w-4" />
               На главную

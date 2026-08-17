@@ -363,6 +363,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   <ItemImageGallery
                     images={publicItem.images.length > 0 ? publicItem.images : [{ id: "placeholder", url: card.image }]}
                     title={publicItem.title}
+                    itemId={publicItem.id}
                   />
                 </div>
               </GlassCard>

@@ -262,6 +262,29 @@ export function ChatConversation({
     );
   });
 
+  useEffect(() => {
+    if (!target) return;
+    let active = true;
+
+    const refreshMessages = async () => {
+      const response = await fetch(target.endpoint, { cache: "no-store" });
+      if (!response.ok) return;
+      const body = (await response.json()) as { items?: ChatMessageView[] };
+      if (active && body.items) {
+        setLocalMessages((current) => mergeMessages(current, body.items ?? []));
+      }
+    };
+
+    const interval = window.setInterval(() => {
+      void refreshMessages().catch(() => undefined);
+    }, 5_000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [target]);
+
   useRealtime(Boolean(target), (event) => {
     if (!target || event.entityId !== target.entityId) return;
 

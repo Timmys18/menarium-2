@@ -1,4 +1,5 @@
 import { ArrowRightLeft, Globe2, Heart, MapPin, Sparkles } from "lucide-react";
+import { ViewTransition } from "react";
 import { ItemContextLink } from "@/components/catalog/item-context-link";
 import { Badge } from "@/components/menarium/badge";
 import { HoverCard } from "@/components/menarium/card";
@@ -61,6 +62,7 @@ export function ItemCard({
       >
         <span className="sr-only">Открыть объявление «{title}»</span>
       </ItemContextLink>
+      <ViewTransition name={`item-image-${id}`} share="item-morph">
         <div className="relative aspect-[16/10] overflow-hidden sm:aspect-[4/3]">
           <ItemCoverImage
             src={image}
@@ -100,6 +102,7 @@ export function ItemCard({
             </div>
           ) : null}
         </div>
+      </ViewTransition>
         <div className="flex flex-1 flex-col p-4 sm:p-5.5">
           {recommendationReason ? (
             <div className="mb-3 flex items-start gap-2 rounded-[13px] border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">

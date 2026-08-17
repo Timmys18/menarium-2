@@ -367,7 +367,10 @@ export async function ExchangePageContent({ searchParams }: Props) {
                   <Clock3 className="h-5 w-5 text-teal-200" />
                   <div>
                     <p className="text-sm font-semibold text-white">Нужно ответить: {needsResponseCount}</p>
-                    <Link href={exchangeHref("incoming")} className="text-xs text-teal-200/70 hover:text-teal-100">
+                    <Link
+                      href={exchangeHref("incoming")}
+                      className="-ml-2 inline-flex min-h-11 items-center rounded-xl px-2 text-xs font-medium text-teal-200/76 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                    >
                       Посмотреть входящие
                     </Link>
                   </div>
@@ -405,7 +408,10 @@ export async function ExchangePageContent({ searchParams }: Props) {
                 <p className="mt-1 text-sm leading-6 text-white/62">
                   Обе вещи теперь в сделке. Чат уже открыт: напишите партнёру, чтобы согласовать детали обмена.
                 </p>
-                <a href="#exchange-chat" className="mt-3 inline-block text-sm font-semibold text-teal-200 transition hover:text-teal-100">
+                <a
+                  href="#exchange-chat"
+                  className="-ml-2 mt-2 inline-flex min-h-11 items-center rounded-xl px-2 text-sm font-semibold text-teal-200 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                >
                   Открыть чат ↓
                 </a>
               </div>

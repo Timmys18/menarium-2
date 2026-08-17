@@ -21,6 +21,12 @@ function createTransport() {
   const from = process.env.SMTP_FROM?.trim();
   if (!host || !from) return null;
 
+  // Browser acceptance exercises email-producing flows without depending on an
+  // external mail server. Production and staging always use the SMTP transport.
+  if (process.env.E2E_TEST_MODE === "true") {
+    return nodemailer.createTransport({ jsonTransport: true });
+  }
+
   const port = Number(process.env.SMTP_PORT ?? 587);
   const secure = process.env.SMTP_SECURE === "true" || port === 465;
 

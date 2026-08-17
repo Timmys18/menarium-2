@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useEffect, useState, ViewTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { ChatConversation, type ChatMessageView } from "@/components/chat/chat-conversation";
@@ -8,6 +8,7 @@ import { BrandMark } from "@/components/menarium/brand";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
+import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
 type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
@@ -63,10 +64,12 @@ export function ExchangeActionPanel({
         error?: string;
       };
       if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
-      if (body.data) onSwapUpdated?.(body.data);
+      if (body.data) {
+        onSwapUpdated?.(body.data as ExchangeSnapshot);
+      }
       setConfirmAction(null);
       if (action === "accept" && acceptedHref) {
-        router.replace(acceptedHref);
+        navigateWithViewTransition(() => router.replace(acceptedHref), ["exchange-accepted"]);
         return;
       }
       router.refresh();
@@ -193,6 +196,119 @@ export function ExchangeActionPanel({
   );
 }
 
+function ExchangeProgress({
+  snapshot,
+  isSender,
+  isReceiver,
+}: {
+  snapshot: ExchangeSnapshot;
+  isSender: boolean;
+  isReceiver: boolean;
+}) {
+  const participantCompleted =
+    (isSender && snapshot.senderCompleted) || (isReceiver && snapshot.receiverCompleted);
+  const partnerCompleted =
+    (isSender && snapshot.receiverCompleted) || (isReceiver && snapshot.senderCompleted);
+  const accepted = snapshot.status === "ACCEPTED" || snapshot.status === "COMPLETED";
+  const completed = snapshot.status === "COMPLETED";
+  const terminal = ["DECLINED", "CANCELLED", "EXPIRED"].includes(snapshot.status);
+  const currentStep = terminal
+    ? 1
+    : snapshot.status === "PENDING"
+      ? 1
+      : completed
+        ? 3
+        : participantCompleted || partnerCompleted
+          ? 3
+          : 2;
+  const summary = terminal
+    ? "Предложение закрыто"
+    : snapshot.status === "PENDING"
+      ? isReceiver
+        ? "Нужно ваше решение"
+        : "Ожидаем решение партнёра"
+      : completed
+        ? "Обмен завершён обеими сторонами"
+        : participantCompleted
+          ? "Ожидаем подтверждение партнёра"
+          : partnerCompleted
+            ? "Нужно ваше подтверждение"
+            : "Договоритесь о деталях в чате";
+  const steps = [
+    { label: "Предложение", detail: "Отправлено", done: true },
+    {
+      label: "Решение",
+      detail: terminal ? "Закрыто" : accepted ? "Принято" : isReceiver ? "Ваш ход" : "Ожидание",
+      done: accepted,
+    },
+    {
+      label: "Договорённость",
+      detail: accepted ? (participantCompleted || partnerCompleted ? "Согласовано" : "В чате") : "После принятия",
+      done: completed || (accepted && (participantCompleted || partnerCompleted)),
+    },
+    {
+      label: "Завершение",
+      detail: completed ? "Подтверждено" : participantCompleted ? "Ждём партнёра" : partnerCompleted ? "Ваш ход" : "Обе стороны",
+      done: completed,
+    },
+  ];
+
+  return (
+    <ViewTransition key={`${snapshot.status}:${snapshot.senderCompleted}:${snapshot.receiverCompleted}`} update="exchange-progress">
+      <section
+        className="mb-5 rounded-[18px] border border-white/10 bg-white/[0.03] p-4"
+        aria-labelledby="exchange-progress-title"
+        data-exchange-progress={snapshot.status.toLowerCase()}
+      >
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 id="exchange-progress-title" className="text-sm font-semibold text-white/90">
+            Этапы обмена
+          </h3>
+          <p aria-live="polite" className="text-right text-xs font-medium text-teal-100/78">
+            {summary}
+          </p>
+        </div>
+        <ol className="grid gap-2 sm:grid-cols-4" aria-label="Последовательность обмена">
+          {steps.map((step, index) => {
+            const isCurrent = index === currentStep && !step.done;
+            const isUnavailable = terminal && index > 1;
+            return (
+              <li
+                key={step.label}
+                aria-current={isCurrent ? "step" : undefined}
+                className={`flex min-w-0 items-center gap-3 rounded-[14px] border px-3 py-2.5 sm:block ${
+                  step.done
+                    ? "border-teal-300/20 bg-teal-300/[0.07]"
+                    : isCurrent
+                      ? "border-blue-300/30 bg-blue-400/[0.09]"
+                      : "border-white/7 bg-white/[0.025]"
+                } ${isUnavailable ? "opacity-55" : ""}`}
+              >
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold sm:mb-2 ${
+                    step.done
+                      ? "bg-teal-300 text-[#06130f]"
+                      : isCurrent
+                        ? "bg-blue-400 text-white"
+                        : "bg-white/[0.07] text-white/62"
+                  }`}
+                  aria-hidden="true"
+                >
+                  {step.done ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-xs font-semibold text-white/84">{step.label}</span>
+                  <span className="mt-0.5 block text-[11px] leading-4 text-white/62">{step.detail}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    </ViewTransition>
+  );
+}
+
 export function ExchangeDealPanel({
   swapId,
   status,
@@ -229,6 +345,12 @@ export function ExchangeDealPanel({
     senderCompleted,
     receiverCompleted,
   });
+
+  useEffect(() => {
+    startTransition(() => {
+      setSnapshot({ status, senderCompleted, receiverCompleted });
+    });
+  }, [receiverCompleted, senderCompleted, status]);
   const disabledPlaceholder =
     communicationBlocked
       ? "Переписка недоступна из-за блокировки"
@@ -299,6 +421,7 @@ export function ExchangeDealPanel({
 
   return (
     <>
+      <ExchangeProgress snapshot={snapshot} isSender={isSender} isReceiver={isReceiver} />
       {snapshot.status === "ACCEPTED" ? chatSection : actionPanel}
       {snapshot.status === "ACCEPTED" ? actionPanel : chatSection}
     </>
