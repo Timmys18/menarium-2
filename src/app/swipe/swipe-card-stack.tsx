@@ -18,7 +18,6 @@ import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button
 import { GlassCard } from "@/components/menarium/card";
 import { MenariumDialog } from "@/components/menarium/dialog";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
-import { navigateWithViewTransition } from "@/lib/view-transition";
 import { SwipeLikeModal } from "./swipe-like-modal";
 
 type SwipeCardData = {
@@ -310,10 +309,9 @@ export function SwipeCardStack({
         onClose={() => setLikeOpen(false)}
         onSuccess={(swapId) => {
           setLikeOpen(false);
-          void navigateWithViewTransition(
-            () => router.push(`/exchange?tab=outgoing&swap=${encodeURIComponent(swapId)}&notice=sent`),
-            ["exchange-proposed"],
-          );
+          router.push(`/exchange?tab=outgoing&swap=${encodeURIComponent(swapId)}&notice=sent`, {
+            transitionTypes: ["exchange-proposed"],
+          });
         }}
       />
 

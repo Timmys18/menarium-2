@@ -25,7 +25,6 @@ import { categoryLabel, categoryOptions } from "@/features/taxonomy/catalog";
 import { findCityByName, getCity } from "@/features/locations/cities";
 import { cn } from "@/lib/utils";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
-import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type UploadedImage = {
   id: string;
@@ -324,10 +323,9 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error ?? "Не удалось создать объявление");
       window.localStorage.removeItem(draftKey);
-      await navigateWithViewTransition(
-        () => router.push(returnTo ?? `/item/${body.data.id}?created=1`),
-        ["item-created"],
-      );
+      router.push(returnTo ?? `/item/${body.data.id}?created=1`, {
+        transitionTypes: ["item-created"],
+      });
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Не удалось создать объявление");
     } finally {

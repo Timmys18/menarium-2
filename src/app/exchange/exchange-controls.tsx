@@ -8,7 +8,6 @@ import { BrandMark } from "@/components/menarium/brand";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
-import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
 type ExchangeStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
@@ -66,7 +65,7 @@ export function ExchangeActionPanel({
       if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
       setConfirmAction(null);
       if (action === "accept" && acceptedHref) {
-        await navigateWithViewTransition(() => router.replace(acceptedHref), ["exchange-accepted"]);
+        router.replace(acceptedHref, { transitionTypes: ["exchange-accepted"] });
         return;
       }
       if (body.data) {
@@ -76,7 +75,7 @@ export function ExchangeActionPanel({
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Не удалось выполнить действие");
     } finally {
-      setPendingAction(null);
+      if (!(action === "accept" && acceptedHref)) setPendingAction(null);
     }
   }
 

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { ArrowRightLeft, Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
-import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type UserItemOption = {
   id: string;
@@ -39,10 +38,9 @@ export function ExchangeProposal({
       });
       const body = await response.json();
       if (!response.ok) throw new Error(typeof body.error === "string" ? body.error : "Не удалось создать обмен");
-      await navigateWithViewTransition(
-        () => router.push(`/exchange?tab=outgoing&swap=${body.data.id}&notice=sent`),
-        ["exchange-proposed"],
-      );
+      router.push(`/exchange?tab=outgoing&swap=${body.data.id}&notice=sent`, {
+        transitionTypes: ["exchange-proposed"],
+      });
     } catch (proposalError) {
       setError(proposalError instanceof Error ? proposalError.message : "Не удалось создать обмен");
     } finally {

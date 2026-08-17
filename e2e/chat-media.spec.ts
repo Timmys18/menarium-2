@@ -166,7 +166,7 @@ test.describe("chat history and media hardening", () => {
   });
 
   test("sends a deal photo, supports replies and updates the read receipt live", async ({ browser }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(150_000);
     const maria = await prisma.user.findUniqueOrThrow({ where: { email: MARIA.email } });
     const dmitry = await prisma.user.findUniqueOrThrow({ where: { email: DMITRY.email } });
     const mariaItem = await prisma.item.findFirstOrThrow({ where: { ownerId: maria.id } });
@@ -278,10 +278,37 @@ test.describe("chat history and media hardening", () => {
           },
         }),
       ).toBe(0);
+    } finally {
+      await mariaContext.close();
+      await dmitryContext.close();
+    }
+  });
 
-      await mariaPage.close();
+  test("creates, clears and mutes deal message notifications", async ({ browser }) => {
+    const maria = await prisma.user.findUniqueOrThrow({ where: { email: MARIA.email } });
+    const dmitry = await prisma.user.findUniqueOrThrow({ where: { email: DMITRY.email } });
+    const mariaItem = await prisma.item.findFirstOrThrow({ where: { ownerId: maria.id } });
+    const dmitryItem = await prisma.item.findFirstOrThrow({ where: { ownerId: dmitry.id } });
+    const swap = await prisma.swapRequest.create({
+      data: {
+        status: SwapStatus.ACCEPTED,
+        senderId: maria.id,
+        receiverId: dmitry.id,
+        senderItemId: mariaItem.id,
+        receiverItemId: dmitryItem.id,
+        acceptedAt: new Date(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const mariaContext = await browser.newContext();
+    const dmitryContext = await browser.newContext();
+    try {
+      await login(mariaContext);
+      await login(dmitryContext, DMITRY);
       const backgroundReply = await dmitryContext.request.post(`/api/exchange/${swap.id}/messages`, {
         data: { text: "[E2E chat 2.0] Сообщение вне открытого диалога" },
+        timeout: 20_000,
       });
       expect(backgroundReply.status(), await backgroundReply.text()).toBe(201);
       await expect.poll(() =>
@@ -296,7 +323,9 @@ test.describe("chat history and media hardening", () => {
       ).toBe(1);
 
       // Opening the conversation clears the badge created while the chat was closed.
-      const readChat = await mariaContext.request.get(`/api/exchange/${swap.id}/messages`);
+      const readChat = await mariaContext.request.get(`/api/exchange/${swap.id}/messages`, {
+        timeout: 20_000,
+      });
       expect(readChat.status(), await readChat.text()).toBe(200);
       expect(
         await prisma.notification.count({
@@ -311,6 +340,7 @@ test.describe("chat history and media hardening", () => {
 
       const muted = await mariaContext.request.patch("/api/chat/preferences", {
         data: { kind: "DEAL", entityId: swap.id, muted: true },
+        timeout: 20_000,
       });
       expect(muted.status(), await muted.text()).toBe(200);
       expect(
