@@ -35,7 +35,10 @@ test("диалог удерживает фокус и возвращает ег�
   await page.getByLabel("Электронная почта").fill(MARIA.email);
   await page.getByLabel("Пароль").fill(MARIA.password);
   await page.getByRole("button", { name: "Войти" }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"));
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
   await page.goto("/profile", { waitUntil: "domcontentloaded" });
   await page.locator("#main-content").first().waitFor({ state: "visible" });
 

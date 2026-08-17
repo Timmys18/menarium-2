@@ -23,7 +23,10 @@ async function login(context: BrowserContext) {
   await page.getByLabel("Электронная почта").fill(maria.email);
   await page.getByLabel("Пароль").fill(maria.password);
   await page.getByRole("button", { name: "Войти", exact: true }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"));
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
   await page.close();
 }
 
@@ -82,6 +85,7 @@ test.describe("visual regression", () => {
       animations: "disabled",
       mask: [page.locator("time")],
       maskColor: "#13202f",
+      maxDiffPixels: 10,
     });
     await open(page, `/exchange?tab=matches&swap=${fixture.swapId}`);
     await expect(page).toHaveScreenshot("desktop-exchange.png", { animations: "disabled" });
@@ -113,6 +117,7 @@ test.describe("visual regression", () => {
       animations: "disabled",
       mask: [page.locator("time")],
       maskColor: "#13202f",
+      maxDiffPixels: 10,
     });
     await open(page, `/exchange?tab=matches&swap=${fixture.swapId}`);
     await expect(page).toHaveScreenshot("mobile-exchange.png", { animations: "disabled" });

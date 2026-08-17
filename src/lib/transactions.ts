@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 const MAX_SERIALIZABLE_ATTEMPTS = 3;
+const SERIALIZABLE_MAX_WAIT_MS = 5_000;
+const SERIALIZABLE_TIMEOUT_MS = 15_000;
 
 export function isPrismaError(error: unknown, code: string) {
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === code;
@@ -14,6 +16,8 @@ export async function runSerializableTransaction<T>(
     try {
       return await prisma.$transaction(operation, {
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: SERIALIZABLE_MAX_WAIT_MS,
+        timeout: SERIALIZABLE_TIMEOUT_MS,
       });
     } catch (error) {
       if (!isPrismaError(error, "P2034") || attempt === MAX_SERIALIZABLE_ATTEMPTS) {

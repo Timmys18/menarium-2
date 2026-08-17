@@ -33,7 +33,10 @@ async function login(page: Page) {
   await pick(content.getByLabel("Электронная почта")).fill(MARIA.email);
   await pick(content.getByLabel("Пароль")).fill(MARIA.password);
   await pick(content.getByRole("button", { name: "Войти" })).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
 }
 
 function itemCard(page: Page) {

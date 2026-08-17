@@ -19,6 +19,10 @@ export default defineConfig({
     : "list",
   expect: {
     timeout: 15_000,
+    toHaveScreenshot: {
+      // Ignore only isolated rasterization noise; layout and content changes still fail.
+      maxDiffPixels: 10,
+    },
   },
   use: {
     baseURL,

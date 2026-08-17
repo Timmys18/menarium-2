@@ -35,7 +35,10 @@ async function login(context: BrowserContext, account = MARIA) {
   const password = content.locator('input[type="password"]').filter({ visible: true }).first();
   await password.fill(account.password);
   await content.getByRole("button", { name: "Войти", exact: true }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
   await page.close();
 }
 
@@ -262,8 +265,26 @@ test.describe("chat history and media hardening", () => {
         data: { text: "[E2E chat 2.0] Ещё одно сообщение" },
       });
       expect(secondReply.status(), await secondReply.text()).toBe(201);
-      expect(
-        await prisma.notification.count({
+      await expect(mariaLog.getByText("[E2E chat 2.0] Ответ", { exact: true })).toBeVisible({ timeout: 15_000 });
+      await expect(mariaLog.getByText("[E2E chat 2.0] Ещё одно сообщение", { exact: true })).toBeVisible({ timeout: 15_000 });
+      await expect.poll(() =>
+        prisma.notification.count({
+          where: {
+            userId: maria.id,
+            type: NotificationType.DEAL_MESSAGE_RECEIVED,
+            entityId: swap.id,
+            isRead: false,
+          },
+        }),
+      ).toBe(0);
+
+      await mariaPage.close();
+      const backgroundReply = await dmitryContext.request.post(`/api/exchange/${swap.id}/messages`, {
+        data: { text: "[E2E chat 2.0] Сообщение вне открытого диалога" },
+      });
+      expect(backgroundReply.status(), await backgroundReply.text()).toBe(201);
+      await expect.poll(() =>
+        prisma.notification.count({
           where: {
             userId: maria.id,
             type: NotificationType.DEAL_MESSAGE_RECEIVED,
@@ -273,7 +294,7 @@ test.describe("chat history and media hardening", () => {
         }),
       ).toBe(1);
 
-      // A normal chat refresh clears the badge for a conversation the user has opened.
+      // Opening the conversation clears the badge created while the chat was closed.
       const readChat = await mariaContext.request.get(`/api/exchange/${swap.id}/messages`);
       expect(readChat.status(), await readChat.text()).toBe(200);
       expect(

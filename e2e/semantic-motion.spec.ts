@@ -60,7 +60,10 @@ async function login(page: Page) {
   await page.getByLabel("Электронная почта").fill(maria.email);
   await page.getByLabel("Пароль").fill(maria.password);
   await page.getByRole("button", { name: "Войти", exact: true }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"));
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
 }
 
 test("catalog card keeps visual continuity when item opens", async ({ page }) => {
@@ -70,7 +73,7 @@ test("catalog card keeps visual continuity when item opens", async ({ page }) =>
   const itemLink = page.getByRole("link", { name: /Открыть объявление/ }).first();
   await expect(itemLink).toBeVisible();
   await itemLink.click();
-  await page.waitForURL(/\/item\//);
+  await page.waitForURL(/\/item\//, { waitUntil: "commit" });
   await expect.poll(async () => (await transitionState(page)).called).toBeGreaterThan(0);
   await expect.poll(async () => (await transitionState(page)).ready).toBeGreaterThan(0);
   expect((await transitionState(page)).error).toBeNull();
@@ -85,7 +88,7 @@ test("accepting an exchange transitions into a clear active-deal stage", async (
   await expect(main.getByText("Нужно ваше решение", { exact: true })).toBeVisible();
   await main.getByRole("button", { name: "Принять", exact: true }).click();
   await page.getByRole("button", { name: "Принять обмен", exact: true }).click();
-  await page.waitForURL(/notice=accepted/);
+  await page.waitForURL(/notice=accepted/, { waitUntil: "commit" });
   await expect(main.getByText("Договоритесь о деталях в чате", { exact: true })).toBeVisible();
   await expect(main.locator("[data-exchange-progress='accepted']")).toBeVisible();
   await expect.poll(async () => (await transitionState(page)).called).toBeGreaterThan(0);

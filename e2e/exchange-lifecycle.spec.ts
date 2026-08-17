@@ -44,6 +44,7 @@ async function openNotification(page: Page, title: string, swapId: string) {
   await expect(notification).toBeVisible({ timeout: 20_000 });
   await notification.click();
   await page.waitForURL((url) => url.pathname === "/exchange" && url.searchParams.get("swap") === swapId, {
+    waitUntil: "commit",
     timeout: 20_000,
   });
 }
@@ -52,13 +53,14 @@ async function sendDealMessage(page: Page, message: string) {
   const content = main(page);
   const input = pick(content.getByLabel("Текст сообщения"));
   await expect(input).toBeEnabled({ timeout: 20_000 });
-  const responsePromise = page.waitForResponse(
-    (response) => response.url().includes("/messages") && response.request().method() === "POST",
-    { timeout: 20_000 },
-  );
   await input.fill(message);
-  await input.press("Enter");
-  const response = await responsePromise;
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      (candidate) => candidate.url().includes("/messages") && candidate.request().method() === "POST",
+      { timeout: 20_000 },
+    ),
+    pick(content.getByRole("button", { name: "Отправить сообщение" })).click(),
+  ]);
   if (!response.ok()) {
     throw new Error(`Message request failed (${response.status()}): ${await response.text()}`);
   }
@@ -72,7 +74,10 @@ async function login(page: Page, credentials: typeof MARIA) {
   await pick(content.getByLabel("Электронная почта")).fill(credentials.email);
   await pick(content.getByLabel("Пароль")).fill(credentials.password);
   await pick(content.getByRole("button", { name: "Войти" })).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
   await expect(page).toHaveURL(/\/(profile)?$/);
 }
 

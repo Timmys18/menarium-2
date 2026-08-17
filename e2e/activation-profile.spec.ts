@@ -35,7 +35,7 @@ test.describe("первый вход и личный кабинет", () => {
       await content.getByLabel("Пароль").fill(password);
       await content.getByRole("button", { name: "Зарегистрироваться" }).click();
 
-      await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });
+      await page.waitForURL((url) => url.pathname === "/profile", { waitUntil: "commit", timeout: 20_000 });
       await expect(content.getByText("Аккаунт создан", { exact: true })).toBeVisible();
       await page.goto("/profile/edit");
       await expect(content.getByText("Подтвердите почту", { exact: true })).toBeVisible();
@@ -57,7 +57,7 @@ test.describe("первый вход и личный кабинет", () => {
       await content.getByRole("option", { name: "Казань Татарстан", exact: true }).click();
       await content.getByRole("button", { name: "Сохранить" }).click();
 
-      await page.waitForURL((url) => url.pathname === "/profile", { timeout: 20_000 });
+      await page.waitForURL((url) => url.pathname === "/profile", { waitUntil: "commit", timeout: 20_000 });
       await expect(content.getByRole("heading", { name: "Мои объявления" })).toBeVisible();
       await expect(content.getByRole("link", { name: "Добавить объявление" })).toBeVisible();
     } finally {

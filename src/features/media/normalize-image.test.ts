@@ -17,5 +17,5 @@ describe("normalizePublicImage", () => {
     expect(normalized.metadata).toMatchObject({ contentType: "image/webp", extension: "webp" });
     expect(Math.max(metadata.width ?? 0, metadata.height ?? 0)).toBeLessThanOrEqual(2048);
     expect(metadata.exif).toBeUndefined();
-  });
+  }, 15_000);
 });

@@ -45,11 +45,22 @@ function createIsolatedFixture(): Fixture {
 }
 
 async function login(page: Page) {
-  await page.goto("/auth/login");
+  await gotoRoute(page, "/auth/login");
   await page.getByLabel("Электронная почта").fill(maria.email);
   await page.getByLabel("Пароль").fill(maria.password);
   await page.getByRole("button", { name: "Войти", exact: true }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"));
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
+}
+
+async function gotoRoute(page: Page, route: string) {
+  const response = await page.goto(route, {
+    waitUntil: "domcontentloaded",
+    timeout: 30_000,
+  });
+  expect(response?.ok(), `${route} returned ${response?.status() ?? "no response"}`).toBeTruthy();
 }
 
 async function touchTargetViolations(page: Page, route: string, viewport: string) {
@@ -138,7 +149,7 @@ async function waitForSettledMain(page: Page) {
 test.describe("final UI acceptance matrix", () => {
   for (const viewport of viewports) {
     test(`checks accessibility, touch targets and layout at ${viewport.name}`, async ({ browser }) => {
-      test.setTimeout(600_000);
+      test.setTimeout(300_000);
       resetSeedData();
       const fixture = createIsolatedFixture();
       const context = await browser.newContext({ viewport, isMobile: viewport.isMobile, hasTouch: viewport.hasTouch });
@@ -155,7 +166,7 @@ test.describe("final UI acceptance matrix", () => {
         const violations: unknown[] = [];
         for (const route of ["/auth/login", "/auth/register"]) {
           await test.step(`${viewport.name}: public ${route}`, async () => {
-            await page.goto(route);
+            await gotoRoute(page, route);
             await waitForSettledMain(page);
             await assertPageFitsViewport(page, route, viewport.name);
             violations.push(...await touchTargetViolations(page, route, viewport.name));
@@ -187,7 +198,7 @@ test.describe("final UI acceptance matrix", () => {
         for (const route of routes) {
           await test.step(`${viewport.name}: ${route}`, async () => {
             logProgress(`${viewport.name} ${route}: goto`);
-            await page.goto(route);
+            await gotoRoute(page, route);
             logProgress(`${viewport.name} ${route}: main`);
             await waitForSettledMain(page);
             const main = page.locator("#main-content");
@@ -203,7 +214,7 @@ test.describe("final UI acceptance matrix", () => {
           });
         }
 
-        await page.goto(`/exchange?tab=incoming&swap=${fixture.incomingPendingSwapId}`);
+        await gotoRoute(page, `/exchange?tab=incoming&swap=${fixture.incomingPendingSwapId}`);
         await waitForSettledMain(page);
         logProgress(`${viewport.name} incoming focus`);
         await expectVisibleKeyboardFocus(
@@ -212,7 +223,7 @@ test.describe("final UI acceptance matrix", () => {
           `${viewport.name}: incoming action`,
         );
 
-        await page.goto(`/profile/exchanges?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`);
+        await gotoRoute(page, `/profile/exchanges?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`);
         await waitForSettledMain(page);
         logProgress(`${viewport.name} accepted focus`);
         await expectVisibleKeyboardFocus(
@@ -222,7 +233,7 @@ test.describe("final UI acceptance matrix", () => {
         );
 
         logProgress(`${viewport.name} image upload`);
-        await page.goto("/new");
+        await gotoRoute(page, "/new");
         await waitForSettledMain(page);
         const imageInput = page.locator("#item-images");
         await expect(imageInput).toBeAttached();
@@ -243,12 +254,12 @@ test.describe("final UI acceptance matrix", () => {
         await expect(removeImageButton).toHaveCount(0);
 
         logProgress(`${viewport.name} edit image controls`);
-        await page.goto(`/item/${fixture.ownItemId}/edit`);
+        await gotoRoute(page, `/item/${fixture.ownItemId}/edit`);
         await waitForSettledMain(page);
         violations.push(...await touchTargetViolations(page, `/item/${fixture.ownItemId}/edit`, viewport.name));
 
         logProgress(`${viewport.name} city filter`);
-        await page.goto("/catalog");
+        await gotoRoute(page, "/catalog");
         await waitForSettledMain(page);
         if (viewport.width < 1024) await page.getByText("Фильтры", { exact: true }).click();
         await page.getByRole("button", { name: /Выберите город/ }).click();
@@ -256,7 +267,7 @@ test.describe("final UI acceptance matrix", () => {
         await expectNoCriticalAxeViolations(page, "/catalog with city filter");
 
         logProgress(`${viewport.name} pause dialog`);
-        await page.goto("/profile");
+        await gotoRoute(page, "/profile");
         await waitForSettledMain(page);
         const pause = page.getByRole("button", { name: "Поставить объявление на паузу" }).first();
         if (await pause.count()) {

@@ -52,6 +52,16 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     needs: verify
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - core
+          - 320x800
+          - 390x844
+          - 768x1024
+          - 1440x1000
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/menarium2?schema=public
       NEXTAUTH_URL: http://localhost:3001
@@ -129,14 +139,19 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Run Playwright E2E tests
-        run: npm run test:e2e
+      - name: Run core Playwright E2E tests
+        if: matrix.suite == 'core'
+        run: npm run test:e2e -- --grep-invert "final UI acceptance matrix"
+
+      - name: Run viewport acceptance tests
+        if: matrix.suite != 'core'
+        run: npm run test:e2e -- e2e/ui-acceptance.spec.ts --grep "${{ matrix.suite }}"
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.suite }}
           path: |
             playwright-report/
             test-results/

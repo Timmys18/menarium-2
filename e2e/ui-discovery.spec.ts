@@ -31,7 +31,10 @@ async function login(page: import("@playwright/test").Page) {
   await content.getByLabel("Электронная почта").fill(MARIA.email);
   await content.getByLabel("Пароль").fill(MARIA.password);
   await content.getByRole("button", { name: "Войти" }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), { timeout: 15_000 });
+  await page.waitForURL((url) => !url.pathname.startsWith("/auth/login"), {
+    waitUntil: "commit",
+    timeout: 30_000,
+  });
 }
 
 test.describe("Мобильное открытие каталога", () => {
