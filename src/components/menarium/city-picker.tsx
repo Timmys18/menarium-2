@@ -24,6 +24,10 @@ export function CityPicker({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [placement, setPlacement] = useState<"up" | "down">("down");
+  // Высоту списка считаем от фактического свободного места, а не фиксированной
+  // величиной: прежний `max-h` не знал, где находится сам пикер, и в панели
+  // фильтров последний город обрезался пополам.
+  const [maxHeight, setMaxHeight] = useState(248);
   const selected = getCity(value);
   const cities = searchCities(query);
 
@@ -42,11 +46,17 @@ export function CityPicker({
       return;
     }
 
-    const rect = inline ? null : containerRef.current?.getBoundingClientRect();
+    const rect = containerRef.current?.getBoundingClientRect();
     if (rect) {
-      const roomAbove = rect.top;
-      const openUpwards = rect.bottom > window.innerHeight * 0.55 && roomAbove > 210;
-      setPlacement(openUpwards ? "up" : "down");
+      const gap = 8;
+      const margin = 16;
+      // Поле поиска над списком тоже занимает место в раскрытой панели.
+      const searchFieldHeight = 60;
+      const roomBelow = window.innerHeight - rect.bottom - gap - margin - searchFieldHeight;
+      const roomAbove = rect.top - gap - margin - searchFieldHeight;
+      const openUpwards = !inline && roomBelow < 176 && roomAbove > roomBelow;
+      if (!inline) setPlacement(openUpwards ? "up" : "down");
+      setMaxHeight(Math.max(132, Math.min(248, openUpwards ? roomAbove : roomBelow)));
     }
 
     setQuery("");
@@ -62,7 +72,7 @@ export function CityPicker({
         aria-controls={open ? listId : undefined}
         aria-haspopup="listbox"
         onClick={toggleList}
-        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-left text-white outline-none transition hover:border-white/20 focus-visible:ring-2 focus-visible:ring-blue-300/50"
+        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-[var(--surface-input)] px-4 py-3 text-left text-white outline-none transition hover:border-white/20 focus-visible:ring-2 focus-visible:ring-blue-300/50"
       >
         <span className="flex min-w-0 items-center gap-2">
           <MapPin className="h-4 w-4 shrink-0 text-teal-200" />
@@ -73,7 +83,7 @@ export function CityPicker({
 
       {open ? (
         <div className={cn(
-          "w-full overflow-hidden rounded-[18px] border border-white/12 bg-[#101722] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
+          "w-full overflow-hidden rounded-[18px] border border-white/12 bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
           inline ? "relative mt-2" : cn("absolute left-0 z-[70]", placement === "up" ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"),
         )}>
           <label className="flex min-h-11 items-center gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-white/78">
@@ -98,7 +108,13 @@ export function CityPicker({
               </button>
             ) : null}
           </label>
-          <div id={listId} role="listbox" aria-label="Города" className="menarium-scrollbar mt-2 max-h-[min(15.5rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain pr-1">
+          <div
+            id={listId}
+            role="listbox"
+            aria-label="Города"
+            style={{ maxHeight }}
+            className="menarium-scrollbar mt-2 overflow-y-auto overscroll-contain pr-1"
+          >
             {cities.map((city) => {
               const active = city.id === value;
               return (

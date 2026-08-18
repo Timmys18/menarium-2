@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { CityPicker } from "@/components/menarium/city-picker";
+import { MenariumSelect, type SelectOption } from "@/components/menarium/select";
 import { catalogTaxonomy, categoryLabel, categoryRoot } from "@/features/taxonomy/catalog";
 import { getCity } from "@/features/locations/cities";
 import { cn } from "@/lib/utils";
@@ -25,32 +26,42 @@ export function CatalogCategoryFilter({ value, className }: { value?: string; cl
   const navigate = useCatalogNavigation();
   const root = categoryRoot(value);
   const selectedSubcategory = value !== root?.id ? value ?? "" : "";
+  const categoryOptions: SelectOption[] = [
+    { value: "", label: "Все категории" },
+    ...Object.entries(catalogTaxonomy).flatMap(([type, roots]) =>
+      roots.map((entry) => ({
+        value: entry.id,
+        label: entry.label,
+        group: type === "THING" ? "Предметы" : "Услуги",
+      })),
+    ),
+  ];
+  const subcategoryOptions: SelectOption[] = root
+    ? [
+        { value: "", label: "Все подкатегории" },
+        ...root.children.map((child) => ({ value: child.id, label: child.label })),
+      ]
+    : [];
+
   return (
     <div className={cn("grid gap-2", className)}>
-      <select
-        aria-label="Категория каталога"
+      <MenariumSelect
+        ariaLabel="Категория каталога"
+        placeholder="Все категории"
         value={root?.id ?? ""}
-        onChange={(event) => navigate("category", event.target.value || undefined)}
-        className="min-h-11 w-full rounded-[13px] border border-white/10 bg-[#111723] px-3 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65"
-      >
-        <option value="">Все категории</option>
-        {Object.entries(catalogTaxonomy).map(([type, roots]) => (
-          <optgroup key={type} label={type === "THING" ? "Предметы" : "Услуги"}>
-            {roots.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}
-          </optgroup>
-        ))}
-      </select>
+        options={categoryOptions}
+        onChange={(next) => navigate("category", next || undefined)}
+      />
 
-      <select
-        aria-label="Подкатегория каталога"
+      <MenariumSelect
+        ariaLabel="Подкатегория каталога"
         value={selectedSubcategory}
+        options={subcategoryOptions}
         disabled={!root}
-        onChange={(event) => navigate("category", event.target.value || root?.id)}
-        className="min-h-11 w-full rounded-[13px] border border-white/10 bg-[#111723] px-3 text-sm text-white outline-none transition disabled:cursor-not-allowed disabled:border-white/[0.06] disabled:text-white/62 focus-visible:ring-2 focus-visible:ring-blue-300/65"
-      >
-        <option value="">{root ? "Все подкатегории" : "Сначала выберите категорию"}</option>
-        {root?.children.map((child) => <option key={child.id} value={child.id}>{child.label}</option>)}
-      </select>
+        disabledHint="Сначала выберите категорию"
+        placeholder="Все подкатегории"
+        onChange={(next) => navigate("category", next || root?.id)}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRightLeft, Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
+import { MenariumSelect } from "@/components/menarium/select";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
 import { navigateWithViewTransition } from "@/lib/view-transition";
 
@@ -75,19 +76,14 @@ export function ExchangeProposal({
         </div>
         <ArrowRightLeft className="h-4 w-4 shrink-0 text-teal-200/70" />
       </div>
-      <select
+      <MenariumSelect
         id="exchange-sender-item"
+        ariaLabel="Ваша вещь для обмена"
         value={senderItemId}
-        onChange={(event) => setSenderItemId(event.target.value)}
-        aria-describedby="exchange-receiver-item"
-        className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#0d131d] px-4 py-3 text-sm text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50"
-      >
-        {userItems.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.title}
-          </option>
-        ))}
-      </select>
+        options={userItems.map((item) => ({ value: item.id, label: item.title }))}
+        onChange={setSenderItemId}
+        placeholder="Выберите свою вещь"
+      />
       <MenariumButton onClick={propose} disabled={isSubmitting || !senderItemId} className="w-full">
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRightLeft className="h-5 w-5" />}
         Предложить обмен

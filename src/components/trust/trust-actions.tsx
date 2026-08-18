@@ -6,6 +6,7 @@ import { Ban, Flag, Loader2, ShieldCheck } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog, MenariumDialog } from "@/components/menarium/dialog";
 import { MenariumTextarea } from "@/components/menarium/input";
+import { MenariumSelect } from "@/components/menarium/select";
 
 const reasons = [
   { value: "FRAUD", label: "Подозрение на мошенничество" },
@@ -135,20 +136,18 @@ export function TrustActions({
         }
       >
         <div className="space-y-4">
-          <label className="block text-sm text-white/70">
-            Причина
-            <select
+          <div className="space-y-2">
+            <label htmlFor="report-reason" className="block text-sm text-white/70">
+              Причина
+            </label>
+            <MenariumSelect
+              id="report-reason"
+              ariaLabel="Причина жалобы"
               value={reason}
-              onChange={(event) => setReason(event.target.value as typeof reason)}
-              className="glass-card mt-2 w-full rounded-2xl px-4 py-3 text-white outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60"
-            >
-              {reportReasons.map((entry) => (
-                <option key={entry.value} value={entry.value} className="bg-[#11111a]">
-                  {entry.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={reportReasons.map((entry) => ({ value: entry.value, label: entry.label }))}
+              onChange={(next) => setReason(next as typeof reason)}
+            />
+          </div>
           <MenariumTextarea
             value={details}
             onChange={(event) => setDetails(event.target.value)}

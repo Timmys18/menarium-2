@@ -14,6 +14,12 @@
   --accent-amber: #ffbc72;
   --surface-raised: #101722;
   --surface-card: #0d131d;
+  /* Поля ввода и выпадающие списки на шаг светлее карточки: иначе форма
+     сливается с подложкой, на которой лежит. Раньше это значение было
+     вписано числом в двадцати девяти файлах. */
+  --surface-input: #111723;
+  --surface-sunken: #090d14;
+  --surface-overlay: rgba(10, 16, 24, 0.72);
   --surface-soft: rgba(255, 255, 255, 0.045);
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
@@ -24,7 +30,13 @@
   --radius-card: 1.375rem;
   --radius-panel: 2rem;
   --shadow-card: 0 14px 38px rgba(0, 0, 0, 0.24);
+  --shadow-popover: 0 22px 60px rgba(0, 0, 0, 0.5);
   --mobile-nav-clearance: calc(7rem + env(safe-area-inset-bottom));
+  /* Высота нижней навигации на телефоне. Экраны, которые должны занимать
+     ровно оставшееся место (чат), считают её от этой переменной, а не от
+     магического числа в собственном классе. */
+  --mobile-nav-height: calc(4.5rem + env(safe-area-inset-bottom));
+  --header-height: 4.5rem;
 }
 
 @theme inline {
@@ -36,8 +48,16 @@
   --color-accent-teal: var(--accent-teal);
   --color-accent-cyan: var(--accent-cyan);
   --color-accent-fuchsia: var(--accent-fuchsia);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-card: var(--surface-card);
+  --color-surface-input: var(--surface-input);
+  --color-surface-sunken: var(--surface-sunken);
   --font-sans: var(--font-onest);
   --font-display: var(--font-space-grotesk);
+  /* Ниже 11px подписи перестают читаться на телефоне, а Apple HIG прямо
+     называет 11pt минимумом. Шкала не даёт опуститься ниже случайно. */
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.25;
 }
 
 * {

@@ -8,6 +8,7 @@ import { Badge } from "@/components/menarium/badge";
 import { MenariumButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { MenariumInput, MenariumTextarea } from "@/components/menarium/input";
+import { MenariumSelect } from "@/components/menarium/select";
 import type { PublicItem } from "@/features/items/serializers";
 import { cn } from "@/lib/utils";
 
@@ -288,22 +289,38 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-white/70">Тип</span>
-            <select value={type} onChange={(event) => setType(event.target.value as "THING" | "SERVICE")} className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50">
-              <option value="THING">Предмет</option>
-              <option value="SERVICE">Услуга</option>
-            </select>
-          </label>
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-white/70">Категория</span>
-            <select value={category} onChange={(event) => setCategory(event.target.value)} className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50">
-              {categories.map((entry) => (
-                <option key={entry} value={entry}>{entry}</option>
-              ))}
-              {!categories.includes(category) ? <option value={category}>{category}</option> : null}
-            </select>
-          </label>
+          <div className="space-y-2">
+            <label htmlFor="edit-item-type" className="block text-sm font-medium text-white/70">
+              Тип
+            </label>
+            <MenariumSelect
+              id="edit-item-type"
+              ariaLabel="Тип"
+              value={type}
+              options={[
+                { value: "THING", label: "Предмет" },
+                { value: "SERVICE", label: "Услуга" },
+              ]}
+              onChange={(next) => setType(next as "THING" | "SERVICE")}
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="edit-item-category" className="block text-sm font-medium text-white/70">
+              Категория
+            </label>
+            <MenariumSelect
+              id="edit-item-category"
+              ariaLabel="Категория"
+              value={category}
+              options={[
+                ...categories.map((entry) => ({ value: entry, label: entry })),
+                // Объявление могло быть создано до правки справочника —
+                // не теряем его текущую категорию из списка.
+                ...(categories.includes(category) ? [] : [{ value: category, label: category }]),
+              ]}
+              onChange={setCategory}
+            />
+          </div>
         </div>
 
         <label className="space-y-2">

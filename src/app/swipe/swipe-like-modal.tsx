@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRightLeft, BellRing, Loader2, ShieldCheck } from "lucide-react";
 import { MenariumButton } from "@/components/menarium/button";
 import { MenariumDialog } from "@/components/menarium/dialog";
+import { MenariumSelect } from "@/components/menarium/select";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
 
 type UserItem = { id: string; title: string };
@@ -81,18 +82,15 @@ export function SwipeLikeModal({
       <label htmlFor="swipe-sender-item" className="block text-sm font-medium text-white/65">
         Что готов отдать
       </label>
-      <select
+      <MenariumSelect
         id="swipe-sender-item"
+        ariaLabel="Что готов отдать"
+        className="mt-2"
         value={senderItemId}
-        onChange={(event) => setSenderItemId(event.target.value)}
-        className="mt-2 min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-sm text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50"
-      >
-        {userItems.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.title}
-          </option>
-        ))}
-      </select>
+        options={userItems.map((item) => ({ value: item.id, label: item.title }))}
+        onChange={setSenderItemId}
+        placeholder="Выберите свою вещь"
+      />
 
       <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center gap-2 rounded-[18px] border border-white/8 bg-white/[0.035] p-4">
         <div className="min-w-0">
