@@ -392,6 +392,36 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   top: 1rem;
 }
 
+/*
+  Открытый диалог на телефоне.
+
+  Раньше над лентой сообщений оставался весь стек личного кабинета — карточка
+  профиля, аккордеон разделов, ссылка «Все чаты» — и переписка начиналась
+  примерно на 620-м пикселе экрана высотой 844. Поле ввода не помещалось вовсе.
+  Чат — один из двух ключевых сценариев продукта и обязан занимать экран
+  целиком, как в любом мессенджере.
+
+  `:has()` позволяет спрятать чужую обвязку из самой страницы диалога, не
+  разрывая общий макет кабинета на отдельные ветки маршрутов.
+*/
+@media (max-width: 1023px) {
+  .profile-shell:has([data-immersive-chat]) {
+    padding-bottom: 0;
+    padding-top: var(--header-height);
+  }
+
+  .profile-shell:has([data-immersive-chat]) .profile-chrome {
+    display: none;
+  }
+
+  [data-immersive-chat] {
+    display: flex;
+    flex-direction: column;
+    /* Ровно то, что осталось между шапкой и нижней навигацией. */
+    height: calc(100dvh - var(--header-height) - var(--mobile-nav-height));
+  }
+}
+
 .no-scrollbar {
   scrollbar-width: none;
 }

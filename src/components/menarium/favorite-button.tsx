@@ -82,7 +82,7 @@ export function FavoriteButton({
           "inline-flex min-h-11 items-center justify-center gap-2 rounded-[14px] border px-3 text-sm font-semibold backdrop-blur-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 disabled:cursor-wait",
           favorite
             ? "border-rose-300/25 bg-rose-400/16 text-rose-100 shadow-[0_10px_28px_rgba(244,114,182,0.16)]"
-            : "border-white/14 bg-[#090d14]/82 text-white/72 hover:border-white/24 hover:bg-[#111824]/92 hover:text-white",
+            : "border-white/14 bg-[var(--surface-sunken)]/82 text-white/72 hover:border-white/24 hover:bg-[#111824]/92 hover:text-white",
           !showLabel && "h-11 w-11 px-0",
         )}
       >

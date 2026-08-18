@@ -72,21 +72,27 @@ export function ItemCard({
             sizes="(max-width: 640px) 100vw, (max-width: 1535px) 50vw, 33vw"
             imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
           />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0d131d]/85 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--surface-card)]/85 to-transparent" />
+          {/*
+            Длинная категория («Иллюстрация и творчество») вытесняла соседний
+            чип на вторую строку и наезжала на него. Категория теперь сжимается
+            и обрезается в пределах своей ширины, а тип остаётся целым: строка
+            одна, наложения нет.
+          */}
           <div className={cn(
-            "absolute left-4 top-4 flex flex-wrap items-start gap-2",
+            "absolute left-4 top-4 flex items-start gap-2",
             reserveTopRight ? "right-28" : showFavorite ? "right-16" : "right-4",
           )}>
-            <Badge className={cn("bg-[#090d14]/78", reserveTopRight && "max-w-full truncate whitespace-nowrap")}>
+            <Badge className="min-w-0 shrink truncate whitespace-nowrap bg-[var(--surface-sunken)]/78">
               {category}
             </Badge>
-            <Badge variant={isOnline ? "teal" : "glass"} className="bg-[#090d14]/78">
+            <Badge variant={isOnline ? "teal" : "glass"} className="shrink-0 bg-[var(--surface-sunken)]/78">
               {isOnline ? <Globe2 className="h-3 w-3" /> : null}
               {isOnline ? "Онлайн" : type === "SERVICE" ? "Услуга" : "Предмет"}
             </Badge>
           </div>
           {flexible ? (
-            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#090d14]/88 px-3 py-1.5 text-[11px] font-medium text-white/82">
+            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--surface-sunken)]/88 px-3 py-1.5 text-micro font-medium text-white/82">
               <Sparkles className="h-3 w-3 text-teal-200" />
               Открыт к вариантам
             </div>
@@ -120,7 +126,7 @@ export function ItemCard({
             ) : null}
           </div>
           <div className="mt-auto rounded-[15px] border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
-            <span className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-100/78">
+            <span className="mb-1.5 flex items-center gap-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-teal-100/78">
               <ArrowRightLeft className="h-3.5 w-3.5 text-teal-200" />
               Ищу взамен
             </span>

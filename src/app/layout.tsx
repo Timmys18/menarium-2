@@ -8,6 +8,8 @@ import "./globals.css";
 export const viewport: Viewport = {
   // Совпадает с --background: без этого системная строка на телефоне и
   // splash-экран установленного приложения вспыхивают белым.
+  // Значение --background числом: это уходит в <meta name="theme-color">,
+  // который не понимает CSS-переменные.
   themeColor: "#070a10",
   colorScheme: "dark",
   // viewportFit=cover нужен, чтобы env(safe-area-inset-*) в globals.css

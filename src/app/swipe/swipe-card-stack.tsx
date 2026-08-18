@@ -233,7 +233,7 @@ export function SwipeCardStack({
                   </span>
                 ) : null}
               </div>
-              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0b1019] to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--surface-sunken)] to-transparent" />
             </div>
 
             <div className="px-4 pb-4 pt-3.5 sm:px-5 md:px-6 md:pb-5 md:pt-4">
@@ -249,7 +249,7 @@ export function SwipeCardStack({
                 </span>
               </div>
               <div className="mt-3 rounded-[15px] border border-teal-300/15 bg-teal-300/[0.055] px-3.5 py-2.5 md:mt-4 md:rounded-[16px] md:px-4 md:py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-200/72">Интересно взамен</p>
+                <p className="text-micro font-semibold uppercase tracking-[0.14em] text-teal-200/72">Интересно взамен</p>
                 <p className="mt-0.5 line-clamp-1 text-sm leading-5 text-white/82 md:mt-1 md:line-clamp-2">{card.wanted}</p>
               </div>
             </div>
@@ -259,7 +259,7 @@ export function SwipeCardStack({
 
       {undoNotice}
 
-      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-[22px] border border-white/12 bg-[#090e16]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
+      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-[22px] border border-white/12 bg-[var(--surface-sunken)]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
         <button
           type="button"
           disabled={loading || undoing}

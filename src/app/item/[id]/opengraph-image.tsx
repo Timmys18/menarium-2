@@ -58,6 +58,8 @@ export default async function ItemOpenGraphImage({ params }: { params: Promise<{
           width: "100%",
           height: "100%",
           display: "flex",
+          // Значения токенов вписаны числами намеренно: картинка рисуется вне
+          // браузера, где CSS-переменные из globals.css не существуют.
           background: "linear-gradient(135deg, #070a10 0%, #0d131d 55%, #101722 100%)",
           color: "white",
           fontFamily: "Onest",

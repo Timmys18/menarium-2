@@ -52,8 +52,14 @@ export default async function Home() {
   return (
     <AppShell>
       {preview ? <PreviewUiNotice /> : null}
-      <div className={`min-h-screen px-4 pb-28 sm:px-6 md:pb-32 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
-        <section className="mx-auto grid max-w-7xl gap-12 lg:min-h-[calc(100vh-9rem)] lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-16">
+      <div className={`min-h-screen px-4 pb-28 sm:px-6 md:pb-32 md:pt-28 ${preview ? "pt-36" : "pt-24"}`}>
+        {/*
+          Первый экран занимал `calc(100vh-9rem)` и центрировал строку по
+          вертикали: на 1440×1000 заголовок начинался примерно на 40% высоты, а
+          верхние ~350 пикселей оставались пустыми. Ограничиваем высоту разумным
+          максимумом, и содержимое поднимается к верху экрана.
+        */}
+        <section className="mx-auto grid max-w-7xl gap-12 lg:min-h-[min(42rem,calc(100vh-12rem))] lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-16">
           <div className="relative z-10">
             <h1 className="type-page-title max-w-3xl text-[clamp(3.35rem,5.2vw,5rem)] leading-[0.94] tracking-[-0.065em] lg:whitespace-nowrap">
               Меняйся. <span className="gradient-text">Просто</span>
@@ -87,17 +93,25 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="hero-canvas relative min-h-[470px] overflow-hidden rounded-[32px] p-5 sm:min-h-[540px] sm:p-8">
+          <div className="hero-canvas relative flex min-h-[420px] flex-col justify-center overflow-hidden rounded-[32px] p-5 sm:min-h-[480px] sm:p-8">
             <div aria-hidden="true" className="absolute -left-24 top-12 h-64 w-64 rounded-full bg-teal-400/15 blur-[90px]" />
             <div aria-hidden="true" className="absolute -right-20 bottom-5 h-72 w-72 rounded-full bg-blue-500/16 blur-[100px]" />
             {heroPair.length === 2 ? (
-              <div className="relative h-[430px] sm:h-[480px]">
+              /*
+                Карточки раскладываются потоком со смещением по горизонтали, а
+                не абсолютным позиционированием. При абсолютной раскладке нижняя
+                карточка наезжала на текст верхней, и заголовок обрывался на
+                «Коллекция ви…» без многоточия — это читалось как дефект вёрстки,
+                а не как приём наложения. Теперь перекрытие только горизонтальное
+                и на текст попасть не может.
+              */
+              <div className="relative flex flex-col gap-4">
                 {heroPair.map((item, index) => (
                   <Link
                     key={item.id}
                     href={`/item/${item.id}`}
-                    className={`absolute w-[78%] max-w-sm overflow-hidden rounded-[24px] border border-white/[0.13] bg-[#101722] shadow-[0_24px_70px_rgba(0,0,0,0.42)] transition hover:z-30 hover:-translate-y-1 focus-visible:z-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 ${
-                      index === 0 ? "left-0 top-0 -rotate-2" : "bottom-0 right-0 rotate-2"
+                    className={`w-[82%] max-w-sm overflow-hidden rounded-[24px] border border-white/[0.13] bg-[var(--surface-raised)] shadow-[0_24px_70px_rgba(0,0,0,0.42)] transition hover:z-30 hover:-translate-y-1 focus-visible:z-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 ${
+                      index === 0 ? "self-start -rotate-2" : "self-end rotate-2"
                     }`}
                   >
                     <div className="relative h-36 sm:h-44">
@@ -105,9 +119,9 @@ export default async function Home() {
                         src={item.image}
                         alt={item.title}
                         priority
-                        sizes="(max-width: 768px) 78vw, 360px"
+                        sizes="(max-width: 768px) 82vw, 360px"
                       />
-                      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#101722] to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--surface-raised)] to-transparent" />
                     </div>
                     <div className="p-4 sm:p-5">
                       <p className="text-xs uppercase tracking-[0.14em] text-teal-200/72">{item.category}</p>
@@ -118,7 +132,8 @@ export default async function Home() {
                 ))}
                 <BrandMark
                   size="lg"
-                  className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 ring-white/20"
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 ring-white/20"
                 />
               </div>
             ) : (

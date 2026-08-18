@@ -73,10 +73,10 @@ export default async function ProfileLayout({ children }: { children: React.Reac
 
   return (
     <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
-        <div className="mx-auto max-w-[1360px]">
+      <div className="profile-shell min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
+        <div className="mx-auto flex min-h-0 max-w-[1360px] flex-col">
           {user ? (
-            <GlassCard className="mb-5 overflow-hidden border border-white/8 p-4 sm:p-5">
+            <GlassCard className="profile-chrome mb-5 overflow-hidden border border-white/8 p-4 sm:p-5">
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div className="flex min-w-0 items-center gap-3.5 sm:gap-4">
                   {user.image ? (
@@ -129,15 +129,21 @@ export default async function ProfileLayout({ children }: { children: React.Reac
             </GlassCard>
           ) : null}
 
-          <div className={user ? "grid items-start gap-5 lg:grid-cols-[250px_minmax(0,1fr)]" : ""}>
+          <div
+            className={
+              user
+                ? "grid min-h-0 flex-1 items-start gap-5 lg:grid-cols-[250px_minmax(0,1fr)]"
+                : "min-h-0 flex-1"
+            }
+          >
             {user ? (
-              <SurfaceCard className="hidden p-2 lg:sticky lg:top-28 lg:block">
+              <SurfaceCard className="profile-chrome hidden p-2 lg:sticky lg:top-28 lg:block">
                 <AccountNavigation counts={accountCounts} />
               </SurfaceCard>
             ) : null}
-            <div className="min-w-0">
+            <div className="flex min-h-0 min-w-0 flex-col">
               {user ? (
-                <SurfaceCard className="mb-4 p-2 lg:hidden">
+                <SurfaceCard className="profile-chrome mb-4 p-2 lg:hidden">
                   <details className="group">
                     <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-semibold text-white marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/65">
                       Разделы профиля

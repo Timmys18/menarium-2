@@ -265,7 +265,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                               {presentation.description}
                             </p>
                             <div className="mt-4 rounded-[16px] border border-white/7 bg-white/[0.025] p-4">
-                              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/62">
+                              <p className="text-micro font-semibold uppercase tracking-[0.14em] text-white/62">
                                 {report.swap ? "Связанный обмен" : "Объект обращения"}
                               </p>
                               <p className="mt-1.5 line-clamp-2 text-sm font-medium text-white/78">
@@ -288,7 +288,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                             </div>
                             {report.details ? (
                               <div className="mt-4">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/62">
+                                <p className="text-micro font-semibold uppercase tracking-[0.14em] text-white/62">
                                   Ваше описание
                                 </p>
                                 <p className="mt-1.5 whitespace-pre-wrap text-sm leading-5 text-white/62">

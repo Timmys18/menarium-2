@@ -46,7 +46,7 @@ export function ItemImageGallery({
               type="button"
               onClick={() => showRelativeImage(-1)}
               aria-label="Предыдущее фото"
-              className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[15px] border border-white/12 bg-[#080c13]/72 text-white/76 shadow-lg backdrop-blur-xl transition hover:bg-[#080c13]/90 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+              className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[15px] border border-white/12 bg-[var(--surface-sunken)]/72 text-white/76 shadow-lg backdrop-blur-xl transition hover:bg-[var(--surface-sunken)]/90 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -54,11 +54,11 @@ export function ItemImageGallery({
               type="button"
               onClick={() => showRelativeImage(1)}
               aria-label="Следующее фото"
-              className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[15px] border border-white/12 bg-[#080c13]/72 text-white/76 shadow-lg backdrop-blur-xl transition hover:bg-[#080c13]/90 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+              className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[15px] border border-white/12 bg-[var(--surface-sunken)]/72 text-white/76 shadow-lg backdrop-blur-xl transition hover:bg-[var(--surface-sunken)]/90 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
-            <span className="absolute bottom-3 right-3 rounded-full border border-white/10 bg-[#080c13]/76 px-3 py-1.5 text-xs text-white/70 backdrop-blur-xl">
+            <span className="absolute bottom-3 right-3 rounded-full border border-white/10 bg-[var(--surface-sunken)]/76 px-3 py-1.5 text-xs text-white/70 backdrop-blur-xl">
               {activeIndex + 1} / {images.length}
             </span>
           </>

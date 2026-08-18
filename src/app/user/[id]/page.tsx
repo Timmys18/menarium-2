@@ -260,7 +260,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[15px] border border-white/7 bg-black/10 px-3 py-3">
                     <p className="text-lg font-semibold text-white/88">{value}</p>
-                    <p className="mt-0.5 text-[11px] text-white/62">{label}</p>
+                    <p className="mt-0.5 text-micro text-white/62">{label}</p>
                   </div>
                 ))}
               </div>

@@ -249,7 +249,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                       >
                         <MessageCircle className="h-5 w-5" />
                         {chat.unread ? (
-                          <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-amber-300 px-1 text-[9px] font-bold text-[#171008]">
+                          <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-amber-300 px-1 text-micro font-bold text-[#171008]">
                             {chat.unread > 9 ? "9+" : chat.unread}
                           </span>
                         ) : null}

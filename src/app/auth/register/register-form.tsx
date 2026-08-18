@@ -161,7 +161,7 @@ export function RegisterForm() {
           {passwordChecks.map((check) => (
             <span
               key={check.id}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-micro transition ${
                 check.passed
                   ? "border-teal-300/20 bg-teal-300/[0.08] text-teal-100"
                   : "border-white/8 bg-white/[0.025] text-white/62"

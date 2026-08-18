@@ -94,18 +94,18 @@ export function SwipeLikeModal({
 
       <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center gap-2 rounded-[18px] border border-white/8 bg-white/[0.035] p-4">
         <div className="min-w-0">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/62">Вы отдаёте</span>
+          <span className="block text-micro font-semibold uppercase tracking-[0.12em] text-white/62">Вы отдаёте</span>
           <span className="mt-1 block truncate text-sm font-medium text-white">{senderTitle}</span>
         </div>
         <ArrowRightLeft className="h-4 w-4 justify-self-center text-teal-200" />
         <div className="min-w-0 text-right">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/62">Получаешь</span>
+          <span className="block text-micro font-semibold uppercase tracking-[0.12em] text-white/62">Получаешь</span>
           <span className="mt-1 block truncate text-sm font-medium text-white">{receiverTitle}</span>
         </div>
       </div>
 
       <div className="mt-3 rounded-[16px] border border-teal-300/[0.12] bg-teal-300/[0.045] px-3.5 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-teal-100/62">Владелец ищет</p>
+        <p className="text-micro font-semibold uppercase tracking-[0.13em] text-teal-100/62">Владелец ищет</p>
         <p className="mt-1 text-sm leading-5 text-white/78">{receiverWanted}</p>
       </div>
 

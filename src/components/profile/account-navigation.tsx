@@ -58,7 +58,7 @@ export function AccountNavigation({ counts }: AccountNavigationProps) {
             <Icon className={cn("h-4 w-4", active ? "text-teal-200" : "text-white/78")} />
             <span className="min-w-0 flex-1 truncate">{entry.label}</span>
             {count > 0 ? (
-              <span className="rounded-full bg-teal-300/12 px-2 py-0.5 text-[10px] font-semibold text-teal-100/75">
+              <span className="rounded-full bg-teal-300/12 px-2 py-0.5 text-micro font-semibold text-teal-100/75">
                 {count > 99 ? "99+" : count}
               </span>
             ) : null}

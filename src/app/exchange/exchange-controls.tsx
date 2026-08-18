@@ -299,7 +299,7 @@ function ExchangeProgress({
                 </span>
                 <span className="min-w-0">
                   <span className="block text-xs font-semibold text-white/84">{step.label}</span>
-                  <span className="mt-0.5 block text-[11px] leading-4 text-white/62">{step.detail}</span>
+                  <span className="mt-0.5 block text-micro leading-4 text-white/62">{step.detail}</span>
                 </span>
               </li>
             );
@@ -362,7 +362,7 @@ export function ExchangeDealPanel({
   const chatSection = (
     <section
       id="exchange-chat"
-      className="min-w-0 max-w-full scroll-mt-24 overflow-hidden rounded-[22px] border border-white/10 bg-[#0a1018]/72"
+      className="min-w-0 max-w-full scroll-mt-24 overflow-hidden rounded-[22px] border border-white/10 bg-[var(--surface-sunken)]/72"
       tabIndex={-1}
       aria-labelledby="exchange-chat-title"
     >

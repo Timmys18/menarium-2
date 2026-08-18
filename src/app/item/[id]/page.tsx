@@ -561,20 +561,20 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     </span>
                     <span className="mt-3 flex flex-wrap gap-2 border-t border-white/7 pt-3">
                       {ownerReputation.averageRating ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/12 bg-amber-300/[0.055] px-2.5 py-1 text-[11px] text-amber-100/70">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/12 bg-amber-300/[0.055] px-2.5 py-1 text-micro text-amber-100/70">
                           <Star className="h-3 w-3 fill-current" />
                           {ownerReputation.averageRating.toFixed(1)} · {ownerReputation.reviewCount} отзывов
                         </span>
                       ) : (
-                        <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/62">
+                        <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-micro text-white/62">
                           {ownerReputation.label}
                         </span>
                       )}
-                      <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/62">
+                      <span className="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-micro text-white/62">
                         {ownerCompletedSwaps} завершённых обменов
                       </span>
                       {item.owner.emailVerified ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-300/12 bg-teal-300/[0.045] px-2.5 py-1 text-[11px] text-teal-100/65">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-300/12 bg-teal-300/[0.045] px-2.5 py-1 text-micro text-teal-100/65">
                           <ShieldCheck className="h-3 w-3" />
                           Email подтверждён
                         </span>
@@ -689,7 +689,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
             />
           ) : null}
           {!showChatPanel && !isOwner && canInteract && !communicationBlocked ? (
-            <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-lg grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-[22px] border border-white/12 bg-[#090e16]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
+            <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-lg grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-[22px] border border-white/12 bg-[var(--surface-sunken)]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
               <MenariumLinkButton
                 href={
                   userId

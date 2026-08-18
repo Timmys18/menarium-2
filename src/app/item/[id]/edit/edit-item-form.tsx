@@ -236,7 +236,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                     className="object-cover"
                   />
                   {index === 0 ? (
-                    <span className="absolute bottom-2 left-2 rounded-full bg-black/65 px-2 py-1 text-[10px] font-medium text-white/80">
+                    <span className="absolute bottom-2 left-2 rounded-full bg-black/65 px-2 py-1 text-micro font-medium text-white/80">
                       Обложка
                     </span>
                   ) : null}
@@ -245,7 +245,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                   aria-label={`Удалить фото ${index + 1}`}
                   onClick={() => void removeImage(image)}
                   disabled={removingImageId === image.id || isSubmitting}
-                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d131d] disabled:opacity-50"
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)] disabled:opacity-50"
                 >
                   {removingImageId === image.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

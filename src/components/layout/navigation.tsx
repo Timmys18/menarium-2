@@ -38,8 +38,8 @@ function CountBadge({ count, compact = false }: { count: number; compact?: boole
       className={cn(
         "flex items-center justify-center rounded-full bg-amber-300 font-bold text-[#151008] shadow-[0_0_18px_rgba(255,188,114,0.3)]",
         compact
-          ? "absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[9px] leading-none"
-          : "min-w-5 px-1.5 py-0.5 text-[10px]",
+          ? "absolute -right-1 -top-1 h-4 min-w-4 px-1 text-micro leading-none"
+          : "min-w-5 px-1.5 py-0.5 text-micro",
       )}
       aria-label={`${count} новых`}
     >
@@ -206,7 +206,7 @@ export function Navigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[11px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                      "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-micro font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                       active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/62",
                       item.primary && "text-white/86",
                     )}

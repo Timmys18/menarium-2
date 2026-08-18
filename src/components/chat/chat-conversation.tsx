@@ -126,6 +126,7 @@ export function ChatConversation({
   emptyMessage,
   draftKey,
   kind,
+  fill = false,
 }: {
   target: ConversationTarget | null;
   resolveTarget?: () => Promise<ConversationTarget>;
@@ -139,6 +140,13 @@ export function ChatConversation({
   emptyMessage: string;
   draftKey: string;
   kind: "DEAL" | "ITEM";
+  /**
+   * Растягивает ленту на всю доступную высоту вместо фиксированных 32rem.
+   * Нужен на телефоне, где чат занимает экран целиком: при фиксированной
+   * высоте поле ввода уезжало за нижний край, и ответить можно было, только
+   * прокрутив страницу.
+   */
+  fill?: boolean;
 }) {
   const router = useRouter();
   const draftStorageKey = `menarium:chat-draft:v1:${currentUserId}:${draftKey}`;
@@ -535,7 +543,7 @@ export function ChatConversation({
 
   return (
     <div
-      className="min-w-0 max-w-full"
+      className={cn("min-w-0 max-w-full", fill && "flex h-full flex-col")}
       data-realtime-connected={target ? String(connected) : undefined}
     >
       {target ? (
@@ -556,7 +564,13 @@ export function ChatConversation({
             onClick={() => void toggleMuted()}
             disabled={!preferenceReady || isChangingPreference}
             aria-label={muted ? "Включить уведомления этого чата" : "Отключить уведомления этого чата"}
-            title={muted ? "Уведомления этого чата отключены" : "Отключить уведомления этого чата"}
+            title={
+              pushState === "blocked"
+                ? "Уведомления запрещены в настройках браузера"
+                : muted
+                  ? "Уведомления этого чата отключены"
+                  : "Отключить уведомления этого чата"
+            }
             className={cn(
               "inline-flex h-11 w-11 items-center justify-center rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70",
               muted
@@ -585,7 +599,10 @@ export function ChatConversation({
         role="log"
         aria-live="polite"
         aria-label="Сообщения чата"
-        className="max-h-[32rem] space-y-2 overflow-y-auto overscroll-contain pr-1"
+        className={cn(
+          "space-y-2 overflow-y-auto overscroll-contain pr-1",
+          fill ? "min-h-0 flex-1" : "max-h-[32rem]",
+        )}
       >
         {nextCursor ? (
           <div className="flex justify-center pb-2">
@@ -612,7 +629,7 @@ export function ChatConversation({
                 {showDay ? (
                   <div className="my-4 flex items-center gap-3" aria-label={formatDay(message.createdAt)}>
                     <span className="h-px flex-1 bg-white/[0.06]" />
-                    <span className="text-[11px] font-medium text-white/62">{formatDay(message.createdAt)}</span>
+                    <span className="text-micro font-medium text-white/62">{formatDay(message.createdAt)}</span>
                     <span className="h-px flex-1 bg-white/[0.06]" />
                   </div>
                 ) : null}
@@ -638,7 +655,7 @@ export function ChatConversation({
                   >
                     {message.replyTo ? (
                       <div className="mb-2 border-l-2 border-teal-300/45 pl-2.5 text-xs text-white/62">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-teal-200/65">
+                        <span className="block text-micro font-semibold uppercase tracking-[0.08em] text-teal-200/65">
                           {message.replyTo.senderId === currentUserId ? "Вы" : "Собеседник"}
                         </span>
                         <span className="mt-0.5 block max-w-[18rem] truncate">
@@ -668,7 +685,7 @@ export function ChatConversation({
                       </div>
                     ) : null}
                     {message.text ? <p className="whitespace-pre-wrap break-words">{message.text}</p> : null}
-                    <div className="mt-1.5 flex items-center justify-end gap-1.5 text-[10px] text-white/62">
+                    <div className="mt-1.5 flex items-center justify-end gap-1.5 text-micro text-white/62">
                       <time dateTime={message.createdAt} suppressHydrationWarning>
                         {formatMessageTime(message.createdAt)}
                       </time>
@@ -723,7 +740,7 @@ export function ChatConversation({
           <div className="flex items-center gap-3 rounded-[15px] border border-teal-300/12 bg-teal-300/[0.045] px-3 py-2.5">
             <Reply className="h-4 w-4 shrink-0 text-teal-200/65" />
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-200/65">
+              <p className="text-micro font-semibold uppercase tracking-[0.1em] text-teal-200/65">
                 Ответ
               </p>
               <p className="truncate text-xs text-white/62">{messageSummary(replyingTo)}</p>
@@ -826,15 +843,14 @@ export function ChatConversation({
           ) : (
             <span />
           )}
+          {/*
+            Состояние разрешений браузера — не постоянная подпись к полю ввода.
+            Показываем только то, что влияет на отправку прямо сейчас;
+            «уведомления запрещены» уходит в подсказку кнопки колокольчика,
+            где пользователь и будет их искать.
+          */}
           {target && !connected ? (
             <span className="shrink-0 text-amber-200/60">Восстанавливаем связь…</span>
-          ) : pushState === "enabled" ? (
-            <span className="flex shrink-0 items-center gap-1.5 text-teal-200/55">
-              <Bell className="h-3 w-3" />
-              Уведомления включены
-            </span>
-          ) : pushState === "blocked" ? (
-            <span className="shrink-0 text-white/62">Уведомления запрещены в браузере</span>
           ) : null}
         </div>
       </form>

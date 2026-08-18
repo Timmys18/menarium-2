@@ -218,7 +218,7 @@ export default async function ProductAnalyticsPage() {
                         <div key={step.key}>
                           <div className="mb-2 flex items-baseline justify-between gap-3">
                             <div className="flex items-center gap-3">
-                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 text-[11px] text-white/62">
+                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 text-micro text-white/62">
                                 {index + 1}
                               </span>
                               <span className="text-sm font-medium">{step.label}</span>
@@ -290,7 +290,7 @@ export default async function ProductAnalyticsPage() {
                       </div>
                       <p className="mt-2 text-sm text-white/62">14 дней · московское время</p>
                     </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-white/62">
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-micro text-white/62">
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-sky-400" />Регистрации</span>
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-teal-400" />Вещи</span>
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-amber-300" />Предложения</span>
@@ -307,7 +307,7 @@ export default async function ProductAnalyticsPage() {
                           <span className="w-1/4 rounded-t-sm bg-amber-300/80" style={{ height: `${Math.max(day.proposals ? 4 : 0, (day.proposals / maxDailyActivity) * 100)}%` }} />
                           <span className="w-1/4 rounded-t-sm bg-emerald-300/80" style={{ height: `${Math.max(day.completions ? 4 : 0, (day.completions / maxDailyActivity) * 100)}%` }} />
                         </div>
-                        <span className="mt-2 text-center text-[10px] text-white/62">
+                        <span className="mt-2 text-center text-micro text-white/62">
                           <span className="sm:hidden">{Number(day.day.slice(-2))}</span>
                           <span className="hidden sm:inline">
                             {shortDateFormatter.format(new Date(`${day.day}T12:00:00Z`)).replace(".", "")}

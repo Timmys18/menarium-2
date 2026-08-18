@@ -45,7 +45,7 @@ export function MarkNotificationRead({ id }: { id: string }) {
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
         <span className="sr-only sm:not-sr-only">{isPending ? "Сохраняем…" : "Прочитать"}</span>
       </button>
-      {error ? <span role="alert" className="max-w-40 text-right text-[10px] leading-4 text-red-200">{error}</span> : null}
+      {error ? <span role="alert" className="max-w-40 text-right text-micro leading-4 text-red-200">{error}</span> : null}
     </div>
   );
 }

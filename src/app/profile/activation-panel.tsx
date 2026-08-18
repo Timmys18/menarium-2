@@ -100,7 +100,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
                   </span>
                   <p
                     className={cn(
-                      "mt-2 hidden truncate text-[11px] sm:block",
+                      "mt-2 hidden truncate text-micro sm:block",
                       current ? "font-semibold text-white/78" : "text-white/62",
                     )}
                     title={step.label}

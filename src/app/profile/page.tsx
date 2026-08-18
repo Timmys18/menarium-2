@@ -157,7 +157,7 @@ export default async function ProfilePage({
                       <Link
                         href={`/item/${item.id}/edit`}
                         aria-label={`Редактировать «${item.title}»`}
-                        className="flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[#090d14]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+                        className="flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[var(--surface-sunken)]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>
@@ -166,7 +166,7 @@ export default async function ProfilePage({
                   {item.status !== ItemStatus.ACTIVE ? (
                     <Badge
                       variant={item.status === ItemStatus.IN_DEAL ? "teal" : "glass"}
-                      className="absolute bottom-4 left-4 z-20 bg-[#090d14]/86"
+                      className="absolute bottom-4 left-4 z-20 bg-[var(--surface-sunken)]/86"
                     >
                       {item.status === ItemStatus.IN_DEAL
                         ? "В обмене"

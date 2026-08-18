@@ -253,7 +253,13 @@ export default async function CatalogPage({ searchParams }: Props) {
 
           <div className="flex gap-8">
             <aside className="hidden w-72 shrink-0 lg:block">
-              <SurfaceCard className="sticky top-28 p-5">
+              {/*
+                Панель фильтров выше экрана переставала «прилипать» и уезжала
+                под шапку — верхние сортировки скрывались за навигацией.
+                Ограничение высоты оставшимся местом плюс собственная прокрутка
+                возвращают sticky нормальное поведение.
+              */}
+              <SurfaceCard className="menarium-scrollbar sticky top-28 max-h-[calc(100dvh-9rem)] overflow-y-auto overscroll-contain p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-semibold">Настроить выдачу</h2>
                   {activeFilterCount > 0 ? (

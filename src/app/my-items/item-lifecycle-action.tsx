@@ -57,7 +57,7 @@ export function ItemLifecycleAction({
           title="Вернуть в каталог"
           onClick={() => void runAction()}
           disabled={pending}
-          className="flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[#090d14]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+          className="flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[var(--surface-sunken)]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
         </button>
@@ -92,7 +92,7 @@ export function ItemLifecycleAction({
         }}
         className={cn(
           compact
-            ? "flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[#090d14]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+            ? "flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[var(--surface-sunken)]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
             : "inline-flex min-h-11 items-center justify-center gap-2 rounded-[14px] px-4 text-sm font-semibold text-white/82 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70",
         )}
       >

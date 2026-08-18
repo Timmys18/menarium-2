@@ -465,7 +465,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                     >
                       <span className="sm:hidden">{mobileLabel}</span>
                       <span className="hidden sm:inline">{label}</span>
-                      <span className={cn("ml-1.5 text-[11px] sm:ml-2 sm:text-xs", tab === activeTab ? "text-white/78" : "text-white/62")}>
+                      <span className={cn("ml-1.5 text-micro sm:ml-2 sm:text-xs", tab === activeTab ? "text-white/78" : "text-white/62")}>
                         {count}
                       </span>
                     </Link>
@@ -579,7 +579,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                     />
                                   </div>
                                   <div className="flex min-w-0 flex-col justify-center p-3.5 sm:p-4">
-                                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-200/70">Вы получаете</span>
+                                    <span className="text-micro font-semibold uppercase tracking-[0.12em] text-teal-200/70">Вы получаете</span>
                                     <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-white">{theirItem.title}</h3>
                                     <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/62">{theirCard.category} · {theirCard.city}</p>
                                   </div>
@@ -589,7 +589,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                     <ItemCoverImage src={yourCard.image} alt={yourItem.title} sizes="44px" />
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-200/60">Вы предложили</span>
+                                    <span className="block text-micro font-semibold uppercase tracking-[0.1em] text-teal-200/60">Вы предложили</span>
                                     <span className="mt-0.5 block truncate text-sm font-semibold text-white/82">{yourItem.title}</span>
                                   </div>
                                   <BrandMark size="xs" className="h-7 w-7" />
@@ -702,7 +702,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                 />
                               </div>
                               <div className="p-4">
-                                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-200/65">{entry.label}</span>
+                                <span className="text-micro font-semibold uppercase tracking-[0.12em] text-teal-200/65">{entry.label}</span>
                                 <h3 className="mt-1.5 line-clamp-2 min-h-10 font-semibold text-white">{entry.item.title}</h3>
                                 <p className="mt-2 text-xs text-white/62">{entry.card.category} · {entry.card.city}</p>
                               </div>
