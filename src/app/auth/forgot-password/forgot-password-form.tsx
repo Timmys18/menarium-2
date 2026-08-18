@@ -46,7 +46,7 @@ export function ForgotPasswordForm() {
     <form className="space-y-4" onSubmit={submit}>
       <p className="text-sm text-white/62">Укажите email — мы пришлём ссылку для нового пароля.</p>
       <div className="space-y-2.5">
-        <label htmlFor="forgot-password-email" className="block text-sm font-medium text-white/75">
+        <label htmlFor="forgot-password-email" className="block text-sm font-medium text-white/78">
           Электронная почта
         </label>
         <MenariumInput
@@ -63,13 +63,13 @@ export function ForgotPasswordForm() {
         />
       </div>
       {error ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
           {error}
         </div>
       ) : null}
       {message ? (
         <div
-          className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100"
+          className="rounded-control border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100"
           role="status"
         >
           {message}

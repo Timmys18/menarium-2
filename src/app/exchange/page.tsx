@@ -363,20 +363,20 @@ export async function ExchangePageContent({ searchParams }: Props) {
             </div>
             {userId && totalSwaps > 0 ? (
               needsResponseCount > 0 ? (
-                <div className="inline-flex items-center gap-3 self-start rounded-[18px] border border-teal-300/25 bg-teal-300/[0.08] px-4 py-3 md:self-auto">
+                <div className="inline-flex items-center gap-3 self-start rounded-md border border-teal-300/25 bg-teal-300/[0.08] px-4 py-3 md:self-auto">
                   <Clock3 className="h-5 w-5 text-teal-200" />
                   <div>
                     <p className="text-sm font-semibold text-white">Нужно ответить: {needsResponseCount}</p>
                     <Link
                       href={exchangeHref("incoming")}
-                      className="-ml-2 inline-flex min-h-11 items-center rounded-xl px-2 text-xs font-medium text-teal-200/76 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                      className="-ml-2 inline-flex min-h-11 items-center rounded-xs px-2 text-xs font-medium text-teal-200/76 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                     >
                       Посмотреть входящие
                     </Link>
                   </div>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/62 md:self-auto">
+                <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/62 md:self-auto">
                   <CheckCircle2 className="h-4 w-4 text-teal-300" />
                   Новых решений не требуется
                 </div>
@@ -386,7 +386,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
 
           {showSentNotice ? (
             <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300 text-[#07130f]">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-teal-300 text-[#07130f]">
                 <CheckCircle2 className="h-5 w-5" />
               </span>
               <div>
@@ -400,7 +400,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
 
           {showAcceptedNotice ? (
             <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300 text-[#07130f]">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-teal-300 text-[#07130f]">
                 <CheckCircle2 className="h-5 w-5" />
               </span>
               <div className="min-w-0">
@@ -410,7 +410,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                 </p>
                 <a
                   href="#exchange-chat"
-                  className="-ml-2 mt-2 inline-flex min-h-11 items-center rounded-xl px-2 text-sm font-semibold text-teal-200 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                  className="-ml-2 mt-2 inline-flex min-h-11 items-center rounded-xs px-2 text-sm font-semibold text-teal-200 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   Открыть чат ↓
                 </a>
@@ -442,7 +442,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
             <>
               <div
                 className={cn(
-                  "mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.025] p-2 sm:flex-row sm:items-center sm:justify-between",
+                  "mb-5 flex flex-col gap-3 rounded-card border border-white/8 bg-white/[0.03] p-2 sm:flex-row sm:items-center sm:justify-between",
                   params.swap ? "hidden lg:flex" : "",
                 )}
               >
@@ -457,10 +457,10 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       href={exchangeHref(tab, tab === activeTab ? selectedSwap?.id : undefined, activeFilter)}
                       aria-current={tab === activeTab ? "page" : undefined}
                       className={cn(
-                        "min-w-0 overflow-hidden rounded-[15px] px-2 py-2.5 text-xs font-medium transition sm:shrink-0 sm:px-4 sm:text-sm",
+                        "min-w-0 overflow-hidden rounded-control px-2 py-2.5 text-xs font-medium transition sm:shrink-0 sm:px-4 sm:text-sm",
                         tab === activeTab
                           ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white shadow-[0_10px_24px_rgba(77,141,255,0.18)]"
-                          : "text-white/62 hover:bg-white/[0.06] hover:text-white",
+                          : "text-white/62 hover:bg-white/[0.05] hover:text-white",
                       )}
                     >
                       <span className="sm:hidden">{mobileLabel}</span>
@@ -472,7 +472,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                   ))}
                 </nav>
 
-                <nav className="flex gap-1 border-t border-white/7 pt-2 sm:border-l sm:border-t-0 sm:pl-2 sm:pt-0" aria-label="Состояние обменов">
+                <nav className="flex gap-1 border-t border-white/8 pt-2 sm:border-l sm:border-t-0 sm:pl-2 sm:pt-0" aria-label="Состояние обменов">
                   {([
                     ["active", "Сейчас"],
                     ["history", "История"],
@@ -482,10 +482,10 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       href={exchangeHref(activeTab, undefined, filter)}
                       aria-current={activeFilter === filter ? "page" : undefined}
                       className={cn(
-                        "inline-flex min-h-11 items-center rounded-[13px] px-4 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                        "inline-flex min-h-11 items-center rounded-xs px-4 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                         activeFilter === filter
-                          ? "bg-white/[0.11] text-white"
-                          : "text-white/62 hover:bg-white/[0.05] hover:text-white/80",
+                          ? "bg-white/[0.10] text-white"
+                          : "text-white/62 hover:bg-white/[0.05] hover:text-white/78",
                       )}
                     >
                       {label}
@@ -553,10 +553,10 @@ export async function ExchangePageContent({ searchParams }: Props) {
                             href={`${exchangeHref(activeTab, swap.id, activeFilter, page)}#exchange-detail`}
                             aria-current={selected ? "true" : undefined}
                             className={cn(
-                              "group block rounded-[20px] border p-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75 sm:p-4",
+                              "group block rounded-md border p-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:p-4",
                               selected
                                 ? "border-blue-300/30 bg-blue-400/[0.075] shadow-[0_14px_34px_rgba(0,0,0,0.16)]"
-                                : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.05]",
+                                : "border-white/8 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]",
                             )}
                           >
                             <article>
@@ -568,14 +568,14 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                 <Badge variant={presentation.variant}>{presentation.label}</Badge>
                               </div>
 
-                              <div className="mt-3 overflow-hidden rounded-[17px] border border-white/8 bg-[#0a111b]/72">
+                              <div className="mt-3 overflow-hidden rounded-control border border-white/8 bg-[#0a111b]/72">
                                 <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] sm:grid-cols-[9rem_minmax(0,1fr)]">
                                   <div className="relative min-h-32 overflow-hidden bg-white/[0.03] sm:min-h-36">
                                     <ItemCoverImage
                                       src={theirCard.image}
                                       alt={theirItem.title}
                                       sizes="(max-width: 640px) 120px, 144px"
-                                      imageClassName="transition-transform duration-500 group-hover:scale-105"
+                                      imageClassName="transition-transform duration-[var(--duration-slow)] group-hover:scale-105"
                                     />
                                   </div>
                                   <div className="flex min-w-0 flex-col justify-center p-3.5 sm:p-4">
@@ -584,19 +584,19 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                     <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/62">{theirCard.category} · {theirCard.city}</p>
                                   </div>
                                 </div>
-                                <div className="mx-3 flex items-center gap-3 border-t border-white/7 py-3">
-                                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[12px] border border-white/8 bg-white/[0.03]">
+                                <div className="mx-3 flex items-center gap-3 border-t border-white/8 py-3">
+                                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xs border border-white/8 bg-white/[0.03]">
                                     <ItemCoverImage src={yourCard.image} alt={yourItem.title} sizes="44px" />
                                   </div>
                                   <div className="min-w-0 flex-1">
                                     <span className="block text-micro font-semibold uppercase tracking-[0.1em] text-teal-200/60">Вы предложили</span>
-                                    <span className="mt-0.5 block truncate text-sm font-semibold text-white/82">{yourItem.title}</span>
+                                    <span className="mt-0.5 block truncate text-sm font-semibold text-white/88">{yourItem.title}</span>
                                   </div>
                                   <BrandMark size="xs" className="h-7 w-7" />
                                 </div>
                               </div>
 
-                              <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/7 pt-3 text-xs">
+                              <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/8 pt-3 text-xs">
                                 <span className="line-clamp-1 text-white/62">{presentation.description}</span>
                                 <span className="inline-flex shrink-0 items-center gap-1.5 font-medium text-teal-200">
                                   {swap.status === SwapStatus.ACCEPTED ? <MessageCircle className="h-3.5 w-3.5" /> : null}
@@ -611,11 +611,11 @@ export async function ExchangePageContent({ searchParams }: Props) {
                   )}
 
                   {exchangeTotalPages > 1 ? (
-                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-white/7 pt-5">
+                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-white/8 pt-5">
                       {page > 1 ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page - 1)}
-                          className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/78 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65"
+                          className="inline-flex min-h-11 items-center rounded-control border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/78 transition hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                         >
                           ← Назад
                         </Link>
@@ -626,7 +626,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {exchangeHasMore ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page + 1)}
-                          className="inline-flex min-h-11 items-center rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                          className="inline-flex min-h-11 items-center rounded-control bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                         >
                           Дальше →
                         </Link>
@@ -647,14 +647,14 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {params.swap ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page)}
-                          className="mb-4 inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-white/78 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65 lg:hidden"
+                          className="mb-4 inline-flex min-h-11 items-center rounded-xs px-2 text-sm text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden"
                         >
                           ← Все обмены
                         </Link>
                       ) : null}
                       <div className="mb-4 flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-blue-500/20 to-teal-400/15">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-gradient-to-br from-blue-500/20 to-teal-400/15">
                             <MessageCircle className="h-5 w-5 text-teal-200" />
                           </div>
                           <div className="min-w-0">
@@ -688,12 +688,12 @@ export async function ExchangePageContent({ searchParams }: Props) {
                           <div key={entry.item.id} className={cn("contents", index === 1 && "sm:contents")}>
                             {index === 1 ? (
                               <div className="flex items-center gap-3 sm:block">
-                                <span className="h-px flex-1 bg-white/8 sm:hidden" />
+                                <span className="h-px flex-1 bg-white/[0.07] sm:hidden" />
                                 <BrandMark size="md" className="h-10 w-10 sm:mx-auto" />
-                                <span className="h-px flex-1 bg-white/8 sm:hidden" />
+                                <span className="h-px flex-1 bg-white/[0.07] sm:hidden" />
                               </div>
                             ) : null}
-                            <article className="overflow-hidden rounded-[20px] border border-white/8 bg-white/[0.025]">
+                            <article className="overflow-hidden rounded-md border border-white/8 bg-white/[0.03]">
                               <div className="relative aspect-[16/10] overflow-hidden bg-white/[0.03]">
                                 <ItemCoverImage
                                   src={entry.card.image}
@@ -763,10 +763,10 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {selectedPartner ? (
                         <section
                           aria-labelledby="exchange-safety-title"
-                          className="mt-5 rounded-[18px] border border-white/8 bg-white/[0.025] p-4"
+                          className="mt-5 rounded-md border border-white/8 bg-white/[0.03] p-4"
                         >
                           <div className="mb-3 flex items-start gap-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] bg-teal-400/10 text-teal-200">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xs bg-teal-400/10 text-teal-200">
                               <ShieldCheck className="h-4.5 w-4.5" />
                             </span>
                             <div>

@@ -99,7 +99,7 @@ export function MenariumDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
-        className="dialog-panel app-chrome w-full max-w-lg rounded-[28px] p-6 shadow-2xl shadow-black/60 sm:p-7"
+        className="dialog-panel app-chrome w-full max-w-lg rounded-lg p-6 shadow-2xl shadow-black/60 sm:p-7"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -122,7 +122,7 @@ export function MenariumDialog({
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white/78 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xs text-white/78 transition hover:bg-white/[0.10] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             <X className="h-5 w-5" />
           </button>

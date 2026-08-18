@@ -8,15 +8,15 @@ export default function SafetyLoading() {
           <Skeleton className="h-12 w-80 max-w-full" />
           <Skeleton className="h-5 w-[34rem] max-w-full" />
         </div>
-        <Skeleton className="h-16 w-full rounded-[20px]" />
+        <Skeleton className="h-16 w-full rounded-md" />
         <div className="grid gap-4 md:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-28 rounded-[24px]" />
+            <Skeleton key={index} className="h-28 rounded-card" />
           ))}
         </div>
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-44 rounded-[28px]" />
+            <Skeleton key={index} className="h-44 rounded-lg" />
           ))}
         </div>
     </div>

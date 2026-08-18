@@ -57,7 +57,7 @@ export function ItemCard({
       <ItemContextLink
         href={itemHref}
         returnHref={returnHref}
-        className="absolute inset-0 z-10 rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70 sm:rounded-[28px]"
+        className="absolute inset-0 z-10 rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] sm:rounded-lg"
       >
         <span className="sr-only">Открыть объявление «{title}»</span>
       </ItemContextLink>
@@ -70,7 +70,7 @@ export function ItemCard({
             alt={title}
             priority={priority}
             sizes="(max-width: 640px) 100vw, (max-width: 1535px) 50vw, 33vw"
-            imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
+            imageClassName="transition-transform duration-[var(--duration-slow)] group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--surface-card)]/85 to-transparent" />
           {/*
@@ -92,7 +92,7 @@ export function ItemCard({
             </Badge>
           </div>
           {flexible ? (
-            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--surface-sunken)]/88 px-3 py-1.5 text-micro font-medium text-white/82">
+            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--surface-sunken)]/88 px-3 py-1.5 text-micro font-medium text-white/88">
               <Sparkles className="h-3 w-3 text-teal-200" />
               Открыт к вариантам
             </div>
@@ -111,7 +111,7 @@ export function ItemCard({
         ) : null}
         <div className="flex flex-1 flex-col p-4 sm:p-5.5">
           {recommendationReason ? (
-            <div className="mb-3 flex items-start gap-2 rounded-[13px] border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">
+            <div className="mb-3 flex items-start gap-2 rounded-xs border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">
               <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
               <span>{recommendationReason}</span>
             </div>
@@ -125,12 +125,12 @@ export function ItemCard({
               </span>
             ) : null}
           </div>
-          <div className="mt-auto rounded-[15px] border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
+          <div className="mt-auto rounded-control border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
             <span className="mb-1.5 flex items-center gap-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-teal-100/78">
               <ArrowRightLeft className="h-3.5 w-3.5 text-teal-200" />
               Ищу взамен
             </span>
-            <span className="line-clamp-2 block text-sm leading-5 text-white/82">{wanted}</span>
+            <span className="line-clamp-2 block text-sm leading-5 text-white/88">{wanted}</span>
           </div>
           <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/78">
             {city ? (

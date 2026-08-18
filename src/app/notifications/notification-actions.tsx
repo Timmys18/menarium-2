@@ -40,7 +40,7 @@ export function MarkNotificationRead({ id }: { id: string }) {
         onClick={markRead}
         disabled={isPending}
         aria-label="Отметить уведомление прочитанным"
-        className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs text-teal-200 transition-colors hover:bg-teal-300/[0.08] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 disabled:opacity-50"
+        className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xs px-3 py-2 text-xs text-teal-200 transition-colors hover:bg-teal-300/[0.08] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50"
       >
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
         <span className="sr-only sm:not-sr-only">{isPending ? "Сохраняем…" : "Прочитать"}</span>

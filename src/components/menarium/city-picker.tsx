@@ -72,7 +72,7 @@ export function CityPicker({
         aria-controls={open ? listId : undefined}
         aria-haspopup="listbox"
         onClick={toggleList}
-        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-[var(--surface-input)] px-4 py-3 text-left text-white outline-none transition hover:border-white/20 focus-visible:ring-2 focus-visible:ring-blue-300/50"
+        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-control border border-white/10 bg-[var(--surface-input)] px-4 py-3 text-left text-white outline-none transition hover:border-white/20 focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       >
         <span className="flex min-w-0 items-center gap-2">
           <MapPin className="h-4 w-4 shrink-0 text-teal-200" />
@@ -83,10 +83,10 @@ export function CityPicker({
 
       {open ? (
         <div className={cn(
-          "w-full overflow-hidden rounded-[18px] border border-white/12 bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
+          "w-full overflow-hidden rounded-md border border-white/10 bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
           inline ? "relative mt-2" : cn("absolute left-0 z-[70]", placement === "up" ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"),
         )}>
-          <label className="flex min-h-11 items-center gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-white/78">
+          <label className="flex min-h-11 items-center gap-2 rounded-xs bg-white/[0.05] px-3 py-2 text-white/78">
             <Search className="h-4 w-4 shrink-0" />
             <span className="sr-only">Найти город в списке</span>
             <input
@@ -103,7 +103,7 @@ export function CityPicker({
               className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/62"
             />
             {query ? (
-              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="-mr-3 flex h-11 w-11 items-center justify-center text-white/78 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65">
+              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="-mr-3 flex h-11 w-11 items-center justify-center text-white/78 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
                 <X className="h-4 w-4" />
               </button>
             ) : null}
@@ -129,7 +129,7 @@ export function CityPicker({
                     setQuery("");
                   }}
                   className={cn(
-                    "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/65",
+                    "flex min-h-11 w-full items-center justify-between gap-3 rounded-xs px-3 py-2.5 text-left transition hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]",
                     active && "bg-teal-300/[0.09]",
                   )}
                 >

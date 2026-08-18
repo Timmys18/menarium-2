@@ -7,8 +7,8 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const variants: Record<ButtonVariant, string> = {
   primary: "border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow-[0_14px_34px_rgba(77,141,255,0.22)] hover:shadow-[0_18px_42px_rgba(56,214,178,0.2)]",
-  secondary: "border border-white/12 bg-white/[0.055] text-white font-semibold shadow-sm hover:border-white/20 hover:bg-white/[0.09]",
-  ghost: "text-white/62 hover:bg-white/[0.055] hover:text-white",
+  secondary: "border border-white/10 bg-white/[0.05] text-white font-semibold shadow-sm hover:border-white/20 hover:bg-white/[0.07]",
+  ghost: "text-white/62 hover:bg-white/[0.05] hover:text-white",
   danger: "bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25",
 };
 
@@ -32,7 +32,7 @@ export function MenariumButton({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-[14px] transition duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+        "inline-flex items-center justify-center gap-2 rounded-control transition duration-[var(--duration-base)] hover:-translate-y-0.5 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
         variants[variant],
         sizes[size],
         className,
@@ -60,7 +60,7 @@ export function MenariumLinkButton({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-[14px] transition duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+        "inline-flex items-center justify-center gap-2 rounded-control transition duration-[var(--duration-base)] hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
         variants[variant],
         sizes[size],
         className,

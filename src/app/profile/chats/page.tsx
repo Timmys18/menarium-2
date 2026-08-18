@@ -204,7 +204,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
             />
           ) : (
             <>
-              <nav aria-label="Фильтр чатов" className="mb-5 flex gap-2 rounded-[20px] border border-white/8 bg-white/[0.025] p-2">
+              <nav aria-label="Фильтр чатов" className="mb-5 flex gap-2 rounded-md border border-white/8 bg-white/[0.03] p-2">
                 {([
                   ["unread", "Новые", unreadChatCount],
                   ["all", "Все", allChatCount],
@@ -214,14 +214,14 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                     href={chatsHref(filter)}
                     aria-current={activeFilter === filter ? "page" : undefined}
                     className={cn(
-                      "rounded-[14px] px-4 py-2.5 text-sm font-medium transition",
+                      "rounded-control px-4 py-2.5 text-sm font-medium transition",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/62 hover:bg-white/[0.055] hover:text-white",
+                        : "text-white/62 hover:bg-white/[0.05] hover:text-white",
                     )}
                   >
                     {label}
-                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/75" : "text-white/62")}>
+                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/78" : "text-white/62")}>
                       {count}
                     </span>
                   </Link>
@@ -235,13 +235,13 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                       key={chat.id}
                       href={chat.href}
                       className={cn(
-                        "group flex items-start gap-3 border-b border-white/[0.05] px-4 py-4 transition last:border-b-0 hover:bg-white/[0.04] sm:items-center sm:gap-4 sm:px-5",
+                        "group flex items-start gap-3 border-b border-white/8 px-4 py-4 transition last:border-b-0 hover:bg-white/[0.03] sm:items-center sm:gap-4 sm:px-5",
                         chat.unread && "bg-blue-400/[0.025]",
                       )}
                     >
                       <span
                         className={cn(
-                          "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] sm:h-12 sm:w-12",
+                          "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-control sm:h-12 sm:w-12",
                           chat.unread
                             ? "bg-gradient-to-br from-blue-500/60 to-teal-400/50 text-white"
                             : "bg-white/[0.05] text-white/62",
@@ -294,7 +294,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                   {page > 1 ? (
                     <Link
                       href={chatsHref(activeFilter, page - 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="rounded-control border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
                     >
                       ← Назад
                     </Link>
@@ -303,7 +303,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                   {page < totalPages ? (
                     <Link
                       href={chatsHref(activeFilter, page + 1)}
-                      className="rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
+                      className="rounded-control bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
                     >
                       Дальше →
                     </Link>

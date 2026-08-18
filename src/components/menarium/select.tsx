@@ -216,9 +216,9 @@ export function MenariumSelect({
         onClick={() => (open ? close() : openList())}
         onKeyDown={onKeyDown}
         className={cn(
-          "flex min-h-12 w-full items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-[var(--surface-input)] px-4 py-3 text-left text-white outline-none transition",
-          "hover:border-white/20 focus-visible:ring-2 focus-visible:ring-blue-300/50",
-          "disabled:cursor-not-allowed disabled:border-white/[0.06] disabled:text-white/62 disabled:hover:border-white/[0.06]",
+          "flex min-h-12 w-full items-center justify-between gap-3 rounded-control border border-white/10 bg-[var(--surface-input)] px-4 py-3 text-left text-white outline-none transition",
+          "hover:border-white/20 focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+          "disabled:cursor-not-allowed disabled:border-white/8 disabled:text-white/62 disabled:hover:border-white/8",
         )}
       >
         <span className="flex min-w-0 items-center gap-2">
@@ -231,7 +231,7 @@ export function MenariumSelect({
       {open ? (
         <div
           className={cn(
-            "absolute left-0 z-[70] w-full overflow-hidden rounded-[18px] border border-white/12 bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
+            "absolute left-0 z-[70] w-full overflow-hidden rounded-md border border-white/10 bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
             placement === "up" ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]",
           )}
         >
@@ -268,9 +268,9 @@ export function MenariumSelect({
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => commit(index)}
                     className={cn(
-                      "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition",
+                      "flex min-h-11 w-full items-center justify-between gap-3 rounded-xs px-3 py-2.5 text-left transition",
                       "focus-visible:outline-none disabled:cursor-not-allowed disabled:text-white/40",
-                      index === activeIndex && !option.disabled && "bg-white/[0.06]",
+                      index === activeIndex && !option.disabled && "bg-white/[0.05]",
                       isSelected && "bg-teal-300/[0.09]",
                     )}
                   >

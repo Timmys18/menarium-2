@@ -24,7 +24,7 @@ export function EmptyState({
 }) {
   return (
     <SurfaceCard className="flex min-h-72 flex-col items-center justify-center px-6 py-10 text-center sm:min-h-80 sm:p-12">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[21px] border border-teal-200/18 bg-teal-300/[0.08] text-teal-100">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-md border border-teal-200/18 bg-teal-300/[0.08] text-teal-100">
         <span>{icon}</span>
       </div>
       {eyebrow ? (

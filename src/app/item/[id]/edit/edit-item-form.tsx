@@ -190,7 +190,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             <h2 className="mt-1.5 text-2xl font-bold">Фотографии</h2>
             <p className="mt-2 text-sm text-white/62">Первое изображение станет обложкой. Можно добавить до 8 фото.</p>
           </div>
-          <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/62">
+          <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/62">
             {images.length}/8
           </span>
         </div>
@@ -210,11 +210,11 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         <label
           htmlFor="item-edit-images"
           className={cn(
-            "block cursor-pointer rounded-[22px] border border-dashed border-white/15 bg-white/[0.025] p-6 text-center transition hover:border-blue-300/35 hover:bg-blue-400/[0.04]",
+            "block cursor-pointer rounded-card border border-dashed border-white/20 bg-white/[0.03] p-6 text-center transition hover:border-blue-300/35 hover:bg-blue-400/[0.04]",
             (isUploading || images.length >= 8) && "pointer-events-none opacity-60",
           )}
         >
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-teal-400/20">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-control bg-gradient-to-br from-blue-500/20 to-teal-400/20">
             {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-blue-200" /> : <Upload className="h-6 w-6 text-teal-200" />}
           </div>
           <span className="inline-flex items-center gap-2 font-semibold text-white">
@@ -226,7 +226,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         {images.length > 0 ? (
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
             {images.map((image, index) => (
-                <div key={`${image.id ?? image.url}`} className="relative h-28 overflow-hidden rounded-[16px] border border-white/10 bg-white/5">
+                <div key={`${image.id ?? image.url}`} className="relative h-28 overflow-hidden rounded-control border border-white/10 bg-white/[0.05]">
                   <Image
                     src={image.url}
                     alt={`Фото объявления ${index + 1}`}
@@ -236,7 +236,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                     className="object-cover"
                   />
                   {index === 0 ? (
-                    <span className="absolute bottom-2 left-2 rounded-full bg-black/65 px-2 py-1 text-micro font-medium text-white/80">
+                    <span className="absolute bottom-2 left-2 rounded-full bg-black/65 px-2 py-1 text-micro font-medium text-white/78">
                       Обложка
                     </span>
                   ) : null}
@@ -245,7 +245,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                   aria-label={`Удалить фото ${index + 1}`}
                   onClick={() => void removeImage(image)}
                   disabled={removingImageId === image.id || isSubmitting}
-                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xl bg-black/70 text-red-100 backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)] disabled:opacity-50"
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xs bg-black/70 text-red-100 backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)] disabled:opacity-50"
                 >
                   {removingImageId === image.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -267,7 +267,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-sm font-medium text-white/70">Название</span>
+            <span className="text-sm font-medium text-white/78">Название</span>
             <MenariumInput
               value={title}
               onChange={(event) => setTitle(event.target.value)}
@@ -277,7 +277,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             <span className="block text-right text-xs text-white/62">{title.length}/120</span>
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-white/70">Город</span>
+            <span className="text-sm font-medium text-white/78">Город</span>
             <MenariumInput
               value={city}
               onChange={(event) => setCity(event.target.value)}
@@ -290,7 +290,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label htmlFor="edit-item-type" className="block text-sm font-medium text-white/70">
+            <label htmlFor="edit-item-type" className="block text-sm font-medium text-white/78">
               Тип
             </label>
             <MenariumSelect
@@ -305,7 +305,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="edit-item-category" className="block text-sm font-medium text-white/70">
+            <label htmlFor="edit-item-category" className="block text-sm font-medium text-white/78">
               Категория
             </label>
             <MenariumSelect
@@ -324,7 +324,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
 
         <label className="space-y-2">
-          <span className="text-sm font-medium text-white/70">Описание</span>
+          <span className="text-sm font-medium text-white/78">Описание</span>
           <MenariumTextarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -335,7 +335,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-medium text-white/70">Что интересно взамен</span>
+          <span className="text-sm font-medium text-white/78">Что интересно взамен</span>
           <MenariumInput
             value={desiredText}
             onChange={(event) => setDesiredText(event.target.value)}
@@ -352,7 +352,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
               onClick={() => addQuickWant(want)}
               disabled={desired.includes(want) || desired.length >= 12}
               aria-pressed={desired.includes(want)}
-              className="inline-flex min-h-11 items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 disabled:opacity-45"
+              className="inline-flex min-h-11 items-center rounded-full px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-45"
             >
               <Badge variant="purple">{want}</Badge>
             </button>
@@ -360,18 +360,18 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="flex min-h-14 items-center gap-3 rounded-[16px] border border-white/8 bg-white/[0.025] px-4 py-3 text-sm text-white/70">
+          <label className="flex min-h-14 items-center gap-3 rounded-control border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-white/78">
             <input type="checkbox" checked={acceptsAnything} onChange={(event) => setAcceptsAnything(event.target.checked)} />
             Открыт к любым предложениям
           </label>
-          <label className="flex min-h-14 items-center gap-3 rounded-[16px] border border-white/8 bg-white/[0.025] px-4 py-3 text-sm text-white/70">
+          <label className="flex min-h-14 items-center gap-3 rounded-control border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-white/78">
             <input type="checkbox" checked={isOnline} onChange={(event) => setIsOnline(event.target.checked)} />
             Можно обменяться онлайн
           </label>
         </div>
 
         <label className="space-y-2">
-          <span className="text-sm font-medium text-white/70">Дополнительные пожелания</span>
+          <span className="text-sm font-medium text-white/78">Дополнительные пожелания</span>
           <MenariumTextarea
             value={extraOfferText}
             onChange={(event) => setExtraOfferText(event.target.value)}
@@ -382,7 +382,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </label>
 
         {error ? (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
             {error}
           </div>
         ) : null}

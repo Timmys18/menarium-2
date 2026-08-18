@@ -110,7 +110,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
             />
           ) : (
             <>
-              <nav aria-label="Фильтр уведомлений" className="mb-5 flex gap-2 rounded-[20px] border border-white/8 bg-white/[0.025] p-2">
+              <nav aria-label="Фильтр уведомлений" className="mb-5 flex gap-2 rounded-md border border-white/8 bg-white/[0.03] p-2">
                 {([
                   ["unread", "Новые", unreadCount],
                   ["all", "Все", totalCount],
@@ -120,14 +120,14 @@ export default async function NotificationsPage({ searchParams }: Props) {
                     href={notificationsHref(filter)}
                     aria-current={activeFilter === filter ? "page" : undefined}
                     className={cn(
-                      "rounded-[14px] px-4 py-2.5 text-sm font-medium transition",
+                      "rounded-control px-4 py-2.5 text-sm font-medium transition",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/62 hover:bg-white/[0.055] hover:text-white",
+                        : "text-white/62 hover:bg-white/[0.05] hover:text-white",
                     )}
                   >
                     {label}
-                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/75" : "text-white/62")}>
+                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/78" : "text-white/62")}>
                       {count}
                     </span>
                   </Link>
@@ -152,9 +152,9 @@ export default async function NotificationsPage({ searchParams }: Props) {
                             <>
                               <span
                                 className={cn(
-                                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
+                                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-control",
                                   notification.isRead
-                                    ? "bg-white/[0.045] text-white/62"
+                                    ? "bg-white/[0.05] text-white/62"
                                     : "bg-gradient-to-br from-blue-500/55 to-teal-400/45 text-white",
                                 )}
                               >
@@ -185,7 +185,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                             <div
                               key={notification.id}
                               className={cn(
-                                "flex items-start gap-2 border-b border-white/[0.05] p-2 last:border-b-0",
+                                "flex items-start gap-2 border-b border-white/8 p-2 last:border-b-0",
                                 !notification.isRead && "bg-blue-400/[0.025]",
                               )}
                             >
@@ -194,7 +194,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                                   id={notification.id}
                                   href={safeHref}
                                   isRead={notification.isRead}
-                                  className="flex min-w-0 flex-1 items-start gap-3 rounded-[16px] px-3 py-3 transition hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/60"
+                                  className="flex min-w-0 flex-1 items-start gap-3 rounded-control px-3 py-3 transition hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                                 >
                                   {content}
                                 </NotificationLink>
@@ -232,7 +232,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                   {page > 1 ? (
                     <Link
                       href={notificationsHref(activeFilter, page - 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="rounded-control border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
                     >
                       ← Назад
                     </Link>
@@ -241,7 +241,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                   {page < totalPages ? (
                     <Link
                       href={notificationsHref(activeFilter, page + 1)}
-                      className="rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
+                      className="rounded-control bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
                     >
                       Дальше →
                     </Link>

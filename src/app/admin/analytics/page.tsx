@@ -88,7 +88,7 @@ export default async function ProductAnalyticsPage() {
         <div className="mx-auto max-w-7xl">
           <Link
             href="/admin"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             <ArrowLeft className="h-4 w-4" />
             К модерации
@@ -107,7 +107,7 @@ export default async function ProductAnalyticsPage() {
               </p>
             </div>
             {dashboard ? (
-              <div className="rounded-2xl border border-teal-400/15 bg-teal-400/[0.06] px-4 py-3 text-right">
+              <div className="rounded-control border border-teal-400/15 bg-teal-400/[0.06] px-4 py-3 text-right">
                 <div className="flex items-center justify-end gap-2 text-sm font-medium text-teal-200">
                   <span className="h-2 w-2 rounded-full bg-teal-300 shadow-[0_0_14px_rgba(94,234,212,0.8)]" />
                   Данные обновлены
@@ -163,7 +163,7 @@ export default async function ProductAnalyticsPage() {
 
                 <GlassCard className="p-6">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-400/10 text-sky-300">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xs bg-sky-400/10 text-sky-300">
                       <Eye className="h-5 w-5" />
                     </div>
                     <span className="text-xs text-white/62">30 дней</span>
@@ -179,7 +179,7 @@ export default async function ProductAnalyticsPage() {
 
                 <GlassCard className="p-6">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xs bg-emerald-400/10 text-emerald-300">
                       <Handshake className="h-5 w-5" />
                     </div>
                     <span className="text-xs text-white/62">качество мэтчинга</span>
@@ -252,15 +252,15 @@ export default async function ProductAnalyticsPage() {
                   <div className="mt-6 space-y-3">
                     {signals.length ? (
                       signals.map((signal) => (
-                        <div key={signal} className="flex gap-3 rounded-2xl border border-amber-400/15 bg-amber-400/[0.05] p-4">
+                        <div key={signal} className="flex gap-3 rounded-control border border-amber-400/15 bg-amber-400/[0.05] p-4">
                           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-                          <p className="text-sm leading-6 text-white/65">{signal}</p>
+                          <p className="text-sm leading-6 text-white/62">{signal}</p>
                         </div>
                       ))
                     ) : (
-                      <div className="flex gap-3 rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.05] p-4">
+                      <div className="flex gap-3 rounded-control border border-emerald-400/15 bg-emerald-400/[0.05] p-4">
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-                        <p className="text-sm leading-6 text-white/65">
+                        <p className="text-sm leading-6 text-white/62">
                           Критических отклонений по стартовым порогам нет. Продолжаем накапливать когорты.
                         </p>
                       </div>
@@ -268,11 +268,11 @@ export default async function ProductAnalyticsPage() {
                   </div>
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl bg-white/[0.035] p-4">
+                    <div className="rounded-control bg-white/[0.03] p-4">
                       <p className="text-xs text-white/62">Активация предложения</p>
                       <strong className="mt-2 block text-2xl">{formatPercent(dashboard.cohort[2]!.rate)}</strong>
                     </div>
-                    <div className="rounded-2xl bg-white/[0.035] p-4">
+                    <div className="rounded-control bg-white/[0.03] p-4">
                       <p className="text-xs text-white/62">Принято → завершено</p>
                       <strong className="mt-2 block text-2xl">{formatPercent(dashboard.business.completionRate)}</strong>
                     </div>
@@ -330,12 +330,12 @@ export default async function ProductAnalyticsPage() {
                       <div className="flex items-center gap-2 text-xs text-white/62"><Box className="h-4 w-4" />Регистрация → первая вещь</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianFirstItemHours)}</strong>
                     </div>
-                    <div className="h-px bg-white/[0.06]" />
+                    <div className="h-px bg-white/[0.05]" />
                     <div>
                       <div className="flex items-center gap-2 text-xs text-white/62"><Users className="h-4 w-4" />Предложение → принятие</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianAcceptHours)}</strong>
                     </div>
-                    <div className="h-px bg-white/[0.06]" />
+                    <div className="h-px bg-white/[0.05]" />
                     <div>
                       <div className="flex items-center gap-2 text-xs text-white/62"><ShieldCheck className="h-4 w-4" />Принятие → завершение</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianCompleteHours)}</strong>

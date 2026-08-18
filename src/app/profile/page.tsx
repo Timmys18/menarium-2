@@ -107,7 +107,7 @@ export default async function ProfilePage({
           <MenariumLinkButton href="/new" size="sm">Добавить</MenariumLinkButton>
         </header>
 
-        <nav className="mt-5 grid grid-cols-2 gap-1 rounded-[18px] border border-white/7 bg-black/10 p-1 sm:grid-cols-4" aria-label="Статус объявлений">
+        <nav className="mt-5 grid grid-cols-2 gap-1 rounded-md border border-white/8 bg-black/10 p-1 sm:grid-cols-4" aria-label="Статус объявлений">
           {filters.map((entry) => {
             const active = entry.value === activeFilter;
             return (
@@ -118,8 +118,8 @@ export default async function ProfilePage({
                 scroll={false}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-11 items-center justify-center gap-2 rounded-[13px] px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
-                  active ? "bg-white/[0.08] text-white" : "text-white/78 hover:bg-white/[0.045] hover:text-white",
+                  "flex min-h-11 items-center justify-center gap-2 rounded-xs px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+                  active ? "bg-white/[0.07] text-white" : "text-white/78 hover:bg-white/[0.05] hover:text-white",
                 )}
               >
                 {entry.label}
@@ -157,7 +157,7 @@ export default async function ProfilePage({
                       <Link
                         href={`/item/${item.id}/edit`}
                         aria-label={`Редактировать «${item.title}»`}
-                        className="flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[var(--surface-sunken)]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+                        className="flex h-11 w-11 items-center justify-center rounded-xs border border-white/10 bg-[var(--surface-sunken)]/92 text-white/88 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>

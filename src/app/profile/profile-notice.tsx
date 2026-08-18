@@ -15,7 +15,7 @@ export function ProfileNotice({ kind }: { kind: "welcome" | "verified" }) {
 
   return (
     <div
-      className="flex items-start gap-3 rounded-2xl border border-teal-400/25 bg-teal-400/[0.08] p-4 sm:p-5"
+      className="flex items-start gap-3 rounded-control border border-teal-400/25 bg-teal-400/[0.08] p-4 sm:p-5"
       role="status"
     >
       <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-300" />
@@ -31,7 +31,7 @@ export function ProfileNotice({ kind }: { kind: "welcome" | "verified" }) {
           const query = nextParams.toString();
           router.replace(query ? `/profile?${query}` : "/profile", { scroll: false });
         }}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white/78 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/75"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         aria-label="Закрыть сообщение"
       >
         <X className="h-4 w-4" />

@@ -64,7 +64,7 @@ export function ExchangeProposal({
   }
 
   return (
-    <div id="exchange-proposal" className="flex-1 scroll-mt-28 space-y-3 rounded-[18px] border border-teal-300/[0.16] bg-teal-300/[0.045] p-3.5">
+    <div id="exchange-proposal" className="flex-1 scroll-mt-28 space-y-3 rounded-md border border-teal-300/[0.16] bg-teal-300/[0.045] p-3.5">
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-teal-100/76">

@@ -230,7 +230,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
               </h1>
             </div>
             <div className="flex items-center gap-2 self-start sm:self-auto">
-              <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/62">
+              <span className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/62">
                 Сохранено: <FavoriteCount />
               </span>
               <MenariumLinkButton href="/catalog" variant="secondary" size="sm">
@@ -297,13 +297,13 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
               {totalPages > 1 ? (
                 <nav aria-label="Страницы избранного" className="mt-10 flex items-center justify-center gap-3">
                   {page > 1 ? (
-                    <Link href={favoritesHref(page - 1)} className="rounded-[14px] border border-white/10 bg-white/[0.045] px-5 py-3 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white">
+                    <Link href={favoritesHref(page - 1)} className="rounded-control border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white">
                       ← Назад
                     </Link>
                   ) : null}
                   <span className="text-sm text-white/62">{page} из {totalPages}</span>
                   {page < totalPages ? (
-                    <Link href={favoritesHref(page + 1)} className="rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white">
+                    <Link href={favoritesHref(page + 1)} className="rounded-control border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white">
                       Дальше →
                     </Link>
                   ) : null}
@@ -322,7 +322,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
           )}
 
           {page === 1 && recommendations.length > 0 ? (
-            <section className="mt-16 border-t border-white/[0.07] pt-10" aria-labelledby="recommendations-title">
+            <section className="mt-16 border-t border-white/8 pt-10" aria-labelledby="recommendations-title">
               <GlassCard className="mb-6 overflow-hidden border border-teal-300/12 bg-gradient-to-br from-teal-300/[0.065] to-blue-400/[0.035] p-5 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>

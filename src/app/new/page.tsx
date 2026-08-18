@@ -35,7 +35,7 @@ export default async function NewItemPage({ searchParams }: NewItemPageProps) {
       <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
         <div className="mx-auto max-w-6xl">
           <div className="mb-10 text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-gradient-to-r from-blue-500/15 to-teal-400/15 px-4 py-1.5 text-sm text-white/70">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-gradient-to-r from-blue-500/15 to-teal-400/15 px-4 py-1.5 text-sm text-white/78">
               <Sparkles className="h-4 w-4 text-teal-300" />
               Новое объявление
             </div>

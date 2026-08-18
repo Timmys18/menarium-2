@@ -75,7 +75,7 @@ export function RegisterForm() {
   if (awaitingEmail) {
     return (
       <div className="space-y-5" role="status">
-        <div className="rounded-[18px] border border-teal-300/20 bg-teal-300/[0.07] p-5">
+        <div className="rounded-md border border-teal-300/20 bg-teal-300/[0.07] p-5">
           <p className="type-kicker text-teal-200/75">Проверьте почту</p>
           <h2 className="mt-2 text-xl font-semibold tracking-tight">Мы отправили письмо на {awaitingEmail}</h2>
           <p className="mt-2 text-sm leading-relaxed text-white/78">
@@ -108,13 +108,13 @@ export function RegisterForm() {
         void trackClientProductEvent({ name: "registration_started", path: "/auth/register" });
       }}
     >
-      <div className="rounded-[18px] border border-white/7 bg-white/[0.025] p-4 sm:p-5">
+      <div className="rounded-md border border-white/8 bg-white/[0.03] p-4 sm:p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-200/65">Шаг 1 · Доступ</p>
         <p className="mt-1.5 text-sm text-white/62">Только почта и пароль — этого достаточно, чтобы начать.</p>
       </div>
 
       <div className="space-y-2.5">
-        <label htmlFor="register-email" className="block text-sm font-medium text-white/75">
+        <label htmlFor="register-email" className="block text-sm font-medium text-white/78">
           Электронная почта
         </label>
         <MenariumInput
@@ -131,7 +131,7 @@ export function RegisterForm() {
         />
       </div>
       <div className="space-y-2.5">
-        <label htmlFor="register-password" className="block text-sm font-medium text-white/75">
+        <label htmlFor="register-password" className="block text-sm font-medium text-white/78">
           Пароль
         </label>
         <div className="relative">
@@ -152,7 +152,7 @@ export function RegisterForm() {
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Скрыть введённые символы" : "Показать введённые символы"}
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70"
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
           >
             {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
           </button>
@@ -164,7 +164,7 @@ export function RegisterForm() {
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-micro transition ${
                 check.passed
                   ? "border-teal-300/20 bg-teal-300/[0.08] text-teal-100"
-                  : "border-white/8 bg-white/[0.025] text-white/62"
+                  : "border-white/8 bg-white/[0.03] text-white/62"
               }`}
             >
               <Check className="h-3 w-3" />
@@ -174,10 +174,10 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <fieldset className="rounded-[18px] border border-white/8 bg-white/[0.025] p-4 sm:p-5">
+      <fieldset className="rounded-md border border-white/8 bg-white/[0.03] p-4 sm:p-5">
         <legend className="sr-only">Профиль — необязательно</legend>
         <div className="mb-4 flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-blue-400/10 text-blue-200">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xs bg-blue-400/10 text-blue-200">
             <UserRound className="h-4.5 w-4.5" />
           </span>
           <div>
@@ -187,7 +187,7 @@ export function RegisterForm() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <label htmlFor="register-name" className="block text-sm font-medium text-white/70">
+            <label htmlFor="register-name" className="block text-sm font-medium text-white/78">
               Имя
             </label>
             <MenariumInput
@@ -200,7 +200,7 @@ export function RegisterForm() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="register-city" className="block text-sm font-medium text-white/70">
+            <label htmlFor="register-city" className="block text-sm font-medium text-white/78">
               Город
             </label>
             <CityPicker id="register-city" value={cityId} onChange={(city) => setCityId(city.id)} />
@@ -218,7 +218,7 @@ export function RegisterForm() {
       */}
       <label
         htmlFor="register-consent"
-        className="flex cursor-pointer items-start gap-3 rounded-[14px] border border-white/8 bg-white/[0.025] p-3.5 text-xs leading-relaxed text-white/78 transition hover:border-white/16 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-300/70"
+        className="flex cursor-pointer items-start gap-3 rounded-control border border-white/8 bg-white/[0.03] p-3.5 text-xs leading-relaxed text-white/78 transition hover:border-white/20 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[var(--focus-ring)]"
       >
         <input
           id="register-consent"
@@ -241,7 +241,7 @@ export function RegisterForm() {
         </span>
       </label>
       {error ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
           {error}
         </div>
       ) : null}

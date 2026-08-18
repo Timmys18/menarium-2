@@ -26,9 +26,14 @@
   --text-primary: #f7f9fc;
   --text-muted: rgba(230, 236, 247, 0.78);
   --text-subtle: rgba(230, 236, 247, 0.62);
-  --radius-control: 0.875rem;
-  --radius-card: 1.375rem;
-  --radius-panel: 2rem;
+  /*
+    Одно кольцо фокуса на весь продукт. Было семнадцать разных: синие четырёх
+    прозрачностей, бирюзовые пяти, красные, розовые, янтарное. Пользователь
+    клавиатуры видел новый цвет почти на каждом элементе и не мог опереться на
+    цвет как на сигнал «я здесь».
+  */
+  --focus-ring: rgba(120, 170, 255, 0.78);
+
   --shadow-card: 0 14px 38px rgba(0, 0, 0, 0.24);
   --shadow-popover: 0 22px 60px rgba(0, 0, 0, 0.5);
   --mobile-nav-clearance: calc(7rem + env(safe-area-inset-bottom));
@@ -58,6 +63,49 @@
      называет 11pt минимумом. Шкала не даёт опуститься ниже случайно. */
   --text-micro: 0.6875rem;
   --text-micro--line-height: 1.25;
+}
+
+/*
+  Значения ниже одинаковы в любой теме, поэтому объявляются литералами прямо в
+  `@theme`: Tailwind сам выведет их в `:root` и заодно сгенерирует утилиты
+  (`rounded-card`, `ease-out`, `duration-[var(--duration-base)]`).
+
+  Через `@theme inline` их описывать нельзя: там значение подставляется как
+  есть, и запись вида `--radius-card: var(--radius-card)` даёт циклическую
+  ссылку, которая «работает» только из-за порядка правил в собранном файле.
+*/
+@theme {
+  /*
+    Шкала скруглений. До неё в коде жили восемнадцать разных радиусов —
+    10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 36 —
+    каждый компонент выбирал значение на глаз. Разница в один-два пикселя не
+    видна сама по себе, но заметна, когда элементы стоят рядом: интерфейс
+    перестаёт выглядеть собранным одним человеком.
+  */
+  --radius-xs: 0.75rem;       /* 12 — чипы, счётчики, мелкие кнопки */
+  --radius-control: 0.875rem; /* 14 — поля ввода, кнопки */
+  --radius-md: 1.125rem;      /* 18 — вложенные блоки внутри карточек */
+  --radius-card: 1.375rem;    /* 22 — карточки */
+  --radius-lg: 1.75rem;       /* 28 — диалоги, крупные карточки */
+  --radius-panel: 2rem;       /* 32 — панели во весь блок */
+
+  /*
+    Движение: одна кривая на все входы и выходы, три длительности по смыслу —
+    отклик на нажатие, перестроение блока, появление слоя.
+  */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.18, 0.9, 0.24, 1.08);
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
+
+  /*
+    Голый `transition` встречается в разметке сотни раз. Пусть он по умолчанию
+    берёт продуктовую длительность и кривую вместо 150ms/ease из Tailwind —
+    тогда большинству мест тайминг указывать не нужно и разнобой не возникает.
+  */
+  --default-transition-duration: 220ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -164,7 +212,8 @@ a {
 }
 
 .glass-card-hover {
-  transition: border-color 220ms ease, background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  transition: border-color var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
 }
 
 /* Quiet surfaces keep browsing content secondary to the item photography and primary actions. */
@@ -175,7 +224,8 @@ a {
 }
 
 .surface-card-hover {
-  transition: border-color 220ms ease, background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  transition: border-color var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
 }
 
 /* The homepage has one expressive surface; browsing surfaces stay intentionally quiet. */
@@ -196,11 +246,11 @@ a {
 }
 
 .page-enter {
-  animation: page-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: page-enter var(--duration-base) var(--ease-out) both;
 }
 
 .reveal-grid > * {
-  animation: surface-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: surface-enter var(--duration-slow) var(--ease-out) both;
 }
 
 .reveal-grid > :nth-child(2) {
@@ -217,7 +267,7 @@ a {
 
 .mobile-action-dock {
   bottom: var(--mobile-nav-clearance);
-  animation: dock-enter 220ms 80ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: dock-enter var(--duration-base) 80ms var(--ease-out) both;
 }
 
 .mobile-navigation-bottom-inset {
@@ -225,16 +275,16 @@ a {
 }
 
 .dialog-backdrop {
-  animation: dialog-backdrop-enter 180ms ease-out both;
+  animation: dialog-backdrop-enter var(--duration-fast) var(--ease-out) both;
 }
 
 .dialog-panel {
-  animation: dialog-panel-enter 260ms cubic-bezier(0.18, 0.9, 0.24, 1.08) both;
+  animation: dialog-panel-enter var(--duration-slow) var(--ease-spring) both;
 }
 
 ::view-transition-group(.item-morph) {
-  animation-duration: 280ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-out);
 }
 
 ::view-transition-image-pair(.item-morph) {
@@ -246,13 +296,13 @@ a {
 }
 
 .exchange-progress-panel {
-  animation: exchange-progress-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: exchange-progress-enter var(--duration-base) var(--ease-out) both;
 }
 
 html:active-view-transition-type(exchange-proposed) ::view-transition-new(root),
 html:active-view-transition-type(exchange-accepted) ::view-transition-new(root),
 html:active-view-transition-type(item-created) ::view-transition-new(root) {
-  animation: causal-route-enter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: causal-route-enter var(--duration-slow) var(--ease-out) both;
 }
 
 @keyframes page-enter {
@@ -385,7 +435,7 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   color: #070a10;
   padding: 0.75rem 1rem;
   font-weight: 650;
-  transition: top 160ms ease;
+  transition: top var(--duration-fast) var(--ease-out);
 }
 
 .skip-link:focus {

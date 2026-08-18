@@ -137,7 +137,7 @@ export default async function AdminPage() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500/70 to-purple-500/70">
+              <div className="flex h-12 w-12 items-center justify-center rounded-control bg-gradient-to-br from-teal-500/70 to-purple-500/70">
                 <Shield className="h-6 w-6" />
               </div>
               <div>
@@ -176,7 +176,7 @@ export default async function AdminPage() {
               </div>
 
               <GlassCard className="overflow-hidden">
-                <div className="border-b border-white/[0.06] px-5 py-4">
+                <div className="border-b border-white/8 px-5 py-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h2 className="text-xl font-semibold">Очередь жалоб</h2>
@@ -217,7 +217,7 @@ export default async function AdminPage() {
                     return (
                       <article
                         key={report.id}
-                        className="border-b border-white/[0.04] px-5 py-5 last:border-b-0"
+                        className="border-b border-white/8 px-5 py-5 last:border-b-0"
                       >
                         <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
                           <div className="min-w-0 flex-1 space-y-4">
@@ -235,7 +235,7 @@ export default async function AdminPage() {
                             </div>
 
                             <div className="grid gap-3 md:grid-cols-2">
-                              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+                              <div className="rounded-control border border-white/8 bg-white/[0.03] p-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-white/62">
                                   Объект жалобы
                                 </p>
@@ -253,7 +253,7 @@ export default async function AdminPage() {
                                   <p className="mt-2 text-sm text-white/62">Объект больше недоступен</p>
                                 )}
                               </div>
-                              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+                              <div className="rounded-control border border-white/8 bg-white/[0.03] p-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-white/62">
                                   Репортёр
                                 </p>
@@ -271,12 +271,12 @@ export default async function AdminPage() {
                               <p className="text-xs font-medium uppercase tracking-wide text-white/62">
                                 Детали
                               </p>
-                              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+                              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/78">
                                 {report.details || "Пользователь не добавил подробностей."}
                               </p>
                             </div>
                             {report.swap ? (
-                              <div className="rounded-2xl border border-blue-300/12 bg-blue-400/[0.045] p-4">
+                              <div className="rounded-control border border-blue-300/12 bg-blue-400/[0.045] p-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-blue-200/55">
                                   Контекст обмена
                                 </p>
@@ -291,7 +291,7 @@ export default async function AdminPage() {
                                     </Link>
                                     <Link
                                       href={`/item/${report.swap.senderItem.id}`}
-                                      className="mt-1 block text-xs text-white/62 hover:text-white/75"
+                                      className="mt-1 block text-xs text-white/62 hover:text-white/78"
                                     >
                                       {report.swap.senderItem.title}
                                     </Link>
@@ -306,7 +306,7 @@ export default async function AdminPage() {
                                     </Link>
                                     <Link
                                       href={`/item/${report.swap.receiverItem.id}`}
-                                      className="mt-1 block text-xs text-white/62 hover:text-white/75"
+                                      className="mt-1 block text-xs text-white/62 hover:text-white/78"
                                     >
                                       {report.swap.receiverItem.title}
                                     </Link>
@@ -315,11 +315,11 @@ export default async function AdminPage() {
                               </div>
                             ) : null}
                             {report.resolutionNote ? (
-                              <div className="rounded-2xl border border-teal-500/15 bg-teal-500/[0.06] p-4">
+                              <div className="rounded-control border border-teal-500/15 bg-teal-500/[0.06] p-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-teal-200/60">
                                   Комментарий модератора
                                 </p>
-                                <p className="mt-2 whitespace-pre-wrap text-sm text-white/70">
+                                <p className="mt-2 whitespace-pre-wrap text-sm text-white/78">
                                   {report.resolutionNote}
                                 </p>
                               </div>
@@ -340,12 +340,12 @@ export default async function AdminPage() {
               </GlassCard>
 
               <GlassCard className="overflow-hidden">
-                <div className="border-b border-white/[0.06] px-5 py-4">
+                <div className="border-b border-white/8 px-5 py-4">
                   <h2 className="text-xl font-semibold">Последние объявления</h2>
                   <p className="mt-1 text-sm text-white/62">Быстрая модерация: архивировать или вернуть объявление.</p>
                 </div>
                 {recentItems.map((item) => (
-                  <div key={item.id} className="flex flex-col gap-4 border-b border-white/[0.04] px-5 py-4 last:border-b-0 md:flex-row md:items-center">
+                  <div key={item.id} className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 last:border-b-0 md:flex-row md:items-center">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex flex-wrap items-center gap-2">
                         <Link href={`/item/${item.id}`} className="font-medium transition-colors hover:text-teal-300">
@@ -365,14 +365,14 @@ export default async function AdminPage() {
               </GlassCard>
 
               <GlassCard className="overflow-hidden">
-                <div className="border-b border-white/[0.06] px-5 py-4">
+                <div className="border-b border-white/8 px-5 py-4">
                   <h2 className="text-xl font-semibold">Пользователи</h2>
                   <p className="mt-1 text-sm text-white/62">
                     Последние регистрации, состояние аккаунта и действия модерации.
                   </p>
                 </div>
                 {recentUsers.map((user) => (
-                  <div key={user.id} className="flex flex-col gap-4 border-b border-white/[0.04] px-5 py-4 last:border-b-0 lg:flex-row lg:items-center">
+                  <div key={user.id} className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 last:border-b-0 lg:flex-row lg:items-center">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex flex-wrap items-center gap-2">
                         <Link href={`/user/${user.id}`} className="font-medium transition-colors hover:text-teal-300">
@@ -409,8 +409,8 @@ export default async function AdminPage() {
                       ) : null}
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-white/62">
-                      <span className="rounded-xl bg-white/5 px-3 py-1.5">{user._count.items} объявл.</span>
-                      <span className="rounded-xl bg-white/5 px-3 py-1.5">
+                      <span className="rounded-xs bg-white/[0.05] px-3 py-1.5">{user._count.items} объявл.</span>
+                      <span className="rounded-xs bg-white/[0.05] px-3 py-1.5">
                         {user._count.sentSwaps + user._count.receivedSwaps} обменов
                       </span>
                     </div>

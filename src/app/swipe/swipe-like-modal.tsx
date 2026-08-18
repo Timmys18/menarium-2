@@ -79,7 +79,7 @@ export function SwipeLikeModal({
         </>
       }
     >
-      <label htmlFor="swipe-sender-item" className="block text-sm font-medium text-white/65">
+      <label htmlFor="swipe-sender-item" className="block text-sm font-medium text-white/62">
         Что готов отдать
       </label>
       <MenariumSelect
@@ -92,7 +92,7 @@ export function SwipeLikeModal({
         placeholder="Выберите свою вещь"
       />
 
-      <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center gap-2 rounded-[18px] border border-white/8 bg-white/[0.035] p-4">
+      <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center gap-2 rounded-md border border-white/8 bg-white/[0.03] p-4">
         <div className="min-w-0">
           <span className="block text-micro font-semibold uppercase tracking-[0.12em] text-white/62">Вы отдаёте</span>
           <span className="mt-1 block truncate text-sm font-medium text-white">{senderTitle}</span>
@@ -104,7 +104,7 @@ export function SwipeLikeModal({
         </div>
       </div>
 
-      <div className="mt-3 rounded-[16px] border border-teal-300/[0.12] bg-teal-300/[0.045] px-3.5 py-3">
+      <div className="mt-3 rounded-control border border-teal-300/[0.12] bg-teal-300/[0.045] px-3.5 py-3">
         <p className="text-micro font-semibold uppercase tracking-[0.13em] text-teal-100/62">Владелец ищет</p>
         <p className="mt-1 text-sm leading-5 text-white/78">{receiverWanted}</p>
       </div>
@@ -121,7 +121,7 @@ export function SwipeLikeModal({
       </div>
 
       {error ? (
-        <p role="alert" className="mt-4 rounded-[14px] border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-red-200">
+        <p role="alert" className="mt-4 rounded-control border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-red-200">
           {error}
         </p>
       ) : null}

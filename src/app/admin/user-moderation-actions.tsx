@@ -108,7 +108,7 @@ export function UserModerationActions({
           </>
         }
       >
-        <label className="block text-sm text-white/70">
+        <label className="block text-sm text-white/78">
           Причина <span className="text-red-300">*</span>
           <MenariumTextarea
             value={reason}

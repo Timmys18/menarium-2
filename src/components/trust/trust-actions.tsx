@@ -137,7 +137,7 @@ export function TrustActions({
       >
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="report-reason" className="block text-sm text-white/70">
+            <label htmlFor="report-reason" className="block text-sm text-white/78">
               Причина
             </label>
             <MenariumSelect

@@ -129,7 +129,7 @@ export function ReportModerationActions({
           </>
         }
       >
-        <label className="block text-sm text-white/70">
+        <label className="block text-sm text-white/78">
           Комментарий модератора
           <MenariumTextarea
             value={resolutionNote}

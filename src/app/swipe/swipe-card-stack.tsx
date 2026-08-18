@@ -155,14 +155,14 @@ export function SwipeCardStack({
   const undoNotice = lastPassed ? (
     <div
       role="status"
-      className="fixed inset-x-4 bottom-28 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-[18px] border border-teal-300/20 bg-[#0b1518]/95 px-4 py-3 text-sm shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl md:static md:mt-4"
+      className="fixed inset-x-4 bottom-28 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-md border border-teal-300/20 bg-[#0b1518]/95 px-4 py-3 text-sm shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl md:static md:mt-4"
     >
-      <span className="min-w-0 truncate text-white/72">«{lastPassed.card.title}» пропущено</span>
+      <span className="min-w-0 truncate text-white/78">«{lastPassed.card.title}» пропущено</span>
       <button
         type="button"
         onClick={() => void undoLastPass()}
         disabled={undoing}
-        className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 font-semibold text-teal-200 transition hover:bg-teal-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/70 disabled:opacity-50"
+        className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xs px-3 font-semibold text-teal-200 transition hover:bg-teal-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50"
       >
         {undoing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
         Вернуть
@@ -190,8 +190,8 @@ export function SwipeCardStack({
   return (
     <>
       <div className="relative flex min-h-[420px] items-center justify-center md:min-h-[510px]">
-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-5 scale-[0.91] border border-white/5 opacity-35 md:h-[490px] md:translate-y-7" />
-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-2.5 scale-[0.96] border border-white/7 opacity-55 md:h-[490px] md:translate-y-3" />
+        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-5 scale-[0.91] border border-white/8 opacity-35 md:h-[490px] md:translate-y-7" />
+        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-2.5 scale-[0.96] border border-white/8 opacity-55 md:h-[490px] md:translate-y-3" />
 
         <motion.div
           style={{ x, rotate }}
@@ -201,16 +201,16 @@ export function SwipeCardStack({
           onDragEnd={onDragEnd}
           className="relative z-10 w-full max-w-[460px] touch-pan-y"
         >
-          <GlassCard className="relative overflow-hidden border border-white/12 shadow-[0_30px_80px_rgba(0,0,0,0.36)]">
+          <GlassCard className="relative overflow-hidden border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.36)]">
             <motion.div
               style={{ opacity: likeOpacity }}
-              className="pointer-events-none absolute left-5 top-5 z-20 rotate-[-5deg] rounded-[14px] border-2 border-teal-300 bg-[#07110f]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-teal-200 backdrop-blur-xl"
+              className="pointer-events-none absolute left-5 top-5 z-20 rotate-[-5deg] rounded-control border-2 border-teal-300 bg-[#07110f]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-teal-200 backdrop-blur-xl"
             >
               ОБМЕН
             </motion.div>
             <motion.div
               style={{ opacity: passOpacity }}
-              className="pointer-events-none absolute right-5 top-5 z-20 rotate-[5deg] rounded-[14px] border-2 border-red-300 bg-[#16090b]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-red-200 backdrop-blur-xl"
+              className="pointer-events-none absolute right-5 top-5 z-20 rotate-[5deg] rounded-control border-2 border-red-300 bg-[#16090b]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-red-200 backdrop-blur-xl"
             >
               МИМО
             </motion.div>
@@ -223,7 +223,7 @@ export function SwipeCardStack({
                 sizes="(max-width: 520px) 94vw, 460px"
               />
               <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3.5 md:p-4">
-                <span className="rounded-full border border-white/12 bg-black/50 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-xl">
+                <span className="rounded-full border border-white/10 bg-black/50 px-3 py-1.5 text-xs font-medium text-white/88 backdrop-blur-xl">
                   {card.category}
                 </span>
                 {card.isOnline ? (
@@ -248,9 +248,9 @@ export function SwipeCardStack({
                   {card.city}
                 </span>
               </div>
-              <div className="mt-3 rounded-[15px] border border-teal-300/15 bg-teal-300/[0.055] px-3.5 py-2.5 md:mt-4 md:rounded-[16px] md:px-4 md:py-3">
+              <div className="mt-3 rounded-control border border-teal-300/15 bg-teal-300/[0.055] px-3.5 py-2.5 md:mt-4 md:rounded-control md:px-4 md:py-3">
                 <p className="text-micro font-semibold uppercase tracking-[0.14em] text-teal-200/72">Интересно взамен</p>
-                <p className="mt-0.5 line-clamp-1 text-sm leading-5 text-white/82 md:mt-1 md:line-clamp-2">{card.wanted}</p>
+                <p className="mt-0.5 line-clamp-1 text-sm leading-5 text-white/88 md:mt-1 md:line-clamp-2">{card.wanted}</p>
               </div>
             </div>
           </GlassCard>
@@ -259,12 +259,12 @@ export function SwipeCardStack({
 
       {undoNotice}
 
-      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-[22px] border border-white/12 bg-[var(--surface-sunken)]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
+      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-card border border-white/10 bg-[var(--surface-sunken)]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
         <button
           type="button"
           disabled={loading || undoing}
           onClick={() => void passCard()}
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[16px] border border-red-300/18 bg-red-300/[0.055] px-2 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:opacity-50 md:min-h-16 md:rounded-[18px] md:py-3"
+          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-control border border-red-300/18 bg-red-300/[0.055] px-2 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 md:min-h-16 md:rounded-md md:py-3"
           aria-label="Пропустить"
         >
           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <X className="h-5 w-5" />}
@@ -273,7 +273,7 @@ export function SwipeCardStack({
         <MenariumLinkButton
           href={`/item/${card.id}`}
           variant="secondary"
-          className="min-h-14 flex-col gap-1 rounded-[16px] px-2 py-2 text-xs md:min-h-16 md:rounded-[18px] md:py-3"
+          className="min-h-14 flex-col gap-1 rounded-control px-2 py-2 text-xs md:min-h-16 md:rounded-md md:py-3"
           aria-label="Подробнее"
         >
           <Info className="h-5 w-5 text-blue-200" />
@@ -283,7 +283,7 @@ export function SwipeCardStack({
           type="button"
           disabled={loading || undoing}
           onClick={openExchangeFlow}
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[16px] border border-teal-200/24 bg-gradient-to-br from-blue-500 to-teal-400 px-2 py-2 text-xs font-semibold text-white shadow-[0_14px_34px_rgba(56,189,180,0.24)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-200/80 disabled:opacity-50 md:min-h-16 md:rounded-[18px] md:py-3"
+          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-control border border-teal-200/24 bg-gradient-to-br from-blue-500 to-teal-400 px-2 py-2 text-xs font-semibold text-white shadow-[0_14px_34px_rgba(56,189,180,0.24)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 md:min-h-16 md:rounded-md md:py-3"
           aria-label="Предложить обмен"
         >
           <Heart className="h-5 w-5" />

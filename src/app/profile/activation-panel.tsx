@@ -29,7 +29,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
         <div className="flex items-start gap-4">
           <span
             className={cn(
-              "flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-control",
               nextAction.kind === "urgent"
                 ? "bg-amber-300/12 text-amber-200"
                 : "bg-teal-300/10 text-teal-200",
@@ -49,7 +49,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
             <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
               {nextAction.title}
             </h2>
-            <p className="mt-1.5 max-w-2xl text-sm leading-5 text-white/64">
+            <p className="mt-1.5 max-w-2xl text-sm leading-5 text-white/62">
               {nextAction.description}
             </p>
           </div>
@@ -61,7 +61,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
       </div>
 
       {!activation.complete ? (
-        <div className="relative mt-5 border-t border-white/[0.07] pt-4">
+        <div className="relative mt-5 border-t border-white/8 pt-4">
           <div className="mb-3 flex items-center justify-between gap-4">
             <p className="text-xs font-medium text-white/62">Путь до первого обмена</p>
             <p className="text-xs font-semibold text-teal-200/78">
@@ -77,7 +77,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
             aria-valuenow={activation.progress}
           >
             <div
-              className="h-full rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 transition-[width] duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 transition-[width] duration-[var(--duration-slow)]"
               style={{ width: `${activation.progress}%` }}
             />
           </div>
@@ -89,11 +89,11 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
                 <li key={step.id} className="min-w-0">
                   <span
                     className={cn(
-                      "mx-auto flex h-8 w-8 items-center justify-center rounded-[10px] border transition-colors sm:mx-0",
-                      step.done ? "bg-teal-400 text-[#071311]" : "bg-white/10 text-white/62",
+                      "mx-auto flex h-8 w-8 items-center justify-center rounded-xs border transition-colors sm:mx-0",
+                      step.done ? "bg-teal-400 text-[#071311]" : "bg-white/[0.10] text-white/62",
                       step.done && "border-teal-300/40",
-                      current && "border-white/30 bg-white/[0.12] text-white",
-                      !step.done && !current && "border-white/[0.06]",
+                      current && "border-white/20 bg-white/[0.10] text-white",
+                      !step.done && !current && "border-white/8",
                     )}
                   >
                     <Icon className="h-4 w-4" />

@@ -4,8 +4,8 @@ import { MenariumLinkButton } from "@/components/menarium/button";
 export default function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
-      <div className="glass-card max-w-xl rounded-3xl p-8 text-center">
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white/62">
+      <div className="glass-card max-w-xl rounded-card p-8 text-center">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-control bg-white/[0.10] text-white/62">
           <SearchX className="h-8 w-8" />
         </div>
         <h1 className="text-3xl font-bold">Страница не найдена</h1>

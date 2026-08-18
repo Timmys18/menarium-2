@@ -153,12 +153,12 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
     <div className="space-y-6">
       <GlassCard className="space-y-5 p-5 sm:p-8">
         {profileError ? (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
             {profileError}
           </div>
         ) : null}
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500">
+          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-control bg-gradient-to-br from-sky-500 to-teal-500">
             {image ? (
               <Image src={image} alt="Аватар" fill sizes="80px" className="object-cover" />
             ) : (
@@ -180,7 +180,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             />
             <label
               htmlFor="avatar-upload"
-              className="glass-card inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold focus-within:ring-2 focus-within:ring-teal-400/60"
+              className="glass-card inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-control px-5 py-2.5 text-sm font-semibold focus-within:ring-2 focus-within:ring-[var(--focus-ring)]"
             >
               {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Загрузить аватар
@@ -190,7 +190,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               <button
                 type="button"
                 onClick={() => void removeAvatar()}
-                className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-sm text-red-200/90 transition hover:bg-red-500/10 hover:text-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200/75"
+                className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-sm text-red-200/90 transition hover:bg-red-500/10 hover:text-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Удалить аватар
@@ -200,7 +200,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="profile-name" className="block text-sm font-medium text-white/75">
+          <label htmlFor="profile-name" className="block text-sm font-medium text-white/78">
             Имя
           </label>
           <MenariumInput
@@ -216,7 +216,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="profile-city" className="block text-sm font-medium text-white/75">
+          <label htmlFor="profile-city" className="block text-sm font-medium text-white/78">
             Город
           </label>
           <CityPicker
@@ -259,12 +259,12 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           После смены пароля мы завершим текущий сеанс. Войти снова можно будет уже с новым паролем.
         </p>
         {passwordError ? (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
             {passwordError}
           </div>
         ) : null}
         <div className="space-y-2">
-          <label htmlFor="current-password" className="block text-sm font-medium text-white/75">
+          <label htmlFor="current-password" className="block text-sm font-medium text-white/78">
             Текущий пароль
           </label>
           <div className="relative">
@@ -283,14 +283,14 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               type="button"
               onClick={() => setShowCurrentPassword((visible) => !visible)}
               aria-label={showCurrentPassword ? "Скрыть текущий пароль" : "Показать текущий пароль"}
-              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
             >
               {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
         <div className="space-y-2">
-          <label htmlFor="new-password" className="block text-sm font-medium text-white/75">
+          <label htmlFor="new-password" className="block text-sm font-medium text-white/78">
             Новый пароль
           </label>
           <div className="relative">
@@ -311,7 +311,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               type="button"
               onClick={() => setShowNewPassword((visible) => !visible)}
               aria-label={showNewPassword ? "Скрыть новый пароль" : "Показать новый пароль"}
-              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300/60"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
             >
               {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -323,7 +323,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
                 className={
                   check.passed
                     ? "inline-flex items-center gap-1.5 rounded-full bg-teal-300/10 px-2.5 py-1 text-xs text-teal-200"
-                    : "inline-flex items-center gap-1.5 rounded-full bg-white/[0.045] px-2.5 py-1 text-xs text-white/62"
+                    : "inline-flex items-center gap-1.5 rounded-full bg-white/[0.05] px-2.5 py-1 text-xs text-white/62"
                 }
               >
                 <Check className="h-3 w-3" aria-hidden="true" />
@@ -350,12 +350,12 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           сохранится у участников в обезличенном виде.
         </p>
         {deleteError ? (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
             {deleteError}
           </div>
         ) : null}
         <div className="space-y-2">
-          <label htmlFor="delete-password" className="block text-sm font-medium text-white/75">
+          <label htmlFor="delete-password" className="block text-sm font-medium text-white/78">
             Пароль для подтверждения
           </label>
           <MenariumInput

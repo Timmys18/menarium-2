@@ -5,8 +5,8 @@ export default function FavoritesLoading() {
     <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
       <div className="mx-auto max-w-[1500px]">
         <div className="mb-4 h-4 w-36 animate-pulse rounded-full bg-white/[0.07]" />
-        <div className="mb-3 h-12 w-72 max-w-full animate-pulse rounded-2xl bg-white/[0.075]" />
-        <div className="mb-10 h-5 w-[520px] max-w-full animate-pulse rounded-full bg-white/[0.055]" />
+        <div className="mb-3 h-12 w-72 max-w-full animate-pulse rounded-control bg-white/[0.07]" />
+        <div className="mb-10 h-5 w-[520px] max-w-full animate-pulse rounded-full bg-white/[0.05]" />
         <CardGridSkeleton count={6} />
       </div>
     </div>

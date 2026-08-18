@@ -63,22 +63,22 @@ export function Navigation({
     <>
       <nav aria-label="Основная навигация" className="desktop-navigation fixed inset-x-0 top-0 z-50 hidden md:block">
         <div className="mx-auto max-w-[1480px] px-4 py-3 lg:px-6">
-          <div className="app-chrome rounded-[24px] px-3 py-2.5">
+          <div className="app-chrome rounded-card px-3 py-2.5">
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/"
                 aria-label="Менариум — главная"
                 aria-current={pathname === "/" ? "page" : undefined}
-                className="desktop-brand group flex min-h-11 items-center rounded-2xl px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                className="desktop-brand group flex min-h-11 items-center rounded-control px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 <BrandLockup
                   priority
-                  markClassName="transition duration-300 group-hover:scale-[1.04]"
+                  markClassName="transition duration-[var(--duration-slow)] group-hover:scale-[1.04]"
                   textClassName="lg:text-2xl"
                 />
               </Link>
 
-              <div className="flex items-center gap-1 rounded-2xl border border-white/[0.06] bg-black/10 p-1">
+              <div className="flex items-center gap-1 rounded-control border border-white/8 bg-black/10 p-1">
                 {primaryItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActivePath(pathname, item.href);
@@ -89,10 +89,10 @@ export function Navigation({
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "desktop-nav-link relative flex min-h-11 items-center gap-2 rounded-[14px] px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 lg:px-5",
+                        "desktop-nav-link relative flex min-h-11 items-center gap-2 rounded-control px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:px-5",
                         active
-                          ? "border border-white/10 bg-white/[0.09] text-white shadow-inner shadow-white/[0.03]"
-                          : "border border-transparent text-white/62 hover:bg-white/[0.055] hover:text-white",
+                          ? "border border-white/10 bg-white/[0.07] text-white shadow-inner shadow-white/[0.03]"
+                          : "border border-transparent text-white/62 hover:bg-white/[0.05] hover:text-white",
                       )}
                     >
                       <Icon className={cn("h-4 w-4", active ? "text-teal-300" : "text-white/62")} />
@@ -108,7 +108,7 @@ export function Navigation({
                   href="/new"
                   aria-label="Добавить объявление"
                   aria-current={isActivePath(pathname, "/new") ? "page" : undefined}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 lg:px-5"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-control border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:px-5"
                 >
                   <Plus className="h-4 w-4" />
                   <span className="hidden lg:inline">Добавить</span>
@@ -118,10 +118,10 @@ export function Navigation({
                   aria-label="Уведомления"
                   aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
                   className={cn(
-                    "relative flex h-11 w-11 items-center justify-center rounded-[14px] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                    "relative flex h-11 w-11 items-center justify-center rounded-control border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                     isActivePath(pathname, "/notifications")
-                      ? "border-white/14 bg-white/[0.09] text-white"
-                      : "border-white/[0.07] bg-white/[0.035] text-white/62 hover:bg-white/[0.07] hover:text-white",
+                      ? "border-white/10 bg-white/[0.07] text-white"
+                      : "border-white/8 bg-white/[0.03] text-white/62 hover:bg-white/[0.07] hover:text-white",
                   )}
                 >
                   <Bell className="h-4.5 w-4.5" />
@@ -132,10 +132,10 @@ export function Navigation({
                   aria-label="Профиль"
                   aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
                   className={cn(
-                    "flex h-11 w-11 items-center justify-center rounded-[14px] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                    "flex h-11 w-11 items-center justify-center rounded-control border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                     isActivePath(pathname, "/profile")
                       ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                      : "border-white/[0.07] bg-white/[0.035] text-white/62 hover:bg-white/[0.07] hover:text-white",
+                      : "border-white/8 bg-white/[0.03] text-white/62 hover:bg-white/[0.07] hover:text-white",
                   )}
                 >
                   <UserRound className="h-4.5 w-4.5" />
@@ -147,12 +147,12 @@ export function Navigation({
       </nav>
 
       <header className="mobile-navigation fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden">
-        <div className="app-chrome mx-auto flex max-w-lg items-center justify-between rounded-[24px] px-3 py-2">
+        <div className="app-chrome mx-auto flex max-w-lg items-center justify-between rounded-card px-3 py-2">
           <Link
             href="/"
             aria-label="Менариум — главная"
             aria-current={pathname === "/" ? "page" : undefined}
-            className="flex min-h-11 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+            className="flex min-h-11 items-center rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             <BrandLockup
               priority
@@ -166,10 +166,10 @@ export function Navigation({
               aria-label="Уведомления"
               aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
               className={cn(
-                "relative flex h-11 w-11 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                "relative flex h-11 w-11 items-center justify-center rounded-xs border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                 isActivePath(pathname, "/notifications")
                   ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                  : "border-white/[0.08] bg-white/[0.04] text-white/62",
+                  : "border-white/8 bg-white/[0.03] text-white/62",
               )}
             >
               <Bell className="h-4.5 w-4.5" />
@@ -180,10 +180,10 @@ export function Navigation({
               aria-label="Личный кабинет"
               aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
               className={cn(
-                "flex h-11 w-11 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                "flex h-11 w-11 items-center justify-center rounded-xs border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                 isActivePath(pathname, "/profile")
                   ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                  : "border-white/[0.08] bg-white/[0.04] text-white/62",
+                  : "border-white/8 bg-white/[0.03] text-white/62",
               )}
             >
               <UserRound className="h-4.5 w-4.5" />
@@ -194,7 +194,7 @@ export function Navigation({
 
       <nav aria-label="Мобильная навигация" className="mobile-navigation fixed inset-x-0 bottom-0 z-50 md:hidden">
         <div className="mobile-navigation-bottom-inset px-2.5 pt-5">
-          <div className="app-chrome mx-auto max-w-lg rounded-[24px] px-1.5 py-1.5">
+          <div className="app-chrome mx-auto max-w-lg rounded-card px-1.5 py-1.5">
             <div className="grid grid-cols-5 items-stretch gap-0.5">
               {mobileItems.map((item) => {
                 const Icon = item.icon;
@@ -206,19 +206,19 @@ export function Navigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-micro font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
-                      active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/62",
-                      item.primary && "text-white/86",
+                      "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-control px-0.5 py-1 text-micro font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+                      active && !item.primary ? "bg-white/[0.05] text-white" : "text-white/62",
+                      item.primary && "text-white/88",
                     )}
                   >
                     <span
                       className={cn(
                         "relative flex items-center justify-center transition",
                         item.primary
-                          ? "h-8 w-10 rounded-xl text-white"
+                          ? "h-8 w-10 rounded-xs text-white"
                           : active
-                            ? "h-8 w-10 rounded-xl bg-white/[0.1] text-teal-200"
-                            : "h-8 w-10 rounded-xl text-white/62",
+                            ? "h-8 w-10 rounded-xs bg-white/[0.10] text-teal-200"
+                            : "h-8 w-10 rounded-xs text-white/62",
                       )}
                     >
                       {item.primary ? (

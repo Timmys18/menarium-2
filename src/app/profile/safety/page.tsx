@@ -155,7 +155,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
               <GlassCard className="overflow-hidden border border-teal-300/12 bg-gradient-to-br from-teal-300/[0.07] via-white/[0.025] to-blue-400/[0.06] p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                   <div className="flex items-start gap-4">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-teal-300/12 text-teal-200">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-teal-300/12 text-teal-200">
                       <ShieldCheck className="h-6 w-6" />
                     </span>
                     <div>
@@ -168,7 +168,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                   </div>
                   <Link
                     href="/profile/exchanges"
-                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.055] px-4 text-sm font-semibold text-white/72 transition hover:bg-white/[0.09] hover:text-white"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-control border border-white/10 bg-white/[0.05] px-4 text-sm font-semibold text-white/78 transition hover:bg-white/[0.07] hover:text-white"
                   >
                     Открыть обмены
                     <ArrowRight className="h-4 w-4" />
@@ -178,7 +178,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
 
               <nav
                 aria-label="Фильтр обращений"
-                className="grid grid-cols-3 gap-2 rounded-[20px] border border-white/8 bg-white/[0.025] p-2"
+                className="grid grid-cols-3 gap-2 rounded-md border border-white/8 bg-white/[0.03] p-2"
               >
                 {([
                   ["all", "Все", totalCount],
@@ -190,17 +190,17 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                     href={safetyHref(filter)}
                     aria-current={activeFilter === filter ? "page" : undefined}
                     className={cn(
-                      "flex min-h-11 items-center justify-center rounded-[14px] px-3 py-2.5 text-center text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75",
+                      "flex min-h-11 items-center justify-center rounded-control px-3 py-2.5 text-center text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/62 hover:bg-white/[0.055] hover:text-white",
+                        : "text-white/62 hover:bg-white/[0.05] hover:text-white",
                     )}
                   >
                     {label}
                     <span
                       className={cn(
                         "ml-2 text-xs",
-                        activeFilter === filter ? "text-white/75" : "text-white/62",
+                        activeFilter === filter ? "text-white/78" : "text-white/62",
                       )}
                     >
                       {count}
@@ -236,12 +236,12 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                           <span
                             className={cn(
-                              "flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px]",
+                              "flex h-11 w-11 shrink-0 items-center justify-center rounded-control",
                               report.status === ReportStatus.RESOLVED
                                 ? "bg-teal-300/12 text-teal-200"
                                 : report.status === ReportStatus.REVIEWING
                                   ? "bg-blue-400/12 text-blue-200"
-                                  : "bg-white/[0.055] text-white/62",
+                                  : "bg-white/[0.05] text-white/62",
                             )}
                           >
                             <StatusIcon className="h-5 w-5" />
@@ -261,10 +261,10 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                                 })}
                               </time>
                             </div>
-                            <p className="mt-3 text-sm leading-5 text-white/65">
+                            <p className="mt-3 text-sm leading-5 text-white/62">
                               {presentation.description}
                             </p>
-                            <div className="mt-4 rounded-[16px] border border-white/7 bg-white/[0.025] p-4">
+                            <div className="mt-4 rounded-control border border-white/8 bg-white/[0.03] p-4">
                               <p className="text-micro font-semibold uppercase tracking-[0.14em] text-white/62">
                                 {report.swap ? "Связанный обмен" : "Объект обращения"}
                               </p>
@@ -279,7 +279,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                               {contextHref ? (
                                 <Link
                                   href={contextHref}
-                                  className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-sm font-semibold text-teal-100 transition hover:bg-teal-300/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/75"
+                                  className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-sm font-semibold text-teal-100 transition hover:bg-teal-300/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                                 >
                                   Открыть контекст
                                   <ArrowRight className="h-3.5 w-3.5" />

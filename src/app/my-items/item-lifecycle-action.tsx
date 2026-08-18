@@ -57,7 +57,7 @@ export function ItemLifecycleAction({
           title="Вернуть в каталог"
           onClick={() => void runAction()}
           disabled={pending}
-          className="flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[var(--surface-sunken)]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+          className="flex h-11 w-11 items-center justify-center rounded-xs border border-white/10 bg-[var(--surface-sunken)]/92 text-white/88 shadow-lg transition hover:bg-[#111925] hover:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
         </button>
@@ -92,8 +92,8 @@ export function ItemLifecycleAction({
         }}
         className={cn(
           compact
-            ? "flex h-11 w-11 items-center justify-center rounded-[13px] border border-white/12 bg-[var(--surface-sunken)]/92 text-white/82 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
-            : "inline-flex min-h-11 items-center justify-center gap-2 rounded-[14px] px-4 text-sm font-semibold text-white/82 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70",
+            ? "flex h-11 w-11 items-center justify-center rounded-xs border border-white/10 bg-[var(--surface-sunken)]/92 text-white/88 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            : "inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-4 text-sm font-semibold text-white/88 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
         )}
       >
         <CirclePause className="h-4 w-4" />
@@ -122,7 +122,7 @@ export function ItemLifecycleAction({
         }
       >
         {error ? (
-          <p role="alert" className="rounded-[14px] border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-red-200">
+          <p role="alert" className="rounded-control border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-red-200">
             {error}
           </p>
         ) : null}

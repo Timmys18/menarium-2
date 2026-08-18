@@ -35,7 +35,7 @@ export default function PrivacyPage() {
             Эта редакция описывает базовую модель обработки данных для запуска сервиса.
           </p>
           {sections.map((section) => (
-            <section key={section.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <section key={section.title} className="rounded-control border border-white/10 bg-white/[0.03] p-5">
               <h2 className="mb-2 text-xl font-semibold">{section.title}</h2>
               <p className="text-white/62">{section.text}</p>
             </section>

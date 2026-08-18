@@ -80,13 +80,13 @@ export function ExchangeReviewPanel({
   }
 
   return (
-    <section className="mb-5 space-y-4 rounded-[18px] border border-amber-300/14 bg-amber-300/[0.045] p-4" aria-labelledby="exchange-review-title">
+    <section className="mb-5 space-y-4 rounded-md border border-amber-300/14 bg-amber-300/[0.045] p-4" aria-labelledby="exchange-review-title">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-amber-300/10 text-amber-200">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-amber-300/10 text-amber-200">
           <Star className="h-5 w-5" />
         </span>
         <div>
-          <h3 id="exchange-review-title" className="text-sm font-semibold text-white/90">
+          <h3 id="exchange-review-title" className="text-sm font-semibold text-white/88">
             Подтверждённый отзыв
           </h3>
           <p className="mt-1 text-xs leading-5 text-white/62">
@@ -96,13 +96,13 @@ export function ExchangeReviewPanel({
       </div>
 
       {review ? (
-        <div className="rounded-[15px] border border-white/8 bg-white/[0.025] p-3.5">
+        <div className="rounded-control border border-white/8 bg-white/[0.03] p-3.5">
           <div className="flex items-center justify-between gap-3">
             <Stars rating={review.rating} label={`Ваша оценка: ${review.rating} из 5`} />
             <span className="text-xs text-white/62">{ratingLabels[review.rating]}</span>
           </div>
-          {review.comment ? <p className="mt-3 text-sm leading-6 text-white/64">{review.comment}</p> : null}
-          <div className="mt-3 flex items-start gap-2 border-t border-white/7 pt-3 text-xs leading-5 text-white/62">
+          {review.comment ? <p className="mt-3 text-sm leading-6 text-white/62">{review.comment}</p> : null}
+          <div className="mt-3 flex items-start gap-2 border-t border-white/8 pt-3 text-xs leading-5 text-white/62">
             {review.isVisible ? (
               <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-300" />
             ) : (
@@ -126,7 +126,7 @@ export function ExchangeReviewPanel({
                   onClick={() => setRating(value)}
                   aria-label={`${value} из 5 — ${ratingLabels[value]}`}
                   aria-pressed={rating === value}
-                  className="flex h-11 w-11 items-center justify-center rounded-[12px] border border-white/8 bg-white/[0.035] transition hover:border-amber-200/28 hover:bg-amber-200/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/60"
+                  className="flex h-11 w-11 items-center justify-center rounded-xs border border-white/8 bg-white/[0.03] transition hover:border-amber-200/28 hover:bg-amber-200/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   <Star className={cn("h-5 w-5", value <= rating ? "fill-amber-300 text-amber-300" : "text-white/24")} />
                 </button>
@@ -190,7 +190,7 @@ export function ExchangeReviewPanel({
         }
       >
         <div className="space-y-4">
-          <div className="rounded-[16px] border border-amber-300/12 bg-amber-300/[0.045] p-4">
+          <div className="rounded-control border border-amber-300/12 bg-amber-300/[0.045] p-4">
             <div className="flex items-center justify-between gap-3">
               <Stars rating={rating} label={`Ваша оценка: ${rating} из 5`} />
               <span className="text-sm font-medium text-amber-100/70">
@@ -209,7 +209,7 @@ export function ExchangeReviewPanel({
       </MenariumDialog>
 
       {receivedReview ? (
-        <div className="rounded-[15px] border border-teal-300/12 bg-teal-300/[0.04] p-3.5">
+        <div className="rounded-control border border-teal-300/12 bg-teal-300/[0.04] p-3.5">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs font-semibold text-teal-100/70">Отзыв партнёра о вас</p>
             <Stars rating={receivedReview.rating} label={`Оценка партнёра: ${receivedReview.rating} из 5`} />

@@ -11,16 +11,16 @@ export default function MyItemsLoading() {
         </div>
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-20 rounded-[20px]" />
+            <Skeleton key={index} className="h-20 rounded-md" />
           ))}
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="space-y-4 rounded-[28px] border border-white/8 p-4">
-              <Skeleton className="h-52 rounded-[20px]" />
+            <div key={index} className="space-y-4 rounded-lg border border-white/8 p-4">
+              <Skeleton className="h-52 rounded-md" />
               <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-16 w-full rounded-[16px]" />
-              <Skeleton className="h-10 w-full rounded-[14px]" />
+              <Skeleton className="h-16 w-full rounded-control" />
+              <Skeleton className="h-10 w-full rounded-control" />
             </div>
           ))}
         </div>

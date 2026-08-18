@@ -162,7 +162,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
     <AppShell>
       <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
-          <GlassCard className="rounded-3xl p-5 sm:p-8">
+          <GlassCard className="rounded-card p-5 sm:p-8">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               {user.image ? (
                 <Image
@@ -171,10 +171,10 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   width={96}
                   height={96}
                   priority
-                  className="h-20 w-20 rounded-2xl object-cover sm:h-24 sm:w-24"
+                  className="h-20 w-20 rounded-control object-cover sm:h-24 sm:w-24"
                 />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500 text-2xl font-bold sm:h-24 sm:w-24 sm:text-3xl">
+                <div className="flex h-20 w-20 items-center justify-center rounded-control bg-gradient-to-br from-sky-500 to-teal-500 text-2xl font-bold sm:h-24 sm:w-24 sm:text-3xl">
                   {getInitials(user.name, user.email)}
                 </div>
               )}
@@ -258,7 +258,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   ["Отзывов", reviewCount],
                   ["Оценок 4–5", reputation.positivePercentage !== null ? `${reputation.positivePercentage}%` : "—"],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-[15px] border border-white/7 bg-black/10 px-3 py-3">
+                  <div key={label} className="rounded-control border border-white/8 bg-black/10 px-3 py-3">
                     <p className="text-lg font-semibold text-white/88">{value}</p>
                     <p className="mt-0.5 text-micro text-white/62">{label}</p>
                   </div>
@@ -285,7 +285,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   return (
                     <div key={rating} className="grid grid-cols-[28px_1fr_28px] items-center gap-3">
                       <span className="text-xs text-white/62">{rating}</span>
-                      <span className="h-2 overflow-hidden rounded-full bg-white/[0.055]">
+                      <span className="h-2 overflow-hidden rounded-full bg-white/[0.05]">
                         <span
                           className={cn(
                             "block h-full rounded-full",
@@ -301,7 +301,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   );
                 })}
               </div>
-              <p className="mt-5 border-t border-white/7 pt-4 text-xs leading-5 text-white/62">
+              <p className="mt-5 border-t border-white/8 pt-4 text-xs leading-5 text-white/62">
                 Оценку можно оставить только после обмена, подтверждённого обеими сторонами.
                 Отзывы публикуются после ответа партнёра или окончания слепого периода.
               </p>
@@ -335,15 +335,15 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                             alt=""
                             width={40}
                             height={40}
-                            className="h-10 w-10 shrink-0 rounded-[13px] object-cover"
+                            className="h-10 w-10 shrink-0 rounded-xs object-cover"
                           />
                         ) : (
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-white/[0.055] text-white/62">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xs bg-white/[0.05] text-white/62">
                             <MessageSquareQuote className="h-4 w-4" />
                           </span>
                         )}
                         <div className="min-w-0">
-                          <Link href={`/user/${review.reviewer.id}`} className="block truncate text-sm font-semibold text-white/82 hover:text-teal-200">
+                          <Link href={`/user/${review.reviewer.id}`} className="block truncate text-sm font-semibold text-white/88 hover:text-teal-200">
                             {review.reviewer.name ?? "Участник Менариум"}
                           </Link>
                           <time dateTime={review.createdAt.toISOString()} className="mt-0.5 block text-xs text-white/62">
@@ -367,7 +367,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   {reviewsPage > 1 ? (
                     <Link
                       href={reviewsHref(id, reviewsPage - 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="rounded-control border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
                     >
                       ← Новее
                     </Link>
@@ -378,7 +378,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   {reviewsPage < totalReviewPages ? (
                     <Link
                       href={reviewsHref(id, reviewsPage + 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="rounded-control border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
                     >
                       Старее →
                     </Link>
