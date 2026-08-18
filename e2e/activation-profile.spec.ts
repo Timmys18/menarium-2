@@ -33,6 +33,10 @@ test.describe("первый вход и личный кабинет", () => {
       const content = page.locator("main");
       await content.getByLabel("Электронная почта").fill(email);
       await content.getByLabel("Пароль").fill(password);
+      // Согласие на обработку персональных данных — отдельное действие, а не
+      // следствие нажатия кнопки: без отметки регистрация недоступна.
+      await expect(content.getByRole("button", { name: "Зарегистрироваться" })).toBeDisabled();
+      await content.getByRole("checkbox", { name: /обработку персональных данных/ }).check();
       await content.getByRole("button", { name: "Зарегистрироваться" }).click();
 
       await page.waitForURL((url) => url.pathname === "/profile", { waitUntil: "commit", timeout: 20_000 });

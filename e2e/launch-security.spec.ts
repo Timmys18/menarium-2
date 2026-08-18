@@ -107,4 +107,48 @@ test.describe("launch security boundaries", () => {
     expect(after.sessionVersion).toBe(before.sessionVersion + 1);
     expect(await prisma.verificationToken.findFirst({ where: { identifier } })).toBeNull();
   });
+
+  test("registration does not reveal whether an email already has an account", async ({ request }) => {
+    const takenEmail = MARIA.email;
+    const freeEmail = `probe-${Date.now()}@menarium.test`;
+    const password = "Zerkalnyj-Otvet-2026";
+
+    try {
+      const taken = await request.post("/api/auth/register", { data: { email: takenEmail, password } });
+      const free = await request.post("/api/auth/register", { data: { email: freeEmail, password } });
+
+      // Один код и одно тело: по ответу нельзя отличить занятый адрес от
+      // свободного. Прежняя версия отвечала на занятый 409 с прямым текстом.
+      expect(taken.status()).toBe(free.status());
+      expect(await taken.json()).toEqual(await free.json());
+
+      // При этом занятый адрес не превратился во второй аккаунт.
+      expect(await prisma.user.count({ where: { email: takenEmail } })).toBe(1);
+    } finally {
+      await prisma.verificationToken.deleteMany({ where: { identifier: `email-verify:${freeEmail}` } });
+      await prisma.user.deleteMany({ where: { email: freeEmail } });
+    }
+  });
+
+  test("a forged X-Forwarded-For does not get its own request budget", async ({ request }) => {
+    const email = `weak-${Date.now()}@menarium.test`;
+
+    // Пароль из списка частых обязан отклоняться независимо от того, какой
+    // адрес клиент себе назначил заголовком.
+    const responses = await Promise.all(
+      ["1.2.3.4", "5.6.7.8", "9.10.11.12"].map((forged) =>
+        request.post("/api/auth/register", {
+          headers: { "X-Forwarded-For": forged },
+          data: { email, password: "qwerty12" },
+        }),
+      ),
+    );
+
+    for (const response of responses) {
+      expect(response.status()).toBe(400);
+      expect((await response.json()).error).toContain("утечках");
+    }
+
+    expect(await prisma.user.count({ where: { email } })).toBe(0);
+  });
 });
