@@ -81,8 +81,8 @@ export function FavoriteButton({
         className={cn(
           "inline-flex min-h-11 items-center justify-center gap-2 rounded-control border px-3 text-sm font-semibold backdrop-blur-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:cursor-wait",
           favorite
-            ? "border-rose-300/25 bg-rose-400/16 text-rose-100 shadow-[0_10px_28px_rgba(244,114,182,0.16)]"
-            : "border-white/10 bg-[var(--surface-sunken)]/82 text-white/78 hover:border-white/20 hover:bg-[#111824]/92 hover:text-white",
+            ? "border-rose-300/25 bg-rose-400/16 text-danger shadow-[0_10px_28px_rgba(244,114,182,0.16)]"
+            : "border-line-default bg-[var(--surface-sunken)]/82 text-text-muted hover:border-line-strong hover:bg-[var(--surface-input)]/92 hover:text-text-primary",
           !showLabel && "h-11 w-11 px-0",
         )}
       >

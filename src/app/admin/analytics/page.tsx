@@ -88,7 +88,7 @@ export default async function ProductAnalyticsPage() {
         <div className="mx-auto max-w-7xl">
           <Link
             href="/admin"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-text-subtle transition hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             <ArrowLeft className="h-4 w-4" />
             К модерации
@@ -96,23 +96,23 @@ export default async function ProductAnalyticsPage() {
 
           <header className="mb-8 flex flex-wrap items-end justify-between gap-5">
             <div>
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-teal-300/80">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-accent">
                 <Activity className="h-4 w-4" />
                 Product intelligence
               </div>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Пульс Менариум</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/62 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-text-subtle sm:text-base">
                 Путь от первого визита до завершённого обмена. Только first-party данные без рекламных трекеров,
                 содержимого сообщений и персональных полей.
               </p>
             </div>
             {dashboard ? (
               <div className="rounded-control border border-teal-400/15 bg-teal-400/[0.06] px-4 py-3 text-right">
-                <div className="flex items-center justify-end gap-2 text-sm font-medium text-teal-200">
+                <div className="flex items-center justify-end gap-2 text-sm font-medium text-accent">
                   <span className="h-2 w-2 rounded-full bg-teal-300 shadow-[0_0_14px_rgba(94,234,212,0.8)]" />
                   Данные обновлены
                 </div>
-                <p className="mt-1 text-xs text-white/62">{generatedAtFormatter.format(dashboard.generatedAt)} МСК</p>
+                <p className="mt-1 text-xs text-text-subtle">{generatedAtFormatter.format(dashboard.generatedAt)} МСК</p>
               </div>
             ) : null}
           </header>
@@ -129,10 +129,10 @@ export default async function ProductAnalyticsPage() {
               {process.env.PRODUCT_ANALYTICS_ENABLED !== "true" ? (
                 <GlassCard className="border-amber-400/20 bg-amber-400/[0.05] p-5">
                   <div className="flex gap-3">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
                     <div>
-                      <p className="font-medium text-amber-100">Сбор посещений выключен</p>
-                      <p className="mt-1 text-sm leading-6 text-white/62">
+                      <p className="font-medium text-warning">Сбор посещений выключен</p>
+                      <p className="mt-1 text-sm leading-6 text-text-subtle">
                         Бизнес-метрики продолжают считаться из основных данных, но для трафика установите
                         PRODUCT_ANALYTICS_ENABLED=true.
                       </p>
@@ -145,17 +145,17 @@ export default async function ProductAnalyticsPage() {
                 <GlassCard className="relative overflow-hidden border-teal-400/15 p-6 sm:p-7">
                   <div className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-teal-400/10 blur-3xl" />
                   <div className="relative">
-                    <div className="flex items-center gap-2 text-sm text-teal-200/75">
+                    <div className="flex items-center gap-2 text-sm text-accent">
                       <Target className="h-4 w-4" />
                       North star · 30 дней
                     </div>
                     <div className="mt-5 flex items-end gap-3">
-                      <strong className="text-6xl leading-none text-white">
+                      <strong className="text-6xl leading-none text-text-primary">
                         {numberFormatter.format(dashboard.business.swapsCompleted)}
                       </strong>
-                      <span className="pb-1 text-sm text-white/62">завершённых обменов</span>
+                      <span className="pb-1 text-sm text-text-subtle">завершённых обменов</span>
                     </div>
-                    <p className="mt-5 max-w-md text-sm leading-6 text-white/62">
+                    <p className="mt-5 max-w-md text-sm leading-6 text-text-subtle">
                       Обе стороны подтвердили обмен, объявления перешли в историю.
                     </p>
                   </div>
@@ -163,32 +163,32 @@ export default async function ProductAnalyticsPage() {
 
                 <GlassCard className="p-6">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xs bg-sky-400/10 text-sky-300">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xs bg-sky-400/10 text-info">
                       <Eye className="h-5 w-5" />
                     </div>
-                    <span className="text-xs text-white/62">30 дней</span>
+                    <span className="text-xs text-text-subtle">30 дней</span>
                   </div>
                   <strong className="mt-5 block text-4xl font-semibold">
                     {numberFormatter.format(dashboard.traffic.uniqueVisitors)}
                   </strong>
-                  <p className="mt-1 text-sm text-white/62">уникальных посетителей</p>
-                  <p className="mt-4 text-xs text-white/62">
+                  <p className="mt-1 text-sm text-text-subtle">уникальных посетителей</p>
+                  <p className="mt-4 text-xs text-text-subtle">
                     {numberFormatter.format(dashboard.traffic.pageViews)} просмотров · {numberFormatter.format(dashboard.traffic.sessions)} сессий
                   </p>
                 </GlassCard>
 
                 <GlassCard className="p-6">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xs bg-emerald-400/10 text-emerald-300">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xs bg-emerald-400/10 text-accent">
                       <Handshake className="h-5 w-5" />
                     </div>
-                    <span className="text-xs text-white/62">качество мэтчинга</span>
+                    <span className="text-xs text-text-subtle">качество мэтчинга</span>
                   </div>
                   <strong className="mt-5 block text-4xl font-semibold">
                     {formatPercent(dashboard.business.acceptanceRate)}
                   </strong>
-                  <p className="mt-1 text-sm text-white/62">предложений приняты</p>
-                  <p className="mt-4 text-xs text-white/62">
+                  <p className="mt-1 text-sm text-text-subtle">предложений приняты</p>
+                  <p className="mt-4 text-xs text-text-subtle">
                     {numberFormatter.format(dashboard.business.proposalsAccepted)} из {numberFormatter.format(dashboard.business.swapsProposed)}
                   </p>
                 </GlassCard>
@@ -199,14 +199,14 @@ export default async function ProductAnalyticsPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <Route className="h-5 w-5 text-teal-300" />
+                        <Route className="h-5 w-5 text-accent" />
                         <h2 className="text-xl font-semibold">Активация новой когорты</h2>
                       </div>
-                      <p className="mt-2 text-sm text-white/62">
+                      <p className="mt-2 text-sm text-text-subtle">
                         Пользователи, зарегистрированные за последние 30 дней. Процент считается от регистраций.
                       </p>
                     </div>
-                    <span className="rounded-full bg-white/[0.05] px-3 py-1.5 text-xs text-white/62">
+                    <span className="rounded-full bg-fill-2 px-3 py-1.5 text-xs text-text-subtle">
                       {numberFormatter.format(dashboard.cohort[0]!.value)} человек
                     </span>
                   </div>
@@ -218,17 +218,17 @@ export default async function ProductAnalyticsPage() {
                         <div key={step.key}>
                           <div className="mb-2 flex items-baseline justify-between gap-3">
                             <div className="flex items-center gap-3">
-                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 text-micro text-white/62">
+                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-line-default text-micro text-text-subtle">
                                 {index + 1}
                               </span>
                               <span className="text-sm font-medium">{step.label}</span>
                             </div>
                             <div className="text-right">
                               <span className="font-semibold">{numberFormatter.format(step.value)}</span>
-                              <span className="ml-2 text-xs text-white/62">{formatPercent(step.rate)}</span>
+                              <span className="ml-2 text-xs text-text-subtle">{formatPercent(step.rate)}</span>
                             </div>
                           </div>
-                          <div className="ml-9 h-2 overflow-hidden rounded-full bg-white/[0.05]">
+                          <div className="ml-9 h-2 overflow-hidden rounded-full bg-fill-2">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-teal-400 via-cyan-400 to-emerald-300"
                               style={{ width: `${Math.min(100, width)}%`, opacity: 1 - index * 0.1 }}
@@ -242,10 +242,10 @@ export default async function ProductAnalyticsPage() {
 
                 <GlassCard className="p-5 sm:p-7">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-amber-300" />
+                    <Sparkles className="h-5 w-5 text-warning" />
                     <h2 className="text-xl font-semibold">Сигналы продукта</h2>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-white/62">
+                  <p className="mt-2 text-sm leading-6 text-text-subtle">
                     Стартовые внутренние пороги. После накопления данных заменим их целями по когортам.
                   </p>
 
@@ -253,14 +253,14 @@ export default async function ProductAnalyticsPage() {
                     {signals.length ? (
                       signals.map((signal) => (
                         <div key={signal} className="flex gap-3 rounded-control border border-amber-400/15 bg-amber-400/[0.05] p-4">
-                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-                          <p className="text-sm leading-6 text-white/62">{signal}</p>
+                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+                          <p className="text-sm leading-6 text-text-subtle">{signal}</p>
                         </div>
                       ))
                     ) : (
                       <div className="flex gap-3 rounded-control border border-emerald-400/15 bg-emerald-400/[0.05] p-4">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-                        <p className="text-sm leading-6 text-white/62">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                        <p className="text-sm leading-6 text-text-subtle">
                           Критических отклонений по стартовым порогам нет. Продолжаем накапливать когорты.
                         </p>
                       </div>
@@ -268,12 +268,12 @@ export default async function ProductAnalyticsPage() {
                   </div>
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div className="rounded-control bg-white/[0.03] p-4">
-                      <p className="text-xs text-white/62">Активация предложения</p>
+                    <div className="rounded-control bg-fill-1 p-4">
+                      <p className="text-xs text-text-subtle">Активация предложения</p>
                       <strong className="mt-2 block text-2xl">{formatPercent(dashboard.cohort[2]!.rate)}</strong>
                     </div>
-                    <div className="rounded-control bg-white/[0.03] p-4">
-                      <p className="text-xs text-white/62">Принято → завершено</p>
+                    <div className="rounded-control bg-fill-1 p-4">
+                      <p className="text-xs text-text-subtle">Принято → завершено</p>
                       <strong className="mt-2 block text-2xl">{formatPercent(dashboard.business.completionRate)}</strong>
                     </div>
                   </div>
@@ -285,12 +285,12 @@ export default async function ProductAnalyticsPage() {
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5 text-sky-300" />
+                        <BarChart3 className="h-5 w-5 text-info" />
                         <h2 className="text-xl font-semibold">Ежедневный импульс</h2>
                       </div>
-                      <p className="mt-2 text-sm text-white/62">14 дней · московское время</p>
+                      <p className="mt-2 text-sm text-text-subtle">14 дней · московское время</p>
                     </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-micro text-white/62">
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-micro text-text-subtle">
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-sky-400" />Регистрации</span>
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-teal-400" />Вещи</span>
                       <span><i className="mr-1.5 inline-block h-2 w-2 rounded-full bg-amber-300" />Предложения</span>
@@ -307,7 +307,7 @@ export default async function ProductAnalyticsPage() {
                           <span className="w-1/4 rounded-t-sm bg-amber-300/80" style={{ height: `${Math.max(day.proposals ? 4 : 0, (day.proposals / maxDailyActivity) * 100)}%` }} />
                           <span className="w-1/4 rounded-t-sm bg-emerald-300/80" style={{ height: `${Math.max(day.completions ? 4 : 0, (day.completions / maxDailyActivity) * 100)}%` }} />
                         </div>
-                        <span className="mt-2 text-center text-micro text-white/62">
+                        <span className="mt-2 text-center text-micro text-text-subtle">
                           <span className="sm:hidden">{Number(day.day.slice(-2))}</span>
                           <span className="hidden sm:inline">
                             {shortDateFormatter.format(new Date(`${day.day}T12:00:00Z`)).replace(".", "")}
@@ -323,21 +323,21 @@ export default async function ProductAnalyticsPage() {
                     <Clock3 className="h-5 w-5 text-violet-300" />
                     <h2 className="text-xl font-semibold">Время до обмена</h2>
                   </div>
-                  <p className="mt-2 text-sm text-white/62">Медиана за 30 дней</p>
+                  <p className="mt-2 text-sm text-text-subtle">Медиана за 30 дней</p>
 
                   <div className="mt-7 space-y-5">
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-white/62"><Box className="h-4 w-4" />Регистрация → первая вещь</div>
+                      <div className="flex items-center gap-2 text-xs text-text-subtle"><Box className="h-4 w-4" />Регистрация → первая вещь</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianFirstItemHours)}</strong>
                     </div>
-                    <div className="h-px bg-white/[0.05]" />
+                    <div className="h-px bg-fill-2" />
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-white/62"><Users className="h-4 w-4" />Предложение → принятие</div>
+                      <div className="flex items-center gap-2 text-xs text-text-subtle"><Users className="h-4 w-4" />Предложение → принятие</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianAcceptHours)}</strong>
                     </div>
-                    <div className="h-px bg-white/[0.05]" />
+                    <div className="h-px bg-fill-2" />
                     <div>
-                      <div className="flex items-center gap-2 text-xs text-white/62"><ShieldCheck className="h-4 w-4" />Принятие → завершение</div>
+                      <div className="flex items-center gap-2 text-xs text-text-subtle"><ShieldCheck className="h-4 w-4" />Принятие → завершение</div>
                       <strong className="mt-2 block text-2xl">{formatHours(dashboard.latency.medianCompleteHours)}</strong>
                     </div>
                   </div>

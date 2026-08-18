@@ -183,14 +183,14 @@ export function EditItemForm({ item }: { item: PublicItem }) {
 
   return (
     <form className="space-y-6" onSubmit={submit}>
-      <GlassCard className="overflow-hidden border border-white/8 p-5 sm:p-7">
+      <GlassCard className="overflow-hidden border border-line-hairline p-5 sm:p-7">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/65">Фотографии</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-info-soft">Фотографии</p>
             <h2 className="mt-1.5 text-2xl font-bold">Фотографии</h2>
-            <p className="mt-2 text-sm text-white/62">Первое изображение станет обложкой. Можно добавить до 8 фото.</p>
+            <p className="mt-2 text-sm text-text-subtle">Первое изображение станет обложкой. Можно добавить до 8 фото.</p>
           </div>
-          <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/62">
+          <span className="shrink-0 rounded-full border border-line-default bg-fill-1 px-3 py-1.5 text-xs text-text-subtle">
             {images.length}/8
           </span>
         </div>
@@ -210,23 +210,23 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         <label
           htmlFor="item-edit-images"
           className={cn(
-            "block cursor-pointer rounded-card border border-dashed border-white/20 bg-white/[0.03] p-6 text-center transition hover:border-blue-300/35 hover:bg-blue-400/[0.04]",
+            "block cursor-pointer rounded-card border border-dashed border-line-strong bg-fill-1 p-6 text-center transition hover:border-blue-300/35 hover:bg-blue-400/[0.04]",
             (isUploading || images.length >= 8) && "pointer-events-none opacity-60",
           )}
         >
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-control bg-gradient-to-br from-blue-500/20 to-teal-400/20">
-            {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-blue-200" /> : <Upload className="h-6 w-6 text-teal-200" />}
+            {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-info" /> : <Upload className="h-6 w-6 text-accent" />}
           </div>
-          <span className="inline-flex items-center gap-2 font-semibold text-white">
+          <span className="inline-flex items-center gap-2 font-semibold text-text-primary">
             <Camera className="h-5 w-5" />
             {images.length ? "Добавить ещё фото" : "Добавить фотографии"}
           </span>
-          <span className="mt-1 block text-xs text-white/62">PNG, JPEG, WebP или GIF, каждое до 8 МБ</span>
+          <span className="mt-1 block text-xs text-text-subtle">PNG, JPEG, WebP или GIF, каждое до 8 МБ</span>
         </label>
         {images.length > 0 ? (
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
             {images.map((image, index) => (
-                <div key={`${image.id ?? image.url}`} className="relative h-28 overflow-hidden rounded-control border border-white/10 bg-white/[0.05]">
+                <div key={`${image.id ?? image.url}`} className="relative h-28 overflow-hidden rounded-control border border-line-default bg-fill-2">
                   <Image
                     src={image.url}
                     alt={`Фото объявления ${index + 1}`}
@@ -236,7 +236,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                     className="object-cover"
                   />
                   {index === 0 ? (
-                    <span className="absolute bottom-2 left-2 rounded-full bg-black/65 px-2 py-1 text-micro font-medium text-white/78">
+                    <span className="absolute bottom-2 left-2 rounded-full bg-black/65 px-2 py-1 text-micro font-medium text-on-media-soft">
                       Обложка
                     </span>
                   ) : null}
@@ -245,7 +245,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
                   aria-label={`Удалить фото ${index + 1}`}
                   onClick={() => void removeImage(image)}
                   disabled={removingImageId === image.id || isSubmitting}
-                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xs bg-black/70 text-red-100 backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)] disabled:opacity-50"
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xs bg-black/70 text-danger backdrop-blur-sm transition hover:bg-red-500/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)] disabled:opacity-50"
                 >
                   {removingImageId === image.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -259,25 +259,25 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         ) : null}
       </GlassCard>
 
-      <GlassCard className="space-y-6 border border-white/8 p-5 sm:p-7">
+      <GlassCard className="space-y-6 border border-line-hairline p-5 sm:p-7">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/65">Описание обмена</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-soft">Описание обмена</p>
           <h2 className="mt-1.5 text-2xl font-bold">Обнови детали</h2>
-          <p className="mt-2 text-sm text-white/62">Изменения сразу появятся в каталоге после сохранения.</p>
+          <p className="mt-2 text-sm text-text-subtle">Изменения сразу появятся в каталоге после сохранения.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-sm font-medium text-white/78">Название</span>
+            <span className="text-sm font-medium text-text-muted">Название</span>
             <MenariumInput
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               maxLength={120}
               required
             />
-            <span className="block text-right text-xs text-white/62">{title.length}/120</span>
+            <span className="block text-right text-xs text-text-subtle">{title.length}/120</span>
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-white/78">Город</span>
+            <span className="text-sm font-medium text-text-muted">Город</span>
             <MenariumInput
               value={city}
               onChange={(event) => setCity(event.target.value)}
@@ -290,7 +290,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label htmlFor="edit-item-type" className="block text-sm font-medium text-white/78">
+            <label htmlFor="edit-item-type" className="block text-sm font-medium text-text-muted">
               Тип
             </label>
             <MenariumSelect
@@ -305,7 +305,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="edit-item-category" className="block text-sm font-medium text-white/78">
+            <label htmlFor="edit-item-category" className="block text-sm font-medium text-text-muted">
               Категория
             </label>
             <MenariumSelect
@@ -324,24 +324,24 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
 
         <label className="space-y-2">
-          <span className="text-sm font-medium text-white/78">Описание</span>
+          <span className="text-sm font-medium text-text-muted">Описание</span>
           <MenariumTextarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             maxLength={4000}
             required
           />
-          <span className="block text-right text-xs text-white/62">{description.length}/4000</span>
+          <span className="block text-right text-xs text-text-subtle">{description.length}/4000</span>
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-medium text-white/78">Что интересно взамен</span>
+          <span className="text-sm font-medium text-text-muted">Что интересно взамен</span>
           <MenariumInput
             value={desiredText}
             onChange={(event) => setDesiredText(event.target.value)}
             placeholder="Например: наушники, винил, камера"
           />
-          <span className="block text-xs text-white/62">Разделяйте варианты запятыми, максимум 12.</span>
+          <span className="block text-xs text-text-subtle">Разделяйте варианты запятыми, максимум 12.</span>
         </label>
 
         <div className="flex flex-wrap gap-2">
@@ -360,29 +360,29 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="flex min-h-14 items-center gap-3 rounded-control border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-white/78">
+          <label className="flex min-h-14 items-center gap-3 rounded-control border border-line-hairline bg-fill-1 px-4 py-3 text-sm text-text-muted">
             <input type="checkbox" checked={acceptsAnything} onChange={(event) => setAcceptsAnything(event.target.checked)} />
             Открыт к любым предложениям
           </label>
-          <label className="flex min-h-14 items-center gap-3 rounded-control border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-white/78">
+          <label className="flex min-h-14 items-center gap-3 rounded-control border border-line-hairline bg-fill-1 px-4 py-3 text-sm text-text-muted">
             <input type="checkbox" checked={isOnline} onChange={(event) => setIsOnline(event.target.checked)} />
             Можно обменяться онлайн
           </label>
         </div>
 
         <label className="space-y-2">
-          <span className="text-sm font-medium text-white/78">Дополнительные пожелания</span>
+          <span className="text-sm font-medium text-text-muted">Дополнительные пожелания</span>
           <MenariumTextarea
             value={extraOfferText}
             onChange={(event) => setExtraOfferText(event.target.value)}
             maxLength={1000}
             className="min-h-24"
           />
-          <span className="block text-right text-xs text-white/62">{extraOfferText.length}/1000</span>
+          <span className="block text-right text-xs text-text-subtle">{extraOfferText.length}/1000</span>
         </label>
 
         {error ? (
-          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger" role="alert">
             {error}
           </div>
         ) : null}

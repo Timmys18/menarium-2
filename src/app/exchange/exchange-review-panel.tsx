@@ -26,7 +26,7 @@ function Stars({ rating, label }: { rating: number; label: string }) {
           key={index}
           className={cn(
             "h-4 w-4",
-            index < rating ? "fill-amber-300 text-amber-300" : "text-white/18",
+            index < rating ? "fill-amber-300 text-warning" : "text-text-faint/45",
           )}
         />
       ))}
@@ -82,31 +82,31 @@ export function ExchangeReviewPanel({
   return (
     <section className="mb-5 space-y-4 rounded-md border border-amber-300/14 bg-amber-300/[0.045] p-4" aria-labelledby="exchange-review-title">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-amber-300/10 text-amber-200">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-amber-300/10 text-warning">
           <Star className="h-5 w-5" />
         </span>
         <div>
-          <h3 id="exchange-review-title" className="text-sm font-semibold text-white/88">
+          <h3 id="exchange-review-title" className="text-sm font-semibold text-text-strong">
             Подтверждённый отзыв
           </h3>
-          <p className="mt-1 text-xs leading-5 text-white/62">
+          <p className="mt-1 text-xs leading-5 text-text-subtle">
             Оценку могут оставить только участники завершённого обмена.
           </p>
         </div>
       </div>
 
       {review ? (
-        <div className="rounded-control border border-white/8 bg-white/[0.03] p-3.5">
+        <div className="rounded-control border border-line-hairline bg-fill-1 p-3.5">
           <div className="flex items-center justify-between gap-3">
             <Stars rating={review.rating} label={`Ваша оценка: ${review.rating} из 5`} />
-            <span className="text-xs text-white/62">{ratingLabels[review.rating]}</span>
+            <span className="text-xs text-text-subtle">{ratingLabels[review.rating]}</span>
           </div>
-          {review.comment ? <p className="mt-3 text-sm leading-6 text-white/62">{review.comment}</p> : null}
-          <div className="mt-3 flex items-start gap-2 border-t border-white/8 pt-3 text-xs leading-5 text-white/62">
+          {review.comment ? <p className="mt-3 text-sm leading-6 text-text-subtle">{review.comment}</p> : null}
+          <div className="mt-3 flex items-start gap-2 border-t border-line-hairline pt-3 text-xs leading-5 text-text-subtle">
             {review.isVisible ? (
-              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-300" />
+              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
             ) : (
-              <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-200/70" />
+              <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning" />
             )}
             {review.isVisible
               ? "Отзыв опубликован в профиле партнёра."
@@ -115,7 +115,7 @@ export function ExchangeReviewPanel({
         </div>
       ) : (
         <div>
-          <p className="text-sm font-medium text-white/78">Как прошёл обмен с {partnerName}?</p>
+          <p className="text-sm font-medium text-text-muted">Как прошёл обмен с {partnerName}?</p>
           <div className="mt-3 flex gap-1.5" role="group" aria-label="Оценка обмена">
             {Array.from({ length: 5 }, (_, index) => {
               const value = index + 1;
@@ -126,18 +126,18 @@ export function ExchangeReviewPanel({
                   onClick={() => setRating(value)}
                   aria-label={`${value} из 5 — ${ratingLabels[value]}`}
                   aria-pressed={rating === value}
-                  className="flex h-11 w-11 items-center justify-center rounded-xs border border-white/8 bg-white/[0.03] transition hover:border-amber-200/28 hover:bg-amber-200/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="flex h-11 w-11 items-center justify-center rounded-xs border border-line-hairline bg-fill-1 transition hover:border-amber-200/28 hover:bg-amber-200/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
-                  <Star className={cn("h-5 w-5", value <= rating ? "fill-amber-300 text-amber-300" : "text-white/24")} />
+                  <Star className={cn("h-5 w-5", value <= rating ? "fill-amber-300 text-warning" : "text-text-faint/60")} />
                 </button>
               );
             })}
           </div>
-          <p className="mt-2 min-h-5 text-xs text-amber-100/55">
+          <p className="mt-2 min-h-5 text-xs text-warning-soft">
             {rating ? ratingLabels[rating] : "Выберите оценку"}
           </p>
-          <label htmlFor="exchange-review-comment" className="mt-3 block text-xs font-medium text-white/62">
-            Комментарий <span className="text-white/62">необязательно</span>
+          <label htmlFor="exchange-review-comment" className="mt-3 block text-xs font-medium text-text-subtle">
+            Комментарий <span className="text-text-subtle">необязательно</span>
           </label>
           <MenariumTextarea
             id="exchange-review-comment"
@@ -147,7 +147,7 @@ export function ExchangeReviewPanel({
             placeholder="Что было особенно хорошо или что стоит улучшить?"
             className="mt-2 min-h-24"
           />
-          <div className="mt-2 flex items-center justify-between gap-3 text-xs text-white/62">
+          <div className="mt-2 flex items-center justify-between gap-3 text-xs text-text-subtle">
             <span>Партнёр не увидит отзыв до своей оценки.</span>
             <span>{comment.length}/600</span>
           </div>
@@ -193,16 +193,16 @@ export function ExchangeReviewPanel({
           <div className="rounded-control border border-amber-300/12 bg-amber-300/[0.045] p-4">
             <div className="flex items-center justify-between gap-3">
               <Stars rating={rating} label={`Ваша оценка: ${rating} из 5`} />
-              <span className="text-sm font-medium text-amber-100/70">
+              <span className="text-sm font-medium text-warning">
                 {ratingLabels[rating]}
               </span>
             </div>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-white/62">
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-text-subtle">
               {comment.trim() || "Без дополнительного комментария."}
             </p>
           </div>
-          <p className="flex items-start gap-2 text-xs leading-5 text-white/62">
-            <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-200/65" />
+          <p className="flex items-start gap-2 text-xs leading-5 text-text-subtle">
+            <LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning-soft" />
             Слепая публикация не позволяет второй стороне подстроить свою оценку под вашу.
           </p>
         </div>
@@ -211,16 +211,16 @@ export function ExchangeReviewPanel({
       {receivedReview ? (
         <div className="rounded-control border border-teal-300/12 bg-teal-300/[0.04] p-3.5">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold text-teal-100/70">Отзыв партнёра о вас</p>
+            <p className="text-xs font-semibold text-accent">Отзыв партнёра о вас</p>
             <Stars rating={receivedReview.rating} label={`Оценка партнёра: ${receivedReview.rating} из 5`} />
           </div>
           {receivedReview.comment ? (
-            <p className="mt-3 text-sm leading-6 text-white/62">{receivedReview.comment}</p>
+            <p className="mt-3 text-sm leading-6 text-text-subtle">{receivedReview.comment}</p>
           ) : null}
         </div>
       ) : null}
 
-      {error ? <p role="alert" className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
     </section>
   );
 }

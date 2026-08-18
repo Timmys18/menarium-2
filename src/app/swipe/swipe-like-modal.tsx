@@ -79,7 +79,7 @@ export function SwipeLikeModal({
         </>
       }
     >
-      <label htmlFor="swipe-sender-item" className="block text-sm font-medium text-white/62">
+      <label htmlFor="swipe-sender-item" className="block text-sm font-medium text-text-subtle">
         Что готов отдать
       </label>
       <MenariumSelect
@@ -92,36 +92,36 @@ export function SwipeLikeModal({
         placeholder="Выберите свою вещь"
       />
 
-      <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center gap-2 rounded-md border border-white/8 bg-white/[0.03] p-4">
+      <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-center gap-2 rounded-md border border-line-hairline bg-fill-1 p-4">
         <div className="min-w-0">
-          <span className="block text-micro font-semibold uppercase tracking-[0.12em] text-white/62">Вы отдаёте</span>
-          <span className="mt-1 block truncate text-sm font-medium text-white">{senderTitle}</span>
+          <span className="block text-micro font-semibold uppercase tracking-[0.12em] text-text-subtle">Вы отдаёте</span>
+          <span className="mt-1 block truncate text-sm font-medium text-text-primary">{senderTitle}</span>
         </div>
-        <ArrowRightLeft className="h-4 w-4 justify-self-center text-teal-200" />
+        <ArrowRightLeft className="h-4 w-4 justify-self-center text-accent" />
         <div className="min-w-0 text-right">
-          <span className="block text-micro font-semibold uppercase tracking-[0.12em] text-white/62">Получаешь</span>
-          <span className="mt-1 block truncate text-sm font-medium text-white">{receiverTitle}</span>
+          <span className="block text-micro font-semibold uppercase tracking-[0.12em] text-text-subtle">Получаешь</span>
+          <span className="mt-1 block truncate text-sm font-medium text-text-primary">{receiverTitle}</span>
         </div>
       </div>
 
       <div className="mt-3 rounded-control border border-teal-300/[0.12] bg-teal-300/[0.045] px-3.5 py-3">
-        <p className="text-micro font-semibold uppercase tracking-[0.13em] text-teal-100/62">Владелец ищет</p>
-        <p className="mt-1 text-sm leading-5 text-white/78">{receiverWanted}</p>
+        <p className="text-micro font-semibold uppercase tracking-[0.13em] text-accent-soft">Владелец ищет</p>
+        <p className="mt-1 text-sm leading-5 text-text-muted">{receiverWanted}</p>
       </div>
 
-      <div className="mt-4 space-y-2 border-t border-white/8 pt-4 text-xs leading-5 text-white/62">
+      <div className="mt-4 space-y-2 border-t border-line-hairline pt-4 text-xs leading-5 text-text-subtle">
         <p className="flex items-start gap-2">
-          <BellRing className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200/75" />
+          <BellRing className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
           Владелец получит уведомление и сможет принять или отклонить предложение.
         </p>
         <p className="flex items-start gap-2">
-          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200/75" />
+          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
           До ответа предложение можно отозвать. Оплата не требуется.
         </p>
       </div>
 
       {error ? (
-        <p role="alert" className="mt-4 rounded-control border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-red-200">
+        <p role="alert" className="mt-4 rounded-control border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-danger">
           {error}
         </p>
       ) : null}

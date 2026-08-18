@@ -24,14 +24,14 @@ export function EmptyState({
 }) {
   return (
     <SurfaceCard className="flex min-h-72 flex-col items-center justify-center px-6 py-10 text-center sm:min-h-80 sm:p-12">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-md border border-teal-200/18 bg-teal-300/[0.08] text-teal-100">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-md border border-teal-200/18 bg-teal-300/[0.08] text-accent">
         <span>{icon}</span>
       </div>
       {eyebrow ? (
-        <p className="type-kicker mb-2 text-teal-200/90">{eyebrow}</p>
+        <p className="type-kicker mb-2 text-accent">{eyebrow}</p>
       ) : null}
       <h2 className="mb-2 text-xl font-semibold tracking-tight sm:text-2xl">{title}</h2>
-      <p className="max-w-md text-sm leading-6 text-white/78 sm:text-base">{description}</p>
+      <p className="max-w-md text-sm leading-6 text-text-muted sm:text-base">{description}</p>
       {actionHref && actionLabel ? (
         <div className="mt-6 flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
           <MenariumLinkButton href={actionHref} className="w-full sm:w-auto">

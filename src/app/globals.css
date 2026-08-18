@@ -24,8 +24,6 @@
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
   --text-primary: #f7f9fc;
-  --text-muted: rgba(230, 236, 247, 0.78);
-  --text-subtle: rgba(230, 236, 247, 0.62);
   /*
     Одно кольцо фокуса на весь продукт. Было семнадцать разных: синие четырёх
     прозрачностей, бирюзовые пяти, красные, розовые, янтарное. Пользователь
@@ -34,8 +32,89 @@
   */
   --focus-ring: rgba(120, 170, 255, 0.78);
 
+  /*
+    Семантические цвета текста, заливок и границ.
+
+    Интерфейс был написан абсолютными цветами: `text-white/62`, `bg-white/[0.03]`,
+    `border-white/8`. На тёмном фоне это работает, но означает, что светлой темы
+    не может существовать в принципе — белый текст на белом фоне не виден.
+    Токены ниже описывают роль («вторичный текст», «первая заливка»), а не цвет,
+    и переопределяются целиком для светлой схемы.
+
+    Значения тёмной темы намеренно совпадают с прежними числами: перевод на
+    токены не должен ничего изменить визуально.
+  */
+  --text-strong: rgba(255, 255, 255, 0.88);
+  --text-muted: rgba(255, 255, 255, 0.78);
+  --text-subtle: rgba(255, 255, 255, 0.62);
+  --text-faint: rgba(255, 255, 255, 0.4);
+
+  --fill-1: rgba(255, 255, 255, 0.03);
+  --fill-2: rgba(255, 255, 255, 0.05);
+  --fill-3: rgba(255, 255, 255, 0.07);
+  --fill-4: rgba(255, 255, 255, 0.1);
+
+  --line-hairline: rgba(255, 255, 255, 0.08);
+  --line-default: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.2);
+
+  /*
+    Смысловые цвета текста-акцента.
+
+    В коде было около двухсот пятидесяти мест вида `text-teal-200/78`,
+    `text-red-300`, `text-blue-200/65` — светлые тона, читаемые только на тёмном
+    фоне. В светлой теме «Ищу взамен» и «Прочитано» становились почти
+    невидимыми. Роль («акцент», «опасность») от темы не зависит, конкретный
+    тон — зависит.
+  */
+  --accent-text: #99f6e4;
+  --accent-text-soft: rgba(153, 246, 228, 0.7);
+  --info-text: #bfdbfe;
+  --info-text-soft: rgba(191, 219, 254, 0.7);
+  --danger-text: #fca5a5;
+  --danger-text-soft: rgba(252, 165, 165, 0.75);
+  --warning-text: #fcd34d;
+  --warning-text-soft: rgba(252, 211, 77, 0.72);
+
+  /*
+    Текст поверх фотографии. От темы не зависит: снимок остаётся снимком, и
+    подпись на нём читается только светлой. Отдельный токен нужен именно
+    чтобы такие места не подхватили тёмный цвет вместе со светлой темой и не
+    исчезли на фоне изображения.
+  */
+  --on-media: rgba(255, 255, 255, 0.92);
+  --on-media-soft: rgba(255, 255, 255, 0.75);
+  /* Текст на плотной бирюзовой заливке: она яркая в обеих темах. */
+  --on-accent: #07110f;
+
+  /* Подложка модального слоя и «стекла» шапки. */
+  --scrim: rgba(0, 0, 0, 0.7);
+  --chrome-bg: rgba(13, 19, 29, 0.88);
+
   --shadow-card: 0 14px 38px rgba(0, 0, 0, 0.24);
+  --shadow-surface: 0 10px 28px rgba(0, 0, 0, 0.18);
   --shadow-popover: 0 22px 60px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover:
+    0 24px 70px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(77, 141, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-surface-hover: 0 18px 46px rgba(0, 0, 0, 0.27);
+  --surface-raised-hover: #151e2b;
+  --surface-card-hover: rgba(17, 25, 38, 0.94);
+
+  /* Фон страницы и главный «выразительный» холст на первом экране. */
+  --page-bg:
+    radial-gradient(circle at 10% -12%, rgba(56, 214, 178, 0.11), transparent 38rem),
+    radial-gradient(circle at 94% 0%, rgba(77, 141, 255, 0.12), transparent 42rem),
+    var(--background);
+  --hero-canvas-bg:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 42%),
+    linear-gradient(180deg, rgba(14, 23, 35, 0.94), rgba(9, 14, 23, 0.92));
+  --hero-canvas-border: rgba(255, 255, 255, 0.115);
+  --hero-canvas-shadow:
+    0 38px 100px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
   --mobile-nav-clearance: calc(7rem + env(safe-area-inset-bottom));
   /* Высота нижней навигации на телефоне. Экраны, которые должны занимать
      ровно оставшееся место (чат), считают её от этой переменной, а не от
@@ -44,9 +123,122 @@
   --header-height: 4.5rem;
 }
 
+/*
+  Светлая схема. Применяется, когда её выбрал пользователь (`data-theme="light"`
+  ставится на сервере из cookie, поэтому вспышки тёмного фона нет) либо когда
+  она выбрана в системе и пользователь не указал иного.
+
+  Прозрачности заливок здесь заметно выше, чем в тёмной теме: чёрный на белом
+  набирает контраст быстрее белого на чёрном, и буквальный перенос значений
+  дал бы почти невидимые границы.
+*/
+:root[data-theme="light"] {
+  --background: #f5f7fb;
+  --foreground: #0b1220;
+
+  --surface-raised: #ffffff;
+  --surface-card: #ffffff;
+  --surface-input: #ffffff;
+  --surface-sunken: #eef1f7;
+  --surface-overlay: rgba(255, 255, 255, 0.86);
+  --surface-soft: rgba(11, 18, 32, 0.04);
+
+  --text-primary: #0b1220;
+  --text-strong: rgba(11, 18, 32, 0.92);
+  --text-muted: rgba(11, 18, 32, 0.72);
+  --text-subtle: rgba(11, 18, 32, 0.58);
+  --text-faint: rgba(11, 18, 32, 0.38);
+
+  --fill-1: rgba(11, 18, 32, 0.035);
+  --fill-2: rgba(11, 18, 32, 0.055);
+  --fill-3: rgba(11, 18, 32, 0.08);
+  --fill-4: rgba(11, 18, 32, 0.12);
+
+  --line-hairline: rgba(11, 18, 32, 0.1);
+  --line-default: rgba(11, 18, 32, 0.14);
+  --line-strong: rgba(11, 18, 32, 0.24);
+
+  --border-subtle: rgba(11, 18, 32, 0.1);
+  --border-strong: rgba(11, 18, 32, 0.2);
+
+  /* Те же роли, но тона, читаемые на белом. */
+  --accent-text: #0f766e;
+  --accent-text-soft: rgba(15, 118, 110, 0.78);
+  --info-text: #1d4ed8;
+  --info-text-soft: rgba(29, 78, 216, 0.78);
+  --danger-text: #b91c1c;
+  --danger-text-soft: rgba(185, 28, 28, 0.8);
+  --warning-text: #b45309;
+  --warning-text-soft: rgba(180, 83, 9, 0.8);
+
+  --scrim: rgba(11, 18, 32, 0.55);
+  --chrome-bg: rgba(255, 255, 255, 0.88);
+
+  /* Акценты притемняются: на белом исходные светлые тона не проходят контраст. */
+  --brand-blue-primary: #2563eb;
+  --brand-blue-light: #1d4ed8;
+  --accent-teal: #0d9488;
+  --focus-ring: rgba(37, 99, 235, 0.65);
+
+  --shadow-card: 0 10px 30px rgba(11, 18, 32, 0.08);
+  --shadow-surface: 0 6px 20px rgba(11, 18, 32, 0.06);
+  --shadow-popover: 0 22px 60px rgba(11, 18, 32, 0.16);
+  --shadow-card-hover:
+    0 20px 46px rgba(11, 18, 32, 0.12),
+    0 0 0 1px rgba(37, 99, 235, 0.14);
+  --shadow-surface-hover: 0 14px 34px rgba(11, 18, 32, 0.1);
+  --surface-raised-hover: #ffffff;
+  --surface-card-hover: #ffffff;
+
+  /*
+    На светлом фоне цветные пятна ведут себя иначе: те же 11–12% дают грязный
+    оттенок вместо свечения, поэтому здесь они заметно слабее.
+  */
+  --page-bg:
+    radial-gradient(circle at 10% -12%, rgba(13, 148, 136, 0.07), transparent 38rem),
+    radial-gradient(circle at 94% 0%, rgba(37, 99, 235, 0.07), transparent 42rem),
+    var(--background);
+  --hero-canvas-bg:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), transparent 42%),
+    linear-gradient(180deg, #ffffff, #eef2f9);
+  --hero-canvas-border: rgba(11, 18, 32, 0.1);
+  --hero-canvas-shadow:
+    0 30px 70px rgba(11, 18, 32, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-text-strong: var(--text-strong);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-faint: var(--text-faint);
+  --color-text-primary: var(--text-primary);
+  --color-fill-1: var(--fill-1);
+  --color-fill-2: var(--fill-2);
+  --color-fill-3: var(--fill-3);
+  --color-fill-4: var(--fill-4);
+  --color-line-hairline: var(--line-hairline);
+  --color-line-default: var(--line-default);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent-text);
+  --color-accent-soft: var(--accent-text-soft);
+  --color-info: var(--info-text);
+  --color-info-soft: var(--info-text-soft);
+  --color-danger: var(--danger-text);
+  --color-danger-soft: var(--danger-text-soft);
+  --color-warning: var(--warning-text);
+  --color-warning-soft: var(--warning-text-soft);
+  --color-on-media: var(--on-media);
+  --color-on-media-soft: var(--on-media-soft);
+  --color-on-accent: var(--on-accent);
   --color-brand-blue: var(--brand-blue-primary);
   --color-brand-blue-light: var(--brand-blue-light);
   --color-brand-purple: var(--accent-purple);
@@ -121,10 +313,7 @@ html {
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 10% -12%, rgba(56, 214, 178, 0.11), transparent 38rem),
-    radial-gradient(circle at 94% 0%, rgba(77, 141, 255, 0.12), transparent 42rem),
-    var(--background);
+  background: var(--page-bg);
   color: var(--foreground);
   font-family: var(--font-onest), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.6;
@@ -220,7 +409,7 @@ a {
 .surface-card {
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-surface);
 }
 
 .surface-card-hover {
@@ -230,19 +419,15 @@ a {
 
 /* The homepage has one expressive surface; browsing surfaces stay intentionally quiet. */
 .hero-canvas {
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 42%),
-    linear-gradient(180deg, rgba(14, 23, 35, 0.94), rgba(9, 14, 23, 0.92));
-  border: 1px solid rgba(255, 255, 255, 0.115);
-  box-shadow:
-    0 38px 100px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  background: var(--hero-canvas-bg);
+  border: 1px solid var(--hero-canvas-border);
+  box-shadow: var(--hero-canvas-shadow);
 }
 
 .app-chrome {
-  background: rgba(13, 19, 29, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.24);
+  background: var(--chrome-bg);
+  border: 1px solid var(--line-default);
+  box-shadow: var(--shadow-card);
 }
 
 .page-enter {
@@ -382,19 +567,16 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
 
 @media (hover: hover) {
   .glass-card-hover:hover {
-    background: #151e2b;
+    background: var(--surface-raised-hover);
     border-color: rgba(77, 141, 255, 0.3);
-    box-shadow:
-      0 24px 70px rgba(0, 0, 0, 0.38),
-      0 0 0 1px rgba(77, 141, 255, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-card-hover);
     transform: translateY(-3px);
   }
 
   .surface-card-hover:hover {
-    background: rgba(17, 25, 38, 0.94);
+    background: var(--surface-card-hover);
     border-color: rgba(120, 170, 255, 0.26);
-    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.27);
+    box-shadow: var(--shadow-surface-hover);
     transform: translateY(-2px);
   }
 }
@@ -469,6 +651,20 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
     flex-direction: column;
     /* Ровно то, что осталось между шапкой и нижней навигацией. */
     height: calc(100dvh - var(--header-height) - var(--mobile-nav-height));
+  }
+}
+
+/*
+  На большом экране диалог тоже занимает высоту экрана, а не высоту содержимого:
+  раньше карточка чата заканчивалась примерно на середине, и нижняя половина
+  страницы оставалась пустой при том, что лента сообщений уже прокручивалась
+  внутри собственных 32rem.
+*/
+@media (min-width: 1024px) {
+  [data-immersive-chat] {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 14rem);
   }
 }
 

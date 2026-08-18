@@ -19,7 +19,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
       <AppShell mode="auth">
         <AuthShell title="Подтверждение email" subtitle="Ссылка неполная или устарела.">
           <div className="space-y-4 text-center">
-            <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+            <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger">
               Ссылка недействительна. Запросите новое письмо в профиле.
             </div>
             <MenariumLinkButton href="/profile" variant="secondary" className="w-full">
@@ -43,7 +43,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
       <AppShell mode="auth">
         <AuthShell title="Подтверждение email" subtitle="Ссылка не сработала.">
           <div className="space-y-4 text-center">
-            <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+            <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger">
               Ссылка устарела или уже использована. Отправьте письмо повторно из профиля.
             </div>
             <MenariumLinkButton href="/profile" variant="secondary" className="w-full">
@@ -67,13 +67,13 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     <AppShell mode="auth">
       <AuthShell title="Готово!" subtitle="Email подтверждён. Добро пожаловать в Менариум.">
         <div className="space-y-4 text-center">
-          <div className="rounded-control border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100">
+          <div className="rounded-control border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-accent">
             Почта {email} подтверждена. Можно обмениваться и общаться в чатах.
           </div>
           <MenariumLinkButton href="/profile?verified=1" className="w-full">
             Перейти в профиль
           </MenariumLinkButton>
-          <Link href="/catalog" className="block text-sm text-teal-300 hover:underline">
+          <Link href="/catalog" className="block text-sm text-accent hover:underline">
             Открыть каталог
           </Link>
         </div>

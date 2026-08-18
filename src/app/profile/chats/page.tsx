@@ -190,7 +190,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
   return (
     <div className="space-y-5">
       <header>
-        <p className="type-kicker text-teal-200/55">Все разговоры</p>
+        <p className="type-kicker text-accent-soft">Все разговоры</p>
         <h2 className="mt-1 text-2xl font-semibold tracking-tight">Сообщения</h2>
       </header>
 
@@ -204,7 +204,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
             />
           ) : (
             <>
-              <nav aria-label="Фильтр чатов" className="mb-5 flex gap-2 rounded-md border border-white/8 bg-white/[0.03] p-2">
+              <nav aria-label="Фильтр чатов" className="mb-5 flex gap-2 rounded-md border border-line-hairline bg-fill-1 p-2">
                 {([
                   ["unread", "Новые", unreadChatCount],
                   ["all", "Все", allChatCount],
@@ -217,11 +217,11 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                       "rounded-control px-4 py-2.5 text-sm font-medium transition",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/62 hover:bg-white/[0.05] hover:text-white",
+                        : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
                     )}
                   >
                     {label}
-                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/78" : "text-white/62")}>
+                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-text-muted" : "text-text-subtle")}>
                       {count}
                     </span>
                   </Link>
@@ -229,13 +229,13 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
               </nav>
 
               {chats.length > 0 ? (
-                <GlassCard className="overflow-hidden border border-white/8">
+                <GlassCard className="overflow-hidden border border-line-hairline">
                   {chats.map((chat) => (
                     <Link
                       key={chat.id}
                       href={chat.href}
                       className={cn(
-                        "group flex items-start gap-3 border-b border-white/8 px-4 py-4 transition last:border-b-0 hover:bg-white/[0.03] sm:items-center sm:gap-4 sm:px-5",
+                        "group flex items-start gap-3 border-b border-line-hairline px-4 py-4 transition last:border-b-0 hover:bg-fill-1 sm:items-center sm:gap-4 sm:px-5",
                         chat.unread && "bg-blue-400/[0.025]",
                       )}
                     >
@@ -244,34 +244,34 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                           "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-control sm:h-12 sm:w-12",
                           chat.unread
                             ? "bg-gradient-to-br from-blue-500/60 to-teal-400/50 text-white"
-                            : "bg-white/[0.05] text-white/62",
+                            : "bg-fill-2 text-text-subtle",
                         )}
                       >
                         <MessageCircle className="h-5 w-5" />
                         {chat.unread ? (
-                          <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-amber-300 px-1 text-micro font-bold text-[#171008]">
+                          <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-amber-300 px-1 text-micro font-bold text-on-accent">
                             {chat.unread > 9 ? "9+" : chat.unread}
                           </span>
                         ) : null}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
-                          <span className="truncate font-semibold text-white">{chat.title}</span>
+                          <span className="truncate font-semibold text-text-primary">{chat.title}</span>
                           <Badge variant={chat.kind === "Обмен" ? "teal" : "purple"}>{chat.kind}</Badge>
                         </span>
-                        <span className="mt-0.5 block truncate text-xs text-white/62">{chat.context}</span>
+                        <span className="mt-0.5 block truncate text-xs text-text-subtle">{chat.context}</span>
                         {chat.ownContext ? (
-                          <span className="mt-0.5 block truncate text-xs text-teal-100">{chat.ownContext}</span>
+                          <span className="mt-0.5 block truncate text-xs text-accent">{chat.ownContext}</span>
                         ) : null}
-                        <span className={cn("mt-1 block truncate text-sm", chat.unread ? "text-white/78" : "text-white/62")}>
+                        <span className={cn("mt-1 block truncate text-sm", chat.unread ? "text-text-muted" : "text-text-subtle")}>
                           {chat.preview}
                         </span>
                       </span>
                       <span className="flex shrink-0 items-center gap-2 pt-1 sm:pt-0">
-                        <time dateTime={chat.at.toISOString()} className="text-xs text-white/62">
+                        <time dateTime={chat.at.toISOString()} className="text-xs text-text-subtle">
                           {formatChatTime(chat.at)}
                         </time>
-                        <ArrowRight className="hidden h-4 w-4 text-white/20 transition group-hover:translate-x-0.5 group-hover:text-teal-200 sm:block" />
+                        <ArrowRight className="hidden h-4 w-4 text-text-faint/50 transition group-hover:translate-x-0.5 group-hover:text-accent sm:block" />
                       </span>
                     </Link>
                   ))}
@@ -294,12 +294,12 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                   {page > 1 ? (
                     <Link
                       href={chatsHref(activeFilter, page - 1)}
-                      className="rounded-control border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
+                      className="rounded-control border border-line-default bg-fill-1 px-4 py-2.5 text-sm text-text-subtle transition hover:bg-fill-3 hover:text-text-primary"
                     >
                       ← Назад
                     </Link>
                   ) : null}
-                  <span className="text-xs text-white/62">{page} из {totalPages}</span>
+                  <span className="text-xs text-text-subtle">{page} из {totalPages}</span>
                   {page < totalPages ? (
                     <Link
                       href={chatsHref(activeFilter, page + 1)}

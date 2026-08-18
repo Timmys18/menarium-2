@@ -61,7 +61,7 @@ function ReviewStars({ rating }: { rating: number }) {
       {Array.from({ length: 5 }, (_, index) => (
         <Star
           key={index}
-          className={index < rating ? "h-3.5 w-3.5 fill-amber-300 text-amber-300" : "h-3.5 w-3.5 text-white/16"}
+          className={index < rating ? "h-3.5 w-3.5 fill-amber-300 text-warning" : "h-3.5 w-3.5 text-text-faint/40"}
         />
       ))}
     </span>
@@ -180,7 +180,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
               )}
               <div className="flex-1">
                 <h1 className="type-page-title text-3xl">{user.name ?? "Пользователь Менариум"}</h1>
-                <p className="mt-2 text-white/62">{user.city ?? "Город не указан"}</p>
+                <p className="mt-2 text-text-subtle">{user.city ?? "Город не указан"}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Badge variant="teal">{completedSwaps} завершённых обменов</Badge>
                   {reviewCount > 0 && averageRating ? (
@@ -226,57 +226,57 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
             className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]"
           >
             <GlassCard className="overflow-hidden border border-amber-300/12 bg-gradient-to-br from-amber-300/[0.075] via-white/[0.025] to-teal-300/[0.045] p-6 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.17em] text-amber-100/55">
+              <p className="text-xs font-semibold uppercase tracking-[0.17em] text-warning-soft">
                 Подтверждённая история
               </p>
               <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <div className="flex items-end gap-3">
-                    <p className="text-5xl font-semibold tracking-[-0.06em] text-white">
+                    <p className="text-5xl font-semibold tracking-[-0.06em] text-text-primary">
                       {averageRating?.toFixed(1) ?? "—"}
                     </p>
-                    <p className="pb-1.5 text-sm text-white/62">
+                    <p className="pb-1.5 text-sm text-text-subtle">
                       {reviewCount > 0 ? "из 5" : "нет оценок"}
                     </p>
                   </div>
                   <h2 id="reputation-title" className="mt-4 text-xl font-semibold">
                     {reputation.label}
                   </h2>
-                  <p className="mt-2 max-w-md text-sm leading-5 text-white/62">
+                  <p className="mt-2 max-w-md text-sm leading-5 text-text-subtle">
                     {reputation.description}
                   </p>
                 </div>
                 {reviewCount > 0 ? (
                   <ReviewStars rating={Math.round(averageRating ?? 0)} />
                 ) : (
-                  <ShieldCheck className="h-8 w-8 text-white/22" />
+                  <ShieldCheck className="h-8 w-8 text-text-faint/55" />
                 )}
               </div>
-              <div className="mt-6 grid grid-cols-3 gap-2 border-t border-white/8 pt-5">
+              <div className="mt-6 grid grid-cols-3 gap-2 border-t border-line-hairline pt-5">
                 {[
                   ["Обменов", completedSwaps],
                   ["Отзывов", reviewCount],
                   ["Оценок 4–5", reputation.positivePercentage !== null ? `${reputation.positivePercentage}%` : "—"],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-control border border-white/8 bg-black/10 px-3 py-3">
-                    <p className="text-lg font-semibold text-white/88">{value}</p>
-                    <p className="mt-0.5 text-micro text-white/62">{label}</p>
+                  <div key={label} className="rounded-control border border-line-hairline bg-black/10 px-3 py-3">
+                    <p className="text-lg font-semibold text-text-strong">{value}</p>
+                    <p className="mt-0.5 text-micro text-text-subtle">{label}</p>
                   </div>
                 ))}
               </div>
             </GlassCard>
 
-            <GlassCard className="border border-white/8 p-6 sm:p-7">
+            <GlassCard className="border border-line-hairline p-6 sm:p-7">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-white/62">
+                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-text-subtle">
                     Распределение оценок
                   </p>
-                  <p className="mt-2 text-sm leading-5 text-white/62">
+                  <p className="mt-2 text-sm leading-5 text-text-subtle">
                     Видны все опубликованные отзывы, а не только лучшие.
                   </p>
                 </div>
-                <ShieldCheck className="h-5 w-5 shrink-0 text-teal-200/65" />
+                <ShieldCheck className="h-5 w-5 shrink-0 text-accent-soft" />
               </div>
               <div className="mt-5 space-y-2.5">
                 {([5, 4, 3, 2, 1] as const).map((rating) => {
@@ -284,24 +284,24 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   const width = reviewCount > 0 ? (count / reviewCount) * 100 : 0;
                   return (
                     <div key={rating} className="grid grid-cols-[28px_1fr_28px] items-center gap-3">
-                      <span className="text-xs text-white/62">{rating}</span>
-                      <span className="h-2 overflow-hidden rounded-full bg-white/[0.05]">
+                      <span className="text-xs text-text-subtle">{rating}</span>
+                      <span className="h-2 overflow-hidden rounded-full bg-fill-2">
                         <span
                           className={cn(
                             "block h-full rounded-full",
                             rating >= 4
                               ? "bg-gradient-to-r from-amber-300 to-teal-300"
-                              : "bg-white/25",
+                              : "bg-text-faint",
                           )}
                           style={{ width: `${width}%` }}
                         />
                       </span>
-                      <span className="text-right text-xs text-white/62">{count}</span>
+                      <span className="text-right text-xs text-text-subtle">{count}</span>
                     </div>
                   );
                 })}
               </div>
-              <p className="mt-5 border-t border-white/8 pt-4 text-xs leading-5 text-white/62">
+              <p className="mt-5 border-t border-line-hairline pt-4 text-xs leading-5 text-text-subtle">
                 Оценку можно оставить только после обмена, подтверждённого обеими сторонами.
                 Отзывы публикуются после ответа партнёра или окончания слепого периода.
               </p>
@@ -312,7 +312,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
             <section id="reviews" aria-labelledby="public-reviews-title" className="scroll-mt-24">
               <div className="mb-4 flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200/60">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-warning-soft">
                     Только завершённые сделки
                   </p>
                   <h2 id="public-reviews-title" className="mt-2 text-2xl font-semibold">
@@ -320,8 +320,8 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   </h2>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-white">{averageRating?.toFixed(1)}</p>
-                  <p className="text-xs text-white/62">из 5</p>
+                  <p className="text-2xl font-bold text-text-primary">{averageRating?.toFixed(1)}</p>
+                  <p className="text-xs text-text-subtle">из 5</p>
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
@@ -338,22 +338,22 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                             className="h-10 w-10 shrink-0 rounded-xs object-cover"
                           />
                         ) : (
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xs bg-white/[0.05] text-white/62">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xs bg-fill-2 text-text-subtle">
                             <MessageSquareQuote className="h-4 w-4" />
                           </span>
                         )}
                         <div className="min-w-0">
-                          <Link href={`/user/${review.reviewer.id}`} className="block truncate text-sm font-semibold text-white/88 hover:text-teal-200">
+                          <Link href={`/user/${review.reviewer.id}`} className="block truncate text-sm font-semibold text-text-strong hover:text-accent">
                             {review.reviewer.name ?? "Участник Менариум"}
                           </Link>
-                          <time dateTime={review.createdAt.toISOString()} className="mt-0.5 block text-xs text-white/62">
+                          <time dateTime={review.createdAt.toISOString()} className="mt-0.5 block text-xs text-text-subtle">
                             {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(review.createdAt)}
                           </time>
                         </div>
                       </div>
                       <ReviewStars rating={review.rating} />
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-white/62">
+                    <p className="mt-4 text-sm leading-6 text-text-subtle">
                       {review.comment || "Обмен завершён без дополнительного комментария."}
                     </p>
                   </GlassCard>
@@ -367,18 +367,18 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   {reviewsPage > 1 ? (
                     <Link
                       href={reviewsHref(id, reviewsPage - 1)}
-                      className="rounded-control border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
+                      className="rounded-control border border-line-default bg-fill-2 px-4 py-2.5 text-sm text-text-subtle transition hover:bg-fill-3 hover:text-text-primary"
                     >
                       ← Новее
                     </Link>
                   ) : null}
-                  <span className="text-xs text-white/62">
+                  <span className="text-xs text-text-subtle">
                     {reviewsPage} из {totalReviewPages}
                   </span>
                   {reviewsPage < totalReviewPages ? (
                     <Link
                       href={reviewsHref(id, reviewsPage + 1)}
-                      className="rounded-control border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
+                      className="rounded-control border border-line-default bg-fill-2 px-4 py-2.5 text-sm text-text-subtle transition hover:bg-fill-3 hover:text-text-primary"
                     >
                       Старее →
                     </Link>

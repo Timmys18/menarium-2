@@ -216,22 +216,22 @@ export function MenariumSelect({
         onClick={() => (open ? close() : openList())}
         onKeyDown={onKeyDown}
         className={cn(
-          "flex min-h-12 w-full items-center justify-between gap-3 rounded-control border border-white/10 bg-[var(--surface-input)] px-4 py-3 text-left text-white outline-none transition",
-          "hover:border-white/20 focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
-          "disabled:cursor-not-allowed disabled:border-white/8 disabled:text-white/62 disabled:hover:border-white/8",
+          "flex min-h-12 w-full items-center justify-between gap-3 rounded-control border border-line-default bg-[var(--surface-input)] px-4 py-3 text-left text-text-primary outline-none transition",
+          "hover:border-line-strong focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+          "disabled:cursor-not-allowed disabled:border-line-hairline disabled:text-text-subtle disabled:hover:border-line-hairline",
         )}
       >
         <span className="flex min-w-0 items-center gap-2">
-          {icon ? <span className="shrink-0 text-teal-200">{icon}</span> : null}
-          <span className={cn("truncate", selected ? "text-white" : "text-white/62")}>{triggerLabel}</span>
+          {icon ? <span className="shrink-0 text-accent">{icon}</span> : null}
+          <span className={cn("truncate", selected ? "text-text-primary" : "text-text-subtle")}>{triggerLabel}</span>
         </span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/62 transition", open && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-text-subtle transition", open && "rotate-180")} />
       </button>
 
       {open ? (
         <div
           className={cn(
-            "absolute left-0 z-[70] w-full overflow-hidden rounded-md border border-white/10 bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
+            "absolute left-0 z-[70] w-full overflow-hidden rounded-md border border-line-default bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
             placement === "up" ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]",
           )}
         >
@@ -251,7 +251,7 @@ export function MenariumSelect({
                   {startsGroup ? (
                     <p
                       role="presentation"
-                      className="px-3 pb-1 pt-3 text-micro font-semibold uppercase tracking-[0.12em] text-white/62 first:pt-1"
+                      className="px-3 pb-1 pt-3 text-micro font-semibold uppercase tracking-[0.12em] text-text-subtle first:pt-1"
                     >
                       {option.group}
                     </p>
@@ -269,24 +269,24 @@ export function MenariumSelect({
                     onClick={() => commit(index)}
                     className={cn(
                       "flex min-h-11 w-full items-center justify-between gap-3 rounded-xs px-3 py-2.5 text-left transition",
-                      "focus-visible:outline-none disabled:cursor-not-allowed disabled:text-white/40",
-                      index === activeIndex && !option.disabled && "bg-white/[0.05]",
+                      "focus-visible:outline-none disabled:cursor-not-allowed disabled:text-text-faint",
+                      index === activeIndex && !option.disabled && "bg-fill-2",
                       isSelected && "bg-teal-300/[0.09]",
                     )}
                   >
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-white">{option.label}</span>
+                      <span className="block truncate text-sm font-medium text-text-primary">{option.label}</span>
                       {option.hint ? (
-                        <span className="block truncate text-xs text-white/62">{option.hint}</span>
+                        <span className="block truncate text-xs text-text-subtle">{option.hint}</span>
                       ) : null}
                     </span>
-                    {isSelected ? <Check className="h-4 w-4 shrink-0 text-teal-200" /> : null}
+                    {isSelected ? <Check className="h-4 w-4 shrink-0 text-accent" /> : null}
                   </button>
                 </div>
               );
             })}
             {options.length === 0 ? (
-              <p className="px-3 py-5 text-center text-sm text-white/62">Нет доступных вариантов.</p>
+              <p className="px-3 py-5 text-center text-sm text-text-subtle">Нет доступных вариантов.</p>
             ) : null}
           </div>
         </div>

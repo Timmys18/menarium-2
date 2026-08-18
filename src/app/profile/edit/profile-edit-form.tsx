@@ -153,7 +153,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
     <div className="space-y-6">
       <GlassCard className="space-y-5 p-5 sm:p-8">
         {profileError ? (
-          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger" role="alert">
             {profileError}
           </div>
         ) : null}
@@ -185,12 +185,12 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Загрузить аватар
             </label>
-            <p className="mt-2 text-xs text-white/62">PNG, JPG, WEBP или GIF до 8 МБ.</p>
+            <p className="mt-2 text-xs text-text-subtle">PNG, JPG, WEBP или GIF до 8 МБ.</p>
             {image ? (
               <button
                 type="button"
                 onClick={() => void removeAvatar()}
-                className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-sm text-red-200/90 transition hover:bg-red-500/10 hover:text-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-sm text-danger transition hover:bg-red-500/10 hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Удалить аватар
@@ -200,7 +200,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="profile-name" className="block text-sm font-medium text-white/78">
+          <label htmlFor="profile-name" className="block text-sm font-medium text-text-muted">
             Имя
           </label>
           <MenariumInput
@@ -216,7 +216,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="profile-city" className="block text-sm font-medium text-white/78">
+          <label htmlFor="profile-city" className="block text-sm font-medium text-text-muted">
             Город
           </label>
           <CityPicker
@@ -227,7 +227,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               setProfileError(null);
             }}
           />
-          <p className="text-xs leading-5 text-white/62">Помогает находить удобные обмены рядом.</p>
+          <p className="text-xs leading-5 text-text-subtle">Помогает находить удобные обмены рядом.</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -255,16 +255,16 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
       <GlassCard className="space-y-4 p-5 sm:p-8">
         <h2 className="text-lg font-semibold">Смена пароля</h2>
-        <p className="text-sm leading-5 text-white/62">
+        <p className="text-sm leading-5 text-text-subtle">
           После смены пароля мы завершим текущий сеанс. Войти снова можно будет уже с новым паролем.
         </p>
         {passwordError ? (
-          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger" role="alert">
             {passwordError}
           </div>
         ) : null}
         <div className="space-y-2">
-          <label htmlFor="current-password" className="block text-sm font-medium text-white/78">
+          <label htmlFor="current-password" className="block text-sm font-medium text-text-muted">
             Текущий пароль
           </label>
           <div className="relative">
@@ -283,14 +283,14 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               type="button"
               onClick={() => setShowCurrentPassword((visible) => !visible)}
               aria-label={showCurrentPassword ? "Скрыть текущий пароль" : "Показать текущий пароль"}
-              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-text-subtle transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
             >
               {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
         <div className="space-y-2">
-          <label htmlFor="new-password" className="block text-sm font-medium text-white/78">
+          <label htmlFor="new-password" className="block text-sm font-medium text-text-muted">
             Новый пароль
           </label>
           <div className="relative">
@@ -311,7 +311,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
               type="button"
               onClick={() => setShowNewPassword((visible) => !visible)}
               aria-label={showNewPassword ? "Скрыть новый пароль" : "Показать новый пароль"}
-              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-white/62 transition hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-text-subtle transition hover:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
             >
               {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -322,8 +322,8 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
                 key={check.label}
                 className={
                   check.passed
-                    ? "inline-flex items-center gap-1.5 rounded-full bg-teal-300/10 px-2.5 py-1 text-xs text-teal-200"
-                    : "inline-flex items-center gap-1.5 rounded-full bg-white/[0.05] px-2.5 py-1 text-xs text-white/62"
+                    ? "inline-flex items-center gap-1.5 rounded-full bg-teal-300/10 px-2.5 py-1 text-xs text-accent"
+                    : "inline-flex items-center gap-1.5 rounded-full bg-fill-2 px-2.5 py-1 text-xs text-text-subtle"
                 }
               >
                 <Check className="h-3 w-3" aria-hidden="true" />
@@ -344,18 +344,18 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       </GlassCard>
 
       <GlassCard className="space-y-4 border border-red-500/20 p-5 sm:p-8">
-        <h2 className="text-lg font-semibold text-red-200">Удаление аккаунта</h2>
-        <p className="text-sm text-white/62">
+        <h2 className="text-lg font-semibold text-danger">Удаление аккаунта</h2>
+        <p className="text-sm text-text-subtle">
           Личные данные будут удалены, объявления сняты с публикации. История завершённых сделок
           сохранится у участников в обезличенном виде.
         </p>
         {deleteError ? (
-          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+          <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger" role="alert">
             {deleteError}
           </div>
         ) : null}
         <div className="space-y-2">
-          <label htmlFor="delete-password" className="block text-sm font-medium text-white/78">
+          <label htmlFor="delete-password" className="block text-sm font-medium text-text-muted">
             Пароль для подтверждения
           </label>
           <MenariumInput

@@ -93,7 +93,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
         <div className="mx-auto max-w-5xl">
           <header className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-info-soft">
                 Все события
               </p>
               <h1 className="type-page-title text-4xl md:text-5xl">Уведомления</h1>
@@ -110,7 +110,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
             />
           ) : (
             <>
-              <nav aria-label="Фильтр уведомлений" className="mb-5 flex gap-2 rounded-md border border-white/8 bg-white/[0.03] p-2">
+              <nav aria-label="Фильтр уведомлений" className="mb-5 flex gap-2 rounded-md border border-line-hairline bg-fill-1 p-2">
                 {([
                   ["unread", "Новые", unreadCount],
                   ["all", "Все", totalCount],
@@ -123,11 +123,11 @@ export default async function NotificationsPage({ searchParams }: Props) {
                       "rounded-control px-4 py-2.5 text-sm font-medium transition",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/62 hover:bg-white/[0.05] hover:text-white",
+                        : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
                     )}
                   >
                     {label}
-                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-white/78" : "text-white/62")}>
+                    <span className={cn("ml-2 text-xs", activeFilter === filter ? "text-text-muted" : "text-text-subtle")}>
                       {count}
                     </span>
                   </Link>
@@ -140,7 +140,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                     <section key={group.label} aria-labelledby={`notifications-${group.label}`}>
                       <h2
                         id={`notifications-${group.label}`}
-                        className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/62"
+                        className="mb-2 px-2 text-xs font-semibold uppercase tracking-[0.16em] text-text-subtle"
                       >
                         {group.label}
                       </h2>
@@ -154,7 +154,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                                 className={cn(
                                   "flex h-11 w-11 shrink-0 items-center justify-center rounded-control",
                                   notification.isRead
-                                    ? "bg-white/[0.05] text-white/62"
+                                    ? "bg-fill-2 text-text-subtle"
                                     : "bg-gradient-to-br from-blue-500/55 to-teal-400/45 text-white",
                                 )}
                               >
@@ -162,13 +162,13 @@ export default async function NotificationsPage({ searchParams }: Props) {
                               </span>
                               <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <h3 className="font-semibold text-white">{notification.title}</h3>
+                                  <h3 className="font-semibold text-text-primary">{notification.title}</h3>
                                   {!notification.isRead ? <Badge variant="teal">Новое</Badge> : null}
                                 </div>
-                                <p className="mt-1 text-sm leading-5 text-white/62">{notification.message}</p>
+                                <p className="mt-1 text-sm leading-5 text-text-subtle">{notification.message}</p>
                                 <time
                                   dateTime={notification.createdAt.toISOString()}
-                                  className="mt-2 block text-xs text-white/62"
+                                  className="mt-2 block text-xs text-text-subtle"
                                 >
                                   {notification.createdAt.toLocaleString("ru-RU", {
                                     day: "numeric",
@@ -185,7 +185,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                             <div
                               key={notification.id}
                               className={cn(
-                                "flex items-start gap-2 border-b border-white/8 p-2 last:border-b-0",
+                                "flex items-start gap-2 border-b border-line-hairline p-2 last:border-b-0",
                                 !notification.isRead && "bg-blue-400/[0.025]",
                               )}
                             >
@@ -194,7 +194,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                                   id={notification.id}
                                   href={safeHref}
                                   isRead={notification.isRead}
-                                  className="flex min-w-0 flex-1 items-start gap-3 rounded-control px-3 py-3 transition hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                                  className="flex min-w-0 flex-1 items-start gap-3 rounded-control px-3 py-3 transition hover:bg-fill-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                                 >
                                   {content}
                                 </NotificationLink>
@@ -232,12 +232,12 @@ export default async function NotificationsPage({ searchParams }: Props) {
                   {page > 1 ? (
                     <Link
                       href={notificationsHref(activeFilter, page - 1)}
-                      className="rounded-control border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/62 transition hover:bg-white/[0.07] hover:text-white"
+                      className="rounded-control border border-line-default bg-fill-1 px-4 py-2.5 text-sm text-text-subtle transition hover:bg-fill-3 hover:text-text-primary"
                     >
                       ← Назад
                     </Link>
                   ) : null}
-                  <span className="text-xs text-white/62">{page} из {totalPages}</span>
+                  <span className="text-xs text-text-subtle">{page} из {totalPages}</span>
                   {page < totalPages ? (
                     <Link
                       href={notificationsHref(activeFilter, page + 1)}

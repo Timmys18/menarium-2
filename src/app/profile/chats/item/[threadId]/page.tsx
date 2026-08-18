@@ -79,7 +79,7 @@ export default async function ItemThreadPage({ params }: Props) {
 
   const itemSummary = (
     <div className="flex min-w-0 items-center gap-3">
-      <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xs border border-white/8 bg-white/[0.03] lg:h-full lg:w-full lg:rounded-md">
+      <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xs border border-line-hairline bg-fill-1 lg:h-full lg:w-full lg:rounded-md">
         <ItemCoverImage
           src={itemImage}
           alt={thread.item.title}
@@ -88,8 +88,8 @@ export default async function ItemThreadPage({ params }: Props) {
         />
       </span>
       <span className="min-w-0 lg:hidden">
-        <span className="block truncate text-sm font-medium text-white/88">{thread.item.title}</span>
-        <span className="block text-micro text-white/62">
+        <span className="block truncate text-sm font-medium text-text-strong">{thread.item.title}</span>
+        <span className="block text-micro text-text-subtle">
           {canOpenItem ? "Открыть объявление →" : "Объявление больше не опубликовано"}
         </span>
       </span>
@@ -102,21 +102,21 @@ export default async function ItemThreadPage({ params }: Props) {
     <div data-immersive-chat className="max-w-4xl lg:block">
       <Link
         href="/profile/chats"
-        className="profile-chrome mb-5 inline-flex min-h-11 items-center gap-2 rounded-xs px-2 text-sm text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        className="profile-chrome mb-5 inline-flex min-h-11 items-center gap-2 rounded-xs px-2 text-sm text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       >
         <ArrowLeft className="h-4 w-4" />
         Все чаты
       </Link>
 
-      <GlassCard className="flex min-h-0 flex-1 flex-col overflow-hidden border border-white/10">
-        <header className="shrink-0 border-b border-white/8 p-3.5 sm:p-5">
+      <GlassCard className="flex min-h-0 flex-1 flex-col overflow-hidden border border-line-default">
+        <header className="shrink-0 border-b border-line-hairline p-3.5 sm:p-5">
           <div className="flex items-center gap-3">
             {/* На узком экране заголовок диалога и есть кнопка «назад»:
                 отдельная ссылка над карточкой там уже скрыта. */}
             <Link
               href="/profile/chats"
               aria-label="Все чаты"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
@@ -124,7 +124,7 @@ export default async function ItemThreadPage({ params }: Props) {
               <UserRound className="h-5 w-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-micro text-white/62">Диалог по объявлению</p>
+              <p className="text-micro text-text-subtle">Диалог по объявлению</p>
               <h1 className="mt-0.5 truncate text-lg font-semibold sm:text-xl">
                 {partner?.name ?? "Участник Менариум"}
               </h1>
@@ -145,7 +145,7 @@ export default async function ItemThreadPage({ params }: Props) {
 
         {/* Карточка объявления: узкая полоса-контекст на телефоне, колонка на
             десктопе. Раньше на телефоне она занимала целый экран до переписки. */}
-        <div className="shrink-0 border-b border-white/8 px-3.5 py-2.5 lg:hidden">
+        <div className="shrink-0 border-b border-line-hairline px-3.5 py-2.5 lg:hidden">
           {canOpenItem ? (
             <Link
               href={`/item/${thread.item.id}`}
@@ -165,7 +165,7 @@ export default async function ItemThreadPage({ params }: Props) {
                 href={`/item/${thread.item.id}`}
                 className="group block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
-                <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-white/8 bg-white/[0.03]">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-line-hairline bg-fill-1">
                   <ItemCoverImage
                     src={itemImage}
                     alt={thread.item.title}
@@ -173,25 +173,25 @@ export default async function ItemThreadPage({ params }: Props) {
                     imageClassName="transition-transform duration-[var(--duration-slow)] group-hover:scale-105"
                   />
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm font-semibold text-white/78">{thread.item.title}</p>
-                <p className="mt-1 text-xs text-teal-100">Открыть объявление →</p>
+                <p className="mt-3 line-clamp-2 text-sm font-semibold text-text-muted">{thread.item.title}</p>
+                <p className="mt-1 text-xs text-accent">Открыть объявление →</p>
               </Link>
             ) : (
               <div>
-                <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-white/8 bg-white/[0.03]">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-line-hairline bg-fill-1">
                   <ItemCoverImage src={itemImage} alt={thread.item.title} sizes="180px" />
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm font-semibold text-white/78">{thread.item.title}</p>
-                <p className="mt-1 text-xs leading-4 text-white/62">Объявление больше не опубликовано</p>
+                <p className="mt-3 line-clamp-2 text-sm font-semibold text-text-muted">{thread.item.title}</p>
+                <p className="mt-1 text-xs leading-4 text-text-subtle">Объявление больше не опубликовано</p>
               </div>
             )}
           </aside>
 
           <section
             aria-label="Переписка"
-            className="flex min-h-0 min-w-0 flex-col rounded-md border border-white/8 bg-black/10 p-3.5 sm:p-4"
+            className="flex min-h-0 min-w-0 flex-col rounded-md border border-line-hairline bg-black/10 p-3.5 sm:p-4"
           >
-            <div className="mb-3 hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-200/55 lg:flex">
+            <div className="mb-3 hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-info-soft lg:flex">
               <MessageCircle className="h-4 w-4" />
               История диалога
             </div>

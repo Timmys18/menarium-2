@@ -61,7 +61,7 @@ export function BrandLockup({
       <BrandMark size="md" className={markClassName} priority={priority} />
       <span
         className={cn(
-          "font-sans text-xl font-semibold tracking-[-0.035em] text-white",
+          "font-sans text-xl font-semibold tracking-[-0.035em] text-text-primary",
           textClassName,
         )}
       >

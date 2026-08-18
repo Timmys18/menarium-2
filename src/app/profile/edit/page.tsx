@@ -31,11 +31,11 @@ export default async function ProfileEditPage() {
     <div className="max-w-3xl">
           <div className="mb-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/60">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-info-soft">
                 Аккаунт
               </p>
               <h1 className="type-page-title text-3xl sm:text-4xl">Настройки профиля</h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-white/62 sm:text-base">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-text-subtle sm:text-base">
                 Управляйте тем, как вас видят другие участники, доступом и безопасностью аккаунта.
               </p>
             </div>
@@ -56,7 +56,7 @@ export default async function ProfileEditPage() {
             <>
               <ProfileEditForm user={user} />
               {!user.emailVerified ? (
-                <GlassCard className="mt-5 border border-white/8 px-4 sm:px-5">
+                <GlassCard className="mt-5 border border-line-hairline px-4 sm:px-5">
                   <EmailVerifyBanner email={user.email} compact />
                 </GlassCard>
               ) : null}

@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/menarium/skeleton";
 
 export default function ProfileLoading() {
   return (
-    <div className="rounded-lg border border-white/8 p-4 sm:p-5">
+    <div className="rounded-lg border border-line-hairline p-4 sm:p-5">
       <div className="flex items-end justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-4 w-28" />

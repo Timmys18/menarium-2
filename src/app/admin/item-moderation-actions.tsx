@@ -48,7 +48,7 @@ export function ItemModerationActions({
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : nextStatus === "ARCHIVED" ? <Archive className="h-4 w-4" /> : <RotateCcw className="h-4 w-4" />}
         {nextStatus === "ARCHIVED" ? "В архив" : "Вернуть"}
       </MenariumButton>
-      {error ? <p className="text-xs text-red-300">{error}</p> : null}
+      {error ? <p className="text-xs text-danger">{error}</p> : null}
     </div>
   );
 }

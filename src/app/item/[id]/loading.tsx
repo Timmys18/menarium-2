@@ -8,7 +8,7 @@ export default function ItemLoading() {
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-7">
           <Skeleton className="aspect-[4/3] w-full rounded-card sm:rounded-panel" />
           <div className="space-y-5">
-            <div className="space-y-5 rounded-card border border-white/8 bg-white/[0.03] p-5 sm:p-7">
+            <div className="space-y-5 rounded-card border border-line-hairline bg-fill-1 p-5 sm:p-7">
               <div className="flex gap-2">
                 <Skeleton className="h-7 w-24 rounded-full" />
                 <Skeleton className="h-7 w-20 rounded-full" />
@@ -22,7 +22,7 @@ export default function ItemLoading() {
             <Skeleton className="h-72 w-full rounded-card" />
           </div>
         </div>
-        <div className="mt-10 border-t border-white/8 pt-8 sm:mt-14 sm:pt-10">
+        <div className="mt-10 border-t border-line-hairline pt-8 sm:mt-14 sm:pt-10">
           <Skeleton className="h-4 w-36 rounded-full" />
           <Skeleton className="mt-3 h-9 w-64 max-w-full rounded-xs" />
           <Skeleton className="mb-6 mt-3 h-5 w-[520px] max-w-full rounded-full" />

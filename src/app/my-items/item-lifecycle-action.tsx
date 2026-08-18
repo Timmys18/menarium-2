@@ -57,7 +57,7 @@ export function ItemLifecycleAction({
           title="Вернуть в каталог"
           onClick={() => void runAction()}
           disabled={pending}
-          className="flex h-11 w-11 items-center justify-center rounded-xs border border-white/10 bg-[var(--surface-sunken)]/92 text-white/88 shadow-lg transition hover:bg-[#111925] hover:text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          className="flex h-11 w-11 items-center justify-center rounded-xs border border-line-default bg-[var(--surface-sunken)]/92 text-text-strong shadow-lg transition hover:bg-[var(--surface-input)] hover:text-text-primary disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
         </button>
@@ -75,7 +75,7 @@ export function ItemLifecycleAction({
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
           Вернуть в каталог
         </MenariumButton>
-        {error ? <p role="alert" className="mt-2 text-xs text-red-200">{error}</p> : null}
+        {error ? <p role="alert" className="mt-2 text-xs text-danger">{error}</p> : null}
       </div>
     );
   }
@@ -92,14 +92,14 @@ export function ItemLifecycleAction({
         }}
         className={cn(
           compact
-            ? "flex h-11 w-11 items-center justify-center rounded-xs border border-white/10 bg-[var(--surface-sunken)]/92 text-white/88 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-            : "inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-4 text-sm font-semibold text-white/88 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+            ? "flex h-11 w-11 items-center justify-center rounded-xs border border-line-default bg-[var(--surface-sunken)]/92 text-text-strong shadow-lg transition hover:bg-[var(--surface-input)] hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            : "inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-4 text-sm font-semibold text-text-strong transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
         )}
       >
         <CirclePause className="h-4 w-4" />
         {compact ? null : "На паузу"}
       </button>
-      {error ? <p role="alert" className="w-full text-xs text-red-200">{error}</p> : null}
+      {error ? <p role="alert" className="w-full text-xs text-danger">{error}</p> : null}
       <MenariumDialog
         open={confirmOpen}
         onClose={pending ? () => undefined : () => setConfirmOpen(false)}
@@ -122,7 +122,7 @@ export function ItemLifecycleAction({
         }
       >
         {error ? (
-          <p role="alert" className="rounded-control border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-red-200">
+          <p role="alert" className="rounded-control border border-red-400/25 bg-red-400/[0.08] p-3 text-sm text-danger">
             {error}
           </p>
         ) : null}

@@ -553,7 +553,7 @@ export function ChatConversation({
               type="button"
               onClick={() => void enablePush()}
               disabled={isChangingPush}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xs px-3 text-xs text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xs px-3 text-xs text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               {isChangingPush ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
               Получать вне сайта
@@ -574,8 +574,8 @@ export function ChatConversation({
             className={cn(
               "inline-flex h-11 w-11 items-center justify-center rounded-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
               muted
-                ? "bg-amber-300/10 text-amber-200/75"
-                : "text-white/62 hover:bg-white/[0.05] hover:text-white",
+                ? "bg-amber-300/10 text-warning"
+                : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
             )}
           >
             {isChangingPreference ? (
@@ -628,9 +628,9 @@ export function ChatConversation({
               <div key={message.id}>
                 {showDay ? (
                   <div className="my-4 flex items-center gap-3" aria-label={formatDay(message.createdAt)}>
-                    <span className="h-px flex-1 bg-white/[0.05]" />
-                    <span className="text-micro font-medium text-white/62">{formatDay(message.createdAt)}</span>
-                    <span className="h-px flex-1 bg-white/[0.05]" />
+                    <span className="h-px flex-1 bg-fill-2" />
+                    <span className="text-micro font-medium text-text-subtle">{formatDay(message.createdAt)}</span>
+                    <span className="h-px flex-1 bg-fill-2" />
                   </div>
                 ) : null}
                 <div className={cn("group flex items-end gap-1.5", isOwn ? "justify-end" : "justify-start")}>
@@ -639,7 +639,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.05] hover:!text-white/88 focus-visible:text-white/88 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] max-sm:text-white/78"
+                      className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-transparent transition group-hover:text-text-muted hover:!bg-fill-2 hover:!text-text-strong focus-visible:text-text-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] max-sm:text-text-muted"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>
@@ -649,13 +649,13 @@ export function ChatConversation({
                     className={cn(
                       "max-w-[88%] overflow-hidden rounded-md px-3.5 py-2.5 text-sm sm:max-w-[78%]",
                       isOwn
-                        ? "rounded-br-[7px] bg-gradient-to-br from-blue-500/28 to-teal-400/18 text-white/88"
-                        : "rounded-bl-[7px] border border-white/8 bg-white/[0.05] text-white/88",
+                        ? "rounded-br-[7px] bg-gradient-to-br from-blue-500/28 to-teal-400/18 text-text-strong"
+                        : "rounded-bl-[7px] border border-line-hairline bg-fill-2 text-text-strong",
                     )}
                   >
                     {message.replyTo ? (
-                      <div className="mb-2 border-l-2 border-teal-300/45 pl-2.5 text-xs text-white/62">
-                        <span className="block text-micro font-semibold uppercase tracking-[0.08em] text-teal-200/65">
+                      <div className="mb-2 border-l-2 border-teal-300/45 pl-2.5 text-xs text-text-subtle">
+                        <span className="block text-micro font-semibold uppercase tracking-[0.08em] text-accent-soft">
                           {message.replyTo.senderId === currentUserId ? "Вы" : "Собеседник"}
                         </span>
                         <span className="mt-0.5 block max-w-[18rem] truncate">
@@ -685,13 +685,13 @@ export function ChatConversation({
                       </div>
                     ) : null}
                     {message.text ? <p className="whitespace-pre-wrap break-words">{message.text}</p> : null}
-                    <div className="mt-1.5 flex items-center justify-end gap-1.5 text-micro text-white/62">
+                    <div className="mt-1.5 flex items-center justify-end gap-1.5 text-micro text-text-subtle">
                       <time dateTime={message.createdAt} suppressHydrationWarning>
                         {formatMessageTime(message.createdAt)}
                       </time>
                       {isOwn && message.id === lastOwnMessageId ? (
                         <span
-                          className={cn("inline-flex items-center gap-1", message.isRead && "text-teal-200/75")}
+                          className={cn("inline-flex items-center gap-1", message.isRead && "text-accent")}
                           aria-label={message.isRead ? "Прочитано" : "Отправлено"}
                         >
                           <CheckCheck className="h-3.5 w-3.5" />
@@ -705,7 +705,7 @@ export function ChatConversation({
                       type="button"
                       onClick={() => setReplyingTo(message)}
                       aria-label="Ответить на сообщение"
-                      className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white/0 transition group-hover:text-white/78 hover:!bg-white/[0.05] hover:!text-white/88 focus-visible:text-white/88 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] max-sm:text-white/78"
+                      className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-transparent transition group-hover:text-text-muted hover:!bg-fill-2 hover:!text-text-strong focus-visible:text-text-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] max-sm:text-text-muted"
                     >
                       <Reply className="h-3.5 w-3.5" />
                     </button>
@@ -715,17 +715,17 @@ export function ChatConversation({
             );
           })
         ) : (
-          <div className="rounded-control border border-white/8 bg-white/[0.03] p-4 text-sm text-white/78">
+          <div className="rounded-control border border-line-hairline bg-fill-1 p-4 text-sm text-text-muted">
             {emptyMessage}
           </div>
         )}
         {partnerTyping ? (
           <div className="flex justify-start" aria-live="polite">
-            <div className="flex items-center gap-1.5 rounded-control rounded-bl-[7px] border border-white/8 bg-white/[0.03] px-3.5 py-3">
+            <div className="flex items-center gap-1.5 rounded-control rounded-bl-[7px] border border-line-hairline bg-fill-1 px-3.5 py-3">
               {[0, 1, 2].map((index) => (
                 <span
                   key={index}
-                  className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/48"
+                  className="h-1.5 w-1.5 animate-pulse rounded-full bg-text-muted"
                   style={{ animationDelay: `${index * 140}ms` }}
                 />
               ))}
@@ -738,18 +738,18 @@ export function ChatConversation({
       <form className="mt-4 space-y-2" onSubmit={sendMessage}>
         {replyingTo ? (
           <div className="flex items-center gap-3 rounded-control border border-teal-300/12 bg-teal-300/[0.045] px-3 py-2.5">
-            <Reply className="h-4 w-4 shrink-0 text-teal-200/65" />
+            <Reply className="h-4 w-4 shrink-0 text-accent-soft" />
             <div className="min-w-0 flex-1">
-              <p className="text-micro font-semibold uppercase tracking-[0.1em] text-teal-200/65">
+              <p className="text-micro font-semibold uppercase tracking-[0.1em] text-accent-soft">
                 Ответ
               </p>
-              <p className="truncate text-xs text-white/62">{messageSummary(replyingTo)}</p>
+              <p className="truncate text-xs text-text-subtle">{messageSummary(replyingTo)}</p>
             </div>
             <button
               type="button"
               onClick={() => setReplyingTo(null)}
               aria-label="Отменить ответ"
-              className="flex h-11 w-11 items-center justify-center rounded-lg text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -761,28 +761,28 @@ export function ChatConversation({
             {attachments.map((attachment) => (
               <div
                 key={attachment.id}
-                className="relative h-20 w-20 shrink-0 overflow-hidden rounded-control border border-white/10 bg-white/[0.03]"
+                className="relative h-20 w-20 shrink-0 overflow-hidden rounded-control border border-line-default bg-fill-1"
               >
                 <Image src={attachment.url} alt="" fill sizes="80px" className="object-cover" />
                 <button
                   type="button"
                   onClick={() => void removeAttachment(attachment)}
                   aria-label="Убрать фотографию"
-                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/80 text-white/88 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/80 text-on-media focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   <X className="h-3 w-3" />
                 </button>
               </div>
             ))}
             {isUploading ? (
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-control border border-white/8 bg-white/[0.03]">
-                <Loader2 className="h-5 w-5 animate-spin text-teal-200/70" />
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-control border border-line-hairline bg-fill-1">
+                <Loader2 className="h-5 w-5 animate-spin text-accent" />
               </div>
             ) : null}
           </div>
         ) : null}
 
-        <div className="flex min-w-0 items-end gap-2 rounded-md border border-white/8 bg-white/[0.03] p-1.5 focus-within:border-teal-300/25 focus-within:bg-white/[0.03]">
+        <div className="flex min-w-0 items-end gap-2 rounded-md border border-line-hairline bg-fill-1 p-1.5 focus-within:border-teal-300/25 focus-within:bg-fill-1">
           <input
             ref={fileInputRef}
             type="file"
@@ -799,7 +799,7 @@ export function ChatConversation({
             onClick={() => fileInputRef.current?.click()}
             disabled={!canWrite || isSending || isUploading || attachments.length >= 4}
             aria-label="Добавить фотографию"
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-35"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-35"
           >
             <ImagePlus className="h-4.5 w-4.5" />
           </button>
@@ -817,7 +817,7 @@ export function ChatConversation({
             maxLength={2000}
             rows={1}
             aria-label="Текст сообщения"
-            className="max-h-32 min-h-11 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-1 py-2 text-sm shadow-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-white/78 disabled:placeholder:text-white/78"
+            className="max-h-32 min-h-11 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-1 py-2 text-sm shadow-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-text-muted disabled:placeholder:text-text-muted"
             placeholder={canWrite ? placeholder : disabledPlaceholder}
           />
           <MenariumButton
@@ -837,9 +837,9 @@ export function ChatConversation({
         </div>
         <div className="flex min-h-5 items-center justify-between gap-3 text-xs">
           {error ? (
-            <p role="alert" className="text-red-300">{error}</p>
+            <p role="alert" className="text-danger">{error}</p>
           ) : text.trim() ? (
-            <span className="text-white/62">Черновик сохранён</span>
+            <span className="text-text-subtle">Черновик сохранён</span>
           ) : (
             <span />
           )}
@@ -850,7 +850,7 @@ export function ChatConversation({
             где пользователь и будет их искать.
           */}
           {target && !connected ? (
-            <span className="shrink-0 text-amber-200/60">Восстанавливаем связь…</span>
+            <span className="shrink-0 text-warning-soft">Восстанавливаем связь…</span>
           ) : null}
         </div>
       </form>

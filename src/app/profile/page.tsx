@@ -98,16 +98,16 @@ export default async function ProfilePage({
         <ProfileNotice kind="welcome" />
       ) : null}
 
-      <GlassCard className="border border-white/8 p-4 sm:p-5">
+      <GlassCard className="border border-line-hairline p-4 sm:p-5">
         <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="type-kicker text-teal-200/55">Ваши вещи и услуги</p>
+            <p className="type-kicker text-accent-soft">Ваши вещи и услуги</p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight">Мои объявления</h2>
           </div>
           <MenariumLinkButton href="/new" size="sm">Добавить</MenariumLinkButton>
         </header>
 
-        <nav className="mt-5 grid grid-cols-2 gap-1 rounded-md border border-white/8 bg-black/10 p-1 sm:grid-cols-4" aria-label="Статус объявлений">
+        <nav className="mt-5 grid grid-cols-2 gap-1 rounded-md border border-line-hairline bg-black/10 p-1 sm:grid-cols-4" aria-label="Статус объявлений">
           {filters.map((entry) => {
             const active = entry.value === activeFilter;
             return (
@@ -119,11 +119,11 @@ export default async function ProfilePage({
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex min-h-11 items-center justify-center gap-2 rounded-xs px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
-                  active ? "bg-white/[0.07] text-white" : "text-white/78 hover:bg-white/[0.05] hover:text-white",
+                  active ? "bg-fill-3 text-text-primary" : "text-text-muted hover:bg-fill-2 hover:text-text-primary",
                 )}
               >
                 {entry.label}
-                <span className={active ? "text-teal-200" : "text-white/78"}>{counts[entry.status]}</span>
+                <span className={active ? "text-accent" : "text-text-muted"}>{counts[entry.status]}</span>
               </Link>
             );
           })}
@@ -157,7 +157,7 @@ export default async function ProfilePage({
                       <Link
                         href={`/item/${item.id}/edit`}
                         aria-label={`Редактировать «${item.title}»`}
-                        className="flex h-11 w-11 items-center justify-center rounded-xs border border-white/10 bg-[var(--surface-sunken)]/92 text-white/88 shadow-lg transition hover:bg-[#111925] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                        className="flex h-11 w-11 items-center justify-center rounded-xs border border-line-default bg-[var(--surface-sunken)]/92 text-text-strong shadow-lg transition hover:bg-[var(--surface-input)] hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>

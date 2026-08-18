@@ -76,7 +76,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
       <div className="profile-shell min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
         <div className="mx-auto flex min-h-0 max-w-[1360px] flex-col">
           {user ? (
-            <GlassCard className="profile-chrome mb-5 overflow-hidden border border-white/8 p-4 sm:p-5">
+            <GlassCard className="profile-chrome mb-5 overflow-hidden border border-line-hairline p-4 sm:p-5">
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div className="flex min-w-0 items-center gap-3.5 sm:gap-4">
                   {user.image ? (
@@ -93,11 +93,11 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                     </span>
                   )}
                   <div className="min-w-0">
-                    <p className="type-kicker text-white/62">Личный кабинет</p>
+                    <p className="type-kicker text-text-subtle">Личный кабинет</p>
                     <h1 className="type-page-title mt-1 truncate text-2xl sm:text-3xl">
                       {user.name ?? "Участник Менариум"}
                     </h1>
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/78">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-text-muted">
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5" />
                         {user.city ?? "Город не указан"}
@@ -105,7 +105,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                       <span>С нами с {formatMonthYearGenitive(user.createdAt)}</span>
                       {user.emailVerified ? (
                         <span
-                          className="inline-flex items-center gap-1.5 text-teal-200/70"
+                          className="inline-flex items-center gap-1.5 text-accent"
                           aria-label="Статус почты: подтверждена"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" />
@@ -145,11 +145,11 @@ export default async function ProfileLayout({ children }: { children: React.Reac
               {user ? (
                 <SurfaceCard className="profile-chrome mb-4 p-2 lg:hidden">
                   <details className="group">
-                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-semibold text-white marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-semibold text-text-primary marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]">
                       Разделы профиля
-                      <ChevronDown className="h-4 w-4 text-white/78 transition-transform duration-[var(--duration-base)] group-open:rotate-180" />
+                      <ChevronDown className="h-4 w-4 text-text-muted transition-transform duration-[var(--duration-base)] group-open:rotate-180" />
                     </summary>
-                    <div className="border-t border-white/8 pt-2">
+                    <div className="border-t border-line-hairline pt-2">
                       <AccountNavigation counts={accountCounts} />
                     </div>
                   </details>

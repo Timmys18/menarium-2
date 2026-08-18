@@ -56,13 +56,13 @@ export default async function SwipePage() {
       <div className="page-enter min-h-screen px-4 pb-52 pt-20 sm:px-6 md:pb-32 md:pt-28">
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 text-center md:mb-8">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/72 md:hidden">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent md:hidden">
               Быстрый поиск
             </p>
             <h1 className="type-page-title mb-2 text-3xl md:mb-4 md:text-5xl">
               <span className="gradient-text">Свайп</span> обмена
             </h1>
-            <p className="mx-auto max-w-xl text-sm text-white/62 md:text-base">
+            <p className="mx-auto max-w-xl text-sm text-text-subtle md:text-base">
               Проведите влево, чтобы пропустить, или вправо, чтобы предложить обмен. Можно использовать и кнопки ниже.
             </p>
           </div>

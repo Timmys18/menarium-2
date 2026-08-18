@@ -51,15 +51,15 @@ export function EmailVerifyBanner({
 
   if (compact) {
     return (
-      <div id="verify-email" className="scroll-mt-28 border-t border-white/8 py-4">
+      <div id="verify-email" className="scroll-mt-28 border-t border-line-hairline py-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-start gap-3">
-            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-amber-200/75" />
+            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white/88">Подтвердите почту</p>
-              <p className="mt-0.5 truncate text-xs text-white/62">{email}</p>
-              {message ? <p className="mt-1 text-xs text-teal-200" aria-live="polite">{message}</p> : null}
-              {error ? <p className="mt-1 text-xs text-red-200" role="alert">{error}</p> : null}
+              <p className="text-sm font-medium text-text-strong">Подтвердите почту</p>
+              <p className="mt-0.5 truncate text-xs text-text-subtle">{email}</p>
+              {message ? <p className="mt-1 text-xs text-accent" aria-live="polite">{message}</p> : null}
+              {error ? <p className="mt-1 text-xs text-danger" role="alert">{error}</p> : null}
             </div>
           </div>
           <MenariumButton variant="ghost" size="sm" onClick={resend} disabled={isSending} className="shrink-0 self-start sm:self-auto">
@@ -75,18 +75,18 @@ export function EmailVerifyBanner({
     <div id="verify-email" className="scroll-mt-28 rounded-control border border-amber-500/30 bg-amber-500/10 p-4 md:p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-start gap-3">
-          <Mail className="mt-0.5 h-5 w-5 shrink-0 text-amber-200" />
+          <Mail className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
           <div>
-            <h2 className="font-medium text-amber-50">Почта не подтверждена</h2>
-            <p className="mt-1 text-sm text-amber-100/80">
+            <h2 className="font-medium text-warning">Почта не подтверждена</h2>
+            <p className="mt-1 text-sm text-warning">
               {deliveryState === "sent"
                 ? `Ссылка отправлена на ${email}. Проверьте почту и папку «Спам».`
                 : deliveryState === "failed"
                   ? `Аккаунт работает, но письмо на ${email} пока не отправилось. Попробуйте ещё раз.`
                   : `Отправим ссылку на ${email}. Подтверждение помогает защитить аккаунт.`}
             </p>
-            {message ? <p className="mt-2 text-sm text-teal-200" aria-live="polite">{message}</p> : null}
-            {error ? <p className="mt-2 text-sm text-red-200" role="alert">{error}</p> : null}
+            {message ? <p className="mt-2 text-sm text-accent" aria-live="polite">{message}</p> : null}
+            {error ? <p className="mt-2 text-sm text-danger" role="alert">{error}</p> : null}
           </div>
         </div>
         <MenariumButton variant="secondary" onClick={resend} disabled={isSending} className="shrink-0">

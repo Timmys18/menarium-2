@@ -370,13 +370,13 @@ export default async function ItemPage({ params, searchParams }: Props) {
             <GlassCard className="mb-5 overflow-hidden border border-teal-300/20 bg-gradient-to-r from-teal-300/[0.12] via-blue-400/[0.08] to-transparent p-5 sm:mb-7 sm:p-6">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-3.5">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-teal-300 text-[#06130f] shadow-[0_12px_30px_rgba(52,211,153,0.18)]">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-teal-300 text-on-accent shadow-[0_12px_30px_rgba(52,211,153,0.18)]">
                     <CheckCircle2 className="h-6 w-6" />
                   </span>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-100/72">Объявление опубликовано</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">Объявление опубликовано</p>
                     <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] sm:text-2xl">Теперь найдём встречный вариант</h2>
-                    <p className="mt-1.5 max-w-xl text-sm leading-6 text-white/62">
+                    <p className="mt-1.5 max-w-xl text-sm leading-6 text-text-subtle">
                       В свайпе уже можно выбрать чужую вещь и отправить первое предложение обмена.
                     </p>
                   </div>
@@ -434,7 +434,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     />
                   ) : null}
                 </div>
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/62">
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-subtle">
                   <span className="inline-flex items-center gap-1.5">
                     {publicItem.isOnline ? <Globe2 className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
                     {publicItem.isOnline ? `Онлайн · ${publicItem.city}` : publicItem.city}
@@ -442,7 +442,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   {publicItem.owner?.id ? (
                     <Link
                       href={`/user/${publicItem.owner.id}`}
-                      className="inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-white/78 transition hover:bg-white/[0.05] hover:text-teal-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                      className="inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-text-muted transition hover:bg-fill-2 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                     >
                       <UserRound className="h-4 w-4" />
                       {publicItem.owner.name ?? "Пользователь Менариум"}
@@ -451,11 +451,11 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 </div>
 
                 <div className="my-6 rounded-md border border-blue-300/[0.16] bg-gradient-to-br from-blue-400/[0.10] to-teal-300/[0.045] p-4 sm:p-5">
-                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-100/58">
-                    <ArrowRightLeft className="h-4 w-4 text-teal-200/78" />
+                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-info-soft">
+                    <ArrowRightLeft className="h-4 w-4 text-accent" />
                     В обмен рассматривает
                   </div>
-                  <p className="text-base font-medium leading-relaxed text-white/88 sm:text-lg">{wanted}</p>
+                  <p className="text-base font-medium leading-relaxed text-text-strong sm:text-lg">{wanted}</p>
                 </div>
 
                 <div
@@ -467,7 +467,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     item.status === ItemStatus.ACTIVE || item.status === ItemStatus.PAUSED ? (
                       <div className="flex-1 space-y-3">
                         {item.status === ItemStatus.PAUSED ? (
-                          <div className="rounded-control border border-amber-300/15 bg-amber-300/[0.07] px-4 py-3 text-sm text-amber-50/72">
+                          <div className="rounded-control border border-amber-300/15 bg-amber-300/[0.07] px-4 py-3 text-sm text-warning-soft">
                             Объявление на паузе: его видите только вы. Измените его здесь или верните в каталог из раздела «Мои вещи».
                           </div>
                         ) : null}
@@ -477,12 +477,12 @@ export default async function ItemPage({ params, searchParams }: Props) {
                         <DeleteItemButton itemId={publicItem.id} />
                       </div>
                     ) : (
-                      <div className="flex-1 rounded-control border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white/62">
+                      <div className="flex-1 rounded-control border border-line-default bg-fill-2 px-4 py-3 text-sm text-text-subtle">
                         Объявление не опубликовано. Оно доступно вам для просмотра, но обмен и редактирование закрыты.
                       </div>
                     )
                   ) : !canInteract ? (
-                    <div className="flex-1 rounded-control border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white/62">
+                    <div className="flex-1 rounded-control border border-line-default bg-fill-2 px-4 py-3 text-sm text-text-subtle">
                       Объявление снято с публикации и недоступно для новых контактов.
                     </div>
                   ) : userId && !communicationBlocked ? (
@@ -492,7 +492,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                       userItems={userItems}
                     />
                   ) : userId ? (
-                    <div className="flex-1 rounded-control border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100/80">
+                    <div className="flex-1 rounded-control border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-warning">
                       Контакт с этим пользователем ограничен.
                     </div>
                   ) : (
@@ -512,16 +512,16 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <div className="mt-5 flex items-start gap-2.5 border-t border-white/8 pt-5 text-sm leading-relaxed text-white/78">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-300/72" />
+                <div className="mt-5 flex items-start gap-2.5 border-t border-line-hairline pt-5 text-sm leading-relaxed text-text-muted">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                   Статус обмена виден обеим сторонам. Не передавайте коды и данные банковских карт в сообщениях.
                 </div>
 
-                <section className="mt-6 border-t border-white/8 pt-6" aria-labelledby="item-description-title">
-                  <h2 id="item-description-title" className="text-lg font-semibold text-white/88">
+                <section className="mt-6 border-t border-line-hairline pt-6" aria-labelledby="item-description-title">
+                  <h2 id="item-description-title" className="text-lg font-semibold text-text-strong">
                     Об объявлении
                   </h2>
-                  <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-white/62">
+                  <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-text-subtle">
                     {publicItem.description}
                   </p>
                 </section>
@@ -531,7 +531,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 {publicItem.owner?.id ? (
                   <Link
                     href={`/user/${publicItem.owner.id}`}
-                    className="group mb-5 block rounded-md border border-white/8 bg-white/[0.03] p-3.5 transition hover:border-teal-300/18 hover:bg-teal-300/[0.04]"
+                    className="group mb-5 block rounded-md border border-line-hairline bg-fill-1 p-3.5 transition hover:border-teal-300/18 hover:bg-teal-300/[0.04]"
                   >
                     <span className="flex items-center gap-3">
                       {publicItem.owner.image ? (
@@ -544,37 +544,37 @@ export default async function ItemPage({ params, searchParams }: Props) {
                           className="h-11 w-11 shrink-0 rounded-control object-cover"
                         />
                       ) : (
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-gradient-to-br from-sky-400/20 to-teal-300/14 text-teal-100/80">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-gradient-to-br from-sky-400/20 to-teal-300/14 text-accent">
                           <UserRound className="h-5 w-5" />
                         </span>
                       )}
                       <span className="min-w-0 flex-1">
-                        <span className="block text-xs text-white/62">Владелец</span>
-                        <span className="block truncate text-sm font-semibold text-white/88">
+                        <span className="block text-xs text-text-subtle">Владелец</span>
+                        <span className="block truncate text-sm font-semibold text-text-strong">
                           {publicItem.owner.name ?? "Пользователь Менариум"}
                         </span>
                       </span>
-                      <span className="inline-flex items-center gap-1 text-xs text-teal-100/54 transition group-hover:text-teal-100/82">
+                      <span className="inline-flex items-center gap-1 text-xs text-accent-soft transition group-hover:text-accent">
                         Профиль
                         <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                       </span>
                     </span>
-                    <span className="mt-3 flex flex-wrap gap-2 border-t border-white/8 pt-3">
+                    <span className="mt-3 flex flex-wrap gap-2 border-t border-line-hairline pt-3">
                       {ownerReputation.averageRating ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/12 bg-amber-300/[0.055] px-2.5 py-1 text-micro text-amber-100/70">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/12 bg-amber-300/[0.055] px-2.5 py-1 text-micro text-warning">
                           <Star className="h-3 w-3 fill-current" />
                           {ownerReputation.averageRating.toFixed(1)} · {ownerReputation.reviewCount} отзывов
                         </span>
                       ) : (
-                        <span className="rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1 text-micro text-white/62">
+                        <span className="rounded-full border border-line-hairline bg-fill-1 px-2.5 py-1 text-micro text-text-subtle">
                           {ownerReputation.label}
                         </span>
                       )}
-                      <span className="rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1 text-micro text-white/62">
+                      <span className="rounded-full border border-line-hairline bg-fill-1 px-2.5 py-1 text-micro text-text-subtle">
                         {ownerCompletedSwaps} завершённых обменов
                       </span>
                       {item.owner.emailVerified ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-300/12 bg-teal-300/[0.045] px-2.5 py-1 text-micro text-teal-100/65">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-300/12 bg-teal-300/[0.045] px-2.5 py-1 text-micro text-accent-soft">
                           <ShieldCheck className="h-3 w-3" />
                           Email подтверждён
                         </span>
@@ -586,28 +586,28 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 <h2 className="mb-4 text-lg font-semibold">Детали</h2>
                 <div className="divide-y divide-white/7 text-sm">
                   <div className="flex items-center justify-between gap-4 py-3 first:pt-0">
-                    <span className="text-white/62">Город</span>
-                    <span className="text-right text-white/88">{publicItem.city}</span>
+                    <span className="text-text-subtle">Город</span>
+                    <span className="text-right text-text-strong">{publicItem.city}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3">
-                    <span className="text-white/62">Категория</span>
-                    <span className="text-right text-white/88">{publicItem.category}</span>
+                    <span className="text-text-subtle">Категория</span>
+                    <span className="text-right text-text-strong">{publicItem.category}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3">
-                    <span className="text-white/62">Формат</span>
-                    <span className="text-right text-white/88">
+                    <span className="text-text-subtle">Формат</span>
+                    <span className="text-right text-text-strong">
                       {publicItem.isOnline ? "Можно онлайн" : `Лично · ${publicItem.city}`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-3 last:pb-0">
-                    <span className="text-white/62">Статус</span>
-                    <span className="text-right font-medium text-teal-200/82">
+                    <span className="text-text-subtle">Статус</span>
+                    <span className="text-right font-medium text-accent">
                       {itemStatusLabels[publicItem.status as keyof typeof itemStatusLabels]}
                     </span>
                   </div>
                 </div>
                 {userId && !isOwner && ownerId && canInteract ? (
-                  <div className="mt-5 border-t border-white/10 pt-5">
+                  <div className="mt-5 border-t border-line-default pt-5">
                     <TrustActions
                       targetType="ITEM"
                       targetId={publicItem.id}
@@ -621,12 +621,12 @@ export default async function ItemPage({ params, searchParams }: Props) {
           </div>
           {!showChatPanel && relatedItems.length > 0 ? (
             <section
-              className="mt-10 border-t border-white/8 pt-8 sm:mt-14 sm:pt-10"
+              className="mt-10 border-t border-line-hairline pt-8 sm:mt-14 sm:pt-10"
               aria-labelledby="related-items-title"
             >
               <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/62">
+                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent-soft">
                     <Sparkles className="h-4 w-4" />
                     Продолжить поиск
                   </p>
@@ -636,7 +636,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   >
                     Похожие варианты
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/62">
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-text-subtle">
                     Подборка учитывает эту вещь
                     {userId ? ", ваши сохранения и активные предложения." : " и близкие варианты в каталоге."}
                   </p>
@@ -689,7 +689,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
             />
           ) : null}
           {!showChatPanel && !isOwner && canInteract && !communicationBlocked ? (
-            <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-lg grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-card border border-white/10 bg-[var(--surface-sunken)]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
+            <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-lg grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-card border border-line-default bg-[var(--surface-sunken)]/94 p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
               <MenariumLinkButton
                 href={
                   userId

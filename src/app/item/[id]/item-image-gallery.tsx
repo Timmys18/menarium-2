@@ -31,7 +31,7 @@ export function ItemImageGallery({
   return (
     <div>
         <div
-          className="item-transition-image relative aspect-[4/3] min-h-64 overflow-hidden bg-white/[0.03]"
+          className="item-transition-image relative aspect-[4/3] min-h-64 overflow-hidden bg-fill-1"
           style={{ viewTransitionName: `item-image-${itemId}` }}
         >
         <ItemCoverImage
@@ -46,7 +46,7 @@ export function ItemImageGallery({
               type="button"
               onClick={() => showRelativeImage(-1)}
               aria-label="Предыдущее фото"
-              className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-control border border-white/10 bg-[var(--surface-sunken)]/72 text-white/78 shadow-lg backdrop-blur-xl transition hover:bg-[var(--surface-sunken)]/90 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-control border border-line-default bg-[var(--surface-sunken)]/72 text-text-muted shadow-lg backdrop-blur-xl transition hover:bg-[var(--surface-sunken)]/90 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -54,18 +54,18 @@ export function ItemImageGallery({
               type="button"
               onClick={() => showRelativeImage(1)}
               aria-label="Следующее фото"
-              className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-control border border-white/10 bg-[var(--surface-sunken)]/72 text-white/78 shadow-lg backdrop-blur-xl transition hover:bg-[var(--surface-sunken)]/90 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-control border border-line-default bg-[var(--surface-sunken)]/72 text-text-muted shadow-lg backdrop-blur-xl transition hover:bg-[var(--surface-sunken)]/90 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
-            <span className="absolute bottom-3 right-3 rounded-full border border-white/10 bg-[var(--surface-sunken)]/76 px-3 py-1.5 text-xs text-white/78 backdrop-blur-xl">
+            <span className="absolute bottom-3 right-3 rounded-full border border-line-default bg-[var(--surface-sunken)]/76 px-3 py-1.5 text-xs text-text-muted backdrop-blur-xl">
               {activeIndex + 1} / {images.length}
             </span>
           </>
         ) : null}
         </div>
       {images.length > 1 ? (
-        <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-white/8 p-3 sm:p-4" aria-label="Все фотографии">
+        <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-line-hairline p-3 sm:p-4" aria-label="Все фотографии">
           {images.map((image, index) => (
             <button
               key={image.id}
@@ -76,7 +76,7 @@ export function ItemImageGallery({
               className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-control border transition sm:h-20 sm:w-20 sm:rounded-control ${
                 index === activeIndex
                   ? "border-teal-300 ring-2 ring-teal-300/20"
-                  : "border-white/10 opacity-58 hover:opacity-90"
+                  : "border-line-default opacity-58 hover:opacity-90"
               }`}
             >
               <ItemCoverImage src={image.url} alt="" sizes="80px" />

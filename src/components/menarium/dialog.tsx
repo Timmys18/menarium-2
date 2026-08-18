@@ -87,7 +87,7 @@ export function MenariumDialog({
 
   return createPortal(
     <div
-      className="dialog-backdrop fixed inset-0 z-[100] flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center"
+      className="dialog-backdrop fixed inset-0 z-[100] flex items-end justify-center bg-[var(--scrim)] p-4 backdrop-blur-sm sm:items-center"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -113,7 +113,7 @@ export function MenariumDialog({
               {title}
             </h2>
             {description ? (
-              <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-white/78">
+              <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-text-muted">
                 {description}
               </p>
             ) : null}
@@ -122,7 +122,7 @@ export function MenariumDialog({
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xs text-white/78 transition hover:bg-white/[0.10] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xs text-text-muted transition hover:bg-fill-4 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             <X className="h-5 w-5" />
           </button>

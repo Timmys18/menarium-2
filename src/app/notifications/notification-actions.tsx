@@ -40,12 +40,12 @@ export function MarkNotificationRead({ id }: { id: string }) {
         onClick={markRead}
         disabled={isPending}
         aria-label="Отметить уведомление прочитанным"
-        className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xs px-3 py-2 text-xs text-teal-200 transition-colors hover:bg-teal-300/[0.08] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50"
+        className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xs px-3 py-2 text-xs text-accent transition-colors hover:bg-teal-300/[0.08] hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50"
       >
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
         <span className="sr-only sm:not-sr-only">{isPending ? "Сохраняем…" : "Прочитать"}</span>
       </button>
-      {error ? <span role="alert" className="max-w-40 text-right text-micro leading-4 text-red-200">{error}</span> : null}
+      {error ? <span role="alert" className="max-w-40 text-right text-micro leading-4 text-danger">{error}</span> : null}
     </div>
   );
 }
@@ -79,7 +79,7 @@ export function MarkAllNotificationsRead({ disabled }: { disabled: boolean }) {
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCheck className="h-4 w-4" />}
         Прочитать все
       </MenariumButton>
-      {error ? <p role="alert" className="mt-2 max-w-56 text-xs text-red-200">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 max-w-56 text-xs text-danger">{error}</p> : null}
     </div>
   );
 }

@@ -65,7 +65,7 @@ export function ResetPasswordForm() {
   if (!email || !token) {
     return (
       <div className="space-y-4">
-        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger">
           Ссылка недействительна. Запросите сброс пароля заново.
         </div>
         <MenariumLinkButton href={forgotPasswordHref} className="w-full">
@@ -77,9 +77,9 @@ export function ResetPasswordForm() {
 
   return (
     <form className="space-y-4" onSubmit={submit}>
-      <p className="text-sm text-white/62">Придумайте новый пароль для {email}</p>
+      <p className="text-sm text-text-subtle">Придумайте новый пароль для {email}</p>
       <div className="space-y-2.5">
-        <label htmlFor="reset-password" className="block text-sm font-medium text-white/78">
+        <label htmlFor="reset-password" className="block text-sm font-medium text-text-muted">
           Новый пароль
         </label>
         <div className="relative">
@@ -100,7 +100,7 @@ export function ResetPasswordForm() {
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Скрыть введённые символы" : "Показать введённые символы"}
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-text-subtle transition hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
           >
             {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
           </button>
@@ -111,8 +111,8 @@ export function ResetPasswordForm() {
               key={check.id}
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-micro transition ${
                 check.passed
-                  ? "border-teal-300/20 bg-teal-300/[0.08] text-teal-100"
-                  : "border-white/8 bg-white/[0.03] text-white/62"
+                  ? "border-teal-300/20 bg-teal-300/[0.08] text-accent"
+                  : "border-line-hairline bg-fill-1 text-text-subtle"
               }`}
             >
               <Check className="h-3 w-3" />
@@ -122,7 +122,7 @@ export function ResetPasswordForm() {
         </div>
       </div>
       <div className="space-y-2.5">
-        <label htmlFor="reset-password-confirm" className="block text-sm font-medium text-white/78">
+        <label htmlFor="reset-password-confirm" className="block text-sm font-medium text-text-muted">
           Повторите пароль
         </label>
         <MenariumInput
@@ -137,13 +137,13 @@ export function ResetPasswordForm() {
           required
         />
         {confirm ? (
-          <p className={`text-xs ${password === confirm ? "text-teal-200" : "text-amber-200"}`} aria-live="polite">
+          <p className={`text-xs ${password === confirm ? "text-accent" : "text-warning"}`} aria-live="polite">
             {password === confirm ? "Пароли совпадают" : "Пароли пока не совпадают"}
           </p>
         ) : null}
       </div>
       {error ? (
-        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger" role="alert">
           {error}
         </div>
       ) : null}

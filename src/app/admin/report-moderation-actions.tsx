@@ -129,7 +129,7 @@ export function ReportModerationActions({
           </>
         }
       >
-        <label className="block text-sm text-white/78">
+        <label className="block text-sm text-text-muted">
           Комментарий модератора
           <MenariumTextarea
             value={resolutionNote}
@@ -140,8 +140,8 @@ export function ReportModerationActions({
           />
         </label>
         <div className="mt-2 flex items-start justify-between gap-4">
-          {error ? <p role="alert" className="text-sm text-red-300">{error}</p> : <span />}
-          <p className="shrink-0 text-xs text-white/62">{resolutionNote.length}/2000</p>
+          {error ? <p role="alert" className="text-sm text-danger">{error}</p> : <span />}
+          <p className="shrink-0 text-xs text-text-subtle">{resolutionNote.length}/2000</p>
         </div>
       </MenariumDialog>
     </>

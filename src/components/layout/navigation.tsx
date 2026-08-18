@@ -36,7 +36,7 @@ function CountBadge({ count, compact = false }: { count: number; compact?: boole
   return (
     <span
       className={cn(
-        "flex items-center justify-center rounded-full bg-amber-300 font-bold text-[#151008] shadow-[0_0_18px_rgba(255,188,114,0.3)]",
+        "flex items-center justify-center rounded-full bg-amber-300 font-bold text-on-accent shadow-[0_0_18px_rgba(255,188,114,0.3)]",
         compact
           ? "absolute -right-1 -top-1 h-4 min-w-4 px-1 text-micro leading-none"
           : "min-w-5 px-1.5 py-0.5 text-micro",
@@ -78,7 +78,7 @@ export function Navigation({
                 />
               </Link>
 
-              <div className="flex items-center gap-1 rounded-control border border-white/8 bg-black/10 p-1">
+              <div className="flex items-center gap-1 rounded-control border border-line-hairline bg-black/10 p-1">
                 {primaryItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActivePath(pathname, item.href);
@@ -91,11 +91,11 @@ export function Navigation({
                       className={cn(
                         "desktop-nav-link relative flex min-h-11 items-center gap-2 rounded-control px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:px-5",
                         active
-                          ? "border border-white/10 bg-white/[0.07] text-white shadow-inner shadow-white/[0.03]"
-                          : "border border-transparent text-white/62 hover:bg-white/[0.05] hover:text-white",
+                          ? "border border-line-default bg-fill-3 text-text-primary shadow-inner shadow-white/[0.03]"
+                          : "border border-transparent text-text-subtle hover:bg-fill-2 hover:text-text-primary",
                       )}
                     >
-                      <Icon className={cn("h-4 w-4", active ? "text-teal-300" : "text-white/62")} />
+                      <Icon className={cn("h-4 w-4", active ? "text-accent" : "text-text-subtle")} />
                       {item.label}
                       <CountBadge count={count} />
                     </Link>
@@ -120,8 +120,8 @@ export function Navigation({
                   className={cn(
                     "relative flex h-11 w-11 items-center justify-center rounded-control border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                     isActivePath(pathname, "/notifications")
-                      ? "border-white/10 bg-white/[0.07] text-white"
-                      : "border-white/8 bg-white/[0.03] text-white/62 hover:bg-white/[0.07] hover:text-white",
+                      ? "border-line-default bg-fill-3 text-text-primary"
+                      : "border-line-hairline bg-fill-1 text-text-subtle hover:bg-fill-3 hover:text-text-primary",
                   )}
                 >
                   <Bell className="h-4.5 w-4.5" />
@@ -134,8 +134,8 @@ export function Navigation({
                   className={cn(
                     "flex h-11 w-11 items-center justify-center rounded-control border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                     isActivePath(pathname, "/profile")
-                      ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                      : "border-white/8 bg-white/[0.03] text-white/62 hover:bg-white/[0.07] hover:text-white",
+                      ? "border-teal-300/25 bg-teal-300/10 text-accent"
+                      : "border-line-hairline bg-fill-1 text-text-subtle hover:bg-fill-3 hover:text-text-primary",
                   )}
                 >
                   <UserRound className="h-4.5 w-4.5" />
@@ -168,8 +168,8 @@ export function Navigation({
               className={cn(
                 "relative flex h-11 w-11 items-center justify-center rounded-xs border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                 isActivePath(pathname, "/notifications")
-                  ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                  : "border-white/8 bg-white/[0.03] text-white/62",
+                  ? "border-teal-300/25 bg-teal-300/10 text-accent"
+                  : "border-line-hairline bg-fill-1 text-text-subtle",
               )}
             >
               <Bell className="h-4.5 w-4.5" />
@@ -182,8 +182,8 @@ export function Navigation({
               className={cn(
                 "flex h-11 w-11 items-center justify-center rounded-xs border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                 isActivePath(pathname, "/profile")
-                  ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
-                  : "border-white/8 bg-white/[0.03] text-white/62",
+                  ? "border-teal-300/25 bg-teal-300/10 text-accent"
+                  : "border-line-hairline bg-fill-1 text-text-subtle",
               )}
             >
               <UserRound className="h-4.5 w-4.5" />
@@ -207,18 +207,18 @@ export function Navigation({
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-control px-0.5 py-1 text-micro font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
-                      active && !item.primary ? "bg-white/[0.05] text-white" : "text-white/62",
-                      item.primary && "text-white/88",
+                      active && !item.primary ? "bg-fill-2 text-text-primary" : "text-text-subtle",
+                      item.primary && "text-text-strong",
                     )}
                   >
                     <span
                       className={cn(
                         "relative flex items-center justify-center transition",
                         item.primary
-                          ? "h-8 w-10 rounded-xs text-white"
+                          ? "h-8 w-10 rounded-xs text-text-primary"
                           : active
-                            ? "h-8 w-10 rounded-xs bg-white/[0.10] text-teal-200"
-                            : "h-8 w-10 rounded-xs text-white/62",
+                            ? "h-8 w-10 rounded-xs bg-fill-4 text-accent"
+                            : "h-8 w-10 rounded-xs text-text-subtle",
                       )}
                     >
                       {item.primary ? (
@@ -228,7 +228,7 @@ export function Navigation({
                       )}
                       <CountBadge count={count} compact />
                     </span>
-                    <span className={cn("whitespace-nowrap", active && "font-semibold text-white")}>{item.label}</span>
+                    <span className={cn("whitespace-nowrap", active && "font-semibold text-text-primary")}>{item.label}</span>
                   </Link>
                 );
               })}

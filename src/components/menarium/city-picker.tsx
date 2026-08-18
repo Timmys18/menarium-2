@@ -72,21 +72,21 @@ export function CityPicker({
         aria-controls={open ? listId : undefined}
         aria-haspopup="listbox"
         onClick={toggleList}
-        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-control border border-white/10 bg-[var(--surface-input)] px-4 py-3 text-left text-white outline-none transition hover:border-white/20 focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-control border border-line-default bg-[var(--surface-input)] px-4 py-3 text-left text-text-primary outline-none transition hover:border-line-strong focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       >
         <span className="flex min-w-0 items-center gap-2">
-          <MapPin className="h-4 w-4 shrink-0 text-teal-200" />
-          <span className={cn("truncate", selected ? "text-white" : "text-white/62")}>{selected ? selected.name : "Выберите город"}</span>
+          <MapPin className="h-4 w-4 shrink-0 text-accent" />
+          <span className={cn("truncate", selected ? "text-text-primary" : "text-text-subtle")}>{selected ? selected.name : "Выберите город"}</span>
         </span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/62 transition", open && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-text-subtle transition", open && "rotate-180")} />
       </button>
 
       {open ? (
         <div className={cn(
-          "w-full overflow-hidden rounded-md border border-white/10 bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
+          "w-full overflow-hidden rounded-md border border-line-default bg-[var(--surface-raised)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.5)]",
           inline ? "relative mt-2" : cn("absolute left-0 z-[70]", placement === "up" ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"),
         )}>
-          <label className="flex min-h-11 items-center gap-2 rounded-xs bg-white/[0.05] px-3 py-2 text-white/78">
+          <label className="flex min-h-11 items-center gap-2 rounded-xs bg-fill-2 px-3 py-2 text-text-muted">
             <Search className="h-4 w-4 shrink-0" />
             <span className="sr-only">Найти город в списке</span>
             <input
@@ -100,10 +100,10 @@ export function CityPicker({
                 }
               }}
               placeholder="Начните печатать город"
-              className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/62"
+              className="min-w-0 flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-subtle"
             />
             {query ? (
-              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="-mr-3 flex h-11 w-11 items-center justify-center text-white/78 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
+              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="-mr-3 flex h-11 w-11 items-center justify-center text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
                 <X className="h-4 w-4" />
               </button>
             ) : null}
@@ -129,19 +129,19 @@ export function CityPicker({
                     setQuery("");
                   }}
                   className={cn(
-                    "flex min-h-11 w-full items-center justify-between gap-3 rounded-xs px-3 py-2.5 text-left transition hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]",
+                    "flex min-h-11 w-full items-center justify-between gap-3 rounded-xs px-3 py-2.5 text-left transition hover:bg-fill-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]",
                     active && "bg-teal-300/[0.09]",
                   )}
                 >
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-white">{city.name}</span>
-                    <span className="block truncate text-xs text-white/62">{city.region}</span>
+                    <span className="block truncate text-sm font-medium text-text-primary">{city.name}</span>
+                    <span className="block truncate text-xs text-text-subtle">{city.region}</span>
                   </span>
-                  {active ? <Check className="h-4 w-4 shrink-0 text-teal-200" /> : null}
+                  {active ? <Check className="h-4 w-4 shrink-0 text-accent" /> : null}
                 </button>
               );
             })}
-            {cities.length === 0 ? <p className="px-3 py-5 text-center text-sm text-white/62">Город не найден в справочнике.</p> : null}
+            {cities.length === 0 ? <p className="px-3 py-5 text-center text-sm text-text-subtle">Город не найден в справочнике.</p> : null}
           </div>
         </div>
       ) : null}

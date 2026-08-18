@@ -67,14 +67,14 @@ export function ExchangeProposal({
     <div id="exchange-proposal" className="flex-1 scroll-mt-28 space-y-3 rounded-md border border-teal-300/[0.16] bg-teal-300/[0.045] p-3.5">
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-teal-100/76">
+          <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
             Вы отдаёте
           </label>
-          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-white/62">
+          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-text-subtle">
             Получаете: {receiverTitle}
           </p>
         </div>
-        <ArrowRightLeft className="h-4 w-4 shrink-0 text-teal-200/70" />
+        <ArrowRightLeft className="h-4 w-4 shrink-0 text-accent" />
       </div>
       <MenariumSelect
         id="exchange-sender-item"
@@ -88,7 +88,7 @@ export function ExchangeProposal({
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRightLeft className="h-5 w-5" />}
         Предложить обмен
       </MenariumButton>
-      {error ? <p role="alert" className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
     </div>
   );
 }

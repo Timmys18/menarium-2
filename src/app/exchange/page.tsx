@@ -364,20 +364,20 @@ export async function ExchangePageContent({ searchParams }: Props) {
             {userId && totalSwaps > 0 ? (
               needsResponseCount > 0 ? (
                 <div className="inline-flex items-center gap-3 self-start rounded-md border border-teal-300/25 bg-teal-300/[0.08] px-4 py-3 md:self-auto">
-                  <Clock3 className="h-5 w-5 text-teal-200" />
+                  <Clock3 className="h-5 w-5 text-accent" />
                   <div>
-                    <p className="text-sm font-semibold text-white">Нужно ответить: {needsResponseCount}</p>
+                    <p className="text-sm font-semibold text-text-primary">Нужно ответить: {needsResponseCount}</p>
                     <Link
                       href={exchangeHref("incoming")}
-                      className="-ml-2 inline-flex min-h-11 items-center rounded-xs px-2 text-xs font-medium text-teal-200/76 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                      className="-ml-2 inline-flex min-h-11 items-center rounded-xs px-2 text-xs font-medium text-accent transition hover:bg-fill-2 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                     >
                       Посмотреть входящие
                     </Link>
                   </div>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/62 md:self-auto">
-                  <CheckCircle2 className="h-4 w-4 text-teal-300" />
+                <div className="inline-flex items-center gap-2 self-start rounded-full border border-line-default bg-fill-1 px-4 py-2 text-sm text-text-subtle md:self-auto">
+                  <CheckCircle2 className="h-4 w-4 text-accent" />
                   Новых решений не требуется
                 </div>
               )
@@ -386,12 +386,12 @@ export async function ExchangePageContent({ searchParams }: Props) {
 
           {showSentNotice ? (
             <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-teal-300 text-[#07130f]">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-teal-300 text-on-accent">
                 <CheckCircle2 className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-semibold text-white">Предложение отправлено</p>
-                <p className="mt-1 text-sm leading-6 text-white/62">
+                <p className="font-semibold text-text-primary">Предложение отправлено</p>
+                <p className="mt-1 text-sm leading-6 text-text-subtle">
                   Партнёр уже получил уведомление. До ответа вы можете отозвать предложение в карточке обмена.
                 </p>
               </div>
@@ -400,17 +400,17 @@ export async function ExchangePageContent({ searchParams }: Props) {
 
           {showAcceptedNotice ? (
             <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-teal-300 text-[#07130f]">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-teal-300 text-on-accent">
                 <CheckCircle2 className="h-5 w-5" />
               </span>
               <div className="min-w-0">
-                <p className="font-semibold text-white">Обмен принят</p>
-                <p className="mt-1 text-sm leading-6 text-white/62">
+                <p className="font-semibold text-text-primary">Обмен принят</p>
+                <p className="mt-1 text-sm leading-6 text-text-subtle">
                   Обе вещи теперь в сделке. Чат уже открыт: напишите партнёру, чтобы согласовать детали обмена.
                 </p>
                 <a
                   href="#exchange-chat"
-                  className="-ml-2 mt-2 inline-flex min-h-11 items-center rounded-xs px-2 text-sm font-semibold text-teal-200 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="-ml-2 mt-2 inline-flex min-h-11 items-center rounded-xs px-2 text-sm font-semibold text-accent transition hover:bg-fill-2 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   Открыть чат ↓
                 </a>
@@ -442,7 +442,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
             <>
               <div
                 className={cn(
-                  "mb-5 flex flex-col gap-3 rounded-card border border-white/8 bg-white/[0.03] p-2 sm:flex-row sm:items-center sm:justify-between",
+                  "mb-5 flex flex-col gap-3 rounded-card border border-line-hairline bg-fill-1 p-2 sm:flex-row sm:items-center sm:justify-between",
                   params.swap ? "hidden lg:flex" : "",
                 )}
               >
@@ -460,19 +460,19 @@ export async function ExchangePageContent({ searchParams }: Props) {
                         "min-w-0 overflow-hidden rounded-control px-2 py-2.5 text-xs font-medium transition sm:shrink-0 sm:px-4 sm:text-sm",
                         tab === activeTab
                           ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white shadow-[0_10px_24px_rgba(77,141,255,0.18)]"
-                          : "text-white/62 hover:bg-white/[0.05] hover:text-white",
+                          : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
                       )}
                     >
                       <span className="sm:hidden">{mobileLabel}</span>
                       <span className="hidden sm:inline">{label}</span>
-                      <span className={cn("ml-1.5 text-micro sm:ml-2 sm:text-xs", tab === activeTab ? "text-white/78" : "text-white/62")}>
+                      <span className={cn("ml-1.5 text-micro sm:ml-2 sm:text-xs", tab === activeTab ? "text-text-muted" : "text-text-subtle")}>
                         {count}
                       </span>
                     </Link>
                   ))}
                 </nav>
 
-                <nav className="flex gap-1 border-t border-white/8 pt-2 sm:border-l sm:border-t-0 sm:pl-2 sm:pt-0" aria-label="Состояние обменов">
+                <nav className="flex gap-1 border-t border-line-hairline pt-2 sm:border-l sm:border-t-0 sm:pl-2 sm:pt-0" aria-label="Состояние обменов">
                   {([
                     ["active", "Сейчас"],
                     ["history", "История"],
@@ -484,8 +484,8 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       className={cn(
                         "inline-flex min-h-11 items-center rounded-xs px-4 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                         activeFilter === filter
-                          ? "bg-white/[0.10] text-white"
-                          : "text-white/62 hover:bg-white/[0.05] hover:text-white/78",
+                          ? "bg-fill-4 text-text-primary"
+                          : "text-text-subtle hover:bg-fill-2 hover:text-text-muted",
                       )}
                     >
                       {label}
@@ -498,7 +498,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                 <GlassCard
                   id="exchange-list"
                   className={cn(
-                    "border border-white/8 p-4 sm:p-5 lg:order-1",
+                    "border border-line-hairline p-4 sm:p-5 lg:order-1",
                     params.swap ? "hidden lg:block" : "order-1",
                   )}
                 >
@@ -511,11 +511,11 @@ export async function ExchangePageContent({ searchParams }: Props) {
                             ? "Ваши предложения"
                             : "Взаимные обмены"}
                       </h2>
-                      <p className="mt-1 text-xs text-white/62">
+                      <p className="mt-1 text-xs text-text-subtle">
                         {activeFilter === "active" ? "Актуальные обмены" : "Завершённые и отменённые"}
                       </p>
                     </div>
-                    <span className="text-xs text-white/62">{tabCounts[activeTab]} всего</span>
+                    <span className="text-xs text-text-subtle">{tabCounts[activeTab]} всего</span>
                   </div>
 
                   {swapsPage.length === 0 ? (
@@ -556,21 +556,21 @@ export async function ExchangePageContent({ searchParams }: Props) {
                               "group block rounded-md border p-3.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:p-4",
                               selected
                                 ? "border-blue-300/30 bg-blue-400/[0.075] shadow-[0_14px_34px_rgba(0,0,0,0.16)]"
-                                : "border-white/8 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]",
+                                : "border-line-hairline bg-fill-1 hover:border-line-strong hover:bg-fill-2",
                             )}
                           >
                             <article>
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="flex items-center gap-1.5 text-xs text-white/62">
+                                <span className="flex items-center gap-1.5 text-xs text-text-subtle">
                                   <UserRound className="h-3.5 w-3.5" />
                                   {partner?.name ?? "Участник Менариум"}
                                 </span>
                                 <Badge variant={presentation.variant}>{presentation.label}</Badge>
                               </div>
 
-                              <div className="mt-3 overflow-hidden rounded-control border border-white/8 bg-[#0a111b]/72">
+                              <div className="mt-3 overflow-hidden rounded-control border border-line-hairline bg-[var(--surface-card)]/72">
                                 <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] sm:grid-cols-[9rem_minmax(0,1fr)]">
-                                  <div className="relative min-h-32 overflow-hidden bg-white/[0.03] sm:min-h-36">
+                                  <div className="relative min-h-32 overflow-hidden bg-fill-1 sm:min-h-36">
                                     <ItemCoverImage
                                       src={theirCard.image}
                                       alt={theirItem.title}
@@ -579,26 +579,26 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                     />
                                   </div>
                                   <div className="flex min-w-0 flex-col justify-center p-3.5 sm:p-4">
-                                    <span className="text-micro font-semibold uppercase tracking-[0.12em] text-teal-200/70">Вы получаете</span>
-                                    <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-white">{theirItem.title}</h3>
-                                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/62">{theirCard.category} · {theirCard.city}</p>
+                                    <span className="text-micro font-semibold uppercase tracking-[0.12em] text-accent">Вы получаете</span>
+                                    <h3 className="mt-1.5 line-clamp-2 text-base font-semibold text-text-primary">{theirItem.title}</h3>
+                                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-text-subtle">{theirCard.category} · {theirCard.city}</p>
                                   </div>
                                 </div>
-                                <div className="mx-3 flex items-center gap-3 border-t border-white/8 py-3">
-                                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xs border border-white/8 bg-white/[0.03]">
+                                <div className="mx-3 flex items-center gap-3 border-t border-line-hairline py-3">
+                                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xs border border-line-hairline bg-fill-1">
                                     <ItemCoverImage src={yourCard.image} alt={yourItem.title} sizes="44px" />
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <span className="block text-micro font-semibold uppercase tracking-[0.1em] text-teal-200/60">Вы предложили</span>
-                                    <span className="mt-0.5 block truncate text-sm font-semibold text-white/88">{yourItem.title}</span>
+                                    <span className="block text-micro font-semibold uppercase tracking-[0.1em] text-accent-soft">Вы предложили</span>
+                                    <span className="mt-0.5 block truncate text-sm font-semibold text-text-strong">{yourItem.title}</span>
                                   </div>
                                   <BrandMark size="xs" className="h-7 w-7" />
                                 </div>
                               </div>
 
-                              <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/8 pt-3 text-xs">
-                                <span className="line-clamp-1 text-white/62">{presentation.description}</span>
-                                <span className="inline-flex shrink-0 items-center gap-1.5 font-medium text-teal-200">
+                              <div className="mt-3 flex items-center justify-between gap-3 border-t border-line-hairline pt-3 text-xs">
+                                <span className="line-clamp-1 text-text-subtle">{presentation.description}</span>
+                                <span className="inline-flex shrink-0 items-center gap-1.5 font-medium text-accent">
                                   {swap.status === SwapStatus.ACCEPTED ? <MessageCircle className="h-3.5 w-3.5" /> : null}
                                   {swap.status === SwapStatus.ACCEPTED ? "Открыть чат" : "Подробнее"}
                                 </span>
@@ -611,16 +611,16 @@ export async function ExchangePageContent({ searchParams }: Props) {
                   )}
 
                   {exchangeTotalPages > 1 ? (
-                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-white/8 pt-5">
+                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-line-hairline pt-5">
                       {page > 1 ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page - 1)}
-                          className="inline-flex min-h-11 items-center rounded-control border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/78 transition hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                          className="inline-flex min-h-11 items-center rounded-control border border-line-default bg-fill-1 px-4 py-2.5 text-sm text-text-muted transition hover:bg-fill-3 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                         >
                           ← Назад
                         </Link>
                       ) : null}
-                      <span className="text-xs text-white/62">
+                      <span className="text-xs text-text-subtle">
                         {page} из {exchangeTotalPages}
                       </span>
                       {exchangeHasMore ? (
@@ -638,7 +638,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                 <GlassCard
                   id="exchange-detail"
                   className={cn(
-                    "min-w-0 max-w-full scroll-mt-24 overflow-hidden border border-white/10 p-4 sm:p-5 lg:order-2",
+                    "min-w-0 max-w-full scroll-mt-24 overflow-hidden border border-line-default p-4 sm:p-5 lg:order-2",
                     params.swap ? "order-1" : "order-2",
                   )}
                 >
@@ -647,7 +647,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {params.swap ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page)}
-                          className="mb-4 inline-flex min-h-11 items-center rounded-xs px-2 text-sm text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden"
+                          className="mb-4 inline-flex min-h-11 items-center rounded-xs px-2 text-sm text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:hidden"
                         >
                           ← Все обмены
                         </Link>
@@ -655,15 +655,15 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       <div className="mb-4 flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-gradient-to-br from-blue-500/20 to-teal-400/15">
-                            <MessageCircle className="h-5 w-5 text-teal-200" />
+                            <MessageCircle className="h-5 w-5 text-accent" />
                           </div>
                           <div className="min-w-0">
                             <h2 className="truncate font-semibold">
                               {selectedPartner?.name ?? "Участник Менариум"}
                             </h2>
-                            <p className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-white/62">
+                            <p className="mt-0.5 flex min-w-0 items-center gap-2 text-xs text-text-subtle">
                               <span className="truncate">{selectedYourItem.title}</span>
-                              <BrandGlyph className="h-4 w-4 shrink-0 text-teal-200/70" />
+                              <BrandGlyph className="h-4 w-4 shrink-0 text-accent" />
                               <span className="truncate">{selectedTheirItem.title}</span>
                             </p>
                           </div>
@@ -674,8 +674,8 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       </div>
 
                       {selectedSwap.status === SwapStatus.PENDING ? (
-                        <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-white/62">
-                          <Clock3 className="h-3.5 w-3.5 text-amber-200/65" />
+                        <p className="-mt-1 mb-4 flex items-center gap-2 text-xs text-text-subtle">
+                          <Clock3 className="h-3.5 w-3.5 text-warning-soft" />
                           Ответ до {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(selectedSwap.expiresAt)}
                         </p>
                       ) : null}
@@ -688,13 +688,13 @@ export async function ExchangePageContent({ searchParams }: Props) {
                           <div key={entry.item.id} className={cn("contents", index === 1 && "sm:contents")}>
                             {index === 1 ? (
                               <div className="flex items-center gap-3 sm:block">
-                                <span className="h-px flex-1 bg-white/[0.07] sm:hidden" />
+                                <span className="h-px flex-1 bg-fill-3 sm:hidden" />
                                 <BrandMark size="md" className="h-10 w-10 sm:mx-auto" />
-                                <span className="h-px flex-1 bg-white/[0.07] sm:hidden" />
+                                <span className="h-px flex-1 bg-fill-3 sm:hidden" />
                               </div>
                             ) : null}
-                            <article className="overflow-hidden rounded-md border border-white/8 bg-white/[0.03]">
-                              <div className="relative aspect-[16/10] overflow-hidden bg-white/[0.03]">
+                            <article className="overflow-hidden rounded-md border border-line-hairline bg-fill-1">
+                              <div className="relative aspect-[16/10] overflow-hidden bg-fill-1">
                                 <ItemCoverImage
                                   src={entry.card.image}
                                   alt={entry.item.title}
@@ -702,9 +702,9 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                 />
                               </div>
                               <div className="p-4">
-                                <span className="text-micro font-semibold uppercase tracking-[0.12em] text-teal-200/65">{entry.label}</span>
-                                <h3 className="mt-1.5 line-clamp-2 min-h-10 font-semibold text-white">{entry.item.title}</h3>
-                                <p className="mt-2 text-xs text-white/62">{entry.card.category} · {entry.card.city}</p>
+                                <span className="text-micro font-semibold uppercase tracking-[0.12em] text-accent-soft">{entry.label}</span>
+                                <h3 className="mt-1.5 line-clamp-2 min-h-10 font-semibold text-text-primary">{entry.item.title}</h3>
+                                <p className="mt-2 text-xs text-text-subtle">{entry.card.category} · {entry.card.city}</p>
                               </div>
                             </article>
                           </div>
@@ -763,17 +763,17 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       {selectedPartner ? (
                         <section
                           aria-labelledby="exchange-safety-title"
-                          className="mt-5 rounded-md border border-white/8 bg-white/[0.03] p-4"
+                          className="mt-5 rounded-md border border-line-hairline bg-fill-1 p-4"
                         >
                           <div className="mb-3 flex items-start gap-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xs bg-teal-400/10 text-teal-200">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xs bg-teal-400/10 text-accent">
                               <ShieldCheck className="h-4.5 w-4.5" />
                             </span>
                             <div>
                               <h3 id="exchange-safety-title" className="text-sm font-semibold">
                                 Безопасность сделки
                               </h3>
-                              <p className="mt-1 text-xs leading-4 text-white/62">
+                              <p className="mt-1 text-xs leading-4 text-text-subtle">
                                 Если что-то пошло не по договорённости, сообщите нам прямо из этого обмена.
                               </p>
                             </div>
@@ -791,9 +791,9 @@ export async function ExchangePageContent({ searchParams }: Props) {
                     </>
                   ) : (
                     <div className="py-12 text-center">
-                      <MessageCircle className="mx-auto h-8 w-8 text-white/62" />
+                      <MessageCircle className="mx-auto h-8 w-8 text-text-subtle" />
                       <h2 className="mt-4 font-semibold">Выберите обмен</h2>
-                      <p className="mt-2 text-sm text-white/62">Здесь появятся детали, действия и чат.</p>
+                      <p className="mt-2 text-sm text-text-subtle">Здесь появятся детали, действия и чат.</p>
                     </div>
                   )}
                 </GlassCard>

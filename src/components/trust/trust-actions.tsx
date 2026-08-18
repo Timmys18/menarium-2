@@ -105,14 +105,14 @@ export function TrustActions({
         ) : null}
       </div>
       {message ? (
-        <p className="text-sm text-teal-200">
+        <p className="text-sm text-accent">
           {message}{" "}
           <Link href="/profile/safety" className="font-semibold underline underline-offset-4">
             Открыть обращения
           </Link>
         </p>
       ) : null}
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
 
       <MenariumDialog
         open={reportOpen}
@@ -137,7 +137,7 @@ export function TrustActions({
       >
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="report-reason" className="block text-sm text-white/78">
+            <label htmlFor="report-reason" className="block text-sm text-text-muted">
               Причина
             </label>
             <MenariumSelect
@@ -154,7 +154,7 @@ export function TrustActions({
             maxLength={1000}
             placeholder="Опишите ситуацию — это поможет модератору разобраться."
           />
-          <p className="text-right text-xs text-white/62">{details.length}/1000</p>
+          <p className="text-right text-xs text-text-subtle">{details.length}/1000</p>
         </div>
       </MenariumDialog>
 

@@ -129,14 +129,14 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl">
           <header className="mb-7">
-            <div className="flex items-center gap-3 text-teal-200/70">
+            <div className="flex items-center gap-3 text-accent">
               <ShieldCheck className="h-5 w-5" />
               <p className="text-xs font-semibold uppercase tracking-[0.2em]">
                 Доверие и защита
               </p>
             </div>
             <h1 className="type-page-title mt-3 text-4xl md:text-5xl">Центр безопасности</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/62 sm:text-base">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-text-subtle sm:text-base">
               Здесь сохраняются ваши обращения, их связь со сделкой и результат проверки.
               Внутреннее расследование остаётся конфиденциальным.
             </p>
@@ -155,12 +155,12 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
               <GlassCard className="overflow-hidden border border-teal-300/12 bg-gradient-to-br from-teal-300/[0.07] via-white/[0.025] to-blue-400/[0.06] p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                   <div className="flex items-start gap-4">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-teal-300/12 text-teal-200">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-teal-300/12 text-accent">
                       <ShieldCheck className="h-6 w-6" />
                     </span>
                     <div>
                       <h2 className="text-lg font-semibold">Мы сохраняем контекст</h2>
-                      <p className="mt-1 max-w-xl text-sm leading-5 text-white/62">
+                      <p className="mt-1 max-w-xl text-sm leading-5 text-text-subtle">
                         Жалоба из обмена прикрепляется к конкретной сделке. Блокировка остановит
                         новые контакты, но чат принятого обмена останется доступен для безопасного завершения.
                       </p>
@@ -168,7 +168,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                   </div>
                   <Link
                     href="/profile/exchanges"
-                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-control border border-white/10 bg-white/[0.05] px-4 text-sm font-semibold text-white/78 transition hover:bg-white/[0.07] hover:text-white"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-control border border-line-default bg-fill-2 px-4 text-sm font-semibold text-text-muted transition hover:bg-fill-3 hover:text-text-primary"
                   >
                     Открыть обмены
                     <ArrowRight className="h-4 w-4" />
@@ -178,7 +178,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
 
               <nav
                 aria-label="Фильтр обращений"
-                className="grid grid-cols-3 gap-2 rounded-md border border-white/8 bg-white/[0.03] p-2"
+                className="grid grid-cols-3 gap-2 rounded-md border border-line-hairline bg-fill-1 p-2"
               >
                 {([
                   ["all", "Все", totalCount],
@@ -193,14 +193,14 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                       "flex min-h-11 items-center justify-center rounded-control px-3 py-2.5 text-center text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                       activeFilter === filter
                         ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
-                        : "text-white/62 hover:bg-white/[0.05] hover:text-white",
+                        : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
                     )}
                   >
                     {label}
                     <span
                       className={cn(
                         "ml-2 text-xs",
-                        activeFilter === filter ? "text-white/78" : "text-white/62",
+                        activeFilter === filter ? "text-text-muted" : "text-text-subtle",
                       )}
                     >
                       {count}
@@ -232,16 +232,16 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                           : null;
 
                     return (
-                      <GlassCard key={report.id} className="border border-white/8 p-5 sm:p-6">
+                      <GlassCard key={report.id} className="border border-line-hairline p-5 sm:p-6">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                           <span
                             className={cn(
                               "flex h-11 w-11 shrink-0 items-center justify-center rounded-control",
                               report.status === ReportStatus.RESOLVED
-                                ? "bg-teal-300/12 text-teal-200"
+                                ? "bg-teal-300/12 text-accent"
                                 : report.status === ReportStatus.REVIEWING
-                                  ? "bg-blue-400/12 text-blue-200"
-                                  : "bg-white/[0.05] text-white/62",
+                                  ? "bg-blue-400/12 text-info"
+                                  : "bg-fill-2 text-text-subtle",
                             )}
                           >
                             <StatusIcon className="h-5 w-5" />
@@ -252,7 +252,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                               <Badge variant="glass">{reasonLabels[report.reason]}</Badge>
                               <time
                                 dateTime={report.createdAt.toISOString()}
-                                className="text-xs text-white/62"
+                                className="text-xs text-text-subtle"
                               >
                                 {report.createdAt.toLocaleDateString("ru-RU", {
                                   day: "numeric",
@@ -261,25 +261,25 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                                 })}
                               </time>
                             </div>
-                            <p className="mt-3 text-sm leading-5 text-white/62">
+                            <p className="mt-3 text-sm leading-5 text-text-subtle">
                               {presentation.description}
                             </p>
-                            <div className="mt-4 rounded-control border border-white/8 bg-white/[0.03] p-4">
-                              <p className="text-micro font-semibold uppercase tracking-[0.14em] text-white/62">
+                            <div className="mt-4 rounded-control border border-line-hairline bg-fill-1 p-4">
+                              <p className="text-micro font-semibold uppercase tracking-[0.14em] text-text-subtle">
                                 {report.swap ? "Связанный обмен" : "Объект обращения"}
                               </p>
-                              <p className="mt-1.5 line-clamp-2 text-sm font-medium text-white/78">
+                              <p className="mt-1.5 line-clamp-2 text-sm font-medium text-text-muted">
                                 {contextTitle}
                               </p>
                               {partner ? (
-                                <p className="mt-1 text-xs text-white/62">
+                                <p className="mt-1 text-xs text-text-subtle">
                                   Участник: {partner.name ?? "пользователь Менариум"}
                                 </p>
                               ) : null}
                               {contextHref ? (
                                 <Link
                                   href={contextHref}
-                                  className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-sm font-semibold text-teal-100 transition hover:bg-teal-300/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                                  className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xs px-2 text-sm font-semibold text-accent transition hover:bg-teal-300/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                                 >
                                   Открыть контекст
                                   <ArrowRight className="h-3.5 w-3.5" />
@@ -288,10 +288,10 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                             </div>
                             {report.details ? (
                               <div className="mt-4">
-                                <p className="text-micro font-semibold uppercase tracking-[0.14em] text-white/62">
+                                <p className="text-micro font-semibold uppercase tracking-[0.14em] text-text-subtle">
                                   Ваше описание
                                 </p>
-                                <p className="mt-1.5 whitespace-pre-wrap text-sm leading-5 text-white/62">
+                                <p className="mt-1.5 whitespace-pre-wrap text-sm leading-5 text-text-subtle">
                                   {report.details}
                                 </p>
                               </div>

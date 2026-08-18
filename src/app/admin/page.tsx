@@ -123,11 +123,11 @@ export default async function AdminPage() {
     : [0, 0, 0, 0, 0, 0, [], [], []];
 
   const stats = [
-    { label: "Пользователи", value: usersCount, icon: Users, color: "text-teal-400" },
-    { label: "Жалобы в очереди", value: reportsCount, icon: Flag, color: "text-red-400" },
+    { label: "Пользователи", value: usersCount, icon: Users, color: "text-accent" },
+    { label: "Жалобы в очереди", value: reportsCount, icon: Flag, color: "text-danger" },
     { label: "Активные объявления", value: activeItemsCount, icon: Tag, color: "text-purple-400" },
     { label: "Архив", value: archivedItemsCount, icon: Archive, color: "text-yellow-400" },
-    { label: "Активные обмены", value: activeSwapsCount, icon: Activity, color: "text-blue-400" },
+    { label: "Активные обмены", value: activeSwapsCount, icon: Activity, color: "text-info" },
     { label: "Завершенные", value: completedSwapsCount, icon: CheckCircle2, color: "text-green-400" },
   ];
 
@@ -142,7 +142,7 @@ export default async function AdminPage() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold">Админ-панель</h1>
-                <p className="mt-1 text-white/62">Пользователи, объявления и обращения.</p>
+                <p className="mt-1 text-text-subtle">Пользователи, объявления и обращения.</p>
               </div>
             </div>
             {admin ? (
@@ -169,18 +169,18 @@ export default async function AdminPage() {
                     <GlassCard key={stat.label} className="p-5">
                       <Icon className={`mb-3 h-5 w-5 ${stat.color}`} />
                       <div className="text-3xl font-semibold">{stat.value}</div>
-                      <p className="mt-1 text-xs text-white/62">{stat.label}</p>
+                      <p className="mt-1 text-xs text-text-subtle">{stat.label}</p>
                     </GlassCard>
                   );
                 })}
               </div>
 
               <GlassCard className="overflow-hidden">
-                <div className="border-b border-white/8 px-5 py-4">
+                <div className="border-b border-line-hairline px-5 py-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h2 className="text-xl font-semibold">Очередь жалоб</h2>
-                      <p className="mt-1 text-sm text-white/62">
+                      <p className="mt-1 text-sm text-text-subtle">
                         Новые обращения и жалобы, которые уже находятся на проверке.
                       </p>
                     </div>
@@ -191,9 +191,9 @@ export default async function AdminPage() {
                 </div>
                 {reports.length === 0 ? (
                   <div className="px-5 py-10 text-center">
-                    <CheckCircle2 className="mx-auto h-8 w-8 text-teal-300" />
+                    <CheckCircle2 className="mx-auto h-8 w-8 text-accent" />
                     <p className="mt-3 font-medium">Все жалобы обработаны</p>
-                    <p className="mt-1 text-sm text-white/62">Новые обращения появятся здесь.</p>
+                    <p className="mt-1 text-sm text-text-subtle">Новые обращения появятся здесь.</p>
                   </div>
                 ) : (
                   reports.map((report) => {
@@ -217,7 +217,7 @@ export default async function AdminPage() {
                     return (
                       <article
                         key={report.id}
-                        className="border-b border-white/8 px-5 py-5 last:border-b-0"
+                        className="border-b border-line-hairline px-5 py-5 last:border-b-0"
                       >
                         <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
                           <div className="min-w-0 flex-1 space-y-4">
@@ -226,7 +226,7 @@ export default async function AdminPage() {
                                 {reportStatusLabels[report.status]}
                               </Badge>
                               <Badge variant="purple">{reportReasonLabels[report.reason]}</Badge>
-                              <time className="text-xs text-white/62" dateTime={report.createdAt.toISOString()}>
+                              <time className="text-xs text-text-subtle" dateTime={report.createdAt.toISOString()}>
                                 {new Intl.DateTimeFormat("ru-RU", {
                                   dateStyle: "medium",
                                   timeStyle: "short",
@@ -235,78 +235,78 @@ export default async function AdminPage() {
                             </div>
 
                             <div className="grid gap-3 md:grid-cols-2">
-                              <div className="rounded-control border border-white/8 bg-white/[0.03] p-4">
-                                <p className="text-xs font-medium uppercase tracking-wide text-white/62">
+                              <div className="rounded-control border border-line-hairline bg-fill-1 p-4">
+                                <p className="text-xs font-medium uppercase tracking-wide text-text-subtle">
                                   Объект жалобы
                                 </p>
                                 {target ? (
                                   <>
                                     <Link
                                       href={target.href}
-                                      className="mt-2 block font-medium transition-colors hover:text-teal-300"
+                                      className="mt-2 block font-medium transition-colors hover:text-accent"
                                     >
                                       {target.label}
                                     </Link>
-                                    <p className="mt-1 text-sm text-white/62">{target.meta}</p>
+                                    <p className="mt-1 text-sm text-text-subtle">{target.meta}</p>
                                   </>
                                 ) : (
-                                  <p className="mt-2 text-sm text-white/62">Объект больше недоступен</p>
+                                  <p className="mt-2 text-sm text-text-subtle">Объект больше недоступен</p>
                                 )}
                               </div>
-                              <div className="rounded-control border border-white/8 bg-white/[0.03] p-4">
-                                <p className="text-xs font-medium uppercase tracking-wide text-white/62">
+                              <div className="rounded-control border border-line-hairline bg-fill-1 p-4">
+                                <p className="text-xs font-medium uppercase tracking-wide text-text-subtle">
                                   Репортёр
                                 </p>
                                 <Link
                                   href={`/user/${report.reporter.id}`}
-                                  className="mt-2 block font-medium transition-colors hover:text-teal-300"
+                                  className="mt-2 block font-medium transition-colors hover:text-accent"
                                 >
                                   {report.reporter.name ?? "Без имени"}
                                 </Link>
-                                <p className="mt-1 break-all text-sm text-white/62">{report.reporter.email}</p>
+                                <p className="mt-1 break-all text-sm text-text-subtle">{report.reporter.email}</p>
                               </div>
                             </div>
 
                             <div>
-                              <p className="text-xs font-medium uppercase tracking-wide text-white/62">
+                              <p className="text-xs font-medium uppercase tracking-wide text-text-subtle">
                                 Детали
                               </p>
-                              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/78">
+                              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-text-muted">
                                 {report.details || "Пользователь не добавил подробностей."}
                               </p>
                             </div>
                             {report.swap ? (
                               <div className="rounded-control border border-blue-300/12 bg-blue-400/[0.045] p-4">
-                                <p className="text-xs font-medium uppercase tracking-wide text-blue-200/55">
+                                <p className="text-xs font-medium uppercase tracking-wide text-info-soft">
                                   Контекст обмена
                                 </p>
                                 <div className="mt-3 grid gap-3 md:grid-cols-2">
                                   <div>
-                                    <p className="text-xs text-white/62">Отправитель</p>
+                                    <p className="text-xs text-text-subtle">Отправитель</p>
                                     <Link
                                       href={`/user/${report.swap.sender.id}`}
-                                      className="mt-1 block text-sm font-medium hover:text-teal-200"
+                                      className="mt-1 block text-sm font-medium hover:text-accent"
                                     >
                                       {report.swap.sender.name ?? report.swap.sender.email}
                                     </Link>
                                     <Link
                                       href={`/item/${report.swap.senderItem.id}`}
-                                      className="mt-1 block text-xs text-white/62 hover:text-white/78"
+                                      className="mt-1 block text-xs text-text-subtle hover:text-text-muted"
                                     >
                                       {report.swap.senderItem.title}
                                     </Link>
                                   </div>
                                   <div>
-                                    <p className="text-xs text-white/62">Получатель</p>
+                                    <p className="text-xs text-text-subtle">Получатель</p>
                                     <Link
                                       href={`/user/${report.swap.receiver.id}`}
-                                      className="mt-1 block text-sm font-medium hover:text-teal-200"
+                                      className="mt-1 block text-sm font-medium hover:text-accent"
                                     >
                                       {report.swap.receiver.name ?? report.swap.receiver.email}
                                     </Link>
                                     <Link
                                       href={`/item/${report.swap.receiverItem.id}`}
-                                      className="mt-1 block text-xs text-white/62 hover:text-white/78"
+                                      className="mt-1 block text-xs text-text-subtle hover:text-text-muted"
                                     >
                                       {report.swap.receiverItem.title}
                                     </Link>
@@ -316,10 +316,10 @@ export default async function AdminPage() {
                             ) : null}
                             {report.resolutionNote ? (
                               <div className="rounded-control border border-teal-500/15 bg-teal-500/[0.06] p-4">
-                                <p className="text-xs font-medium uppercase tracking-wide text-teal-200/60">
+                                <p className="text-xs font-medium uppercase tracking-wide text-accent-soft">
                                   Комментарий модератора
                                 </p>
-                                <p className="mt-2 whitespace-pre-wrap text-sm text-white/78">
+                                <p className="mt-2 whitespace-pre-wrap text-sm text-text-muted">
                                   {report.resolutionNote}
                                 </p>
                               </div>
@@ -340,22 +340,22 @@ export default async function AdminPage() {
               </GlassCard>
 
               <GlassCard className="overflow-hidden">
-                <div className="border-b border-white/8 px-5 py-4">
+                <div className="border-b border-line-hairline px-5 py-4">
                   <h2 className="text-xl font-semibold">Последние объявления</h2>
-                  <p className="mt-1 text-sm text-white/62">Быстрая модерация: архивировать или вернуть объявление.</p>
+                  <p className="mt-1 text-sm text-text-subtle">Быстрая модерация: архивировать или вернуть объявление.</p>
                 </div>
                 {recentItems.map((item) => (
-                  <div key={item.id} className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 last:border-b-0 md:flex-row md:items-center">
+                  <div key={item.id} className="flex flex-col gap-4 border-b border-line-hairline px-5 py-4 last:border-b-0 md:flex-row md:items-center">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <Link href={`/item/${item.id}`} className="font-medium transition-colors hover:text-teal-300">
+                        <Link href={`/item/${item.id}`} className="font-medium transition-colors hover:text-accent">
                           {item.title}
                         </Link>
                         <Badge variant={item.status === "ACTIVE" ? "teal" : item.status === "ARCHIVED" ? "glass" : "purple"}>
                           {itemStatusLabels[item.status]}
                         </Badge>
                       </div>
-                      <p className="text-sm text-white/62">
+                      <p className="text-sm text-text-subtle">
                         {item.category} · {item.city} · {item.owner.name ?? item.owner.email}
                       </p>
                     </div>
@@ -365,17 +365,17 @@ export default async function AdminPage() {
               </GlassCard>
 
               <GlassCard className="overflow-hidden">
-                <div className="border-b border-white/8 px-5 py-4">
+                <div className="border-b border-line-hairline px-5 py-4">
                   <h2 className="text-xl font-semibold">Пользователи</h2>
-                  <p className="mt-1 text-sm text-white/62">
+                  <p className="mt-1 text-sm text-text-subtle">
                     Последние регистрации, состояние аккаунта и действия модерации.
                   </p>
                 </div>
                 {recentUsers.map((user) => (
-                  <div key={user.id} className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 last:border-b-0 lg:flex-row lg:items-center">
+                  <div key={user.id} className="flex flex-col gap-4 border-b border-line-hairline px-5 py-4 last:border-b-0 lg:flex-row lg:items-center">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <Link href={`/user/${user.id}`} className="font-medium transition-colors hover:text-teal-300">
+                        <Link href={`/user/${user.id}`} className="font-medium transition-colors hover:text-accent">
                           {user.name ?? "Без имени"}
                         </Link>
                         <Badge
@@ -393,14 +393,14 @@ export default async function AdminPage() {
                           {user.emailVerified ? "Email подтверждён" : "Email не подтверждён"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-white/62">
+                      <p className="text-sm text-text-subtle">
                         {user.email}
                         {user.city ? ` · ${user.city}` : ""}
                         {" · "}
                         {new Intl.DateTimeFormat("ru-RU", { dateStyle: "medium" }).format(user.createdAt)}
                       </p>
                       {user.status === "SUSPENDED" ? (
-                        <p className="mt-2 text-sm text-red-200/80">
+                        <p className="mt-2 text-sm text-danger">
                           {user.suspensionReason ?? "Причина не указана"}
                           {user.suspendedAt
                             ? ` · ${new Intl.DateTimeFormat("ru-RU", { dateStyle: "medium" }).format(user.suspendedAt)}`
@@ -408,9 +408,9 @@ export default async function AdminPage() {
                         </p>
                       ) : null}
                     </div>
-                    <div className="flex flex-wrap gap-2 text-xs text-white/62">
-                      <span className="rounded-xs bg-white/[0.05] px-3 py-1.5">{user._count.items} объявл.</span>
-                      <span className="rounded-xs bg-white/[0.05] px-3 py-1.5">
+                    <div className="flex flex-wrap gap-2 text-xs text-text-subtle">
+                      <span className="rounded-xs bg-fill-2 px-3 py-1.5">{user._count.items} объявл.</span>
+                      <span className="rounded-xs bg-fill-2 px-3 py-1.5">
                         {user._count.sentSwaps + user._count.receivedSwaps} обменов
                       </span>
                     </div>

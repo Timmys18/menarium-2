@@ -102,17 +102,17 @@ export function ExchangeActionPanel({
 
   return (
     <section
-      className={`mb-5 space-y-3 rounded-md border border-white/10 bg-white/[0.03] p-4 ${status === "ACCEPTED" ? "mt-5" : ""}`}
+      className={`mb-5 space-y-3 rounded-md border border-line-default bg-fill-1 p-4 ${status === "ACCEPTED" ? "mt-5" : ""}`}
       aria-labelledby="exchange-actions-title"
     >
       <div>
-        <h3 id="exchange-actions-title" className="text-sm font-semibold text-white/88">
+        <h3 id="exchange-actions-title" className="text-sm font-semibold text-text-strong">
           {actionTitle}
         </h3>
-        <p className="mt-1 text-xs leading-5 text-white/62">{actionDescription}</p>
+        <p className="mt-1 text-xs leading-5 text-text-subtle">{actionDescription}</p>
       </div>
       {waitingForPartner ? (
-        <p aria-live="polite" className="rounded-xs border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm text-teal-200">
+        <p aria-live="polite" className="rounded-xs border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm text-accent">
           Вы подтвердили завершение. Ожидаем подтверждения от партнёра — ему придёт уведомление.
         </p>
       ) : null}
@@ -123,7 +123,7 @@ export function ExchangeActionPanel({
             Принять
           </MenariumButton>
           <MenariumButton
-            className="w-full text-red-200/76 hover:bg-red-400/[0.07] hover:text-red-100"
+            className="w-full text-danger hover:bg-red-400/[0.07] hover:text-danger"
             size="sm"
             variant="ghost"
             onClick={() => setConfirmAction("decline")}
@@ -139,7 +139,7 @@ export function ExchangeActionPanel({
         <MenariumButton
           size="sm"
           variant="ghost"
-          className="w-full text-red-200/76 hover:bg-red-400/[0.07] hover:text-red-100"
+          className="w-full text-danger hover:bg-red-400/[0.07] hover:text-danger"
           onClick={() => setConfirmAction("revoke")}
           disabled={Boolean(pendingAction)}
         >
@@ -164,7 +164,7 @@ export function ExchangeActionPanel({
           <MenariumButton
             size="sm"
             variant="ghost"
-            className="w-full text-red-200/76 hover:bg-red-400/[0.07] hover:text-red-100"
+            className="w-full text-danger hover:bg-red-400/[0.07] hover:text-danger"
             onClick={() => setConfirmAction("cancel")}
             disabled={Boolean(pendingAction)}
           >
@@ -174,7 +174,7 @@ export function ExchangeActionPanel({
         </div>
       ) : null}
 
-      {error ? <p role="alert" className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
       <ConfirmDialog
         open={Boolean(confirmAction)}
         onClose={() => setConfirmAction(null)}
@@ -257,15 +257,15 @@ function ExchangeProgress({
   return (
       <section
         key={`${snapshot.status}:${snapshot.senderCompleted}:${snapshot.receiverCompleted}`}
-        className="exchange-progress-panel mb-5 rounded-md border border-white/10 bg-white/[0.03] p-4"
+        className="exchange-progress-panel mb-5 rounded-md border border-line-default bg-fill-1 p-4"
         aria-labelledby="exchange-progress-title"
         data-exchange-progress={snapshot.status.toLowerCase()}
       >
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 id="exchange-progress-title" className="text-sm font-semibold text-white/88">
+          <h3 id="exchange-progress-title" className="text-sm font-semibold text-text-strong">
             Этапы обмена
           </h3>
-          <p aria-live="polite" className="text-right text-xs font-medium text-teal-100/78">
+          <p aria-live="polite" className="text-right text-xs font-medium text-accent">
             {summary}
           </p>
         </div>
@@ -282,24 +282,24 @@ function ExchangeProgress({
                     ? "border-teal-300/20 bg-teal-300/[0.07]"
                     : isCurrent
                       ? "border-blue-300/30 bg-blue-400/[0.09]"
-                      : "border-white/8 bg-white/[0.03]"
+                      : "border-line-hairline bg-fill-1"
                 } ${isUnavailable ? "opacity-55" : ""}`}
               >
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold sm:mb-2 ${
                     step.done
-                      ? "bg-teal-300 text-[#06130f]"
+                      ? "bg-teal-300 text-on-accent"
                       : isCurrent
                         ? "bg-blue-400 text-white"
-                        : "bg-white/[0.07] text-white/62"
+                        : "bg-fill-3 text-text-subtle"
                   }`}
                   aria-hidden="true"
                 >
                   {step.done ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-xs font-semibold text-white/88">{step.label}</span>
-                  <span className="mt-0.5 block text-micro leading-4 text-white/62">{step.detail}</span>
+                  <span className="block text-xs font-semibold text-text-strong">{step.label}</span>
+                  <span className="mt-0.5 block text-micro leading-4 text-text-subtle">{step.detail}</span>
                 </span>
               </li>
             );
@@ -362,30 +362,30 @@ export function ExchangeDealPanel({
   const chatSection = (
     <section
       id="exchange-chat"
-      className="min-w-0 max-w-full scroll-mt-24 overflow-hidden rounded-card border border-white/10 bg-[var(--surface-sunken)]/72"
+      className="min-w-0 max-w-full scroll-mt-24 overflow-hidden rounded-card border border-line-default bg-[var(--surface-sunken)]/72"
       tabIndex={-1}
       aria-labelledby="exchange-chat-title"
     >
-      <div className="border-b border-white/8 px-4 py-3.5">
-        <h3 id="exchange-chat-title" className="font-semibold text-white/88">
+      <div className="border-b border-line-hairline px-4 py-3.5">
+        <h3 id="exchange-chat-title" className="font-semibold text-text-strong">
           {chatWithLabel(partnerName)}
         </h3>
         {communicationBlocked ? (
-          <p className="mt-1 text-xs text-white/62">Новые сообщения недоступны.</p>
+          <p className="mt-1 text-xs text-text-subtle">Новые сообщения недоступны.</p>
         ) : null}
       </div>
-      <div className="mx-4 mt-4 grid grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)_44px] items-center gap-2 rounded-control border border-white/8 bg-white/[0.03] p-2.5">
-        <span className="relative h-11 w-11 overflow-hidden rounded-xs border border-white/8 bg-white/[0.03]">
+      <div className="mx-4 mt-4 grid grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)_44px] items-center gap-2 rounded-control border border-line-hairline bg-fill-1 p-2.5">
+        <span className="relative h-11 w-11 overflow-hidden rounded-xs border border-line-hairline bg-fill-1">
           <ItemCoverImage src={itemContext.yourImage} alt="" sizes="44px" />
         </span>
-        <span className="min-w-0 truncate text-right text-xs font-medium text-white/62">
+        <span className="min-w-0 truncate text-right text-xs font-medium text-text-subtle">
           {itemContext.yourTitle}
         </span>
         <BrandMark size="xs" className="h-6 w-6" />
-        <span className="min-w-0 truncate text-xs font-medium text-white/78">
+        <span className="min-w-0 truncate text-xs font-medium text-text-muted">
           {itemContext.theirTitle}
         </span>
-        <span className="relative h-11 w-11 overflow-hidden rounded-xs border border-white/8 bg-white/[0.03]">
+        <span className="relative h-11 w-11 overflow-hidden rounded-xs border border-line-hairline bg-fill-1">
           <ItemCoverImage src={itemContext.theirImage} alt="" sizes="44px" />
         </span>
       </div>

@@ -20,7 +20,7 @@ export function AuthShell({
         className="pointer-events-none absolute inset-x-[10%] top-0 h-56 rounded-full bg-blue-500/10 blur-[120px]"
       />
       <div className="mx-auto grid w-full max-w-6xl items-stretch gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.92fr)]">
-        <aside className="relative hidden min-h-[680px] overflow-hidden rounded-panel border border-white/10 bg-[#0b111a]/78 p-10 shadow-[0_34px_100px_rgba(0,0,0,0.35)] lg:flex lg:flex-col xl:p-14">
+        <aside className="relative hidden min-h-[680px] overflow-hidden rounded-panel border border-line-default bg-[var(--surface-card)]/78 p-10 shadow-[0_34px_100px_rgba(0,0,0,0.35)] lg:flex lg:flex-col xl:p-14">
           <div aria-hidden="true" className="dot-grid-bg absolute inset-0 opacity-55" />
           <div aria-hidden="true" className="absolute -right-28 -top-28 h-80 w-80 rounded-full bg-teal-400/15 blur-[100px]" />
           <div aria-hidden="true" className="absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-blue-500/16 blur-[110px]" />
@@ -37,7 +37,7 @@ export function AuthShell({
             <h2 className="max-w-xl text-5xl font-semibold leading-[1.02] tracking-[-0.055em] xl:text-6xl">
               Меняйся. <span className="gradient-text">Просто</span>
             </h2>
-            <p className="mt-6 max-w-lg text-base leading-7 text-white/62 xl:text-lg">
+            <p className="mt-6 max-w-lg text-base leading-7 text-text-subtle xl:text-lg">
               Вещь на вещь, услуга на услугу или услуга на вещь. Выбирайте вариант и договаривайтесь напрямую.
             </p>
 
@@ -49,20 +49,20 @@ export function AuthShell({
               ].map((step) => {
                 const Icon = step.icon;
                 return (
-                  <div key={step.number} className="rounded-md border border-white/8 bg-white/[0.03] p-4 backdrop-blur-xl">
+                  <div key={step.number} className="rounded-md border border-line-hairline bg-fill-1 p-4 backdrop-blur-xl">
                     <div className="flex items-center justify-between">
-                      <Icon className="h-5 w-5 text-teal-200" />
-                      <span className="font-display text-xs font-semibold text-white/62">{step.number}</span>
+                      <Icon className="h-5 w-5 text-accent" />
+                      <span className="font-display text-xs font-semibold text-text-subtle">{step.number}</span>
                     </div>
-                    <p className="mt-5 text-sm font-medium text-white/78">{step.label}</p>
+                    <p className="mt-5 text-sm font-medium text-text-muted">{step.label}</p>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          <p className="relative flex items-center gap-2 text-sm text-white/62">
-            <ShieldCheck className="h-4 w-4 text-teal-200/75" />
+          <p className="relative flex items-center gap-2 text-sm text-text-subtle">
+            <ShieldCheck className="h-4 w-4 text-accent" />
             Личные данные и история сделок доступны только вам.
           </p>
         </aside>
@@ -78,7 +78,7 @@ export function AuthShell({
             </Link>
             <Link
               href="/"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xs px-3 text-sm text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex min-h-12 items-center gap-2 rounded-xs px-3 text-sm text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <ArrowLeft className="h-4 w-4" />
               На главную
@@ -95,12 +95,12 @@ export function AuthShell({
             {children}
           </GlassCard>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/62">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-text-subtle">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-teal-200/65" />
+              <ShieldCheck className="h-3.5 w-3.5 text-accent-soft" />
               Защищённое соединение
             </span>
-            <Link href="/catalog" className="inline-flex min-h-11 items-center rounded-lg text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
+            <Link href="/catalog" className="inline-flex min-h-11 items-center rounded-lg text-text-subtle transition hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
               Сначала посмотреть каталог
             </Link>
           </div>

@@ -12,7 +12,7 @@ export default function NotificationsLoading() {
         <Skeleton className="h-14 w-48 rounded-md" />
         <div className="space-y-3">
           <Skeleton className="h-4 w-20" />
-          <div className="space-y-1 rounded-lg border border-white/8 p-2">
+          <div className="space-y-1 rounded-lg border border-line-hairline p-2">
             {Array.from({ length: 5 }).map((_, index) => (
               <div key={index} className="flex items-center gap-4 p-3">
                 <Skeleton className="h-11 w-11 rounded-control" />

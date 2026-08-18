@@ -57,17 +57,17 @@ export function LoginForm() {
   return (
     <form className="space-y-5" onSubmit={submit}>
       {passwordChanged ? (
-        <div className="rounded-control border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100">
+        <div className="rounded-control border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-accent">
           Пароль изменён. Войдите заново, чтобы продолжить.
         </div>
       ) : null}
       {registered ? (
-        <div className="rounded-control border border-teal-500/30 bg-teal-500/10 p-4 text-sm leading-6 text-teal-100" role="status">
+        <div className="rounded-control border border-teal-500/30 bg-teal-500/10 p-4 text-sm leading-6 text-accent" role="status">
           Аккаунт создан. {registrationEmailSent ? "Письмо подтверждения отправлено." : "Войдите, а письмо подтверждения можно будет отправить из профиля."}
         </div>
       ) : null}
       <div className="space-y-2.5">
-        <label htmlFor="login-email" className="block text-sm font-medium text-white/78">
+        <label htmlFor="login-email" className="block text-sm font-medium text-text-muted">
           Электронная почта
         </label>
         <MenariumInput
@@ -85,12 +85,12 @@ export function LoginForm() {
       </div>
       <div className="space-y-2.5">
         <div className="flex items-center justify-between gap-4">
-          <label htmlFor="login-password" className="block text-sm font-medium text-white/78">
+          <label htmlFor="login-password" className="block text-sm font-medium text-text-muted">
             Пароль
           </label>
           <Link
             href={forgotPasswordHref}
-            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-teal-200/80 transition hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-accent transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
           Забыли пароль?
           </Link>
@@ -112,14 +112,14 @@ export function LoginForm() {
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Скрыть введённые символы" : "Показать введённые символы"}
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-white/62 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
+            className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[14px] text-text-subtle transition hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
           >
             {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
           </button>
         </div>
       </div>
       {error ? (
-        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+        <div className="rounded-control border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger" role="alert">
           {error}
         </div>
       ) : null}
@@ -129,15 +129,15 @@ export function LoginForm() {
       </MenariumButton>
 
       <div className="flex items-center gap-3 py-0.5" aria-hidden="true">
-        <span className="h-px flex-1 bg-white/[0.07]" />
-        <span className="text-xs text-white/62">Первый раз здесь?</span>
-        <span className="h-px flex-1 bg-white/[0.07]" />
+        <span className="h-px flex-1 bg-fill-3" />
+        <span className="text-xs text-text-subtle">Первый раз здесь?</span>
+        <span className="h-px flex-1 bg-fill-3" />
       </div>
       <MenariumLinkButton href={registerHref} variant="secondary" className="w-full">
         Создать аккаунт
       </MenariumLinkButton>
-      <p className="flex items-center justify-center gap-2 text-center text-xs text-white/62">
-        <LockKeyhole className="h-3.5 w-3.5 text-teal-200/60" />
+      <p className="flex items-center justify-center gap-2 text-center text-xs text-text-subtle">
+        <LockKeyhole className="h-3.5 w-3.5 text-accent-soft" />
         Мы не передаём данные для входа другим пользователям.
       </p>
     </form>

@@ -51,14 +51,14 @@ export function AccountNavigation({ counts }: AccountNavigationProps) {
             className={cn(
               "flex min-h-11 items-center gap-3 rounded-control px-3.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
               active
-                ? "bg-white/[0.07] text-white"
-                : "text-white/78 hover:bg-white/[0.05] hover:text-white",
+                ? "bg-fill-3 text-text-primary"
+                : "text-text-muted hover:bg-fill-2 hover:text-text-primary",
             )}
           >
-            <Icon className={cn("h-4 w-4", active ? "text-teal-200" : "text-white/78")} />
+            <Icon className={cn("h-4 w-4", active ? "text-accent" : "text-text-muted")} />
             <span className="min-w-0 flex-1 truncate">{entry.label}</span>
             {count > 0 ? (
-              <span className="rounded-full bg-teal-300/12 px-2 py-0.5 text-micro font-semibold text-teal-100/75">
+              <span className="rounded-full bg-teal-300/12 px-2 py-0.5 text-micro font-semibold text-accent">
                 {count > 99 ? "99+" : count}
               </span>
             ) : null}

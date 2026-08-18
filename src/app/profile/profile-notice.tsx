@@ -18,10 +18,10 @@ export function ProfileNotice({ kind }: { kind: "welcome" | "verified" }) {
       className="flex items-start gap-3 rounded-control border border-teal-400/25 bg-teal-400/[0.08] p-4 sm:p-5"
       role="status"
     >
-      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-300" />
+      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
       <div className="min-w-0 flex-1">
         <p className="font-semibold">{title}</p>
-        <p className="mt-1 text-sm leading-6 text-white/62">{description}</p>
+        <p className="mt-1 text-sm leading-6 text-text-subtle">{description}</p>
       </div>
       <button
         type="button"
@@ -31,7 +31,7 @@ export function ProfileNotice({ kind }: { kind: "welcome" | "verified" }) {
           const query = nextParams.toString();
           router.replace(query ? `/profile?${query}` : "/profile", { scroll: false });
         }}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-white/78 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         aria-label="Закрыть сообщение"
       >
         <X className="h-4 w-4" />

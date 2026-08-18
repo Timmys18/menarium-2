@@ -17,7 +17,7 @@ export function PremiumCard({ className, ...props }: HTMLAttributes<HTMLDivEleme
   return (
     <div
       className={cn(
-        "glass-card relative overflow-hidden rounded-lg border border-white/10 sm:rounded-panel",
+        "glass-card relative overflow-hidden rounded-lg border border-line-default sm:rounded-panel",
         className,
       )}
       {...props}

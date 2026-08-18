@@ -35,7 +35,7 @@ export function DeleteItemButton({ itemId }: { itemId: string }) {
         {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
         Удалить объявление
       </MenariumButton>
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       <ConfirmDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}

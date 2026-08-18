@@ -33,7 +33,7 @@ export function ItemCoverImage({
           className,
         )}
       >
-        <div className="flex flex-col items-center gap-2 text-white/62">
+        <div className="flex flex-col items-center gap-2 text-text-subtle">
           <BrandGlyph className="h-10 w-10 opacity-70" />
           <span className="text-micro uppercase tracking-[0.18em]">Нет фото</span>
         </div>

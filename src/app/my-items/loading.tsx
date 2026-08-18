@@ -16,7 +16,7 @@ export default function MyItemsLoading() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="space-y-4 rounded-lg border border-white/8 p-4">
+            <div key={index} className="space-y-4 rounded-lg border border-line-hairline p-4">
               <Skeleton className="h-52 rounded-md" />
               <Skeleton className="h-6 w-3/4" />
               <Skeleton className="h-16 w-full rounded-control" />

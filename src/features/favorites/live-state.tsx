@@ -55,7 +55,7 @@ export function useFavoritesLiveState() {
 
 export function FavoriteCount() {
   const state = useFavoritesLiveState();
-  return <strong className="text-white/88">{state?.total ?? 0}</strong>;
+  return <strong className="text-text-strong">{state?.total ?? 0}</strong>;
 }
 
 export function FavoriteItemSlot({ itemId, children }: { itemId: string; children: ReactNode }) {

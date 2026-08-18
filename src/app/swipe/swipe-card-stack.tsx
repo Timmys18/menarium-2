@@ -155,14 +155,14 @@ export function SwipeCardStack({
   const undoNotice = lastPassed ? (
     <div
       role="status"
-      className="fixed inset-x-4 bottom-28 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-md border border-teal-300/20 bg-[#0b1518]/95 px-4 py-3 text-sm shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl md:static md:mt-4"
+      className="fixed inset-x-4 bottom-28 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-md border border-teal-300/20 bg-[var(--surface-card)]/95 px-4 py-3 text-sm shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl md:static md:mt-4"
     >
-      <span className="min-w-0 truncate text-white/78">«{lastPassed.card.title}» пропущено</span>
+      <span className="min-w-0 truncate text-text-muted">«{lastPassed.card.title}» пропущено</span>
       <button
         type="button"
         onClick={() => void undoLastPass()}
         disabled={undoing}
-        className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xs px-3 font-semibold text-teal-200 transition hover:bg-teal-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50"
+        className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xs px-3 font-semibold text-accent transition hover:bg-teal-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50"
       >
         {undoing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
         Вернуть
@@ -173,10 +173,10 @@ export function SwipeCardStack({
   if (!card) {
     return (
       <>
-        <GlassCard className="mx-auto flex min-h-[420px] max-w-[460px] flex-col items-center justify-center border border-white/8 p-8 text-center md:min-h-[510px]">
-          <Loader2 className="mb-4 h-7 w-7 animate-spin text-teal-200" />
+        <GlassCard className="mx-auto flex min-h-[420px] max-w-[460px] flex-col items-center justify-center border border-line-hairline p-8 text-center md:min-h-[510px]">
+          <Loader2 className="mb-4 h-7 w-7 animate-spin text-accent" />
           <h2 className="text-xl font-semibold">Ищем новые варианты</h2>
-          <p className="mt-2 max-w-xs text-sm leading-6 text-white/62">
+          <p className="mt-2 max-w-xs text-sm leading-6 text-text-subtle">
             Очередь просмотрена. Через несколько секунд проверим свежие объявления.
           </p>
         </GlassCard>
@@ -190,8 +190,8 @@ export function SwipeCardStack({
   return (
     <>
       <div className="relative flex min-h-[420px] items-center justify-center md:min-h-[510px]">
-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-5 scale-[0.91] border border-white/8 opacity-35 md:h-[490px] md:translate-y-7" />
-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-2.5 scale-[0.96] border border-white/8 opacity-55 md:h-[490px] md:translate-y-3" />
+        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-5 scale-[0.91] border border-line-hairline opacity-35 md:h-[490px] md:translate-y-7" />
+        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-2.5 scale-[0.96] border border-line-hairline opacity-55 md:h-[490px] md:translate-y-3" />
 
         <motion.div
           style={{ x, rotate }}
@@ -201,16 +201,16 @@ export function SwipeCardStack({
           onDragEnd={onDragEnd}
           className="relative z-10 w-full max-w-[460px] touch-pan-y"
         >
-          <GlassCard className="relative overflow-hidden border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.36)]">
+          <GlassCard className="relative overflow-hidden border border-line-default shadow-[0_30px_80px_rgba(0,0,0,0.36)]">
             <motion.div
               style={{ opacity: likeOpacity }}
-              className="pointer-events-none absolute left-5 top-5 z-20 rotate-[-5deg] rounded-control border-2 border-teal-300 bg-[#07110f]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-teal-200 backdrop-blur-xl"
+              className="pointer-events-none absolute left-5 top-5 z-20 rotate-[-5deg] rounded-control border-2 border-teal-300 bg-[#07110f]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-on-media backdrop-blur-xl"
             >
               ОБМЕН
             </motion.div>
             <motion.div
               style={{ opacity: passOpacity }}
-              className="pointer-events-none absolute right-5 top-5 z-20 rotate-[5deg] rounded-control border-2 border-red-300 bg-[#16090b]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-red-200 backdrop-blur-xl"
+              className="pointer-events-none absolute right-5 top-5 z-20 rotate-[5deg] rounded-control border-2 border-red-300 bg-[var(--surface-card)]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-danger backdrop-blur-xl"
             >
               МИМО
             </motion.div>
@@ -223,11 +223,11 @@ export function SwipeCardStack({
                 sizes="(max-width: 520px) 94vw, 460px"
               />
               <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3.5 md:p-4">
-                <span className="rounded-full border border-white/10 bg-black/50 px-3 py-1.5 text-xs font-medium text-white/88 backdrop-blur-xl">
+                <span className="rounded-full border border-line-default bg-black/50 px-3 py-1.5 text-xs font-medium text-on-media backdrop-blur-xl">
                   {card.category}
                 </span>
                 {card.isOnline ? (
-                  <span className="flex items-center gap-1.5 rounded-full border border-teal-300/20 bg-[#07110f]/70 px-3 py-1.5 text-xs font-medium text-teal-100 backdrop-blur-xl">
+                  <span className="flex items-center gap-1.5 rounded-full border border-teal-300/20 bg-[#07110f]/70 px-3 py-1.5 text-xs font-medium text-on-media backdrop-blur-xl">
                     <Wifi className="h-3.5 w-3.5" />
                     Онлайн
                   </span>
@@ -238,7 +238,7 @@ export function SwipeCardStack({
 
             <div className="px-4 pb-4 pt-3.5 sm:px-5 md:px-6 md:pb-5 md:pt-4">
               <h2 className="line-clamp-1 text-xl font-bold tracking-tight sm:text-2xl">{card.title}</h2>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/62 md:mt-2">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-subtle md:mt-2">
                 <span className="flex items-center gap-1.5">
                   <UserRound className="h-3.5 w-3.5" />
                   {card.ownerName}
@@ -249,8 +249,8 @@ export function SwipeCardStack({
                 </span>
               </div>
               <div className="mt-3 rounded-control border border-teal-300/15 bg-teal-300/[0.055] px-3.5 py-2.5 md:mt-4 md:rounded-control md:px-4 md:py-3">
-                <p className="text-micro font-semibold uppercase tracking-[0.14em] text-teal-200/72">Интересно взамен</p>
-                <p className="mt-0.5 line-clamp-1 text-sm leading-5 text-white/88 md:mt-1 md:line-clamp-2">{card.wanted}</p>
+                <p className="text-micro font-semibold uppercase tracking-[0.14em] text-accent">Интересно взамен</p>
+                <p className="mt-0.5 line-clamp-1 text-sm leading-5 text-text-strong md:mt-1 md:line-clamp-2">{card.wanted}</p>
               </div>
             </div>
           </GlassCard>
@@ -259,12 +259,12 @@ export function SwipeCardStack({
 
       {undoNotice}
 
-      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-card border border-white/10 bg-[var(--surface-sunken)]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
+      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-card border border-line-default bg-[var(--surface-sunken)]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
         <button
           type="button"
           disabled={loading || undoing}
           onClick={() => void passCard()}
-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-control border border-red-300/18 bg-red-300/[0.055] px-2 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 md:min-h-16 md:rounded-md md:py-3"
+          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-control border border-red-300/18 bg-red-300/[0.055] px-2 py-2 text-xs font-semibold text-danger transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 md:min-h-16 md:rounded-md md:py-3"
           aria-label="Пропустить"
         >
           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <X className="h-5 w-5" />}
@@ -276,7 +276,7 @@ export function SwipeCardStack({
           className="min-h-14 flex-col gap-1 rounded-control px-2 py-2 text-xs md:min-h-16 md:rounded-md md:py-3"
           aria-label="Подробнее"
         >
-          <Info className="h-5 w-5 text-blue-200" />
+          <Info className="h-5 w-5 text-info" />
           Подробнее
         </MenariumLinkButton>
         <button
@@ -291,12 +291,12 @@ export function SwipeCardStack({
         </button>
       </div>
 
-      <p className="mx-auto mt-3 hidden max-w-[460px] text-center text-xs text-white/62 md:block">
+      <p className="mx-auto mt-3 hidden max-w-[460px] text-center text-xs text-text-subtle md:block">
         Можно тянуть карточку влево или вправо
       </p>
 
       {error ? (
-        <p role="alert" className="mx-auto mt-4 max-w-md text-center text-sm text-red-300">
+        <p role="alert" className="mx-auto mt-4 max-w-md text-center text-sm text-danger">
           {error}
         </p>
       ) : null}

@@ -92,8 +92,8 @@ export function ItemCard({
             </Badge>
           </div>
           {flexible ? (
-            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[var(--surface-sunken)]/88 px-3 py-1.5 text-micro font-medium text-white/88">
-              <Sparkles className="h-3 w-3 text-teal-200" />
+            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-line-default bg-[var(--surface-sunken)]/88 px-3 py-1.5 text-micro font-medium text-text-strong">
+              <Sparkles className="h-3 w-3 text-accent" />
               Открыт к вариантам
             </div>
           ) : null}
@@ -111,35 +111,35 @@ export function ItemCard({
         ) : null}
         <div className="flex flex-1 flex-col p-4 sm:p-5.5">
           {recommendationReason ? (
-            <div className="mb-3 flex items-start gap-2 rounded-xs border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">
-              <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
+            <div className="mb-3 flex items-start gap-2 rounded-xs border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-info-soft">
+              <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
               <span>{recommendationReason}</span>
             </div>
           ) : null}
             <div className="mb-4 flex items-start justify-between gap-3">
-            <h3 className="line-clamp-2 text-base font-semibold leading-5.5 tracking-[-0.02em] text-white sm:text-lg sm:leading-6">{title}</h3>
+            <h3 className="line-clamp-2 text-base font-semibold leading-5.5 tracking-[-0.02em] text-text-primary sm:text-lg sm:leading-6">{title}</h3>
             {likes ? (
-              <span className="flex shrink-0 items-center gap-1 text-sm text-white/78">
-                <Heart className="h-4 w-4 text-blue-300" />
+              <span className="flex shrink-0 items-center gap-1 text-sm text-text-muted">
+                <Heart className="h-4 w-4 text-info" />
                 {likes}
               </span>
             ) : null}
           </div>
           <div className="mt-auto rounded-control border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
-            <span className="mb-1.5 flex items-center gap-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-teal-100/78">
-              <ArrowRightLeft className="h-3.5 w-3.5 text-teal-200" />
+            <span className="mb-1.5 flex items-center gap-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-accent">
+              <ArrowRightLeft className="h-3.5 w-3.5 text-accent" />
               Ищу взамен
             </span>
-            <span className="line-clamp-2 block text-sm leading-5 text-white/88">{wanted}</span>
+            <span className="line-clamp-2 block text-sm leading-5 text-text-strong">{wanted}</span>
           </div>
-          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/78">
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-text-muted">
             {city ? (
               <span className="flex min-w-0 items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{city}</span>
               </span>
             ) : <span />}
-            <span className="shrink-0 text-teal-200/80">Посмотреть →</span>
+            <span className="shrink-0 text-accent">Посмотреть →</span>
           </div>
         </div>
     </HoverCard>
