@@ -6,6 +6,7 @@ import { MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { AccountNavigation } from "@/components/profile/account-navigation";
 import { prisma } from "@/lib/prisma";
+import { formatMonthYearGenitive } from "@/lib/russian";
 import { getCurrentUserId } from "@/server/session";
 import { SignOutButton } from "./profile-actions";
 
@@ -101,7 +102,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                         <MapPin className="h-3.5 w-3.5" />
                         {user.city ?? "Город не указан"}
                       </span>
-                      <span>С нами с {new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(user.createdAt)}</span>
+                      <span>С нами с {formatMonthYearGenitive(user.createdAt)}</span>
                       {user.emailVerified ? (
                         <span
                           className="inline-flex items-center gap-1.5 text-teal-200/70"

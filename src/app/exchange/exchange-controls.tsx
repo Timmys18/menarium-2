@@ -8,6 +8,7 @@ import { BrandMark } from "@/components/menarium/brand";
 import { MenariumButton } from "@/components/menarium/button";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
+import { chatWithLabel } from "@/lib/russian";
 import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type ExchangeAction = "accept" | "decline" | "revoke" | "complete" | "cancel";
@@ -367,7 +368,7 @@ export function ExchangeDealPanel({
     >
       <div className="border-b border-white/8 px-4 py-3.5">
         <h3 id="exchange-chat-title" className="font-semibold text-white/90">
-          Чат с {partnerName}
+          {chatWithLabel(partnerName)}
         </h3>
         {communicationBlocked ? (
           <p className="mt-1 text-xs text-white/62">Новые сообщения недоступны.</p>

@@ -14,6 +14,7 @@ import { serializeItem } from "@/features/items/serializers";
 import { toItemCardView } from "@/features/items/presenters";
 import { buildReputationSummary } from "@/features/reputation/summary";
 import { prisma } from "@/lib/prisma";
+import { formatMonthYearGenitive } from "@/lib/russian";
 import { cn, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { TrustActions } from "@/components/trust/trust-actions";
@@ -199,11 +200,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   ) : null}
                   <Badge>
                     <CalendarDays className="h-3.5 w-3.5" />
-                    С нами с{" "}
-                    {new Intl.DateTimeFormat("ru-RU", {
-                      month: "long",
-                      year: "numeric",
-                    }).format(user.createdAt)}
+                    С нами с {formatMonthYearGenitive(user.createdAt)}
                   </Badge>
                   {isSelf ? <Badge variant="purple">Это ваш профиль</Badge> : null}
                 </div>
