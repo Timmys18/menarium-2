@@ -5,16 +5,11 @@ import { checkActionRateLimit } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { invalidateUserSessionState } from "@/lib/auth";
 import { requireUserId } from "@/server/session";
+import { PASSWORD_MAX_LENGTH, checkPassword, describePasswordRejection } from "@/lib/password-policy";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Введите текущий пароль"),
-  newPassword: z
-    .string()
-    .min(8, "Новый пароль — минимум 8 символов")
-    .max(128)
-    .refine((value) => /[a-zA-Zа-яА-Я]/.test(value) && /\d/.test(value), {
-      message: "Пароль должен содержать буквы и цифры",
-    }),
+  newPassword: z.string().max(PASSWORD_MAX_LENGTH),
 });
 
 export async function PATCH(req: Request) {
@@ -32,12 +27,18 @@ export async function PATCH(req: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: auth.userId },
-    select: { passwordHash: true },
+    select: { passwordHash: true, email: true, name: true },
   });
   if (!user?.passwordHash) return errorResponse("Пользователь не найден", 404);
 
   const valid = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
   if (!valid) return errorResponse("Неверный текущий пароль", 403);
+
+  const passwordRejection = checkPassword(parsed.data.newPassword, {
+    email: user.email,
+    name: user.name,
+  });
+  if (passwordRejection) return errorResponse(describePasswordRejection(passwordRejection), 400);
 
   const passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
   await prisma.user.update({

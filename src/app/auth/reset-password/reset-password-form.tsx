@@ -20,8 +20,8 @@ export function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const passwordChecks = getPasswordChecks(password);
-  const passwordReady = isPasswordReady(password);
+  const passwordChecks = getPasswordChecks(password, { email });
+  const passwordReady = isPasswordReady(password, { email });
 
   async function submit(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();

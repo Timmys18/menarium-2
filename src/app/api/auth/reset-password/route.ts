@@ -2,25 +2,14 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { actionResponse, errorResponse, parseJson } from "@/lib/api";
 import { consumeAuthToken, passwordResetIdentifier } from "@/lib/auth-tokens";
-import {
-  PASSWORD_MAX_LENGTH,
-  PASSWORD_MIN_LENGTH,
-  passwordHasDigit,
-  passwordHasLetter,
-} from "@/lib/password-policy";
+import { PASSWORD_MAX_LENGTH, checkPassword, describePasswordRejection } from "@/lib/password-policy";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { invalidateUserSessionState } from "@/lib/auth";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email(),
   token: z.string().min(10),
-  password: z
-    .string()
-    .min(PASSWORD_MIN_LENGTH, `Пароль должен быть не короче ${PASSWORD_MIN_LENGTH} символов`)
-    .max(PASSWORD_MAX_LENGTH)
-    .refine((value) => passwordHasLetter(value) && passwordHasDigit(value), {
-      message: "Пароль должен содержать буквы и цифры",
-    }),
+  password: z.string().max(PASSWORD_MAX_LENGTH),
 });
 
 export async function POST(req: Request) {
@@ -37,6 +26,9 @@ export async function POST(req: Request) {
   if (!parsed.success) return errorResponse(parsed.error.issues[0]?.message ?? "Некорректные данные", 400);
 
   const { email, token, password } = parsed.data;
+  const passwordRejection = checkPassword(password, { email });
+  if (passwordRejection) return errorResponse(describePasswordRejection(passwordRejection), 400);
+
   const passwordHash = await bcrypt.hash(password, 12);
   const consumed = await consumeAuthToken(passwordResetIdentifier(email), token, (tx) =>
     tx.user.update({

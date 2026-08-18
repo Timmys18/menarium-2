@@ -18,6 +18,7 @@ type ProfileFormUser = {
   city: string | null;
   cityId: string | null;
   image: string | null;
+  email?: string | null;
 };
 
 export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
@@ -39,8 +40,9 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const passwordChecks = getPasswordChecks(newPassword);
-  const passwordReady = isPasswordReady(newPassword);
+  const passwordIdentity = { email: user.email, name };
+  const passwordChecks = getPasswordChecks(newPassword, passwordIdentity);
+  const passwordReady = isPasswordReady(newPassword, passwordIdentity);
 
   async function uploadAvatar(file: File | undefined) {
     if (!file) return;

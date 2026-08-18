@@ -182,11 +182,63 @@ export function checkMediaDeleteRateLimit(userId: string) {
   });
 }
 
-/** Достаёт IP клиента из заголовков прокси (Nginx ставит x-forwarded-for). */
+const IPV4 = /^(?:\d{1,3}\.){3}\d{1,3}$/;
+
+/**
+ * Отбраковывает мусор вроде `unknown` или доменного имени: в ключ лимита должен
+ * попадать только реальный адрес, иначе один клиент получает бесконечное число
+ * различных «адресов» и лимит перестаёт что-либо ограничивать.
+ */
+export function isIpAddress(value: string): boolean {
+  const withoutPort = value.startsWith("[") ? value.slice(1, value.indexOf("]")) : value;
+  const candidate = withoutPort.split("%")[0]!;
+  if (IPV4.test(candidate)) {
+    return candidate.split(".").every((part) => Number(part) <= 255);
+  }
+  // IPv6 — hex-группы через двоеточие, возможен IPv4-хвост.
+  return candidate.includes(":") && /^[0-9a-f:.]+$/i.test(candidate);
+}
+
+function trustedProxyHops() {
+  const configured = Number(process.env.TRUSTED_PROXY_HOPS ?? 1);
+  if (!Number.isInteger(configured) || configured < 1) return 1;
+  return configured;
+}
+
+/**
+ * Достаёт IP клиента из заголовков прокси.
+ *
+ * `X-Forwarded-For` — список, который клиент вправе начать сам: прокси лишь
+ * дописывает реальный адрес к тому, что пришло. Поэтому левая часть списка
+ * подконтрольна атакующему, и брать значение оттуда нельзя — иначе все лимиты
+ * по IP обходятся одним заголовком.
+ *
+ * Доверять можно только элементам, которые дописали наши собственные прокси.
+ * `TRUSTED_PROXY_HOPS` задаёт их число (по умолчанию один — Nginx перед
+ * приложением): отсчитываем это число справа и берём первый адрес, который наш
+ * прокси наблюдал своими глазами.
+ */
 export function getClientIp(headers: Headers): string {
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim();
-  return headers.get("x-real-ip")?.trim() || "unknown";
+  // `X-Real-IP` наш Nginx выставляет из $remote_addr и всегда перезаписывает,
+  // поэтому клиент его подделать не может. Это самый надёжный источник, и он
+  // идёт первым: список X-Forwarded-For из одного элемента невозможно отличить
+  // от подделки, если прокси его не перезаписал.
+  const realIp = headers.get("x-real-ip")?.trim();
+  if (realIp && isIpAddress(realIp)) return realIp;
+
+  const forwarded = headers
+    .get("x-forwarded-for")
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (forwarded?.length) {
+    const index = Math.max(0, forwarded.length - trustedProxyHops());
+    const candidate = forwarded[index];
+    if (candidate && isIpAddress(candidate)) return candidate;
+  }
+
+  return "unknown";
 }
 
 /** Лимит на попытки входа: защита от перебора паролей (по email + IP). */

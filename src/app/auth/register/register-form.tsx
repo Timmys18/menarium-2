@@ -25,8 +25,15 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const passwordChecks = getPasswordChecks(password);
-  const passwordReady = isPasswordReady(password);
+  const [consentGiven, setConsentGiven] = useState(false);
+  // Регистрация не подтверждает и не опровергает существование аккаунта.
+  // Если вход сразу после отправки формы не удался, показываем нейтральный
+  // экран «проверьте почту» — он одинаков и для занятого адреса, и для
+  // случайного сбоя входа, поэтому по нему нельзя ничего заключить.
+  const [awaitingEmail, setAwaitingEmail] = useState<string | null>(null);
+  const passwordIdentity = { email, name };
+  const passwordChecks = getPasswordChecks(password, passwordIdentity);
+  const passwordReady = isPasswordReady(password, passwordIdentity);
 
   async function submit(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
@@ -52,12 +59,7 @@ export function RegisterForm() {
 
       const result = await signIn("credentials", { email, password, redirect: false });
       if (result?.error) {
-        const loginSearch = new URLSearchParams({
-          registered: "1",
-          emailSent: verifyEmailSent ? "1" : "0",
-          callbackUrl: destination,
-        });
-        router.push(`/auth/login?${loginSearch.toString()}`);
+        setAwaitingEmail(email);
         return;
       }
 
@@ -68,6 +70,32 @@ export function RegisterForm() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (awaitingEmail) {
+    return (
+      <div className="space-y-5" role="status">
+        <div className="rounded-[18px] border border-teal-300/20 bg-teal-300/[0.07] p-5">
+          <p className="type-kicker text-teal-200/75">Проверьте почту</p>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight">Мы отправили письмо на {awaitingEmail}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-white/78">
+            Откройте письмо и следуйте ссылке, чтобы продолжить. Если письмо не пришло за пару минут, проверьте
+            папку «Спам».
+          </p>
+        </div>
+        <MenariumLinkButton href={loginHref} className="w-full">
+          Перейти ко входу
+        </MenariumLinkButton>
+        <MenariumButton
+          type="button"
+          variant="secondary"
+          className="w-full"
+          onClick={() => setAwaitingEmail(null)}
+        >
+          Ввести другой адрес
+        </MenariumButton>
+      </div>
+    );
   }
 
   return (
@@ -183,22 +211,45 @@ export function RegisterForm() {
       <p className="text-xs leading-5 text-white/62">
         После регистрации предложим подтвердить почту. Повторно отправить письмо всегда можно из профиля.
       </p>
-      <p className="text-xs leading-relaxed text-white/78">
-        Регистрируясь, вы соглашаетесь с{" "}
-        <Link href="/terms" className="text-teal-300 hover:underline">
-          пользовательским соглашением
-        </Link>{" "}
-        и{" "}
-        <Link href="/privacy" className="text-teal-300 hover:underline">
-          политикой конфиденциальности
-        </Link>.
-      </p>
+      {/*
+        152-ФЗ требует активного действия пользователя, а не согласия «по факту
+        нажатия кнопки»: отдельный чекбокс, снятый по умолчанию, — минимальная
+        форма, которая этому удовлетворяет.
+      */}
+      <label
+        htmlFor="register-consent"
+        className="flex cursor-pointer items-start gap-3 rounded-[14px] border border-white/8 bg-white/[0.025] p-3.5 text-xs leading-relaxed text-white/78 transition hover:border-white/16 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-300/70"
+      >
+        <input
+          id="register-consent"
+          name="consent"
+          type="checkbox"
+          checked={consentGiven}
+          onChange={(event) => setConsentGiven(event.target.checked)}
+          className="mt-0.5 h-5 w-5 shrink-0 accent-teal-400 focus-visible:outline-none"
+          required
+        />
+        <span>
+          Я согласен на обработку персональных данных и принимаю{" "}
+          <Link href="/terms" className="text-teal-300 hover:underline">
+            пользовательское соглашение
+          </Link>{" "}
+          и{" "}
+          <Link href="/privacy" className="text-teal-300 hover:underline">
+            политику конфиденциальности
+          </Link>.
+        </span>
+      </label>
       {error ? (
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
           {error}
         </div>
       ) : null}
-      <MenariumButton type="submit" className="w-full" disabled={isSubmitting || !email || !passwordReady}>
+      <MenariumButton
+        type="submit"
+        className="w-full"
+        disabled={isSubmitting || !email || !passwordReady || !consentGiven}
+      >
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
         Зарегистрироваться
       </MenariumButton>
