@@ -1,8 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { onest, spaceGrotesk } from "./fonts";
 import { ProductAnalytics } from "@/components/analytics/product-analytics";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { OrganizationJsonLd } from "@/components/seo/json-ld";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  // Совпадает с --background: без этого системная строка на телефоне и
+  // splash-экран установленного приложения вспыхивают белым.
+  themeColor: "#070a10",
+  colorScheme: "dark",
+  // viewportFit=cover нужен, чтобы env(safe-area-inset-*) в globals.css
+  // действительно получал значения на устройствах с вырезом.
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
@@ -43,6 +54,7 @@ export default function RootLayout({
       className={`${onest.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        <OrganizationJsonLd />
         <AuthProvider>
           {children}
           <ProductAnalytics />

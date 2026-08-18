@@ -35,6 +35,7 @@ import { serializeItem } from "@/features/items/serializers";
 import { itemWantedLabel, toItemCardView } from "@/features/items/presenters";
 import { canInteractWithItem, visibleItemWhere } from "@/features/items/visibility";
 import { buildReputationSummary } from "@/features/reputation/summary";
+import { BreadcrumbJsonLd, ItemJsonLd } from "@/components/seo/json-ld";
 import { prisma } from "@/lib/prisma";
 import { isAdminEmail } from "@/server/admin";
 import { getCurrentUserIdentity } from "@/server/session";
@@ -323,6 +324,38 @@ export default async function ItemPage({ params, searchParams }: Props) {
 
   return (
     <AppShell>
+      {/* Микроразметку отдаём только для публично видимого объявления: для
+          архивной карточки, доступной лишь участнику чата, она обещала бы
+          поисковику страницу, которую он открыть не сможет. */}
+      {item.status === ItemStatus.ACTIVE ? (
+        <>
+          <ItemJsonLd
+            item={{
+              id: publicItem.id,
+              title: publicItem.title,
+              description: publicItem.description,
+              category: publicItem.category,
+              type: item.type,
+              city: publicItem.city,
+              images: publicItem.images.map((image) => image.url),
+              createdAt: item.createdAt,
+              ownerName: publicItem.owner?.name ?? null,
+            }}
+          />
+          <BreadcrumbJsonLd
+            trail={[
+              { name: "Каталог", path: "/catalog" },
+              {
+                name: publicItem.category,
+                path: item.categoryId
+                  ? `/catalog?category=${encodeURIComponent(item.categoryId)}`
+                  : "/catalog",
+              },
+              { name: publicItem.title, path: `/item/${publicItem.id}` },
+            ]}
+          />
+        </>
+      ) : null}
       {userId && !isOwner && canInteract && !communicationBlocked ? (
         <RecentlyViewedTracker itemId={publicItem.id} />
       ) : null}

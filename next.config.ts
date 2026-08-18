@@ -26,6 +26,12 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Демо-фотографии отдаёт только dev-маршрут /demo/items/[filename]. Раньше
+  // они лежали в public/ и уезжали в production-образ восемью мегабайтами,
+  // публично доступными по menarium.ru/demo/items/…
+  outputFileTracingExcludes: {
+    "/demo/items/[filename]": ["./assets/demo/**"],
+  },
   experimental: {
     viewTransition: true,
   },
