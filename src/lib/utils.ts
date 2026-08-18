@@ -27,3 +27,14 @@ export function safeCallbackUrl(value: string | null | undefined, fallback = "/p
 export function loginHref(callbackPath: string, fallback = "/profile") {
   return `/auth/login?callbackUrl=${encodeURIComponent(safeCallbackUrl(callbackPath, fallback))}`;
 }
+
+/** Инициалы по имени (первая буква каждого слова) с запасным вариантом по почте. */
+export function getInitials(name: string | null | undefined, email: string) {
+  const source = name?.trim() || email;
+  return source
+    .split(/\s+|@/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}

@@ -12,6 +12,7 @@ import { MenariumInput } from "@/components/menarium/input";
 import { CityPicker } from "@/components/menarium/city-picker";
 import { findCityByName } from "@/features/locations/cities";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
+import { getInitials } from "@/lib/utils";
 
 type ProfileFormUser = {
   name: string | null;
@@ -162,7 +163,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             {image ? (
               <Image src={image} alt="Аватар" fill sizes="80px" className="object-cover" />
             ) : (
-              <span className="text-2xl font-bold">{(name || "M").slice(0, 2).toUpperCase()}</span>
+              <span className="text-2xl font-bold">{getInitials(name, user.email ?? "")}</span>
             )}
           </div>
           <div>

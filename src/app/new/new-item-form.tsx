@@ -655,14 +655,14 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             </div>
           ) : null}
 
-          <div className="mt-7 flex items-center justify-between gap-3 border-t border-line-hairline pt-5">
+          <div className="mt-7 flex flex-col-reverse items-stretch gap-3 border-t border-line-hairline pt-5 sm:flex-row sm:items-center sm:justify-between">
             {step > 0 ? (
               <MenariumButton type="button" variant="secondary" onClick={goToPreviousStep} disabled={isSubmitting}>
                 <ArrowLeft className="h-4 w-4" />
                 Назад
               </MenariumButton>
             ) : (
-              <span className="text-xs text-text-subtle">Черновик сохраняется автоматически</span>
+              <span className="text-xs text-text-subtle sm:self-center">Черновик сохраняется автоматически</span>
             )}
 
             {step < steps.length - 1 ? (

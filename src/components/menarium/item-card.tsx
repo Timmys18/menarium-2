@@ -76,15 +76,16 @@ export function ItemCard({
           {/*
             Длинная категория («Иллюстрация и творчество») вытесняла соседний
             чип на вторую строку и наезжала на него. Категория теперь сжимается
-            и обрезается в пределах своей ширины, а тип остаётся целым: строка
-            одна, наложения нет.
+            в пределах своей ширины, а тип остаётся целым: строка одна,
+            наложения нет. text-overflow не работает на самом flex-контейнере,
+            поэтому обрезаем текст во вложенном блочном span, а не на Badge.
           */}
           <div className={cn(
             "absolute left-4 top-4 flex items-start gap-2",
             reserveTopRight ? "right-28" : showFavorite ? "right-16" : "right-4",
           )}>
-            <Badge className="min-w-0 shrink truncate whitespace-nowrap bg-[var(--surface-sunken)]/78">
-              {category}
+            <Badge className="min-w-0 shrink bg-[var(--surface-sunken)]/78">
+              <span className="block min-w-0 truncate">{category}</span>
             </Badge>
             <Badge variant={isOnline ? "teal" : "glass"} className="shrink-0 bg-[var(--surface-sunken)]/78">
               {isOnline ? <Globe2 className="h-3 w-3" /> : null}

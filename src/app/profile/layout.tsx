@@ -7,19 +7,11 @@ import { GlassCard, SurfaceCard } from "@/components/menarium/card";
 import { AccountNavigation } from "@/components/profile/account-navigation";
 import { prisma } from "@/lib/prisma";
 import { formatMonthYearGenitive } from "@/lib/russian";
+import { getInitials } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { SignOutButton } from "./profile-actions";
 
 export const dynamic = "force-dynamic";
-
-function getInitials(name: string | null, email: string) {
-  return (name?.trim() || email)
-    .split(/\s+|@/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
 
 export default async function ProfileLayout({ children }: { children: React.ReactNode }) {
   const userId = await getCurrentUserId();

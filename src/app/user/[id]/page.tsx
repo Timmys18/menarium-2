@@ -15,7 +15,7 @@ import { toItemCardView } from "@/features/items/presenters";
 import { buildReputationSummary } from "@/features/reputation/summary";
 import { prisma } from "@/lib/prisma";
 import { formatMonthYearGenitive } from "@/lib/russian";
-import { cn, loginHref } from "@/lib/utils";
+import { cn, getInitials, loginHref } from "@/lib/utils";
 import { getCurrentUserId } from "@/server/session";
 import { TrustActions } from "@/components/trust/trust-actions";
 
@@ -43,16 +43,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: user.name ?? "Профиль пользователя",
     description: `Объявления и обмены пользователя${user.city ? ` · ${user.city}` : ""}.`,
   };
-}
-
-function getInitials(name: string | null, email: string) {
-  const source = name?.trim() || email;
-  return source
-    .split(/\s+|@/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
 }
 
 function ReviewStars({ rating }: { rating: number }) {
