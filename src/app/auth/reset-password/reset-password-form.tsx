@@ -2,9 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
+import { PasswordChecklist } from "@/components/menarium/password-checklist";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 import { safeCallbackUrl } from "@/lib/utils";
 
@@ -106,19 +107,7 @@ export function ResetPasswordForm() {
           </button>
         </div>
         <div id="reset-password-hint" className="flex flex-wrap gap-2" aria-live="polite">
-          {passwordChecks.map((check) => (
-            <span
-              key={check.id}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-micro transition ${
-                check.passed
-                  ? "border-teal-300/20 bg-teal-300/[0.08] text-accent"
-                  : "border-line-hairline bg-fill-1 text-text-subtle"
-              }`}
-            >
-              <Check className="h-3 w-3" />
-              {check.label}
-            </span>
-          ))}
+          <PasswordChecklist checks={passwordChecks} />
         </div>
       </div>
       <div className="space-y-2.5">

@@ -4,10 +4,11 @@ import { useRef, useState, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Eye, EyeOff, Loader2, UserRound } from "lucide-react";
+import { Eye, EyeOff, Loader2, UserRound } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
 import { CityPicker } from "@/components/menarium/city-picker";
+import { PasswordChecklist } from "@/components/menarium/password-checklist";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
 import { safeCallbackUrl } from "@/lib/utils";
@@ -158,19 +159,7 @@ export function RegisterForm() {
           </button>
         </div>
         <div id="register-password-hint" className="flex flex-wrap gap-2" aria-live="polite">
-          {passwordChecks.map((check) => (
-            <span
-              key={check.id}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-micro transition ${
-                check.passed
-                  ? "border-teal-300/20 bg-teal-300/[0.08] text-accent"
-                  : "border-line-hairline bg-fill-1 text-text-subtle"
-              }`}
-            >
-              <Check className="h-3 w-3" />
-              {check.label}
-            </span>
-          ))}
+          <PasswordChecklist checks={passwordChecks} />
         </div>
       </div>
 

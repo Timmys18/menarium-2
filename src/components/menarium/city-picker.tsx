@@ -20,6 +20,7 @@ export function CityPicker({
   inline?: boolean;
 }) {
   const listId = useId();
+  const optionIdPrefix = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -28,8 +29,16 @@ export function CityPicker({
   // величиной: прежний `max-h` не знал, где находится сам пикер, и в панели
   // фильтров последний город обрезался пополам.
   const [maxHeight, setMaxHeight] = useState(248);
+  // Индекс варианта, подсвеченного стрелками — отдельно от `value`, который
+  // остаётся прежним, пока выбор не подтверждён.
+  const [activeIndex, setActiveIndex] = useState(0);
   const selected = getCity(value);
   const cities = searchCities(query);
+
+  useEffect(() => {
+    if (!open) return;
+    document.getElementById(`${optionIdPrefix}-${activeIndex}`)?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, open, optionIdPrefix]);
 
   useEffect(() => {
     function closeOnOutsideClick(event: MouseEvent) {
@@ -60,6 +69,7 @@ export function CityPicker({
     }
 
     setQuery("");
+    setActiveIndex(0);
     setOpen(true);
   }
 
@@ -91,19 +101,46 @@ export function CityPicker({
             <span className="sr-only">Найти город в списке</span>
             <input
               autoFocus
+              role="combobox"
+              aria-expanded={open}
+              aria-controls={listId}
+              aria-activedescendant={cities.length ? `${optionIdPrefix}-${activeIndex}` : undefined}
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setActiveIndex(0);
+              }}
               onKeyDown={(event) => {
                 if (event.key === "Escape") {
                   setOpen(false);
                   setQuery("");
+                } else if (event.key === "ArrowDown") {
+                  event.preventDefault();
+                  setActiveIndex((index) => (cities.length ? (index + 1) % cities.length : 0));
+                } else if (event.key === "ArrowUp") {
+                  event.preventDefault();
+                  setActiveIndex((index) => (cities.length ? (index - 1 + cities.length) % cities.length : 0));
+                } else if (event.key === "Home") {
+                  event.preventDefault();
+                  setActiveIndex(0);
+                } else if (event.key === "End") {
+                  event.preventDefault();
+                  setActiveIndex(cities.length - 1);
+                } else if (event.key === "Enter") {
+                  event.preventDefault();
+                  const city = cities[activeIndex];
+                  if (city) {
+                    onChange(city);
+                    setOpen(false);
+                    setQuery("");
+                  }
                 }
               }}
               placeholder="Начните печатать город"
               className="min-w-0 flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-subtle"
             />
             {query ? (
-              <button type="button" aria-label="Очистить поиск города" onClick={() => setQuery("")} className="-mr-3 flex h-11 w-11 items-center justify-center text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
+              <button type="button" aria-label="Очистить поиск города" onClick={() => { setQuery(""); setActiveIndex(0); }} className="-mr-3 flex h-11 w-11 items-center justify-center text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
                 <X className="h-4 w-4" />
               </button>
             ) : null}
@@ -115,14 +152,17 @@ export function CityPicker({
             style={{ maxHeight }}
             className="menarium-scrollbar mt-2 overflow-y-auto overscroll-contain pr-1"
           >
-            {cities.map((city) => {
+            {cities.map((city, index) => {
               const active = city.id === value;
+              const highlighted = index === activeIndex;
               return (
                 <button
                   key={city.id}
+                  id={`${optionIdPrefix}-${index}`}
                   type="button"
                   role="option"
                   aria-selected={active}
+                  onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => {
                     onChange(city);
                     setOpen(false);
@@ -131,6 +171,7 @@ export function CityPicker({
                   className={cn(
                     "flex min-h-11 w-full items-center justify-between gap-3 rounded-xs px-3 py-2.5 text-left transition hover:bg-fill-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]",
                     active && "bg-teal-300/[0.09]",
+                    highlighted && !active && "bg-fill-2",
                   )}
                 >
                   <span className="min-w-0">

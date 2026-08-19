@@ -4,12 +4,13 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Check, Eye, EyeOff, Loader2, Trash2, Upload } from "lucide-react";
+import { Eye, EyeOff, Loader2, Trash2, Upload } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { GlassCard } from "@/components/menarium/card";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { MenariumInput } from "@/components/menarium/input";
 import { CityPicker } from "@/components/menarium/city-picker";
+import { PasswordChecklist } from "@/components/menarium/password-checklist";
 import { findCityByName } from "@/features/locations/cities";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 import { getInitials } from "@/lib/utils";
@@ -318,19 +319,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             </button>
           </div>
           <div id="profile-password-hint" className="flex flex-wrap gap-2 pt-1" aria-live="polite">
-            {passwordChecks.map((check) => (
-              <span
-                key={check.label}
-                className={
-                  check.passed
-                    ? "inline-flex items-center gap-1.5 rounded-full bg-teal-300/10 px-2.5 py-1 text-xs text-accent"
-                    : "inline-flex items-center gap-1.5 rounded-full bg-fill-2 px-2.5 py-1 text-xs text-text-subtle"
-                }
-              >
-                <Check className="h-3 w-3" aria-hidden="true" />
-                {check.label}
-              </span>
-            ))}
+            <PasswordChecklist checks={passwordChecks} />
           </div>
         </div>
         <MenariumButton
