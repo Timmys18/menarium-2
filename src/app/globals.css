@@ -490,14 +490,21 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   animation: causal-route-enter var(--duration-slow) var(--ease-out) both;
 }
 
+/*
+  Только opacity: анимированный transform на этой обёртке, даже завершившийся
+  на translateY(0), браузер отдаёт из getComputedStyle как матрицу тождества,
+  а не как none. Матрица — это тоже "заданный transform" по спецификации, так
+  что она делает эту обёртку новым containing block для потомков с
+  position: fixed. Мобильный экшн-док свайпа и другие fixed-элементы внутри
+  страниц с этим классом из-за этого позиционировались от нижнего края всей
+  прокручиваемой страницы, а не от нижнего края экрана.
+*/
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 

@@ -65,17 +65,9 @@ export function ExchangeProposal({
 
   return (
     <div id="exchange-proposal" className="flex-1 scroll-mt-28 space-y-3 rounded-md border border-teal-300/[0.16] bg-teal-300/[0.045] p-3.5">
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
-            Вы отдаёте
-          </label>
-          <p id="exchange-receiver-item" className="mt-1 truncate text-xs text-text-subtle">
-            Получаете: {receiverTitle}
-          </p>
-        </div>
-        <ArrowRightLeft className="h-4 w-4 shrink-0 text-accent" />
-      </div>
+      <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
+        Вы отдаёте
+      </label>
       <MenariumSelect
         id="exchange-sender-item"
         ariaLabel="Ваша вещь для обмена"
@@ -84,6 +76,10 @@ export function ExchangeProposal({
         onChange={setSenderItemId}
         placeholder="Выберите свою вещь"
       />
+      <p id="exchange-receiver-item" className="flex items-center gap-1.5 truncate text-xs text-text-subtle">
+        <ArrowRightLeft className="h-3.5 w-3.5 shrink-0 text-accent" />
+        Получаете: <span className="truncate font-medium text-text-strong">{receiverTitle}</span>
+      </p>
       <MenariumButton onClick={propose} disabled={isSubmitting || !senderItemId} className="w-full">
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRightLeft className="h-5 w-5" />}
         Предложить обмен
