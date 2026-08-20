@@ -84,11 +84,17 @@ async function touchTargetViolations(page: Page, route: string, viewport: string
       if (element instanceof HTMLAnchorElement && window.getComputedStyle(element).display === "inline" && parent?.matches("p, li, span, label") && (parent.textContent?.trim().length ?? 0) > 80) return [];
       const rect = element.getBoundingClientRect();
       const labelRect = labelFor(element);
-      const width = Math.max(rect.width, labelRect?.width ?? 0);
-      const height = Math.max(rect.height, labelRect?.height ?? 0);
+      // Сравниваем ровно то число, которое потом покажем в отчёте.
+      // `getBoundingClientRect` отдаёт дробные значения, и кнопка, заданная
+      // как `min-h-11` (те самые 44px), временами меряется как 43.99 —
+      // округление при выводе превращало это в нарушение с описанием
+      // «44x44», то есть отчёт противоречил сам себе. Десятой доли пикселя
+      // достаточно: реальная нехватка размера видна и на ней.
+      const width = Math.round(Math.max(rect.width, labelRect?.width ?? 0) * 10) / 10;
+      const height = Math.round(Math.max(rect.height, labelRect?.height ?? 0) * 10) / 10;
       if (width >= 44 && height >= 44) return [];
       const label = element.getAttribute("aria-label") || element.textContent?.replace(/\s+/g, " ").trim() || element.getAttribute("title") || element.tagName.toLowerCase();
-      return [{ route: input.route, viewport: input.viewport, label, selector: element.outerHTML.slice(0, 220), width: Math.round(width * 10) / 10, height: Math.round(height * 10) / 10 }];
+      return [{ route: input.route, viewport: input.viewport, label, selector: element.outerHTML.slice(0, 220), width, height }];
     });
   }, { route, viewport });
 }
@@ -105,7 +111,12 @@ async function assertPageFitsViewport(page: Page, route: string, viewport: strin
 }
 
 async function expectVisibleKeyboardFocus(page: Page, selector: string, context: string) {
-  const label = page.getByText(selector, { exact: true });
+  // `.first()` — как и везде в этом файле: сразу после перехода в документе
+  // на ~100–300 мс могут оказаться две копии страницы (Next.js сводит
+  // устаревший префетч со свежим SSR-ответом), и строгий режим падает на
+  // двух одинаковых совпадениях. Проверку это не ослабляет: фокус всё равно
+  // ставится на настоящий интерактивный элемент и проверяется на нём.
+  const label = page.getByText(selector, { exact: true }).first();
   await label.evaluate((element) => {
     const target = element.closest<HTMLElement>("a, button, input, select, textarea, [tabindex]");
     if (!target) throw new Error(`No interactive ancestor for ${element.textContent}`);
