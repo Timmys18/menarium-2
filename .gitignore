@@ -54,3 +54,6 @@ cloudflared.exe
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local Redis persistence
+dump.rdb

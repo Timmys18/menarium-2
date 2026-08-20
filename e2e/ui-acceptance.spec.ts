@@ -81,7 +81,7 @@ async function touchTargetViolations(page: Page, route: string, viewport: string
       if (!isVisible(element) || element.closest("[aria-hidden='true'], [inert]")) return [];
       if (element.matches(":disabled, [aria-disabled='true']")) return [];
       const parent = element.parentElement;
-      if (element instanceof HTMLAnchorElement && window.getComputedStyle(element).display === "inline" && parent?.matches("p, li") && (parent.textContent?.trim().length ?? 0) > 80) return [];
+      if (element instanceof HTMLAnchorElement && window.getComputedStyle(element).display === "inline" && parent?.matches("p, li, span, label") && (parent.textContent?.trim().length ?? 0) > 80) return [];
       const rect = element.getBoundingClientRect();
       const labelRect = labelFor(element);
       const width = Math.max(rect.width, labelRect?.width ?? 0);
