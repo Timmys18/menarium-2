@@ -199,7 +199,7 @@ test.describe("chat history and media hardening", () => {
       await mariaPage.goto(`/exchange?tab=matches&swap=${swap.id}`, { waitUntil: "domcontentloaded" });
       await mariaPage.getByRole("log", { name: "Сообщения чата" }).waitFor();
       const mariaLog = mariaPage.getByRole("log", { name: "Сообщения чата" });
-      const mariaChat = mariaPage.getByRole("region", { name: "Чат с Дмитрий П." });
+      const mariaChat = mariaPage.getByRole("region", { name: "Чат с Дмитрием П." });
       const messageText = "[E2E chat 2.0] Фото состояния";
 
       const uploadPromise = mariaPage.waitForResponse(
