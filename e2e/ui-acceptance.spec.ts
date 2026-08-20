@@ -273,7 +273,9 @@ test.describe("final UI acceptance matrix", () => {
         logProgress(`${viewport.name} city filter`);
         await gotoRoute(page, "/catalog");
         await waitForSettledMain(page);
-        if (viewport.width < 1024) await page.getByText("Фильтры", { exact: true }).click();
+        // `.first()` по той же причине, что и в `expectVisibleKeyboardFocus`:
+        // сразу после перехода в документе недолго живут две копии страницы.
+        if (viewport.width < 1024) await page.getByText("Фильтры", { exact: true }).first().click();
         await page.getByRole("button", { name: /Выберите город/ }).click();
         violations.push(...await touchTargetViolations(page, "/catalog with city filter", viewport.name));
         await expectNoCriticalAxeViolations(page, "/catalog with city filter");
