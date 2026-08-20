@@ -55,7 +55,7 @@ const statusPresentation = {
   DISMISSED: {
     label: "Проверка завершена",
     description: "По доступным данным нарушение не подтвердилось.",
-    variant: "glass",
+    variant: "neutral",
     icon: CheckCircle2,
   },
 } as const;
@@ -249,7 +249,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <Badge variant={presentation.variant}>{presentation.label}</Badge>
-                              <Badge variant="glass">{reasonLabels[report.reason]}</Badge>
+                              <Badge variant="neutral">{reasonLabels[report.reason]}</Badge>
                               <time
                                 dateTime={report.createdAt.toISOString()}
                                 className="text-xs text-text-subtle"

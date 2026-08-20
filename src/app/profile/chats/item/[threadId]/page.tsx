@@ -135,7 +135,7 @@ export default async function ItemThreadPage({ params }: Props) {
                   ? "teal"
                   : thread.item.status === ItemStatus.IN_DEAL
                     ? "gold"
-                    : "glass"
+                    : "neutral"
               }
             >
               {itemStatusLabels[thread.item.status]}

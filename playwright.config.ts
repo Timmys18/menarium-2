@@ -26,6 +26,12 @@ export default defineConfig({
   },
   use: {
     baseURL,
+    // Тема задаётся явно, а не берётся из умолчания Playwright (`light`).
+    // Продукт следует системной схеме, поэтому без этой строки набор молча
+    // сменил бы тему всех эталонов, стоило изменить умолчание в браузере.
+    // Светлая тема проверяется отдельными сценариями, которые ставят
+    // `colorScheme: "light"` сами.
+    colorScheme: "dark",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     // Local failure videos can consume several gigabytes and hide the real result.

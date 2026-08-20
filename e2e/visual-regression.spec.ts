@@ -126,4 +126,36 @@ test.describe("visual regression", () => {
     await expect(page).toHaveScreenshot("mobile-empty-safety.png", { animations: "disabled" });
     await context.close();
   });
+
+  /*
+    Светлая тема годами не попадала ни в один сценарий: набор целиком шёл в
+    тёмной. За её пределами оставались два дефекта, которые в тёмной теме не
+    видны в принципе — белый текст на светлой плашке карточки каталога
+    (контраст 1.71:1 при норме 4.5) и режим «Как в системе», отдававший
+    светлой системе тёмный интерфейс. Схема здесь задаётся через
+    `colorScheme` без cookie — это и есть путь по умолчанию для нового
+    посетителя.
+  */
+  test("light theme product surfaces", async ({ browser }) => {
+    test.setTimeout(300_000);
+    const fixture = prepareFixture();
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 1000 }, reducedMotion: "reduce", colorScheme: "light",
+    });
+    const publicPage = await context.newPage();
+    await open(publicPage, "/auth/login");
+    await expect(publicPage.locator("html")).not.toHaveAttribute("data-theme", /.+/);
+    await expect(publicPage).toHaveScreenshot("light-login.png", { animations: "disabled" });
+    await publicPage.close();
+    await login(context);
+    const page = await context.newPage();
+
+    await open(page, "/catalog");
+    await expect(page).toHaveScreenshot("light-catalog.png", { animations: "disabled" });
+    await open(page, `/item/${fixture.otherItemId}`);
+    await expect(page).toHaveScreenshot("light-item.png", { animations: "disabled" });
+    await open(page, "/profile");
+    await expect(page).toHaveScreenshot("light-profile.png", { animations: "disabled" });
+    await context.close();
+  });
 });

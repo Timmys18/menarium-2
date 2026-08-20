@@ -703,7 +703,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
           <div className="p-5">
             <div className="mb-3 flex flex-wrap gap-2">
               <Badge variant="purple">{type === "THING" ? "Вещь" : "Услуга"}</Badge>
-              <Badge variant="glass">{categoryLabel(categoryId) ?? "Категория"}</Badge>
+              <Badge variant="neutral">{categoryLabel(categoryId) ?? "Категория"}</Badge>
               {isOnline ? <Badge variant="teal">Онлайн</Badge> : null}
             </div>
             <h3 className={cn("text-xl font-bold leading-tight", title ? "text-text-primary" : "text-text-subtle")}>

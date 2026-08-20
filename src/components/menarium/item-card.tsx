@@ -84,10 +84,10 @@ export function ItemCard({
             "absolute left-4 top-4 flex items-start gap-2",
             reserveTopRight ? "right-28" : showFavorite ? "right-16" : "right-4",
           )}>
-            <Badge className="min-w-0 shrink bg-[var(--surface-sunken)]/78">
+            <Badge variant="glass" className="min-w-0 shrink">
               <span className="block min-w-0 truncate">{category}</span>
             </Badge>
-            <Badge variant={isOnline ? "teal" : "glass"} className="shrink-0 bg-[var(--surface-sunken)]/78">
+            <Badge variant={isOnline ? "teal" : "glass"} className="shrink-0">
               {isOnline ? <Globe2 className="h-3 w-3" /> : null}
               {isOnline ? "Онлайн" : type === "SERVICE" ? "Услуга" : "Предмет"}
             </Badge>

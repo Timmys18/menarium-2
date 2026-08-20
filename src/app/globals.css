@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 :root {
+  /*
+    Нативные части интерфейса — полосы прокрутки, подложка автозаполнения
+    полей, системные выпадающие списки — рисует браузер, и он обязан знать,
+    какая схема на странице. Без этого он считает страницу светлой и ставит
+    светлую полосу прокрутки на тёмный макет.
+  */
+  color-scheme: dark;
   --background: #070a10;
   --foreground: #f7f9fc;
   --brand-blue-primary: #4d8dff;
@@ -95,8 +102,7 @@
   --shadow-surface: 0 10px 28px rgba(0, 0, 0, 0.18);
   --shadow-popover: 0 22px 60px rgba(0, 0, 0, 0.5);
   --shadow-card-hover:
-    0 24px 70px rgba(0, 0, 0, 0.38),
-    0 0 0 1px rgba(77, 141, 255, 0.1),
+    0 24px 70px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(77, 141, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   --shadow-surface-hover: 0 18px 46px rgba(0, 0, 0, 0.27);
   --surface-raised-hover: #151e2b;
@@ -104,16 +110,23 @@
 
   /* Фон страницы и главный «выразительный» холст на первом экране. */
   --page-bg:
-    radial-gradient(circle at 10% -12%, rgba(56, 214, 178, 0.11), transparent 38rem),
-    radial-gradient(circle at 94% 0%, rgba(77, 141, 255, 0.12), transparent 42rem),
+    radial-gradient(
+      circle at 10% -12%,
+      rgba(56, 214, 178, 0.11),
+      transparent 38rem
+    ),
+    radial-gradient(
+      circle at 94% 0%,
+      rgba(77, 141, 255, 0.12),
+      transparent 42rem
+    ),
     var(--background);
   --hero-canvas-bg:
     linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 42%),
     linear-gradient(180deg, rgba(14, 23, 35, 0.94), rgba(9, 14, 23, 0.92));
   --hero-canvas-border: rgba(255, 255, 255, 0.115);
   --hero-canvas-shadow:
-    0 38px 100px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 38px 100px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 
   --mobile-nav-clearance: calc(7rem + env(safe-area-inset-bottom));
   /* Высота нижней навигации на телефоне. Экраны, которые должны занимать
@@ -124,92 +137,206 @@
 }
 
 /*
-  Светлая схема. Применяется, когда её выбрал пользователь (`data-theme="light"`
-  ставится на сервере из cookie, поэтому вспышки тёмного фона нет) либо когда
-  она выбрана в системе и пользователь не указал иного.
+  Значения светлой палитры. Живут в одном экземпляре: применяются они двумя
+  путями (см. ниже), и разъехаться между этими путями не должны.
 
   Прозрачности заливок здесь заметно выше, чем в тёмной теме: чёрный на белом
   набирает контраст быстрее белого на чёрном, и буквальный перенос значений
   дал бы почти невидимые границы.
 */
-:root[data-theme="light"] {
-  --background: #f5f7fb;
-  --foreground: #0b1220;
+:root {
+  --light-background: #f5f7fb;
+  --light-foreground: #0b1220;
 
-  --surface-raised: #ffffff;
-  --surface-card: #ffffff;
-  --surface-input: #ffffff;
-  --surface-sunken: #eef1f7;
-  --surface-overlay: rgba(255, 255, 255, 0.86);
-  --surface-soft: rgba(11, 18, 32, 0.04);
+  --light-surface-raised: #ffffff;
+  --light-surface-card: #ffffff;
+  --light-surface-input: #ffffff;
+  --light-surface-sunken: #eef1f7;
+  --light-surface-overlay: rgba(255, 255, 255, 0.86);
+  --light-surface-soft: rgba(11, 18, 32, 0.04);
 
-  --text-primary: #0b1220;
-  --text-strong: rgba(11, 18, 32, 0.92);
-  --text-muted: rgba(11, 18, 32, 0.72);
-  --text-subtle: rgba(11, 18, 32, 0.58);
-  --text-faint: rgba(11, 18, 32, 0.38);
+  --light-text-primary: #0b1220;
+  --light-text-strong: rgba(11, 18, 32, 0.92);
+  --light-text-muted: rgba(11, 18, 32, 0.72);
+  --light-text-subtle: rgba(11, 18, 32, 0.58);
+  --light-text-faint: rgba(11, 18, 32, 0.38);
 
-  --fill-1: rgba(11, 18, 32, 0.035);
-  --fill-2: rgba(11, 18, 32, 0.055);
-  --fill-3: rgba(11, 18, 32, 0.08);
-  --fill-4: rgba(11, 18, 32, 0.12);
+  --light-fill-1: rgba(11, 18, 32, 0.035);
+  --light-fill-2: rgba(11, 18, 32, 0.055);
+  --light-fill-3: rgba(11, 18, 32, 0.08);
+  --light-fill-4: rgba(11, 18, 32, 0.12);
 
-  --line-hairline: rgba(11, 18, 32, 0.1);
-  --line-default: rgba(11, 18, 32, 0.14);
-  --line-strong: rgba(11, 18, 32, 0.24);
+  --light-line-hairline: rgba(11, 18, 32, 0.1);
+  --light-line-default: rgba(11, 18, 32, 0.14);
+  --light-line-strong: rgba(11, 18, 32, 0.24);
 
-  --border-subtle: rgba(11, 18, 32, 0.1);
-  --border-strong: rgba(11, 18, 32, 0.2);
+  --light-border-subtle: rgba(11, 18, 32, 0.1);
+  --light-border-strong: rgba(11, 18, 32, 0.2);
 
   /* Те же роли, но тона, читаемые на белом. */
-  --accent-text: #0f766e;
-  --accent-text-soft: rgba(15, 118, 110, 0.78);
-  --info-text: #1d4ed8;
-  --info-text-soft: rgba(29, 78, 216, 0.78);
-  --danger-text: #b91c1c;
-  --danger-text-soft: rgba(185, 28, 28, 0.8);
-  --warning-text: #b45309;
-  --warning-text-soft: rgba(180, 83, 9, 0.8);
+  --light-accent-text: #0f766e;
+  --light-accent-text-soft: rgba(15, 118, 110, 0.78);
+  --light-info-text: #1d4ed8;
+  --light-info-text-soft: rgba(29, 78, 216, 0.78);
+  --light-danger-text: #b91c1c;
+  --light-danger-text-soft: rgba(185, 28, 28, 0.8);
+  --light-warning-text: #b45309;
+  --light-warning-text-soft: rgba(180, 83, 9, 0.8);
 
-  --scrim: rgba(11, 18, 32, 0.55);
-  --chrome-bg: rgba(255, 255, 255, 0.88);
+  --light-scrim: rgba(11, 18, 32, 0.55);
+  --light-chrome-bg: rgba(255, 255, 255, 0.88);
 
   /* Акценты притемняются: на белом исходные светлые тона не проходят контраст. */
-  --brand-blue-primary: #2563eb;
-  --brand-blue-light: #1d4ed8;
-  --accent-teal: #0d9488;
-  --focus-ring: rgba(37, 99, 235, 0.65);
+  --light-brand-blue-primary: #2563eb;
+  --light-brand-blue-light: #1d4ed8;
+  --light-accent-teal: #0d9488;
+  --light-focus-ring: rgba(37, 99, 235, 0.65);
 
-  --shadow-card: 0 10px 30px rgba(11, 18, 32, 0.08);
-  --shadow-surface: 0 6px 20px rgba(11, 18, 32, 0.06);
-  --shadow-popover: 0 22px 60px rgba(11, 18, 32, 0.16);
-  --shadow-card-hover:
-    0 20px 46px rgba(11, 18, 32, 0.12),
-    0 0 0 1px rgba(37, 99, 235, 0.14);
-  --shadow-surface-hover: 0 14px 34px rgba(11, 18, 32, 0.1);
-  --surface-raised-hover: #ffffff;
-  --surface-card-hover: #ffffff;
+  --light-shadow-card: 0 10px 30px rgba(11, 18, 32, 0.08);
+  --light-shadow-surface: 0 6px 20px rgba(11, 18, 32, 0.06);
+  --light-shadow-popover: 0 22px 60px rgba(11, 18, 32, 0.16);
+  --light-shadow-card-hover:
+    0 20px 46px rgba(11, 18, 32, 0.12), 0 0 0 1px rgba(37, 99, 235, 0.14);
+  --light-shadow-surface-hover: 0 14px 34px rgba(11, 18, 32, 0.1);
+  --light-surface-raised-hover: #ffffff;
+  --light-surface-card-hover: #ffffff;
 
   /*
     На светлом фоне цветные пятна ведут себя иначе: те же 11–12% дают грязный
     оттенок вместо свечения, поэтому здесь они заметно слабее.
   */
-  --page-bg:
-    radial-gradient(circle at 10% -12%, rgba(13, 148, 136, 0.07), transparent 38rem),
-    radial-gradient(circle at 94% 0%, rgba(37, 99, 235, 0.07), transparent 42rem),
+  --light-page-bg:
+    radial-gradient(
+      circle at 10% -12%,
+      rgba(13, 148, 136, 0.07),
+      transparent 38rem
+    ),
+    radial-gradient(
+      circle at 94% 0%,
+      rgba(37, 99, 235, 0.07),
+      transparent 42rem
+    ),
     var(--background);
-  --hero-canvas-bg:
+  --light-hero-canvas-bg:
     linear-gradient(145deg, rgba(255, 255, 255, 0.9), transparent 42%),
     linear-gradient(180deg, #ffffff, #eef2f9);
-  --hero-canvas-border: rgba(11, 18, 32, 0.1);
-  --hero-canvas-shadow:
-    0 30px 70px rgba(11, 18, 32, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --light-hero-canvas-border: rgba(11, 18, 32, 0.1);
+  --light-hero-canvas-shadow:
+    0 30px 70px rgba(11, 18, 32, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
+/*
+  Путь первый: пользователь выбрал светлую тему явно. `data-theme` ставится на
+  сервере из cookie, поэтому вспышки тёмного фона нет.
+*/
+:root[data-theme="light"] {
+  color-scheme: light;
+  --background: var(--light-background);
+  --foreground: var(--light-foreground);
+  --surface-raised: var(--light-surface-raised);
+  --surface-card: var(--light-surface-card);
+  --surface-input: var(--light-surface-input);
+  --surface-sunken: var(--light-surface-sunken);
+  --surface-overlay: var(--light-surface-overlay);
+  --surface-soft: var(--light-surface-soft);
+  --text-primary: var(--light-text-primary);
+  --text-strong: var(--light-text-strong);
+  --text-muted: var(--light-text-muted);
+  --text-subtle: var(--light-text-subtle);
+  --text-faint: var(--light-text-faint);
+  --fill-1: var(--light-fill-1);
+  --fill-2: var(--light-fill-2);
+  --fill-3: var(--light-fill-3);
+  --fill-4: var(--light-fill-4);
+  --line-hairline: var(--light-line-hairline);
+  --line-default: var(--light-line-default);
+  --line-strong: var(--light-line-strong);
+  --border-subtle: var(--light-border-subtle);
+  --border-strong: var(--light-border-strong);
+  --accent-text: var(--light-accent-text);
+  --accent-text-soft: var(--light-accent-text-soft);
+  --info-text: var(--light-info-text);
+  --info-text-soft: var(--light-info-text-soft);
+  --danger-text: var(--light-danger-text);
+  --danger-text-soft: var(--light-danger-text-soft);
+  --warning-text: var(--light-warning-text);
+  --warning-text-soft: var(--light-warning-text-soft);
+  --scrim: var(--light-scrim);
+  --chrome-bg: var(--light-chrome-bg);
+  --brand-blue-primary: var(--light-brand-blue-primary);
+  --brand-blue-light: var(--light-brand-blue-light);
+  --accent-teal: var(--light-accent-teal);
+  --focus-ring: var(--light-focus-ring);
+  --shadow-card: var(--light-shadow-card);
+  --shadow-surface: var(--light-shadow-surface);
+  --shadow-popover: var(--light-shadow-popover);
+  --shadow-card-hover: var(--light-shadow-card-hover);
+  --shadow-surface-hover: var(--light-shadow-surface-hover);
+  --surface-raised-hover: var(--light-surface-raised-hover);
+  --surface-card-hover: var(--light-surface-card-hover);
+  --page-bg: var(--light-page-bg);
+  --hero-canvas-bg: var(--light-hero-canvas-bg);
+  --hero-canvas-border: var(--light-hero-canvas-border);
+  --hero-canvas-shadow: var(--light-hero-canvas-shadow);
+}
+
+/*
+  Путь второй: выбора не было, светлая тема стоит в системе. Раньше здесь
+  выставлялся только `color-scheme`, а цветовые токены оставались тёмными:
+  режим «Как в системе» (он же режим по умолчанию) отдавал такому посетителю
+  тёмный интерфейс и при этом просил браузер рисовать нативные элементы —
+  полосы прокрутки, автозаполнение полей — светлыми.
+*/
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
     color-scheme: light;
+    --background: var(--light-background);
+    --foreground: var(--light-foreground);
+    --surface-raised: var(--light-surface-raised);
+    --surface-card: var(--light-surface-card);
+    --surface-input: var(--light-surface-input);
+    --surface-sunken: var(--light-surface-sunken);
+    --surface-overlay: var(--light-surface-overlay);
+    --surface-soft: var(--light-surface-soft);
+    --text-primary: var(--light-text-primary);
+    --text-strong: var(--light-text-strong);
+    --text-muted: var(--light-text-muted);
+    --text-subtle: var(--light-text-subtle);
+    --text-faint: var(--light-text-faint);
+    --fill-1: var(--light-fill-1);
+    --fill-2: var(--light-fill-2);
+    --fill-3: var(--light-fill-3);
+    --fill-4: var(--light-fill-4);
+    --line-hairline: var(--light-line-hairline);
+    --line-default: var(--light-line-default);
+    --line-strong: var(--light-line-strong);
+    --border-subtle: var(--light-border-subtle);
+    --border-strong: var(--light-border-strong);
+    --accent-text: var(--light-accent-text);
+    --accent-text-soft: var(--light-accent-text-soft);
+    --info-text: var(--light-info-text);
+    --info-text-soft: var(--light-info-text-soft);
+    --danger-text: var(--light-danger-text);
+    --danger-text-soft: var(--light-danger-text-soft);
+    --warning-text: var(--light-warning-text);
+    --warning-text-soft: var(--light-warning-text-soft);
+    --scrim: var(--light-scrim);
+    --chrome-bg: var(--light-chrome-bg);
+    --brand-blue-primary: var(--light-brand-blue-primary);
+    --brand-blue-light: var(--light-brand-blue-light);
+    --accent-teal: var(--light-accent-teal);
+    --focus-ring: var(--light-focus-ring);
+    --shadow-card: var(--light-shadow-card);
+    --shadow-surface: var(--light-shadow-surface);
+    --shadow-popover: var(--light-shadow-popover);
+    --shadow-card-hover: var(--light-shadow-card-hover);
+    --shadow-surface-hover: var(--light-shadow-surface-hover);
+    --surface-raised-hover: var(--light-surface-raised-hover);
+    --surface-card-hover: var(--light-surface-card-hover);
+    --page-bg: var(--light-page-bg);
+    --hero-canvas-bg: var(--light-hero-canvas-bg);
+    --hero-canvas-border: var(--light-hero-canvas-border);
+    --hero-canvas-shadow: var(--light-hero-canvas-shadow);
   }
 }
 
@@ -274,12 +401,12 @@
     видна сама по себе, но заметна, когда элементы стоят рядом: интерфейс
     перестаёт выглядеть собранным одним человеком.
   */
-  --radius-xs: 0.75rem;       /* 12 — чипы, счётчики, мелкие кнопки */
+  --radius-xs: 0.75rem; /* 12 — чипы, счётчики, мелкие кнопки */
   --radius-control: 0.875rem; /* 14 — поля ввода, кнопки */
-  --radius-md: 1.125rem;      /* 18 — вложенные блоки внутри карточек */
-  --radius-card: 1.375rem;    /* 22 — карточки */
-  --radius-lg: 1.75rem;       /* 28 — диалоги, крупные карточки */
-  --radius-panel: 2rem;       /* 32 — панели во весь блок */
+  --radius-md: 1.125rem; /* 18 — вложенные блоки внутри карточек */
+  --radius-card: 1.375rem; /* 22 — карточки */
+  --radius-lg: 1.75rem; /* 28 — диалоги, крупные карточки */
+  --radius-panel: 2rem; /* 32 — панели во весь блок */
 
   /*
     Движение: одна кривая на все входы и выходы, три длительности по смыслу —
@@ -315,7 +442,12 @@ body {
   overflow-x: hidden;
   background: var(--page-bg);
   color: var(--foreground);
-  font-family: var(--font-onest), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    var(--font-onest),
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -401,8 +533,11 @@ a {
 }
 
 .glass-card-hover {
-  transition: border-color var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out),
-    box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
 }
 
 /* Quiet surfaces keep browsing content secondary to the item photography and primary actions. */
@@ -413,8 +548,11 @@ a {
 }
 
 .surface-card-hover {
-  transition: border-color var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out),
-    box-shadow var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
 }
 
 /* The homepage has one expressive surface; browsing surfaces stay intentionally quiet. */
@@ -531,8 +669,12 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
 }
 
 @keyframes dialog-backdrop-enter {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes dialog-panel-enter {
@@ -589,14 +731,22 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
 }
 
 .gradient-text {
-  background: linear-gradient(120deg, var(--brand-blue-light), var(--accent-teal));
+  background: linear-gradient(
+    120deg,
+    var(--brand-blue-light),
+    var(--accent-teal)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-text-accent {
-  background: linear-gradient(120deg, var(--accent-teal), var(--brand-blue-light));
+  background: linear-gradient(
+    120deg,
+    var(--accent-teal),
+    var(--brand-blue-light)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -166,7 +166,7 @@ export default async function ProfilePage({
                   {item.status !== ItemStatus.ACTIVE ? (
                     <Badge
                       variant={item.status === ItemStatus.IN_DEAL ? "teal" : "glass"}
-                      className="absolute bottom-4 left-4 z-20 bg-[var(--surface-sunken)]/86"
+                      className="absolute bottom-4 left-4 z-20"
                     >
                       {item.status === ItemStatus.IN_DEAL
                         ? "В обмене"

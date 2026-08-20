@@ -406,7 +406,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
               <GlassCard className="p-5 sm:p-7">
                 <div className="mb-5 flex flex-wrap gap-2">
                   <Badge variant="gradient">{publicItem.category}</Badge>
-                  <Badge variant="glass">
+                  <Badge variant="neutral">
                     <Package className="h-3 w-3" />
                     {publicItem.type === "SERVICE" ? "Услуга" : "Предмет"}
                   </Badge>

@@ -351,7 +351,7 @@ export default async function AdminPage() {
                         <Link href={`/item/${item.id}`} className="font-medium transition-colors hover:text-accent">
                           {item.title}
                         </Link>
-                        <Badge variant={item.status === "ACTIVE" ? "teal" : item.status === "ARCHIVED" ? "glass" : "purple"}>
+                        <Badge variant={item.status === "ACTIVE" ? "teal" : item.status === "ARCHIVED" ? "neutral" : "purple"}>
                           {itemStatusLabels[item.status]}
                         </Badge>
                       </div>
@@ -384,12 +384,12 @@ export default async function AdminPage() {
                               ? "teal"
                               : user.status === "SUSPENDED"
                                 ? "danger"
-                                : "glass"
+                                : "neutral"
                           }
                         >
                           {userStatusLabels[user.status]}
                         </Badge>
-                        <Badge variant={user.emailVerified ? "teal" : "glass"}>
+                        <Badge variant={user.emailVerified ? "teal" : "neutral"}>
                           {user.emailVerified ? "Email подтверждён" : "Email не подтверждён"}
                         </Badge>
                       </div>

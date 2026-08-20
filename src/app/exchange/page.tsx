@@ -29,7 +29,7 @@ type Props = {
 
 type ExchangeTab = "incoming" | "outgoing" | "matches";
 type ExchangeFilter = "active" | "history";
-type StatusVariant = "glass" | "teal" | "purple" | "danger";
+type StatusVariant = "neutral" | "teal" | "purple" | "danger";
 
 const EXCHANGE_PAGE_SIZE = 30;
 const ACTIVE_STATUSES: SwapStatus[] = [SwapStatus.PENDING, SwapStatus.ACCEPTED];
@@ -131,14 +131,14 @@ function statusPresentation(
     return {
       label: "Срок истёк",
       description: "На предложение не ответили за семь дней. Вещи остаются доступны для новых вариантов.",
-      variant: "glass",
+      variant: "neutral",
     };
   }
 
   return {
     label: "Обмен отменён",
     description: "Сделка закрыта, объявления снова доступны для других предложений.",
-    variant: "glass",
+    variant: "neutral",
   };
 }
 
