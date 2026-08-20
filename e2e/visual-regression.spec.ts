@@ -76,7 +76,8 @@ test.describe("visual regression", () => {
       maxDiffPixels: 600,
     });
     await open(page, `/item/${fixture.otherItemId}`);
-    await page.locator("#exchange-sender-item").selectOption(fixture.ownItemId);
+    await page.getByRole("combobox", { name: "Ваша вещь для обмена" }).click();
+    await page.getByRole("option", { name: "Sony WH-1000XM5", exact: true }).click();
     await expect(page).toHaveScreenshot("desktop-item.png", { animations: "disabled" });
     await open(page, "/profile");
     await expect(page).toHaveScreenshot("desktop-profile.png", { animations: "disabled" });

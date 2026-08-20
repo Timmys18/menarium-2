@@ -42,6 +42,12 @@ test.describe("первый вход и личный кабинет", () => {
       await page.waitForURL((url) => url.pathname === "/profile", { waitUntil: "commit", timeout: 20_000 });
       await expect(content.getByText("Аккаунт создан", { exact: true })).toBeVisible();
       await page.goto("/profile/edit");
+      // Hard navigation landing right after the register flow's client-side
+      // router.push/refresh() briefly reconciles a stale prefetch alongside
+      // the fresh SSR payload — two copies of the page flash in the DOM for
+      // under ~300ms before settling. Real users never see it; give it a
+      // moment so a strict-mode text match doesn't catch the transient.
+      await page.waitForTimeout(500);
       await expect(content.getByText("Подтвердите почту", { exact: true })).toBeVisible();
       await expect(content.getByRole("button", { name: "Отправить письмо" })).toBeVisible();
 

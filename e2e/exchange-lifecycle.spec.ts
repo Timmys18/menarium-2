@@ -128,7 +128,8 @@ test.describe("критический жизненный цикл обмена",
         await pick(main(maria).getByRole("link").filter({ hasText: targetItemTitle })).click();
         const mariaMain = main(maria);
         await expect(mariaMain.getByRole("heading", { name: targetItemTitle }).first()).toBeVisible();
-        await pick(mariaMain.locator("select")).selectOption({ label: createdItemTitle });
+        await pick(mariaMain.getByRole("combobox", { name: "Ваша вещь для обмена" })).click();
+        await mariaMain.getByRole("option", { name: createdItemTitle, exact: true }).click();
         await pick(mariaMain.getByRole("button", { name: "Предложить обмен" })).click();
         await expect(maria).toHaveURL(/\/exchange\?.*tab=outgoing.*swap=[^&]+/);
         swapId = new URL(maria.url()).searchParams.get("swap") ?? "";
