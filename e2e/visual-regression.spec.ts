@@ -156,6 +156,15 @@ test.describe("visual regression", () => {
     await expect(page).toHaveScreenshot("light-item.png", { animations: "disabled" });
     await open(page, "/profile");
     await expect(page).toHaveScreenshot("light-profile.png", { animations: "disabled" });
+
+    // Публичный профиль до сих пор не попадал ни в один визуальный сценарий, а
+    // именно на нём разнобой бейджей был виден лучше всего: рейтинг и
+    // нейтральные плашки стоят там в одном ряду с цветными.
+    await open(page, `/item/${fixture.otherItemId}`);
+    await page.getByRole("link", { name: /Дмитрий/ }).first().click();
+    await expect(page).toHaveURL(/\/user\/[^/?]+/);
+    await settle(page);
+    await expect(page).toHaveScreenshot("light-public-profile.png", { animations: "disabled" });
     await context.close();
   });
 });
