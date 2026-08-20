@@ -62,7 +62,7 @@ export function Navigation({
   return (
     <>
       <nav aria-label="Основная навигация" className="desktop-navigation fixed inset-x-0 top-0 z-50 hidden md:block">
-        <div className="mx-auto max-w-[1480px] px-4 py-3 lg:px-6">
+        <div className="mx-auto max-w-shell px-4 py-3 lg:px-6">
           <div className="app-chrome rounded-card px-3 py-2.5">
             <div className="flex items-center justify-between gap-4">
               <Link

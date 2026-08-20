@@ -101,7 +101,7 @@ export default async function CatalogPage({ searchParams }: Props) {
       {preview ? <PreviewUiNotice /> : null}
       <div className={`page-enter min-h-screen px-4 pb-32 sm:px-6 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <CatalogScrollRestoration href={currentCatalogHref} />
-        <div className="mx-auto max-w-[1600px]">
+        <div className="mx-auto max-w-shell">
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="type-kicker text-accent">Вещи и услуги рядом</p>

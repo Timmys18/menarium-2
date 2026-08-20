@@ -379,7 +379,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
 export default function FavoritesPage(props: FavoritesPageProps) {
   return (
     <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
-      <div className="mx-auto max-w-[1500px]">
+      <div className="mx-auto max-w-shell">
         <FavoritesPageContent {...props} />
       </div>
     </div>

@@ -84,3 +84,40 @@ test.describe("Мобильное открытие каталога", () => {
     );
   });
 });
+
+/*
+  Ширина оболочки проверяется на широком экране намеренно: визуальные эталоны
+  снимаются на 1440, а расхождение начинается только за 1480 — там, где шапка
+  упирается в свой предел, а страница ещё нет. Именно так каталог и избранное
+  вылезали за шапку на 60 и 10 пикселей, и ни один снимок этого не показывал.
+*/
+test.describe("Общая ширина на широком экране", () => {
+  test.use({ viewport: { width: 1728, height: 950 } });
+  test.beforeEach(() => resetSeedData());
+
+  test("контент не выходит за пределы шапки", async ({ page }) => {
+    await login(page);
+
+    for (const route of ["/catalog", "/favorites", "/exchange", "/profile"]) {
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+      await page.locator("#main-content").first().waitFor({ state: "visible" });
+
+      const box = await page.evaluate(() => {
+        const header = document.querySelector("nav[aria-label='Основная навигация'] .mx-auto");
+        const container = document.querySelector("#main-content .mx-auto");
+        if (!header || !container) return null;
+        const h = header.getBoundingClientRect();
+        const c = container.getBoundingClientRect();
+        return { headerLeft: h.left, headerRight: h.right, left: c.left, right: c.right };
+      });
+
+      expect(box, `${route}: не нашлись контейнеры шапки и страницы`).not.toBeNull();
+      expect(Math.round(box!.left), `${route}: левый край контента левее шапки`).toBeGreaterThanOrEqual(
+        Math.round(box!.headerLeft),
+      );
+      expect(Math.round(box!.right), `${route}: правый край контента правее шапки`).toBeLessThanOrEqual(
+        Math.round(box!.headerRight),
+      );
+    }
+  });
+});
