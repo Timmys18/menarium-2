@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+/*
+  ВАРИАНТ 3 — «Полная переработка».
+  Меняется сама материя интерфейса:
+    · палитра уходит из сине-бирюзового «дежурного тёмного» в тёплый уголь
+      с одним живым акцентом; фон перестаёт светиться двумя пятнами
+    · глубина строится светом и тенью, а не рамками: у карточек нет границ
+    · композиция редакционная и асимметричная, а не «шапка + сетка»
+    · у свайпа появляется физика: колода, наклон, тень под верхней картой
+*/
+:root {
+  --background: #0c0b0a;
+  --surface-card: #141311;
+  --paper: #171613;
+  --text-primary: #f5f1ea;
+  --text-strong: rgba(245,241,234,.9);
+  --text-muted: rgba(245,241,234,.7);
+  --text-subtle: rgba(245,241,234,.46);
+  --line-hairline: rgba(245,241,234,.09);
+  --line-default: rgba(245,241,234,.14);
+  --accent: #e86a3d;          /* терракота — тёплая, редкая, своя */
+  --accent-soft: #f0a882;
+  --page-bg: var(--background);
+}
+body { background: var(--background); }
+
+.nav-inner { background: rgba(20,19,17,.82); border-color: var(--line-hairline); border-radius: 0; border-left: 0; border-right: 0; border-top: 0; padding: 14px 0; }
+.nav { padding: 0; border-bottom: 1px solid var(--line-hairline); background: rgba(12,11,10,.8); backdrop-filter: blur(20px); }
+.brand-mark { background: var(--accent); color: #1a0b04; }
+.nav-links a.on { background: none; color: var(--text-primary); box-shadow: inset 0 -2px 0 var(--accent); border-radius: 0; }
+.icon-btn { border-color: var(--line-hairline); background: none; }
+
+.cta {
+  border: 0; border-radius: 999px; background: var(--accent); color: #1a0b04;
+  font: inherit; font-weight: 650; font-size: 15px; padding: 16px 28px;
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+  box-shadow: 0 10px 30px rgba(232,106,61,.28);
+}
+.btn-quiet { border: 0; border-radius: 999px; background: rgba(245,241,234,.07); color: var(--text-primary);
+  font: inherit; font-size: 15px; padding: 16px 28px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+  background: rgba(12,11,10,.62); backdrop-filter: blur(16px); padding: 7px 14px;
+  font-size: 12px; font-weight: 500; color: var(--text-strong); border: 0; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-soft); }
+
+.display { font-size: 82px; line-height: .96; letter-spacing: -.055em; font-weight: 800; margin: 0; }
+.display .light { font-weight: 200; color: var(--text-subtle); }
+.lede { font-size: 19px; line-height: 1.55; color: var(--text-muted); font-weight: 300; margin: 22px 0 0; max-width: 42ch; }
+
+/* товар — фотография во всю ширину полосы, текст поверх и под ней */
+.hero { position: relative; margin-top: 0; }
+.hero img { width: 100%; height: 620px; object-fit: cover; }
+.hero::after { content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(12,11,10,.15) 0%, rgba(12,11,10,.05) 45%, var(--background) 100%); }
+.hero-cap { position: absolute; left: 0; right: 0; bottom: 34px; z-index: 2; }
+.item-body { display: grid; grid-template-columns: minmax(0,1fr) 400px; gap: 72px; padding: 44px 0 100px; align-items: start; }
+.meta { display: flex; gap: 24px; color: var(--text-subtle); font-size: 14px; margin-top: 18px; font-weight: 300; }
+.wants p { margin: 10px 0 0; font-size: 26px; font-weight: 200; letter-spacing: -.025em; color: var(--text-strong); }
+.label { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--text-subtle); }
+.select { margin-top: 14px; width: 100%; border: 0; border-bottom: 1px solid var(--line-default); background: none;
+  padding: 14px 2px; font: inherit; font-size: 21px; font-weight: 300; color: var(--text-primary);
+  display: flex; justify-content: space-between; align-items: center; }
+.getting { margin-top: 16px; font-size: 15px; color: var(--text-subtle); font-weight: 300; }
+.getting b { color: var(--text-primary); font-weight: 600; }
+.actions { margin-top: 28px; display: grid; gap: 12px; }
+.actions .cta, .actions .btn-quiet { justify-content: center; }
+.note { margin-top: 36px; color: var(--text-subtle); font-size: 13px; line-height: 1.65; font-weight: 300; max-width: 40ch; }
+
+/* свайп с колодой — то, чего сейчас нет вовсе */
+.swipe { padding: 70px 0 110px; display: grid; grid-template-columns: 420px minmax(0,1fr); gap: 90px; align-items: center; }
+.deck { position: relative; height: 620px; }
+.deck > div { position: absolute; inset: 0; border-radius: 30px; overflow: hidden; background: var(--surface-card); }
+.deck .c3 { transform: translateY(26px) scale(.9) rotate(-3deg); opacity: .3; }
+.deck .c2 { transform: translateY(13px) scale(.95) rotate(2deg); opacity: .55; }
+.deck .c1 { transform: rotate(-1.5deg); box-shadow: 0 50px 100px rgba(0,0,0,.62); }
+.deck img { width: 100%; height: 100%; object-fit: cover; }
+.deck .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 24px;
+  background: linear-gradient(180deg, transparent, rgba(12,11,10,.94) 62%); }
+.deck .cap h3 { margin: 0; font-size: 27px; font-weight: 700; letter-spacing: -.03em; }
+.deck .cap p { margin: 6px 0 0; font-size: 14px; color: var(--text-muted); font-weight: 300; }
+.swipe-actions { display: flex; gap: 14px; margin-top: 40px; }
+.round { width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; font-size: 21px;
+  background: rgba(245,241,234,.07); color: var(--text-muted); border: 0; }
+.round.yes { background: var(--accent); color: #1a0b04; box-shadow: 0 12px 34px rgba(232,106,61,.34); }
+</style></head>
+<body>
+
+<div class="nav"><div class="shell"><div class="nav-inner">
+  <div class="brand"><span class="brand-mark">⇄</span>Менариум</div>
+  <div class="nav-links"><a class="on">Каталог</a><a>Свайп</a><a>Обмены</a><a>Сообщения</a></div>
+  <div class="nav-right"><button class="cta">+ Добавить</button><span class="icon-btn">◍</span><span class="icon-btn">☺</span></div>
+</div></div></div>
+
+<section id="item">
+  <div class="hero"><img src="../../assets/demo/items/canon.png" alt="">
+    <div class="hero-cap"><div class="shell">
+      <div class="eyebrow">Фото и видео · Предмет</div>
+      <h1 class="display" style="font-size:66px;margin-top:14px">Canon <span class="light">AE-1</span></h1>
+    </div></div>
+  </div>
+  <div class="shell"><div class="item-body">
+    <div>
+      <div class="meta"><span>Санкт-Петербург</span><span>Дмитрий П.</span></div>
+      <div class="wants" style="margin-top:38px">
+        <div class="eyebrow">В обмен рассматривает</div>
+        <p>Винтажные часы, Объектив</p>
+      </div>
+      <p class="lede">Плёночная камера Canon AE-1. Подойдёт тем, кто хочет начать с аналоговой фотографии.</p>
+    </div>
+    <div>
+      <div class="label">Вы отдаёте</div>
+      <div class="select">Консультация по интерьеру <span style="color:var(--text-subtle);font-size:15px">⌄</span></div>
+      <div class="getting">Получаете: <b>Canon AE-1</b></div>
+      <div class="actions"><button class="cta">Предложить обмен</button><button class="btn-quiet">Написать</button></div>
+      <div class="note">Статус обмена виден обеим сторонам. Не передавайте коды и данные банковских карт в сообщениях.</div>
+    </div>
+  </div></div>
+</section>
+
+<section id="swipe" class="shell"><div class="swipe">
+  <div class="deck">
+    <div class="c3"><img src="../../assets/demo/items/canon.png" alt=""></div>
+    <div class="c2"><img src="../../assets/demo/items/interior.png" alt=""></div>
+    <div class="c1"><img src="../../assets/demo/items/vinyl.png" alt="">
+      <div class="cap"><h3>Коллекция винила</h3><p>Ищу: проигрыватель, аудиотехника · Санкт-Петербург</p></div>
+    </div>
+  </div>
+  <div>
+    <div class="eyebrow">Свайп обмена</div>
+    <h1 class="display" style="margin-top:16px">Тяните<br><span class="light">и меняйтесь</span></h1>
+    <p class="lede">Влево — мимо. Вправо — предложить обмен.</p>
+    <div class="swipe-actions"><button class="round">✕</button><button class="round">ⓘ</button><button class="round yes">♥</button></div>
+  </div>
+</div></section>
+
+</body></html>

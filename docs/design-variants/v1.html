@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+/*
+  ВАРИАНТ 1 — «Сдержанно: убрать лишнее».
+  Палитра, шрифт, размеры и скругления не меняются. Меняется только то,
+  сколько всего одновременно требует внимания.
+    · градиент — один раз на экран, на главном действии
+    · рамок внутри карточек нет: разделяет воздух и вес текста
+    · капс-подписи остаются одной роли, остальные становятся обычным текстом
+*/
+.cta {
+  border: 0; border-radius: var(--radius-control);
+  background: linear-gradient(90deg, #3b82f6, #2dd4bf);
+  color: #061018; font: inherit; font-weight: 650; font-size: 15px;
+  padding: 14px 22px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.btn-quiet {
+  border: 1px solid var(--line-default); border-radius: var(--radius-control);
+  background: var(--fill-1); color: var(--text-primary);
+  font: inherit; font-size: 15px; padding: 14px 22px;
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line-default); border-radius: 999px;
+  background: rgba(9, 13, 20, 0.78); backdrop-filter: blur(14px);
+  padding: 6px 12px; font-size: 12px; font-weight: 500; color: var(--text-strong);
+}
+.eyebrow { font-size: 12px; font-weight: 650; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+
+/* товар */
+.item { display: grid; grid-template-columns: minmax(0,1fr) 460px; gap: 48px; padding: 40px 0 64px; align-items: start; }
+.item-photo { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); }
+.item-photo img { width: 100%; height: 640px; object-fit: cover; }
+.item h1 { font-size: 44px; line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; margin: 14px 0 0; }
+.meta { display: flex; gap: 20px; color: var(--text-subtle); font-size: 14px; margin-top: 12px; }
+.meta span { display: inline-flex; align-items: center; gap: 7px; }
+/* Ключ варианта: блок «Вы отдаёте» больше не карточка в карточке. */
+.give { margin-top: 34px; padding-top: 26px; border-top: 1px solid var(--line-hairline); }
+.label { font-size: 13px; color: var(--text-subtle); }
+.select {
+  margin-top: 10px; width: 100%; border: 1px solid var(--line-default);
+  background: var(--surface-input); border-radius: var(--radius-control);
+  padding: 15px 16px; font: inherit; font-size: 15px; color: var(--text-primary);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.getting { margin-top: 12px; font-size: 14px; color: var(--text-subtle); }
+.getting b { color: var(--text-primary); font-weight: 600; }
+.actions { margin-top: 18px; display: grid; gap: 10px; }
+.actions .cta, .actions .btn-quiet { justify-content: center; }
+.note { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line-hairline); color: var(--text-subtle); font-size: 13px; line-height: 1.6; display: flex; gap: 10px; }
+.wants { margin-top: 26px; }
+.wants p { margin: 6px 0 0; font-size: 16px; color: var(--text-strong); }
+
+/* каталог */
+.cat-head { padding: 36px 0 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.cat-head h1 { font-size: 44px; line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; margin: 10px 0 0; }
+.search { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line-hairline); background: var(--fill-1); border-radius: var(--radius-md); padding: 8px 8px 8px 20px; }
+.search input { flex: 1; background: none; border: 0; color: var(--text-primary); font: inherit; font-size: 16px; outline: none; }
+.search input::placeholder { color: var(--text-subtle); }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; padding: 28px 0 60px; }
+.card { border: 1px solid var(--line-hairline); background: var(--surface-card); border-radius: var(--radius-card); overflow: hidden; box-shadow: var(--shadow-surface); }
+.card-photo { position: relative; }
+.card-photo img { width: 100%; height: 260px; object-fit: cover; }
+.card-tags { position: absolute; left: 16px; top: 16px; display: flex; gap: 8px; }
+.card-body { padding: 20px; }
+.card-body h3 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -0.02em; }
+/* Ключ варианта: «Ищу взамен» — строка, а не рамка. */
+.card-wants { margin-top: 12px; font-size: 14px; color: var(--text-muted); }
+.card-wants b { display: block; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 650; margin-bottom: 4px; }
+.card-foot { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line-hairline); display: flex; justify-content: space-between; font-size: 13px; color: var(--text-subtle); }
+.card-foot a { color: var(--accent); text-decoration: none; }
+</style></head>
+<body>
+
+<div class="nav"><div class="shell"><div class="nav-inner">
+  <div class="brand"><span class="brand-mark">⇄</span>Менариум</div>
+  <div class="nav-links"><a class="on">Каталог</a><a>Свайп</a><a>Обмены</a><a>Сообщения</a></div>
+  <div class="nav-right"><button class="cta">+ Добавить</button><span class="icon-btn">◍</span><span class="icon-btn">☺</span></div>
+</div></div></div>
+
+<section id="item" class="shell"><div class="item">
+  <div class="item-photo"><img src="../../assets/demo/items/canon.png" alt=""></div>
+  <div>
+    <div style="display:flex;gap:8px"><span class="pill">Фото и видео</span><span class="pill">Предмет</span></div>
+    <h1>Canon AE-1</h1>
+    <div class="meta"><span>◎ Санкт-Петербург</span><span>☺ Дмитрий П.</span></div>
+
+    <div class="wants">
+      <div class="eyebrow">В обмен рассматривает</div>
+      <p>Винтажные часы, Объектив</p>
+    </div>
+
+    <div class="give">
+      <div class="label">Вы отдаёте</div>
+      <div class="select">Консультация по интерьеру <span style="color:var(--text-subtle)">⌄</span></div>
+      <div class="getting">Получаете: <b>Canon AE-1</b></div>
+      <div class="actions">
+        <button class="cta">⇄ Предложить обмен</button>
+        <button class="btn-quiet">Написать</button>
+      </div>
+    </div>
+
+    <div class="note"><span>⛨</span><span>Статус обмена виден обеим сторонам. Не передавайте коды и данные банковских карт в сообщениях.</span></div>
+  </div>
+</div></section>
+
+<section id="catalog" class="shell">
+  <div class="cat-head">
+    <div><div class="eyebrow">Вещи и услуги рядом</div><h1>Найдите встречный вариант</h1></div>
+    <div style="color:var(--text-subtle);font-size:14px;padding-bottom:8px">4 предложения</div>
+  </div>
+  <div class="search"><span style="color:var(--text-subtle)">⌕</span><input placeholder="Что вы ищете?"><button class="btn-quiet">Найти</button></div>
+  <div class="grid">
+    <div class="card"><div class="card-photo"><img src="../../assets/demo/items/vinyl.png" alt=""><div class="card-tags"><span class="pill">Винил и носители</span><span class="pill">Предмет</span></div></div>
+      <div class="card-body"><h3>Коллекция винила</h3>
+        <div class="card-wants"><b>Ищу взамен</b>Проигрыватель, Аудиотехника</div>
+        <div class="card-foot"><span>◎ Санкт-Петербург</span><a>Посмотреть →</a></div></div></div>
+    <div class="card"><div class="card-photo"><img src="../../assets/demo/items/interior.png" alt=""><div class="card-tags"><span class="pill">Иллюстрация</span><span class="pill">Услуга</span></div></div>
+      <div class="card-body"><h3>Консультация по интерьеру</h3>
+        <div class="card-wants"><b>Ищу взамен</b>Фотосъёмка, Книги по дизайну</div>
+        <div class="card-foot"><span>◎ Москва</span><a>Посмотреть →</a></div></div></div>
+    <div class="card"><div class="card-photo"><img src="../../assets/demo/items/canon.png" alt=""><div class="card-tags"><span class="pill">Фото и видео</span><span class="pill">Предмет</span></div></div>
+      <div class="card-body"><h3>Canon AE-1</h3>
+        <div class="card-wants"><b>Ищу взамен</b>Винтажные часы, Объектив</div>
+        <div class="card-foot"><span>◎ Санкт-Петербург</span><a>Посмотреть →</a></div></div></div>
+  </div>
+</section>
+
+</body></html>

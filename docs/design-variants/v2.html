@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+/*
+  ВАРИАНТ 2 — «Дать характер».
+  Всё из варианта 1, плюс собственный голос:
+    · типографика с настоящим диапазоном: 76 / 30 / 19 / 15 / 12 и контраст
+      весов 300↔800 внутри одного Onest (Space Grotesk кириллицу не умеет)
+    · главное действие — сплошной уверенный цвет, без градиента
+    · контент крупнее и главнее: фотография во всю высоту колонки
+    · воздуха больше, линий меньше
+*/
+.cta {
+  border: 0; border-radius: var(--radius-control);
+  background: var(--accent-teal); color: #04120e;
+  font: inherit; font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+  padding: 16px 26px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.btn-quiet {
+  border: 1px solid var(--line-default); border-radius: var(--radius-control);
+  background: transparent; color: var(--text-primary);
+  font: inherit; font-size: 15px; padding: 16px 26px;
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line-default); border-radius: 999px;
+  background: rgba(9,13,20,0.72); backdrop-filter: blur(14px);
+  padding: 7px 14px; font-size: 12px; font-weight: 500; color: var(--text-strong);
+}
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-subtle); }
+
+/* Шкала с диапазоном — вот где появляется голос. */
+.display { font-size: 76px; line-height: 0.98; letter-spacing: -0.055em; font-weight: 800; margin: 0; }
+.display .light { font-weight: 300; color: var(--text-subtle); }
+.h2 { font-size: 30px; line-height: 1.15; letter-spacing: -0.035em; font-weight: 700; margin: 0; }
+.lede { font-size: 19px; line-height: 1.5; color: var(--text-muted); font-weight: 300; margin: 18px 0 0; max-width: 46ch; }
+
+.item { display: grid; grid-template-columns: minmax(0,1.15fr) 440px; gap: 64px; padding: 56px 0 90px; align-items: start; }
+.item-photo { border-radius: 26px; overflow: hidden; box-shadow: 0 40px 90px rgba(0,0,0,.5); }
+.item-photo img { width: 100%; height: 780px; object-fit: cover; }
+.meta { display: flex; gap: 22px; color: var(--text-subtle); font-size: 14px; margin-top: 20px; font-weight: 300; }
+.wants { margin-top: 40px; }
+.wants p { margin: 10px 0 0; font-size: 22px; font-weight: 300; letter-spacing: -0.02em; color: var(--text-strong); }
+.give { margin-top: 44px; }
+.label { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-subtle); }
+.select {
+  margin-top: 14px; width: 100%; border: 0; border-bottom: 1px solid var(--line-default);
+  background: none; border-radius: 0; padding: 14px 2px; font: inherit;
+  font-size: 20px; font-weight: 300; color: var(--text-primary);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.getting { margin-top: 16px; font-size: 15px; color: var(--text-subtle); font-weight: 300; }
+.getting b { color: var(--text-primary); font-weight: 600; }
+.actions { margin-top: 26px; display: grid; gap: 12px; }
+.actions .cta, .actions .btn-quiet { justify-content: center; }
+.note { margin-top: 40px; color: var(--text-subtle); font-size: 13px; line-height: 1.65; font-weight: 300; display: flex; gap: 12px; max-width: 42ch; }
+
+.cat-head { padding: 60px 0 30px; }
+.search { display: flex; gap: 14px; align-items: center; border-bottom: 1px solid var(--line-default); padding: 14px 2px; max-width: 720px; }
+.search input { flex: 1; background: none; border: 0; color: var(--text-primary); font: inherit; font-size: 20px; font-weight: 300; outline: none; }
+.search input::placeholder { color: rgba(255,255,255,.34); }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; padding: 44px 0 90px; }
+.card { border-radius: 24px; overflow: hidden; background: none; }
+.card-photo { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 54px rgba(0,0,0,.42); }
+.card-photo img { width: 100%; height: 340px; object-fit: cover; }
+.card-tags { position: absolute; left: 16px; top: 16px; display: flex; gap: 8px; }
+.card-body { padding: 22px 4px 0; }
+.card-body h3 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
+.card-wants { margin-top: 12px; font-size: 15px; color: var(--text-muted); font-weight: 300; }
+.card-wants b { display: block; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-subtle); font-weight: 700; margin-bottom: 5px; }
+.card-foot { margin-top: 16px; display: flex; justify-content: space-between; font-size: 13px; color: var(--text-subtle); font-weight: 300; }
+.card-foot a { color: var(--accent); text-decoration: none; }
+</style></head>
+<body>
+
+<div class="nav"><div class="shell"><div class="nav-inner">
+  <div class="brand"><span class="brand-mark">⇄</span>Менариум</div>
+  <div class="nav-links"><a class="on">Каталог</a><a>Свайп</a><a>Обмены</a><a>Сообщения</a></div>
+  <div class="nav-right"><button class="cta">+ Добавить</button><span class="icon-btn">◍</span><span class="icon-btn">☺</span></div>
+</div></div></div>
+
+<section id="item" class="shell"><div class="item">
+  <div class="item-photo"><img src="../../assets/demo/items/canon.png" alt=""></div>
+  <div>
+    <div style="display:flex;gap:8px"><span class="pill">Фото и видео</span><span class="pill">Предмет</span></div>
+    <h1 class="display" style="font-size:56px;margin-top:22px">Canon<br><span class="light">AE-1</span></h1>
+    <div class="meta"><span>◎ Санкт-Петербург</span><span>☺ Дмитрий П.</span></div>
+
+    <div class="wants">
+      <div class="eyebrow">В обмен рассматривает</div>
+      <p>Винтажные часы, Объектив</p>
+    </div>
+
+    <div class="give">
+      <div class="label">Вы отдаёте</div>
+      <div class="select">Консультация по интерьеру <span style="color:var(--text-subtle);font-size:15px">⌄</span></div>
+      <div class="getting">Получаете: <b>Canon AE-1</b></div>
+      <div class="actions">
+        <button class="cta">⇄ Предложить обмен</button>
+        <button class="btn-quiet">Написать</button>
+      </div>
+    </div>
+
+    <div class="note"><span>⛨</span><span>Статус обмена виден обеим сторонам. Не передавайте коды и данные банковских карт в сообщениях.</span></div>
+  </div>
+</div></section>
+
+<section id="catalog" class="shell">
+  <div class="cat-head">
+    <div class="eyebrow">Вещи и услуги рядом</div>
+    <h1 class="display" style="margin-top:16px">Найдите<br><span class="light">встречный вариант</span></h1>
+    <p class="lede">Четыре предложения рядом с вами. Меняйте вещь на вещь, услугу на услугу или одно на другое.</p>
+  </div>
+  <div class="search"><span style="color:var(--text-subtle)">⌕</span><input placeholder="Что вы ищете?"></div>
+  <div class="grid">
+    <div class="card"><div class="card-photo"><img src="../../assets/demo/items/vinyl.png" alt=""><div class="card-tags"><span class="pill">Винил и носители</span></div></div>
+      <div class="card-body"><h3>Коллекция винила</h3>
+        <div class="card-wants"><b>Ищу взамен</b>Проигрыватель, Аудиотехника</div>
+        <div class="card-foot"><span>Санкт-Петербург</span><a>Посмотреть →</a></div></div></div>
+    <div class="card"><div class="card-photo"><img src="../../assets/demo/items/interior.png" alt=""><div class="card-tags"><span class="pill">Иллюстрация</span></div></div>
+      <div class="card-body"><h3>Консультация по интерьеру</h3>
+        <div class="card-wants"><b>Ищу взамен</b>Фотосъёмка, Книги по дизайну</div>
+        <div class="card-foot"><span>Москва</span><a>Посмотреть →</a></div></div></div>
+    <div class="card"><div class="card-photo"><img src="../../assets/demo/items/canon.png" alt=""><div class="card-tags"><span class="pill">Фото и видео</span></div></div>
+      <div class="card-body"><h3>Canon AE-1</h3>
+        <div class="card-wants"><b>Ищу взамен</b>Винтажные часы, Объектив</div>
+        <div class="card-foot"><span>Санкт-Петербург</span><a>Посмотреть →</a></div></div></div>
+  </div>
+</section>
+
+</body></html>
