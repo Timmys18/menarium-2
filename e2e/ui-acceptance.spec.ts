@@ -244,7 +244,7 @@ test.describe("final UI acceptance matrix", () => {
         });
         const [uploadResponse] = await Promise.all([
           page.waitForResponse((response) => response.url().endsWith("/api/media") && response.request().method() === "POST"),
-          imageInput.setInputFiles(path.join(process.cwd(), "public", "demo", "items", "canon.png")),
+          imageInput.setInputFiles(path.join(process.cwd(), "assets", "demo", "items", "canon.png")),
         ]);
         expect(uploadResponse.ok(), await uploadResponse.text()).toBeTruthy();
         const removeImageButton = page.getByRole("button", { name: "Удалить фото 1" });

@@ -194,7 +194,7 @@ test.describe("chat history and media hardening", () => {
         data: { configured: true },
       });
 
-      const photo = readFileSync(path.join(process.cwd(), "public", "demo", "items", "canon.png"));
+      const photo = readFileSync(path.join(process.cwd(), "assets", "demo", "items", "canon.png"));
       const mariaPage = await mariaContext.newPage();
       await mariaPage.goto(`/exchange?tab=matches&swap=${swap.id}`, { waitUntil: "domcontentloaded" });
       await mariaPage.getByRole("log", { name: "Сообщения чата" }).waitFor();
@@ -420,7 +420,7 @@ test.describe("chat history and media hardening", () => {
     try {
       await login(mariaContext);
       await login(dmitryContext, DMITRY);
-      const image = readFileSync(path.join(process.cwd(), "public", "demo", "items", "sony.png"));
+      const image = readFileSync(path.join(process.cwd(), "assets", "demo", "items", "sony.png"));
       const upload = await mariaContext.request.post("/api/media", {
         multipart: {
           ownerType: "CHAT",
@@ -479,8 +479,8 @@ test.describe("chat history and media hardening", () => {
     const uploadedIds: string[] = [];
     try {
       await login(context);
-      const sony = readFileSync(path.join(process.cwd(), "public", "demo", "items", "sony.png"));
-      const canon = readFileSync(path.join(process.cwd(), "public", "demo", "items", "canon.png"));
+      const sony = readFileSync(path.join(process.cwd(), "assets", "demo", "items", "sony.png"));
+      const canon = readFileSync(path.join(process.cwd(), "assets", "demo", "items", "canon.png"));
       const upload = (name: string, buffer: Buffer, mimeType = "image/png") =>
         context.request.post("/api/media", {
           multipart: {

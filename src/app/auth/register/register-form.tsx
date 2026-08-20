@@ -220,11 +220,11 @@ export function RegisterForm() {
         />
         <span>
           Я согласен на обработку персональных данных и принимаю{" "}
-          <Link href="/terms" className="text-accent hover:underline">
+          <Link href="/terms" className="text-accent underline underline-offset-2 hover:text-accent-soft">
             пользовательское соглашение
           </Link>{" "}
           и{" "}
-          <Link href="/privacy" className="text-accent hover:underline">
+          <Link href="/privacy" className="text-accent underline underline-offset-2 hover:text-accent-soft">
             политику конфиденциальности
           </Link>.
         </span>

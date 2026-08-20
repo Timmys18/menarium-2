@@ -68,7 +68,7 @@ test.describe("visual regression", () => {
     await expect(page).toHaveScreenshot("desktop-home.png", { animations: "disabled" });
     await open(page, "/catalog");
     await page.getByRole("button", { name: /Выберите город/ }).click();
-    await expect(page.getByRole("textbox", { name: "Найти город в списке" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Найти город в списке" })).toBeVisible();
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("desktop-catalog-filter.png", {
       animations: "disabled",

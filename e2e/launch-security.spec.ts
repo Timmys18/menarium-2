@@ -117,10 +117,21 @@ test.describe("launch security boundaries", () => {
       const taken = await request.post("/api/auth/register", { data: { email: takenEmail, password } });
       const free = await request.post("/api/auth/register", { data: { email: freeEmail, password } });
 
-      // Один код и одно тело: по ответу нельзя отличить занятый адрес от
-      // свободного. Прежняя версия отвечала на занятый 409 с прямым текстом.
+      // Один код и одна форма тела: по ответу нельзя отличить занятый адрес
+      // от свободного. Прежняя версия отвечала на занятый 409 с прямым
+      // текстом. Само поле `email` в теле — это эхо отправленного адреса,
+      // оно намеренно разное для двух разных вводов и само по себе ничего
+      // не выдаёт: сравниваем тело без него, а его — отдельно, с тем, что
+      // отправили.
+      const takenBody = await taken.json();
+      const freeBody = await free.json();
       expect(taken.status()).toBe(free.status());
-      expect(await taken.json()).toEqual(await free.json());
+      expect(takenBody.data.email).toBe(takenEmail);
+      expect(freeBody.data.email).toBe(freeEmail);
+      expect({ ...takenBody, data: { ...takenBody.data, email: undefined } }).toEqual({
+        ...freeBody,
+        data: { ...freeBody.data, email: undefined },
+      });
 
       // При этом занятый адрес не превратился во второй аккаунт.
       expect(await prisma.user.count({ where: { email: takenEmail } })).toBe(1);

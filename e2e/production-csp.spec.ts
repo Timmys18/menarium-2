@@ -23,8 +23,13 @@ test("production CSP permits the application and blocks unsafe scripts", async (
   const nonceMatch = csp.match(/script-src[^;]*'nonce-([^']+)'/);
   expect(nonceMatch, "script-src must contain a nonce").not.toBeNull();
   const expectedNonce = nonceMatch?.[1];
+  // application/ld+json блоки — инертные данные для поисковиков, а не код:
+  // браузер их не выполняет, и CSP script-src на них не распространяется,
+  // поэтому у них закономерно нет nonce. Проверяем только исполняемые скрипты.
   const scriptNonces = await page.locator("script").evaluateAll((scripts) =>
-    scripts.map((script) => script.nonce),
+    (scripts as HTMLScriptElement[])
+      .filter((script) => !script.type || /javascript|module/i.test(script.type))
+      .map((script) => script.nonce),
   );
   expect(scriptNonces.length).toBeGreaterThan(0);
   expect(scriptNonces.every((nonce) => nonce === expectedNonce)).toBe(true);
