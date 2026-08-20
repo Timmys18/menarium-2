@@ -423,8 +423,8 @@
     берёт продуктовую длительность и кривую вместо 150ms/ease из Tailwind —
     тогда большинству мест тайминг указывать не нужно и разнобой не возникает.
   */
-  --default-transition-duration: 220ms;
-  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-duration: var(--duration-base);
+  --default-transition-timing-function: var(--ease-out);
 }
 
 * {
@@ -514,6 +514,15 @@ a {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    /*
+      Задержку тоже обнуляем, а не только длительность. Появление карточек
+      идёт лестницей (40/80/120 мс), а мобильная панель действий ждёт 80 мс, и
+      все они объявлены с `both` — то есть до своей очереди держат нулевую
+      прозрачность. Без этой строки человек, попросивший меньше движения, всё
+      равно получал ступенчатое проявление, а главная кнопка на телефоне была
+      невидима первые 80 мс.
+    */
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
@@ -646,6 +655,13 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   }
 }
 
+/*
+  Конечное состояние — ключевое слово `none`, а не `translateY(0) scale(1)`.
+  Рисуются они одинаково, но вычисленный transform (даже единичный) делает
+  элемент containing block для потомков с `position: fixed`, а `both` держит
+  это состояние и после анимации. Именно так однажды уехали мобильные панели
+  действий: они позиционировались от края страницы, а не экрана.
+*/
 @keyframes surface-enter {
   from {
     opacity: 0;
@@ -653,7 +669,7 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: none;
   }
 }
 
@@ -664,7 +680,7 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: none;
   }
 }
 
