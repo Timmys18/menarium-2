@@ -422,13 +422,13 @@ export function ChatConversation({
         form.set("ownerType", "CHAT");
         form.set("file", file);
         const response = await fetch("/api/media", { method: "POST", body: form });
-        if (!response.ok) throw new Error(await readApiError(response, "Не удалось загрузить фотографию"));
+        if (!response.ok) throw new Error(await readApiError(response, "Не удалось загрузить фото"));
         const body = (await response.json()) as { data?: ChatAttachmentView };
         if (!body.data) throw new Error("Сервер не вернул загруженную фотографию");
         setAttachments((current) => [...current, body.data!]);
       }
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить фотографию");
+      setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить фото");
     } finally {
       setIsUploading(false);
     }
@@ -671,7 +671,7 @@ export function ChatConversation({
                             key={attachment.id}
                             onClick={() => setPreviewImage(attachment)}
                             className="relative min-h-28 overflow-hidden rounded-xs bg-black/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:min-h-36"
-                            aria-label="Открыть фотографию"
+                            aria-label="Открыть фото"
                           >
                             <Image
                               src={attachment.url}
@@ -767,7 +767,7 @@ export function ChatConversation({
                 <button
                   type="button"
                   onClick={() => void removeAttachment(attachment)}
-                  aria-label="Убрать фотографию"
+                  aria-label="Убрать фото"
                   className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/80 text-on-media focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   <X className="h-3 w-3" />
@@ -798,7 +798,7 @@ export function ChatConversation({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={!canWrite || isSending || isUploading || attachments.length >= 4}
-            aria-label="Добавить фотографию"
+            aria-label="Добавить фото"
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xs text-text-muted transition hover:bg-fill-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-35"
           >
             <ImagePlus className="h-4.5 w-4.5" />

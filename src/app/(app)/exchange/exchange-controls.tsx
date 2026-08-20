@@ -397,7 +397,7 @@ export function ExchangeDealPanel({
           initialNextCursor={nextCursor}
           realtimeTypes={["deal-message", "swap"]}
           canWrite={snapshot.status === "ACCEPTED" && !communicationBlocked}
-          placeholder="Сообщение..."
+          placeholder="Сообщение…"
           disabledPlaceholder={disabledPlaceholder}
           emptyMessage="Сообщений пока нет."
           draftKey={`deal:${swapId}`}

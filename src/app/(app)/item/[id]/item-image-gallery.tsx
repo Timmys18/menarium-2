@@ -65,7 +65,7 @@ export function ItemImageGallery({
         ) : null}
         </div>
       {images.length > 1 ? (
-        <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-line-hairline p-3 sm:p-4" aria-label="Все фотографии">
+        <div className="no-scrollbar flex gap-2 overflow-x-auto border-t border-line-hairline p-3 sm:p-4" aria-label="Все фото">
           {images.map((image, index) => (
             <button
               key={image.id}

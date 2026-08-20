@@ -183,7 +183,7 @@ export function RegisterForm() {
               id="register-name"
               name="name"
               autoComplete="name"
-              placeholder="Как обращаться"
+              placeholder="Как к вам обращаться"
               value={name}
               onChange={(event) => setName(event.target.value)}
             />

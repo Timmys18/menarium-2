@@ -67,7 +67,7 @@ const itemFixtures = [
     categoryId: "service.creative.art-service",
     description: "Помогу собрать визуальную концепцию комнаты, подобрать референсы и список покупок.",
     city: "Москва",
-    desired: ["Фотосъемка", "Книги по дизайну"],
+    desired: ["Фотосъёмка", "Книги по дизайну"],
     image: "/demo/items/interior.png",
   },
   {

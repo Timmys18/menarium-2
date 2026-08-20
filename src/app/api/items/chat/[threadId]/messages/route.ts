@@ -56,7 +56,7 @@ export async function POST(req: Request, context: Context) {
     ? body.imageIds.filter((id): id is string => typeof id === "string")
     : [];
   const replyToId = typeof body.replyToId === "string" ? body.replyToId.trim() : null;
-  if (!text && imageIds.length === 0) return errorResponse("Добавьте текст или фотографию", 400);
+  if (!text && imageIds.length === 0) return errorResponse("Добавьте текст или фото", 400);
   if (text.length > 2000) return errorResponse("Сообщение слишком длинное", 400);
   if (imageIds.length > MAX_CHAT_IMAGES || imageIds.length !== new Set(imageIds).size) {
     return errorResponse(`К сообщению можно добавить до ${MAX_CHAT_IMAGES} фотографий`, 400);
@@ -139,7 +139,7 @@ export async function POST(req: Request, context: Context) {
       entityId: threadId,
       payload: {
         title: "Новое сообщение",
-        body: text ? text.slice(0, 140) : "Вам отправили фотографию",
+        body: text ? text.slice(0, 140) : "Вам отправили фото",
         href: `/profile/chats/item/${threadId}`,
         tag: `item-${threadId}`,
       },
@@ -157,7 +157,7 @@ export async function POST(req: Request, context: Context) {
       if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Объявление больше недоступно для переписки", 409);
       if (error.message === "USER_BLOCKED") return errorResponse("Переписка с этим пользователем недоступна", 403);
       if (error.message === "INVALID_REPLY") return errorResponse("Сообщение для ответа не найдено", 400);
-      if (error.message === INVALID_CHAT_MEDIA) return errorResponse("Не удалось прикрепить фотографии", 400);
+      if (error.message === INVALID_CHAT_MEDIA) return errorResponse("Не удалось прикрепить фото", 400);
     }
     return errorResponse("Не удалось отправить сообщение", 500);
   }

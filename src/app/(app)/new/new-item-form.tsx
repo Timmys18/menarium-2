@@ -472,7 +472,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                     {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-info" /> : <Upload className="h-6 w-6 text-accent" />}
                   </div>
                   <span className="block font-semibold text-text-primary">
-                    {images.length ? "Добавить ещё фото" : "Добавить фотографии"}
+                    {images.length ? "Добавить ещё фото" : "Добавить фото"}
                   </span>
                   <span className="mt-1 block text-xs text-text-subtle">До 8 изображений, каждое до 8 МБ</span>
                 </label>

@@ -65,7 +65,9 @@ export function ItemChatPanel({
         initialNextCursor={nextCursor}
         realtimeTypes={["item-message"]}
         canWrite={canWrite}
-        placeholder={isOwner ? "Ответьте покупателю..." : "Напишите владельцу..."}
+        // «Участник», а не «покупатель»: здесь ничего не покупают — продукт
+        // про обмен, и вторая сторона везде названа именно так.
+        placeholder={isOwner ? "Ответьте участнику…" : "Напишите владельцу…"}
         disabledPlaceholder="Переписка закрыта для новых сообщений"
         emptyMessage="Сообщений пока нет."
         draftKey={`item:${itemId}`}

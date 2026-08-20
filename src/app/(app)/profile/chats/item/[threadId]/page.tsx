@@ -206,7 +206,7 @@ export default async function ItemThreadPage({ params }: Props) {
               initialNextCursor={messagePage.nextCursor}
               realtimeTypes={["item-message"]}
               canWrite={canWrite}
-              placeholder="Сообщение..."
+              placeholder="Сообщение…"
               disabledPlaceholder="Объявление неактивно — история доступна только для чтения"
               emptyMessage="Сообщений пока нет. Начните разговор с важного вопроса об объявлении."
               draftKey={`item:${thread.item.id}`}

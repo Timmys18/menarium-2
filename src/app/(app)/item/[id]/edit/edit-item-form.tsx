@@ -219,7 +219,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
           </div>
           <span className="inline-flex items-center gap-2 font-semibold text-text-primary">
             <Camera className="h-5 w-5" />
-            {images.length ? "Добавить ещё фото" : "Добавить фотографии"}
+            {images.length ? "Добавить ещё фото" : "Добавить фото"}
           </span>
           <span className="mt-1 block text-xs text-text-subtle">PNG, JPEG, WebP или GIF, каждое до 8 МБ</span>
         </label>
