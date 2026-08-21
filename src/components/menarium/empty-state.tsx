@@ -1,10 +1,16 @@
 import type { ReactNode } from "react";
-import { ArrowRight, CircleDashed } from "lucide-react";
+import { ArrowRight, Inbox } from "lucide-react";
 import { SurfaceCard } from "@/components/menarium/card";
 import { MenariumLinkButton } from "@/components/menarium/button";
 
 export function EmptyState({
-  icon = <CircleDashed className="h-7 w-7" />,
+  /*
+    Пустое состояние по умолчанию рисовалось `CircleDashed` — пунктирной
+    окружностью, неотличимой от индикатора загрузки. Пользователь на пустом
+    экране первым делом видел «идёт загрузка» и ждал. Лоток говорит то, что
+    есть на самом деле: сюда ещё ничего не пришло.
+  */
+  icon = <Inbox className="h-7 w-7" />,
   title,
   description,
   actionHref,
