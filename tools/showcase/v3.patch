@@ -1,0 +1,1393 @@
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/admin/analytics/page.tsx menarium-v3/src/app/(app)/admin/analytics/page.tsx
+--- a/src/app/(app)/admin/analytics/page.tsx	2026-08-20 10:20:38.498952677 +0000
++++ b/src/app/(app)/admin/analytics/page.tsx	2026-08-21 08:28:48.880589460 +0000
+@@ -83,7 +83,7 @@
+ 
+   return (
+     <main className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
+-      <div className="mx-auto max-w-7xl">
++      <div className="mx-auto max-w-shell">
+         <Link
+           href="/admin"
+           className="mb-6 inline-flex items-center gap-2 text-sm text-text-subtle transition hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+@@ -107,7 +107,7 @@
+           {dashboard ? (
+             <div className="rounded-control border border-teal-400/15 bg-teal-400/[0.06] px-4 py-3 text-right">
+               <div className="flex items-center justify-end gap-2 text-sm font-medium text-accent">
+-                <span className="h-2 w-2 rounded-full bg-teal-300 shadow-[0_0_14px_rgba(94,234,212,0.8)]" />
++                <span className="h-2 w-2 rounded-full bg-teal-300 shadow-[0_0_14px_rgba(240,168,130,0.85)]" />
+                 Данные обновлены
+               </div>
+               <p className="mt-1 text-xs text-text-subtle">{generatedAtFormatter.format(dashboard.generatedAt)} МСК</p>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/admin/page.tsx menarium-v3/src/app/(app)/admin/page.tsx
+--- a/src/app/(app)/admin/page.tsx	2026-08-20 10:20:38.501416122 +0000
++++ b/src/app/(app)/admin/page.tsx	2026-08-21 08:28:48.880400881 +0000
+@@ -132,7 +132,7 @@
+ 
+   return (
+     <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
+-      <div className="mx-auto max-w-7xl">
++      <div className="mx-auto max-w-shell">
+         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+           <div className="flex items-center gap-3">
+             <div className="flex h-12 w-12 items-center justify-center rounded-control bg-gradient-to-br from-teal-500/70 to-purple-500/70">
+@@ -275,7 +275,7 @@
+                           </div>
+                           {report.swap ? (
+                             <div className="rounded-control border border-blue-300/12 bg-blue-400/[0.045] p-4">
+-                              <p className="text-xs font-medium uppercase tracking-wide text-info-soft">
++                              <p className="text-xs font-medium uppercase tracking-wide text-text-subtle">
+                                 Контекст обмена
+                               </p>
+                               <div className="mt-3 grid gap-3 md:grid-cols-2">
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/catalog/page.tsx menarium-v3/src/app/(app)/catalog/page.tsx
+--- a/src/app/(app)/catalog/page.tsx	2026-08-20 11:48:58.263720264 +0000
++++ b/src/app/(app)/catalog/page.tsx	2026-08-21 07:37:11.092189546 +0000
+@@ -106,7 +106,7 @@
+             <div>
+               <p className="type-kicker text-accent">Вещи и услуги рядом</p>
+               <h1 className="type-page-title mt-2 text-4xl sm:text-5xl">
+-                Найдите встречный <span className="gradient-text">вариант</span>
++                Найдите встречный <span className="type-display-light">вариант</span>
+               </h1>
+             </div>
+             <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+@@ -150,7 +150,7 @@
+               <button
+                 type="submit"
+                 aria-label="Найти"
+-                className="flex min-h-11 items-center justify-center rounded-xs border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(77,141,255,0.18)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:px-6"
++                className="flex min-h-11 items-center justify-center rounded-xs border border-line-default bg-fill-2 text-text-primary px-4 text-sm font-semibold shadow-[0_10px_26px_rgba(232,106,61,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:px-6"
+               >
+                 <span className="hidden sm:inline">Найти</span>
+                 <Search className="h-4 w-4 sm:hidden" />
+@@ -345,7 +345,7 @@
+                       ) : null}
+                       <span className="text-sm text-text-subtle">Страница {page} из {totalPages}</span>
+                       {hasMore ? (
+-                        <Link href={buildCatalogHref({ ...catalogBase, page: page + 1 })} className="inline-flex min-h-11 items-center rounded-control border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
++                        <Link href={buildCatalogHref({ ...catalogBase, page: page + 1 })} className="inline-flex min-h-11 items-center rounded-control border border-line-default bg-fill-2 text-text-primary px-5 py-3 text-sm font-semibold shadow-[0_12px_28px_rgba(232,106,61,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
+                           Следующая страница →
+                         </Link>
+                       ) : null}
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/exchange/page.tsx menarium-v3/src/app/(app)/exchange/page.tsx
+--- a/src/app/(app)/exchange/page.tsx	2026-08-20 10:20:38.508265063 +0000
++++ b/src/app/(app)/exchange/page.tsx	2026-08-21 08:34:49.819467213 +0000
+@@ -356,8 +356,9 @@
+             )}
+           >
+             <div>
+-              <h1 className="type-page-title text-3xl sm:text-4xl md:text-5xl">
+-                Мои <span className="gradient-text">обмены</span>
++              <p className="type-kicker text-accent">Предложения и сделки</p>
++              <h1 className="type-page-title mt-2 text-4xl sm:text-5xl md:text-6xl">
++                Мои <span className="type-display-light">обмены</span>
+               </h1>
+             </div>
+             {userId && totalSwaps > 0 ? (
+@@ -458,7 +459,7 @@
+                       className={cn(
+                         "min-w-0 overflow-hidden rounded-control px-2 py-2.5 text-xs font-medium transition sm:shrink-0 sm:px-4 sm:text-sm",
+                         tab === activeTab
+-                          ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white shadow-[0_10px_24px_rgba(77,141,255,0.18)]"
++                          ? "bg-[var(--accent-teal)]/15 text-accent border border-[var(--accent-teal)]/30 shadow-[0_10px_24px_rgba(232,106,61,0.2)]"
+                           : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
+                       )}
+                     >
+@@ -567,7 +568,7 @@
+                                 <Badge variant={presentation.variant}>{presentation.label}</Badge>
+                               </div>
+ 
+-                              <div className="mt-3 overflow-hidden rounded-control border border-line-hairline bg-[var(--surface-card)]/72">
++                              <div className="mt-3 overflow-hidden">
+                                 <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] sm:grid-cols-[9rem_minmax(0,1fr)]">
+                                   <div className="relative min-h-32 overflow-hidden bg-fill-1 sm:min-h-36">
+                                     <ItemCoverImage
+@@ -625,7 +626,7 @@
+                       {exchangeHasMore ? (
+                         <Link
+                           href={exchangeHref(activeTab, undefined, activeFilter, page + 1)}
+-                          className="inline-flex min-h-11 items-center rounded-control bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
++                          className="inline-flex min-h-11 items-center rounded-control border border-line-default bg-fill-2 text-text-primary px-4 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                         >
+                           Дальше →
+                         </Link>
+@@ -692,7 +693,7 @@
+                                 <span className="h-px flex-1 bg-fill-3 sm:hidden" />
+                               </div>
+                             ) : null}
+-                            <article className="overflow-hidden rounded-md border border-line-hairline bg-fill-1">
++                            <article className="overflow-hidden">
+                               <div className="relative aspect-[16/10] overflow-hidden bg-fill-1">
+                                 <ItemCoverImage
+                                   src={entry.card.image}
+@@ -762,7 +763,7 @@
+                       {selectedPartner ? (
+                         <section
+                           aria-labelledby="exchange-safety-title"
+-                          className="mt-5 rounded-md border border-line-hairline bg-fill-1 p-4"
++                          className="mt-5 border-t border-line-hairline pt-5"
+                         >
+                           <div className="mb-3 flex items-start gap-3">
+                             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xs bg-teal-400/10 text-accent">
+@@ -806,7 +807,7 @@
+ export default function ExchangePage(props: Props) {
+   return (
+     <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
+-      <div className="mx-auto max-w-7xl">
++      <div className="mx-auto max-w-shell">
+         <ExchangePageContent {...props} />
+       </div>
+     </div>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/favorites/page.tsx menarium-v3/src/app/(app)/favorites/page.tsx
+--- a/src/app/(app)/favorites/page.tsx	2026-08-20 11:33:37.805852388 +0000
++++ b/src/app/(app)/favorites/page.tsx	2026-08-21 08:34:49.819033927 +0000
+@@ -224,7 +224,8 @@
+           >
+           <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+             <div>
+-              <h1 className="type-page-title text-4xl sm:text-5xl">
++              <p className="type-kicker text-accent">Сохранённые варианты</p>
++              <h1 className="type-page-title mt-2 text-5xl sm:text-6xl">
+                 Избранное
+               </h1>
+             </div>
+@@ -302,7 +303,7 @@
+                   ) : null}
+                   <span className="text-sm text-text-subtle">{page} из {totalPages}</span>
+                   {page < totalPages ? (
+-                    <Link href={favoritesHref(page + 1)} className="rounded-control border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white">
++                    <Link href={favoritesHref(page + 1)} className="rounded-control border border-line-default bg-fill-2 text-text-primary px-5 py-3 text-sm font-semibold">
+                       Дальше →
+                     </Link>
+                   ) : null}
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/item/[id]/edit/edit-item-form.tsx menarium-v3/src/app/(app)/item/[id]/edit/edit-item-form.tsx
+--- a/src/app/(app)/item/[id]/edit/edit-item-form.tsx	2026-08-20 10:57:27.493947196 +0000
++++ b/src/app/(app)/item/[id]/edit/edit-item-form.tsx	2026-08-21 08:22:51.340601835 +0000
+@@ -186,7 +186,7 @@
+       <GlassCard className="overflow-hidden border border-line-hairline p-5 sm:p-7">
+         <div className="mb-5 flex items-start justify-between gap-4">
+           <div>
+-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-info-soft">Фотографии</p>
++            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-subtle">Фотографии</p>
+             <h2 className="mt-1.5 text-2xl font-bold">Фотографии</h2>
+             <p className="mt-2 text-sm text-text-subtle">Первое изображение станет обложкой. Можно добавить до 8 фото.</p>
+           </div>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/item/[id]/exchange-proposal.tsx menarium-v3/src/app/(app)/item/[id]/exchange-proposal.tsx
+--- a/src/app/(app)/item/[id]/exchange-proposal.tsx	2026-08-19 19:33:32.420388226 +0000
++++ b/src/app/(app)/item/[id]/exchange-proposal.tsx	2026-08-20 13:51:39.051594633 +0000
+@@ -64,7 +64,7 @@
+   }
+ 
+   return (
+-    <div id="exchange-proposal" className="flex-1 scroll-mt-28 space-y-3 rounded-md border border-teal-300/[0.16] bg-teal-300/[0.045] p-3.5">
++    <div id="exchange-proposal" className="flex-1 scroll-mt-28 space-y-3 border-t border-line-hairline pt-6">
+       <label htmlFor="exchange-sender-item" className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
+         Вы отдаёте
+       </label>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/item/[id]/opengraph-image.tsx menarium-v3/src/app/(app)/item/[id]/opengraph-image.tsx
+--- a/src/app/(app)/item/[id]/opengraph-image.tsx	2026-08-18 21:39:23.376909639 +0000
++++ b/src/app/(app)/item/[id]/opengraph-image.tsx	2026-08-21 07:37:33.237982039 +0000
+@@ -60,7 +60,7 @@
+           display: "flex",
+           // Значения токенов вписаны числами намеренно: картинка рисуется вне
+           // браузера, где CSS-переменные из globals.css не существуют.
+-          background: "linear-gradient(135deg, #070a10 0%, #0d131d 55%, #101722 100%)",
++          background: "linear-gradient(135deg, #0c0b0a 0%, #141311 55%, #1f1a14 100%)",
+           color: "white",
+           fontFamily: "Onest",
+         }}
+@@ -91,7 +91,7 @@
+               fontSize: 24,
+               letterSpacing: 4,
+               textTransform: "uppercase",
+-              color: "#5eead4",
++              color: "#f0a882",
+               marginBottom: 20,
+             }}
+           >
+@@ -116,7 +116,7 @@
+             style={{
+               marginTop: 28,
+               fontSize: 30,
+-              color: "rgba(230,236,247,0.78)",
++              color: "rgba(245,241,234,0.8)",
+               display: "block",
+               overflow: "hidden",
+               maxHeight: 80,
+@@ -125,9 +125,9 @@
+             {wanted}
+           </span>
+           <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: "auto" }}>
+-            <span style={{ fontSize: 26, fontWeight: 700, color: "#78aaff" }}>Менариум</span>
++            <span style={{ fontSize: 26, fontWeight: 700, color: "#f0a882" }}>Менариум</span>
+             {item?.city ? (
+-              <span style={{ fontSize: 26, color: "rgba(230,236,247,0.62)" }}>· {item.city}</span>
++              <span style={{ fontSize: 26, color: "rgba(245,241,234,0.64)" }}>· {item.city}</span>
+             ) : null}
+           </div>
+         </div>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/item/[id]/page.tsx menarium-v3/src/app/(app)/item/[id]/page.tsx
+--- a/src/app/(app)/item/[id]/page.tsx	2026-08-20 10:21:44.729089356 +0000
++++ b/src/app/(app)/item/[id]/page.tsx	2026-08-21 08:22:51.340977993 +0000
+@@ -359,7 +359,7 @@
+         <RecentlyViewedTracker itemId={publicItem.id} />
+       ) : null}
+       <div className="page-enter min-h-screen px-4 pb-40 pt-20 sm:px-6 md:pb-32 md:pt-28">
+-        <div className="mx-auto max-w-6xl">
++        <div className="mx-auto max-w-shell">
+           <MenariumLinkButton href={returnHref} variant="ghost" size="sm" className="mb-4 sm:mb-6">
+             <ArrowLeft className="h-4 w-4" />
+             Назад в каталог
+@@ -369,7 +369,7 @@
+             <GlassCard className="mb-5 overflow-hidden border border-teal-300/20 bg-gradient-to-r from-teal-300/[0.12] via-blue-400/[0.08] to-transparent p-5 sm:mb-7 sm:p-6">
+               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                 <div className="flex items-start gap-3.5">
+-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-teal-300 text-on-accent shadow-[0_12px_30px_rgba(52,211,153,0.18)]">
++                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-teal-300 text-on-accent shadow-[0_12px_30px_rgba(232,106,61,0.2)]">
+                     <CheckCircle2 className="h-6 w-6" />
+                   </span>
+                   <div>
+@@ -388,7 +388,19 @@
+             </GlassCard>
+           ) : null}
+ 
+-          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-7">
++          {/*
++            Вариант 3: заголовок выходит из правой карточки на всю полосу, а
++            фотография получает больше места. Раньше на странице, смысл
++            которой — вещь, вещь занимала меньше места, чем форма рядом.
++            На узком экране порядок прежний: там колонка одна.
++          */}
++          <div className="mb-8 hidden lg:block">
++            <p className="text-micro font-bold uppercase tracking-[0.2em] text-accent">
++              {publicItem.category} · {publicItem.type === "SERVICE" ? "Услуга" : "Предмет"}
++            </p>
++            <h1 className="type-page-title mt-4 text-6xl xl:text-7xl">{publicItem.title}</h1>
++          </div>
++          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.75fr)] lg:gap-12">
+             <div className="lg:sticky lg:top-28">
+               <GlassCard className="overflow-hidden rounded-card sm:rounded-panel">
+                 <div className="relative">
+@@ -403,7 +415,7 @@
+ 
+             <div className="space-y-5">
+               <GlassCard className="p-5 sm:p-7">
+-                <div className="mb-5 flex flex-wrap gap-2">
++                <div className="mb-5 flex flex-wrap gap-2 lg:hidden">
+                   <Badge variant="gradient">{publicItem.category}</Badge>
+                   <Badge variant="neutral">
+                     <Package className="h-3 w-3" />
+@@ -417,8 +429,8 @@
+                   ) : null}
+                 </div>
+ 
+-                <div className="flex items-start gap-3">
+-                  <h1 className="type-page-title min-w-0 flex-1 text-2xl sm:text-4xl">
++                <div className="flex items-start gap-3 lg:justify-end">
++                  <h1 className="type-page-title min-w-0 flex-1 text-2xl sm:text-4xl lg:hidden">
+                     {publicItem.title}
+                   </h1>
+                   {!isOwner && canInteract && !communicationBlocked ? (
+@@ -449,8 +461,8 @@
+                   ) : null}
+                 </div>
+ 
+-                <div className="my-6 rounded-md border border-blue-300/[0.16] bg-gradient-to-br from-blue-400/[0.10] to-teal-300/[0.045] p-4 sm:p-5">
+-                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-info-soft">
++                <div className="my-7 border-t border-line-hairline pt-6">
++                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-text-subtle">
+                     <ArrowRightLeft className="h-4 w-4 text-accent" />
+                     В обмен рассматривает
+                   </div>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/new/page.tsx menarium-v3/src/app/(app)/new/page.tsx
+--- a/src/app/(app)/new/page.tsx	2026-08-20 10:20:38.514024017 +0000
++++ b/src/app/(app)/new/page.tsx	2026-08-21 07:03:02.588047216 +0000
+@@ -37,7 +37,7 @@
+             <Sparkles className="h-4 w-4 text-accent" />
+             Новое объявление
+           </div>
+-          <h1 className="type-page-title mb-3 text-3xl md:text-5xl">Что выставим на обмен?</h1>
++          <h1 className="type-page-title mb-3 text-4xl md:text-6xl">Что выставим на обмен?</h1>
+           <p className="mx-auto max-w-2xl text-text-subtle">
+             Три коротких шага. Черновик сохранится на этом устройстве, если решите продолжить позже.
+           </p>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/notifications/page.tsx menarium-v3/src/app/(app)/notifications/page.tsx
+--- a/src/app/(app)/notifications/page.tsx	2026-08-20 10:20:38.515341577 +0000
++++ b/src/app/(app)/notifications/page.tsx	2026-08-21 08:28:48.879932662 +0000
+@@ -88,13 +88,13 @@
+ 
+   return (
+     <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
+-      <div className="mx-auto max-w-5xl">
++      <div className="mx-auto max-w-shell">
+         <header className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+           <div>
+-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-info-soft">
++            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
+               Все события
+             </p>
+-            <h1 className="type-page-title text-4xl md:text-5xl">Уведомления</h1>
++            <h1 className="type-page-title text-5xl md:text-6xl">Уведомления</h1>
+           </div>
+           {userId && unreadCount > 0 ? <MarkAllNotificationsRead disabled={false} /> : null}
+         </header>
+@@ -120,7 +120,7 @@
+                   className={cn(
+                     "rounded-control px-4 py-2.5 text-sm font-medium transition",
+                     activeFilter === filter
+-                      ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
++                      ? "bg-[var(--accent-teal)]/15 text-accent border border-[var(--accent-teal)]/30"
+                       : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
+                   )}
+                 >
+@@ -239,7 +239,7 @@
+                 {page < totalPages ? (
+                   <Link
+                     href={notificationsHref(activeFilter, page + 1)}
+-                    className="rounded-control bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
++                    className="rounded-control border border-line-default bg-fill-2 text-text-primary px-4 py-2.5 text-sm font-medium"
+                   >
+                     Дальше →
+                   </Link>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/page.tsx menarium-v3/src/app/(app)/page.tsx
+--- a/src/app/(app)/page.tsx	2026-08-20 10:21:44.728097381 +0000
++++ b/src/app/(app)/page.tsx	2026-08-21 07:34:20.095508973 +0000
+@@ -61,7 +61,7 @@
+         <section className="mx-auto grid max-w-7xl gap-12 lg:min-h-[min(42rem,calc(100vh-12rem))] lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-16">
+           <div className="relative z-10">
+             <h1 className="type-page-title max-w-3xl text-[clamp(3.35rem,5.2vw,5rem)] leading-[0.94] tracking-[-0.065em] lg:whitespace-nowrap">
+-              Меняйся. <span className="gradient-text">Просто</span>
++              Меняйся. <span className="type-display-light">Просто</span>
+             </h1>
+             <p className="mt-7 max-w-2xl text-lg leading-8 text-text-subtle sm:text-xl">
+               Меняйте вещи на вещи, услуги на услуги или услуги на вещи. Выбирайте подходящий вариант и договаривайтесь напрямую.
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/profile/chats/item/[threadId]/page.tsx menarium-v3/src/app/(app)/profile/chats/item/[threadId]/page.tsx
+--- a/src/app/(app)/profile/chats/item/[threadId]/page.tsx	2026-08-20 10:53:01.785895359 +0000
++++ b/src/app/(app)/profile/chats/item/[threadId]/page.tsx	2026-08-21 08:22:51.340283230 +0000
+@@ -191,7 +191,7 @@
+             aria-label="Переписка"
+             className="flex min-h-0 min-w-0 flex-col rounded-md border border-line-hairline bg-black/10 p-3.5 sm:p-4"
+           >
+-            <div className="mb-3 hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-info-soft lg:flex">
++            <div className="mb-3 hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-text-subtle lg:flex">
+               <MessageCircle className="h-4 w-4" />
+               История диалога
+             </div>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/profile/chats/page.tsx menarium-v3/src/app/(app)/profile/chats/page.tsx
+--- a/src/app/(app)/profile/chats/page.tsx	2026-08-18 21:39:23.380909639 +0000
++++ b/src/app/(app)/profile/chats/page.tsx	2026-08-20 14:01:40.439164543 +0000
+@@ -216,7 +216,7 @@
+                     className={cn(
+                       "rounded-control px-4 py-2.5 text-sm font-medium transition",
+                       activeFilter === filter
+-                        ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
++                        ? "bg-[var(--accent-teal)]/15 text-accent border border-[var(--accent-teal)]/30"
+                         : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
+                     )}
+                   >
+@@ -303,7 +303,7 @@
+                   {page < totalPages ? (
+                     <Link
+                       href={chatsHref(activeFilter, page + 1)}
+-                      className="rounded-control bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
++                      className="rounded-control border border-line-default bg-fill-2 text-text-primary px-4 py-2.5 text-sm font-medium"
+                     >
+                       Дальше →
+                     </Link>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/profile/edit/page.tsx menarium-v3/src/app/(app)/profile/edit/page.tsx
+--- a/src/app/(app)/profile/edit/page.tsx	2026-08-18 21:39:23.380909639 +0000
++++ b/src/app/(app)/profile/edit/page.tsx	2026-08-21 08:22:51.340119630 +0000
+@@ -31,10 +31,10 @@
+     <div className="max-w-3xl">
+           <div className="mb-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+             <div>
+-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-info-soft">
++              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">
+                 Аккаунт
+               </p>
+-              <h1 className="type-page-title text-3xl sm:text-4xl">Настройки профиля</h1>
++              <h1 className="type-page-title text-4xl sm:text-5xl">Настройки профиля</h1>
+               <p className="mt-3 max-w-xl text-sm leading-6 text-text-subtle sm:text-base">
+                 Управляйте тем, как вас видят другие участники, доступом и безопасностью аккаунта.
+               </p>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/profile/layout.tsx menarium-v3/src/app/(app)/profile/layout.tsx
+--- a/src/app/(app)/profile/layout.tsx	2026-08-20 10:20:38.517590231 +0000
++++ b/src/app/(app)/profile/layout.tsx	2026-08-21 08:29:11.189094945 +0000
+@@ -64,7 +64,7 @@
+ 
+   return (
+     <div className="profile-shell min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
+-      <div className="mx-auto flex min-h-0 max-w-[1360px] flex-col">
++      <div className="mx-auto flex min-h-0 max-w-shell flex-col">
+         {user ? (
+           <GlassCard className="profile-chrome mb-5 overflow-hidden border border-line-hairline p-4 sm:p-5">
+             <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+@@ -78,7 +78,7 @@
+                     className="h-14 w-14 shrink-0 rounded-md object-cover sm:h-16 sm:w-16"
+                   />
+                 ) : (
+-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-teal-400 text-lg font-bold sm:h-16 sm:w-16">
++                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-line-default bg-fill-2 text-text-primary text-lg font-bold sm:h-16 sm:w-16">
+                     {getInitials(user.name, user.email)}
+                   </span>
+                 )}
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/profile/safety/page.tsx menarium-v3/src/app/(app)/profile/safety/page.tsx
+--- a/src/app/(app)/profile/safety/page.tsx	2026-08-20 08:53:00.516219497 +0000
++++ b/src/app/(app)/profile/safety/page.tsx	2026-08-21 07:03:02.587869460 +0000
+@@ -135,7 +135,7 @@
+                 Доверие и защита
+               </p>
+             </div>
+-            <h1 className="type-page-title mt-3 text-4xl md:text-5xl">Центр безопасности</h1>
++            <h1 className="type-page-title mt-3 text-5xl md:text-6xl">Центр безопасности</h1>
+             <p className="mt-3 max-w-2xl text-sm leading-6 text-text-subtle sm:text-base">
+               Здесь сохраняются ваши обращения, их связь со сделкой и результат проверки.
+               Внутреннее расследование остаётся конфиденциальным.
+@@ -192,7 +192,7 @@
+                     className={cn(
+                       "flex min-h-11 items-center justify-center rounded-control px-3 py-2.5 text-center text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+                       activeFilter === filter
+-                        ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
++                        ? "bg-[var(--accent-teal)]/15 text-accent border border-[var(--accent-teal)]/30"
+                         : "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
+                     )}
+                   >
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/swipe/page.tsx menarium-v3/src/app/(app)/swipe/page.tsx
+--- a/src/app/(app)/swipe/page.tsx	2026-08-20 10:20:38.518029606 +0000
++++ b/src/app/(app)/swipe/page.tsx	2026-08-21 08:40:27.589170659 +0000
+@@ -52,39 +52,52 @@
+ 
+   return (
+     <div className="page-enter min-h-screen px-4 pb-52 pt-20 sm:px-6 md:pb-32 md:pt-28">
+-      <div className="mx-auto max-w-2xl">
+-        <div className="mb-4 text-center md:mb-8">
+-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent md:hidden">
+-            Быстрый поиск
+-          </p>
+-          <h1 className="type-page-title mb-2 text-3xl md:mb-4 md:text-5xl">
+-            <span className="gradient-text">Свайп</span> обмена
++      {/*
++        Вариант 3: колода слева, слово справа. Раньше карточка стояла
++        посреди пустого экрана, а как ей пользоваться — объяснялось текстом
++        дважды. Здесь объясняет композиция: колода видна стопкой — значит,
++        её можно тянуть.
++      */}
++      <div className="mx-auto grid max-w-shell items-center gap-6 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:gap-24">
++        <div className="order-2 lg:order-1">
++          {!userId ? (
++            <EmptyState
++              title="Войдите, чтобы открыть свайп"
++              description="Здесь не показываются ваши объявления и варианты, которые вы уже просмотрели."
++              actionHref={loginHref("/swipe")}
++              actionLabel="Войти"
++            />
++          ) : cards.length > 0 ? (
++            <SwipeCardStack
++              cards={cards}
++              userItems={userItems}
++            />
++          ) : (
++            <EmptyState
++              title="Новых карточек пока нет"
++              description="Вы уже просмотрели доступные объявления или в каталоге пока мало активных предложений."
++              actionHref="/catalog"
++              actionLabel="Открыть каталог"
++            />
++          )}
++        </div>
++
++        {/*
++          На широком экране это вторая колонка и ей отдан весь рост: слово
++          уравновешивает колоду. На телефоне колонка одна, и заголовок в том
++          же росте съедал первый экран — колода уходила под сгиб и под док
++          с кнопками. Поэтому на узком экране слово набрано в одну строку и
++          обычным размером: это подпись к колоде, а не главный герой.
++        */}
++        <div className="order-1 lg:order-2">
++          <p className="text-micro font-bold uppercase tracking-[0.2em] text-accent">Свайп обмена</p>
++          <h1 className="type-page-title mt-2 text-3xl md:text-5xl lg:mt-4 lg:text-7xl">
++            Тяните <span className="type-display-light lg:block">и меняйтесь</span>
+           </h1>
+-          <p className="mx-auto max-w-xl text-sm text-text-subtle md:text-base">
+-            Проведите влево, чтобы пропустить, или вправо, чтобы предложить обмен. Можно использовать и кнопки ниже.
++          <p className="type-supporting mt-2 max-w-sm text-sm lg:mt-6 lg:text-lg">
++            Влево — мимо. Вправо — предложить обмен.
+           </p>
+         </div>
+-
+-        {!userId ? (
+-          <EmptyState
+-            title="Войдите, чтобы открыть свайп"
+-            description="Здесь не показываются ваши объявления и варианты, которые вы уже просмотрели."
+-            actionHref={loginHref("/swipe")}
+-            actionLabel="Войти"
+-          />
+-        ) : cards.length > 0 ? (
+-          <SwipeCardStack
+-            cards={cards}
+-            userItems={userItems}
+-          />
+-        ) : (
+-          <EmptyState
+-            title="Новых карточек пока нет"
+-            description="Вы уже просмотрели доступные объявления или в каталоге пока мало активных предложений."
+-            actionHref="/catalog"
+-            actionLabel="Открыть каталог"
+-          />
+-        )}
+       </div>
+     </div>
+   );
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/swipe/swipe-card-stack.tsx menarium-v3/src/app/(app)/swipe/swipe-card-stack.tsx
+--- a/src/app/(app)/swipe/swipe-card-stack.tsx	2026-08-18 21:39:23.387603024 +0000
++++ b/src/app/(app)/swipe/swipe-card-stack.tsx	2026-08-21 08:22:51.341363737 +0000
+@@ -18,6 +18,7 @@
+ import { GlassCard } from "@/components/menarium/card";
+ import { MenariumDialog } from "@/components/menarium/dialog";
+ import { ItemCoverImage } from "@/components/menarium/item-cover-image";
++import { cn } from "@/lib/utils";
+ import { navigateWithViewTransition } from "@/lib/view-transition";
+ import { SwipeLikeModal } from "./swipe-like-modal";
+ 
+@@ -189,9 +190,15 @@
+ 
+   return (
+     <>
+-      <div className="relative flex min-h-[420px] items-center justify-center md:min-h-[510px]">
+-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-5 scale-[0.91] border border-line-hairline opacity-35 md:h-[490px] md:translate-y-7" />
+-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-2.5 scale-[0.96] border border-line-hairline opacity-55 md:h-[490px] md:translate-y-3" />
++      <div className="relative flex min-h-[420px] items-center justify-center md:min-h-[600px]">
++        {/*
++          Вариант 3: карты сзади наклонены и заметны. Раньше они отличались
++          от верхней на несколько процентов масштаба и терялись — стопка не
++          читалась как стопка, и подсказку «можно тянуть» приходилось писать
++          словами.
++        */}
++        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-x-8 translate-y-6 rotate-7 scale-[0.97] border-0 opacity-40 shadow-[0_30px_60px_rgba(0,0,0,0.5)] md:h-[560px] md:translate-x-11 md:translate-y-7" />
++        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-x-4 translate-y-3 rotate-3 scale-[0.985] border-0 opacity-70 shadow-[0_30px_60px_rgba(0,0,0,0.5)] md:h-[560px] md:translate-x-5 md:translate-y-4" />
+ 
+         <motion.div
+           style={{ x, rotate }}
+@@ -215,7 +222,7 @@
+               МИМО
+             </motion.div>
+ 
+-            <div className="relative h-[238px] sm:h-[280px] md:h-[320px]">
++            <div className="relative h-[238px] sm:h-[280px] md:h-[400px]">
+               <ItemCoverImage
+                 src={card.image}
+                 alt={card.title}
+@@ -248,7 +255,7 @@
+                   {card.city}
+                 </span>
+               </div>
+-              <div className="mt-3 rounded-control border border-teal-300/15 bg-teal-300/[0.055] px-3.5 py-2.5 md:mt-4 md:rounded-control md:px-4 md:py-3">
++              <div className="mt-3 border-t border-line-hairline pt-3 md:mt-4">
+                 <p className="text-micro font-semibold uppercase tracking-[0.14em] text-accent">Интересно взамен</p>
+                 <p className="mt-0.5 line-clamp-1 text-sm leading-5 text-text-strong md:mt-1 md:line-clamp-2">{card.wanted}</p>
+               </div>
+@@ -259,41 +266,55 @@
+ 
+       {undoNotice}
+ 
+-      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-card border border-line-default bg-[var(--surface-sunken)]/94 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:static md:mt-6 md:gap-3 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
++      {/*
++        Вариант 3. На узком экране остаётся прежний док с подписями: там
++        кнопка — единственный способ ответить, и подпись нужна. На широком
++        жест уже показан самой стопкой, поэтому подписи уходят, а кнопки
++        становятся кругами: три круга рядом читаются как один орган
++        управления, а не как три отдельных элемента.
++
++        Размер круга — 64px, это выше порога 44px для касания, и подпись
++        остаётся в `aria-label`, так что скринридер и клавиатура ничего не
++        теряют.
++      */}
++      <div className="mobile-action-dock fixed inset-x-3 z-40 mx-auto grid max-w-[460px] grid-cols-3 gap-2 rounded-card border border-line-hairline bg-[var(--surface-raised)]/95 p-2 backdrop-blur-xl md:static md:mt-8 md:flex md:max-w-none md:justify-start md:gap-4 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+         <button
+           type="button"
+           disabled={loading || undoing}
+           onClick={() => void passCard()}
+-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-control border border-red-300/18 bg-red-300/[0.055] px-2 py-2 text-xs font-semibold text-danger transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 md:min-h-16 md:rounded-md md:py-3"
++          className={cn(
++            "flex min-h-14 flex-col items-center justify-center gap-1 rounded-control border border-red-300/18 bg-red-300/[0.055] px-2 py-2 text-xs font-semibold text-danger transition hover:bg-red-300/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50",
++            "md:h-16 md:w-16 md:min-h-0 md:flex-none md:gap-0 md:rounded-full md:p-0",
++          )}
+           aria-label="Пропустить"
+         >
+           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <X className="h-5 w-5" />}
+-          <span>Пропустить</span>
++          <span className="md:hidden">Пропустить</span>
+         </button>
+         <MenariumLinkButton
+           href={`/item/${card.id}`}
+           variant="secondary"
+-          className="min-h-14 flex-col gap-1 rounded-control px-2 py-2 text-xs md:min-h-16 md:rounded-md md:py-3"
++          className="min-h-14 flex-col gap-1 rounded-control px-2 py-2 text-xs md:h-16 md:w-16 md:min-h-0 md:flex-none md:gap-0 md:rounded-full md:p-0"
+           aria-label="Подробнее"
+         >
+-          <Info className="h-5 w-5 text-info" />
+-          Подробнее
++          <Info className="h-5 w-5 text-text-muted" />
++          <span className="md:hidden">Подробнее</span>
+         </MenariumLinkButton>
+         <button
+           type="button"
+           disabled={loading || undoing}
+           onClick={openExchangeFlow}
+-          className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-control border border-teal-200/24 bg-gradient-to-br from-blue-500 to-teal-400 px-2 py-2 text-xs font-semibold text-white shadow-[0_14px_34px_rgba(56,189,180,0.24)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50 md:min-h-16 md:rounded-md md:py-3"
++          className={cn(
++            "flex min-h-14 flex-col items-center justify-center gap-1 rounded-control bg-accent-teal px-2 py-2 text-xs font-bold text-on-accent shadow-[0_14px_34px_rgba(232,106,61,0.32)] transition hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-50",
++            "md:h-16 md:w-16 md:min-h-0 md:flex-none md:gap-0 md:rounded-full md:p-0",
++          )}
+           aria-label="Предложить обмен"
+         >
+           <Heart className="h-5 w-5" />
+-          <span>Обменять</span>
++          <span className="md:hidden">Обменять</span>
+         </button>
+       </div>
+ 
+-      <p className="mx-auto mt-3 hidden max-w-[460px] text-center text-xs text-text-subtle md:block">
+-        Можно тянуть карточку влево или вправо
+-      </p>
+ 
+       {error ? (
+         <p role="alert" className="mx-auto mt-4 max-w-md text-center text-sm text-danger">
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/(app)/user/[id]/page.tsx menarium-v3/src/app/(app)/user/[id]/page.tsx
+--- a/src/app/(app)/user/[id]/page.tsx	2026-08-20 10:20:38.520327524 +0000
++++ b/src/app/(app)/user/[id]/page.tsx	2026-08-21 08:28:48.880205466 +0000
+@@ -149,7 +149,7 @@
+ 
+   return (
+     <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
+-      <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
++      <div className="mx-auto max-w-shell space-y-5 sm:space-y-8">
+         <GlassCard className="rounded-card p-5 sm:p-8">
+           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+             {user.image ? (
+@@ -167,7 +167,7 @@
+               </div>
+             )}
+             <div className="flex-1">
+-              <h1 className="type-page-title text-3xl">{user.name ?? "Пользователь Менариум"}</h1>
++              <h1 className="type-page-title text-4xl sm:text-5xl">{user.name ?? "Пользователь Менариум"}</h1>
+               <p className="mt-2 text-text-subtle">{user.city ?? "Город не указан"}</p>
+               <div className="mt-4 flex flex-wrap gap-2">
+                 <Badge variant="teal">{completedSwaps} завершённых обменов</Badge>
+Binary files menarium-2/src/app/apple-icon.png and menarium-v3/src/app/apple-icon.png differ
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/auth/register/register-form.tsx menarium-v3/src/app/auth/register/register-form.tsx
+--- a/src/app/auth/register/register-form.tsx	2026-08-20 10:53:01.786494855 +0000
++++ b/src/app/auth/register/register-form.tsx	2026-08-21 08:22:51.339671116 +0000
+@@ -170,7 +170,7 @@
+             <UserRound className="h-4.5 w-4.5" />
+           </span>
+           <div>
+-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-info-soft">Шаг 2 · Профиль</p>
++            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-subtle">Шаг 2 · Профиль</p>
+             <p className="mt-1 text-sm text-text-subtle">Необязательно — можно заполнить сейчас или позже.</p>
+           </div>
+         </div>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/global-error.tsx menarium-v3/src/app/global-error.tsx
+--- a/src/app/global-error.tsx	2026-08-20 09:40:51.473449474 +0000
++++ b/src/app/global-error.tsx	2026-08-21 07:37:58.377394113 +0000
+@@ -36,27 +36,27 @@
+         <style>{`
+           :root {
+             color-scheme: dark;
+-            --ge-bg: #070a10;
+-            --ge-card: #101722;
+-            --ge-line: rgba(255, 255, 255, 0.1);
+-            --ge-text: #f7f9fc;
+-            --ge-muted: rgba(255, 255, 255, 0.62);
++            --ge-bg: #0c0b0a;
++            --ge-card: #1a1815;
++            --ge-line: rgba(245, 241, 234, 0.12);
++            --ge-text: #f5f1ea;
++            --ge-muted: rgba(245, 241, 234, 0.66);
+             --ge-danger-bg: rgba(239, 68, 68, 0.15);
+             --ge-danger: #fca5a5;
+-            --ge-btn: #f7f9fc;
+-            --ge-btn-text: #070a10;
++            --ge-btn: #f5f1ea;
++            --ge-btn-text: #1a0b04;
+           }
+           @media (prefers-color-scheme: light) {
+             :root {
+               color-scheme: light;
+-              --ge-bg: #f5f7fb;
++              --ge-bg: #faf7f3;
+               --ge-card: #ffffff;
+-              --ge-line: rgba(11, 18, 32, 0.14);
+-              --ge-text: #0b1220;
+-              --ge-muted: rgba(11, 18, 32, 0.58);
++              --ge-line: rgba(26, 22, 19, 0.14);
++              --ge-text: #1a1613;
++              --ge-muted: rgba(26, 22, 19, 0.62);
+               --ge-danger-bg: rgba(185, 28, 28, 0.1);
+               --ge-danger: #b91c1c;
+-              --ge-btn: #0b1220;
++              --ge-btn: #1a1613;
+               --ge-btn-text: #ffffff;
+             }
+           }
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/globals.css menarium-v3/src/app/globals.css
+--- a/src/app/globals.css	2026-08-20 11:33:37.770822679 +0000
++++ b/src/app/globals.css	2026-08-21 08:29:11.204770473 +0000
+@@ -8,36 +8,36 @@
+     светлую полосу прокрутки на тёмный макет.
+   */
+   color-scheme: dark;
+-  --background: #070a10;
++  --background: #0c0b0a;
+   --foreground: #f7f9fc;
+-  --brand-blue-primary: #4d8dff;
+-  --brand-blue-light: #78aaff;
++  --brand-blue-primary: #e86a3d;
++  --brand-blue-light: #f0a882;
+   --brand-blue-purple: #7d7aff;
+   --brand-purple-dark: #8b73ff;
+-  --accent-teal: #38d6b2;
++  --accent-teal: #e86a3d;
+   --accent-cyan: #39c7e8;
+   --accent-purple: #8177ff;
+   --accent-fuchsia: #bb74ff;
+   --accent-amber: #ffbc72;
+-  --surface-raised: #101722;
+-  --surface-card: #0d131d;
++  --surface-raised: #1a1815;
++  --surface-card: #141311;
+   /* Поля ввода и выпадающие списки на шаг светлее карточки: иначе форма
+      сливается с подложкой, на которой лежит. Раньше это значение было
+      вписано числом в двадцати девяти файлах. */
+-  --surface-input: #111723;
+-  --surface-sunken: #090d14;
++  --surface-input: #171613;
++  --surface-sunken: #0a0908;
+   --surface-overlay: rgba(10, 16, 24, 0.72);
+   --surface-soft: rgba(255, 255, 255, 0.045);
+-  --border-subtle: rgba(255, 255, 255, 0.08);
+-  --border-strong: rgba(255, 255, 255, 0.16);
+-  --text-primary: #f7f9fc;
++  --border-subtle: rgba(245, 241, 234, 0.08);
++  --border-strong: rgba(245, 241, 234, 0.18);
++  --text-primary: #f5f1ea;
+   /*
+     Одно кольцо фокуса на весь продукт. Было семнадцать разных: синие четырёх
+     прозрачностей, бирюзовые пяти, красные, розовые, янтарное. Пользователь
+     клавиатуры видел новый цвет почти на каждом элементе и не мог опереться на
+     цвет как на сигнал «я здесь».
+   */
+-  --focus-ring: rgba(120, 170, 255, 0.78);
++  --focus-ring: rgba(240, 168, 130, 0.8);
+ 
+   /*
+     Семантические цвета текста, заливок и границ.
+@@ -51,19 +51,19 @@
+     Значения тёмной темы намеренно совпадают с прежними числами: перевод на
+     токены не должен ничего изменить визуально.
+   */
+-  --text-strong: rgba(255, 255, 255, 0.88);
+-  --text-muted: rgba(255, 255, 255, 0.78);
+-  --text-subtle: rgba(255, 255, 255, 0.62);
+-  --text-faint: rgba(255, 255, 255, 0.4);
++  --text-strong: rgba(245, 241, 234, 0.9);
++  --text-muted: rgba(245, 241, 234, 0.7);
++  --text-subtle: rgba(245, 241, 234, 0.56);
++  --text-faint: rgba(245, 241, 234, 0.3);
+ 
+   --fill-1: rgba(255, 255, 255, 0.03);
+   --fill-2: rgba(255, 255, 255, 0.05);
+   --fill-3: rgba(255, 255, 255, 0.07);
+   --fill-4: rgba(255, 255, 255, 0.1);
+ 
+-  --line-hairline: rgba(255, 255, 255, 0.08);
+-  --line-default: rgba(255, 255, 255, 0.1);
+-  --line-strong: rgba(255, 255, 255, 0.2);
++  --line-hairline: rgba(245, 241, 234, 0.08);
++  --line-default: rgba(245, 241, 234, 0.12);
++  --line-strong: rgba(245, 241, 234, 0.22);
+ 
+   /*
+     Смысловые цвета текста-акцента.
+@@ -74,8 +74,8 @@
+     невидимыми. Роль («акцент», «опасность») от темы не зависит, конкретный
+     тон — зависит.
+   */
+-  --accent-text: #99f6e4;
+-  --accent-text-soft: rgba(153, 246, 228, 0.7);
++  --accent-text: #f0a882;
++  --accent-text-soft: rgba(240, 168, 130, 0.72);
+   --info-text: #bfdbfe;
+   --info-text-soft: rgba(191, 219, 254, 0.7);
+   --danger-text: #fca5a5;
+@@ -92,38 +92,27 @@
+   --on-media: rgba(255, 255, 255, 0.92);
+   --on-media-soft: rgba(255, 255, 255, 0.75);
+   /* Текст на плотной бирюзовой заливке: она яркая в обеих темах. */
+-  --on-accent: #07110f;
++  --on-accent: #1a0b04;
+ 
+   /* Подложка модального слоя и «стекла» шапки. */
+   --scrim: rgba(0, 0, 0, 0.7);
+-  --chrome-bg: rgba(13, 19, 29, 0.88);
++  --chrome-bg: rgba(20, 19, 17, 0.86);
+ 
+   --shadow-card: 0 14px 38px rgba(0, 0, 0, 0.24);
+   --shadow-surface: 0 10px 28px rgba(0, 0, 0, 0.18);
+   --shadow-popover: 0 22px 60px rgba(0, 0, 0, 0.5);
+   --shadow-card-hover:
+-    0 24px 70px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(77, 141, 255, 0.1),
++    0 24px 70px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(232, 106, 61, 0.18),
+     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+   --shadow-surface-hover: 0 18px 46px rgba(0, 0, 0, 0.27);
+-  --surface-raised-hover: #151e2b;
+-  --surface-card-hover: rgba(17, 25, 38, 0.94);
++  --surface-raised-hover: #221f1a;
++  --surface-card-hover: rgba(30, 27, 23, 0.96);
+ 
+   /* Фон страницы и главный «выразительный» холст на первом экране. */
+-  --page-bg:
+-    radial-gradient(
+-      circle at 10% -12%,
+-      rgba(56, 214, 178, 0.11),
+-      transparent 38rem
+-    ),
+-    radial-gradient(
+-      circle at 94% 0%,
+-      rgba(77, 141, 255, 0.12),
+-      transparent 42rem
+-    ),
+-    var(--background);
++  --page-bg: var(--background);
+   --hero-canvas-bg:
+     linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 42%),
+-    linear-gradient(180deg, rgba(14, 23, 35, 0.94), rgba(9, 14, 23, 0.92));
++    linear-gradient(180deg, rgba(26, 24, 21, 0.94), rgba(16, 15, 13, 0.92));
+   --hero-canvas-border: rgba(255, 255, 255, 0.115);
+   --hero-canvas-shadow:
+     0 38px 100px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+@@ -145,37 +134,37 @@
+   дал бы почти невидимые границы.
+ */
+ :root {
+-  --light-background: #f5f7fb;
+-  --light-foreground: #0b1220;
++  --light-background: #faf7f3;
++  --light-foreground: #1a1613;
+ 
+   --light-surface-raised: #ffffff;
+   --light-surface-card: #ffffff;
+   --light-surface-input: #ffffff;
+-  --light-surface-sunken: #eef1f7;
+-  --light-surface-overlay: rgba(255, 255, 255, 0.86);
+-  --light-surface-soft: rgba(11, 18, 32, 0.04);
+-
+-  --light-text-primary: #0b1220;
+-  --light-text-strong: rgba(11, 18, 32, 0.92);
+-  --light-text-muted: rgba(11, 18, 32, 0.72);
+-  --light-text-subtle: rgba(11, 18, 32, 0.58);
+-  --light-text-faint: rgba(11, 18, 32, 0.38);
+-
+-  --light-fill-1: rgba(11, 18, 32, 0.035);
+-  --light-fill-2: rgba(11, 18, 32, 0.055);
+-  --light-fill-3: rgba(11, 18, 32, 0.08);
+-  --light-fill-4: rgba(11, 18, 32, 0.12);
+-
+-  --light-line-hairline: rgba(11, 18, 32, 0.1);
+-  --light-line-default: rgba(11, 18, 32, 0.14);
+-  --light-line-strong: rgba(11, 18, 32, 0.24);
++  --light-surface-sunken: #f2ede7;
++  --light-surface-overlay: rgba(255, 253, 251, 0.88);
++  --light-surface-soft: rgba(26, 22, 19, 0.04);
++
++  --light-text-primary: #1a1613;
++  --light-text-strong: rgba(26, 22, 19, 0.92);
++  --light-text-muted: rgba(26, 22, 19, 0.72);
++  --light-text-subtle: rgba(26, 22, 19, 0.64);
++  --light-text-faint: rgba(26, 22, 19, 0.36);
++
++  --light-fill-1: rgba(26, 22, 19, 0.035);
++  --light-fill-2: rgba(26, 22, 19, 0.055);
++  --light-fill-3: rgba(26, 22, 19, 0.08);
++  --light-fill-4: rgba(26, 22, 19, 0.12);
++
++  --light-line-hairline: rgba(26, 22, 19, 0.1);
++  --light-line-default: rgba(26, 22, 19, 0.14);
++  --light-line-strong: rgba(26, 22, 19, 0.24);
+ 
+-  --light-border-subtle: rgba(11, 18, 32, 0.1);
+-  --light-border-strong: rgba(11, 18, 32, 0.2);
++  --light-border-subtle: rgba(26, 22, 19, 0.1);
++  --light-border-strong: rgba(26, 22, 19, 0.2);
+ 
+   /* Те же роли, но тона, читаемые на белом. */
+-  --light-accent-text: #0f766e;
+-  --light-accent-text-soft: rgba(15, 118, 110, 0.78);
++  --light-accent-text: #b8431c;
++  --light-accent-text-soft: rgba(184, 67, 28, 0.78);
+   --light-info-text: #1d4ed8;
+   --light-info-text-soft: rgba(29, 78, 216, 0.78);
+   --light-danger-text: #b91c1c;
+@@ -183,23 +172,31 @@
+   --light-warning-text: #b45309;
+   --light-warning-text-soft: rgba(180, 83, 9, 0.8);
+ 
+-  --light-scrim: rgba(11, 18, 32, 0.55);
+-  --light-chrome-bg: rgba(255, 255, 255, 0.88);
++  --light-scrim: rgba(26, 22, 19, 0.55);
++  --light-chrome-bg: rgba(250, 247, 243, 0.9);
+ 
+   /* Акценты притемняются: на белом исходные светлые тона не проходят контраст. */
+-  --light-brand-blue-primary: #2563eb;
+-  --light-brand-blue-light: #1d4ed8;
+-  --light-accent-teal: #0d9488;
+-  --light-focus-ring: rgba(37, 99, 235, 0.65);
+-
+-  --light-shadow-card: 0 10px 30px rgba(11, 18, 32, 0.08);
+-  --light-shadow-surface: 0 6px 20px rgba(11, 18, 32, 0.06);
+-  --light-shadow-popover: 0 22px 60px rgba(11, 18, 32, 0.16);
++  --light-brand-blue-primary: #b8431c;
++  --light-brand-blue-light: #a83c18;
++  /*
++    Единственная роль этого токена — заливка главной кнопки; текстом он не
++    бывает нигде. Остальные акценты в светлой теме притемняются ради
++    читаемости самого текста, и по инерции притемнён был и этот — до
++    #b8431c. Но темнеет здесь подложка, а не буквы: почти чёрная подпись
++    `--on-accent` на ней давала 3.53, ниже AA. Заливке притемнение не нужно,
++    на бумажном фоне терракота и так держит вес: 6.00 с той же подписью.
++  */
++  --light-accent-teal: #e86a3d;
++  --light-focus-ring: rgba(184, 67, 28, 0.6);
++
++  --light-shadow-card: 0 10px 30px rgba(46, 36, 28, 0.09);
++  --light-shadow-surface: 0 6px 20px rgba(46, 36, 28, 0.07);
++  --light-shadow-popover: 0 22px 60px rgba(46, 36, 28, 0.17);
+   --light-shadow-card-hover:
+-    0 20px 46px rgba(11, 18, 32, 0.12), 0 0 0 1px rgba(37, 99, 235, 0.14);
+-  --light-shadow-surface-hover: 0 14px 34px rgba(11, 18, 32, 0.1);
+-  --light-surface-raised-hover: #ffffff;
+-  --light-surface-card-hover: #ffffff;
++    0 20px 46px rgba(46, 36, 28, 0.13), 0 0 0 1px rgba(184, 67, 28, 0.16);
++  --light-shadow-surface-hover: 0 14px 34px rgba(46, 36, 28, 0.11);
++  --light-surface-raised-hover: #fffdfb;
++  --light-surface-card-hover: #fffdfb;
+ 
+   /*
+     На светлом фоне цветные пятна ведут себя иначе: те же 11–12% дают грязный
+@@ -219,10 +216,10 @@
+     var(--background);
+   --light-hero-canvas-bg:
+     linear-gradient(145deg, rgba(255, 255, 255, 0.9), transparent 42%),
+-    linear-gradient(180deg, #ffffff, #eef2f9);
+-  --light-hero-canvas-border: rgba(11, 18, 32, 0.1);
++    linear-gradient(180deg, #ffffff, #f4efe9);
++  --light-hero-canvas-border: rgba(26, 22, 19, 0.1);
+   --light-hero-canvas-shadow:
+-    0 30px 70px rgba(11, 18, 32, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
++    0 30px 70px rgba(46, 36, 28, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+ }
+ 
+ /*
+@@ -418,9 +415,39 @@
+     юридические тексты) остаются узкими намеренно — там ширина задана
+     длиной строки, и они отцентрованы.
+   */
++  /*
++    Одна полоса на все обзорные страницы: каталог, обмены, уведомления,
++    избранное, кабинет, чужой профиль, карточка товара, админка. Раньше у
++    каждой была своя ширина — shell, 7xl, 6xl, 5xl, 1360px, — и при переходе
++    между разделами страница заметно прыгала вбок. Узкими остаются только те,
++    где узость осмысленна: соглашения (длина строки для чтения) и формы.
++  */
+   --container-shell: 1480px;
+ 
+   /*
++    Вариант 3: переопределение самой палитры Tailwind.
++
++    В разметке 179 мест обращаются к цвету напрямую — `bg-teal-300/10`,
++    `border-blue-400/25` и подобные. Токены на них не влияют, поэтому смена
++    палитры через `--accent-*` оставляла интерфейс наполовину сине-зелёным.
++    Править 179 мест поштучно — это переписывать разметку; вместо этого
++    меняется значение самих оттенков. Тёплый ряд ниже подставляется всюду,
++    где раньше был холодный, и вариант становится цельным одним файлом.
++  */
++  --color-teal-200: #f6c9b0;
++  --color-teal-300: #f0a882;
++  --color-teal-400: #e86a3d;
++  --color-teal-500: #d4552b;
++  --color-teal-950: #2a1207;
++  --color-blue-300: #f0a882;
++  --color-blue-400: #e86a3d;
++  --color-blue-500: #d4552b;
++  --color-cyan-300: #f6c9b0;
++  --color-cyan-400: #e88c56;
++  --color-sky-400: #e88c56;
++  --color-sky-500: #d4552b;
++
++  /*
+     Движение: одна кривая на все входы и выходы, три длительности по смыслу —
+     отклик на нажатие, перестроение блока, появление слоя.
+   */
+@@ -486,19 +513,38 @@
+   text-transform: uppercase;
+ }
+ 
++/* Вариант 2: заголовок берёт вес и плотность — у страницы появляется голос. */
+ .type-page-title {
+-  font-weight: 650;
+-  line-height: 1.04;
+-  letter-spacing: -0.045em;
++  font-weight: 800;
++  line-height: 0.98;
++  letter-spacing: -0.055em;
+ }
+ 
++/*
++  Вариант 3: второе слово заголовка — светлее и тише, а не другого цвета.
++
++  Раньше акцент в заголовке ставился градиентом («Мои <градиент>обмены</>»).
++  Градиент как приём здесь уже ничего не значил, и вариант 1 убрал его
++  отовсюду, кроме главного действия. Но заголовок без акцента становится
++  плоским, поэтому акцент возвращается другим способом: контрастом веса
++  внутри одного шрифта — 800 против 200. Тот же приём, что на карточке
++  товара («Canon AE-1»), и он же держит связь между экранами.
++*/
++.type-display-light {
++  font-weight: 200;
++  color: var(--text-subtle);
++  letter-spacing: -0.04em;
++}
++
++/* Вариант 2: подводка легче основного текста — контраст веса, а не размера. */
+ .type-supporting {
+   line-height: 1.6;
++  font-weight: 300;
+   color: var(--text-muted);
+ }
+ 
+ ::selection {
+-  background: rgba(77, 141, 255, 0.42);
++  background: rgba(232, 106, 61, 0.45);
+   color: white;
+ }
+ 
+@@ -562,10 +608,11 @@
+ }
+ 
+ /* Quiet surfaces keep browsing content secondary to the item photography and primary actions. */
++/* Вариант 3: глубина строится тенью, а не обводкой. */
+ .surface-card {
+   background: var(--surface-card);
+-  border: 1px solid var(--border-subtle);
+-  box-shadow: var(--shadow-surface);
++  border: 1px solid transparent;
++  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+ }
+ 
+ .surface-card-hover {
+@@ -745,61 +792,30 @@
+ @media (hover: hover) {
+   .glass-card-hover:hover {
+     background: var(--surface-raised-hover);
+-    border-color: rgba(77, 141, 255, 0.3);
++    border-color: rgba(232, 106, 61, 0.32);
+     box-shadow: var(--shadow-card-hover);
+     transform: translateY(-3px);
+   }
+ 
+   .surface-card-hover:hover {
+     background: var(--surface-card-hover);
+-    border-color: rgba(120, 170, 255, 0.26);
++    border-color: rgba(240, 168, 130, 0.28);
+     box-shadow: var(--shadow-surface-hover);
+     transform: translateY(-2px);
+   }
+ }
+ 
+-.gradient-text {
+-  background: linear-gradient(
+-    120deg,
+-    var(--brand-blue-light),
+-    var(--accent-teal)
+-  );
+-  -webkit-background-clip: text;
+-  background-clip: text;
+-  -webkit-text-fill-color: transparent;
+-}
+-
+-.gradient-text-accent {
+-  background: linear-gradient(
+-    120deg,
+-    var(--accent-teal),
+-    var(--brand-blue-light)
+-  );
+-  -webkit-background-clip: text;
+-  background-clip: text;
+-  -webkit-text-fill-color: transparent;
+-}
+-
+-.glow-purple {
+-  box-shadow:
+-    0 0 30px rgba(77, 141, 255, 0.3),
+-    0 0 70px rgba(77, 141, 255, 0.12);
+-}
+-
+-.glow-teal {
+-  box-shadow:
+-    0 0 30px rgba(56, 214, 178, 0.28),
+-    0 0 70px rgba(56, 214, 178, 0.1);
+-}
+-
+ .skip-link {
+   position: fixed;
+   left: 1rem;
+   top: -5rem;
+   z-index: 100;
+   border-radius: 0.875rem;
+-  background: white;
+-  color: #070a10;
++  /* Ссылка перехода не участвует в смене темы: она всплывает поверх любого
++     фона, поэтому у неё собственная пара, а не токены страницы. Тон тёплый,
++     как у остального оформления, — прежний был из синей палитры. */
++  background: #f5f1ea;
++  color: #1a0b04;
+   padding: 0.75rem 1rem;
+   font-weight: 650;
+   transition: top var(--duration-fast) var(--ease-out);
+Binary files menarium-2/src/app/icon.png and menarium-v3/src/app/icon.png differ
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/layout.tsx menarium-v3/src/app/layout.tsx
+--- a/src/app/layout.tsx	2026-08-18 21:39:23.376909639 +0000
++++ b/src/app/layout.tsx	2026-08-21 07:37:58.377103193 +0000
+@@ -13,8 +13,8 @@
+   // Значения --background числами: это уходит в <meta name="theme-color">,
+   // который не понимает CSS-переменные.
+   themeColor: [
+-    { media: "(prefers-color-scheme: light)", color: "#f5f7fb" },
+-    { media: "(prefers-color-scheme: dark)", color: "#070a10" },
++    { media: "(prefers-color-scheme: light)", color: "#faf7f3" },
++    { media: "(prefers-color-scheme: dark)", color: "#0c0b0a" },
+   ],
+   colorScheme: "light dark",
+   // viewportFit=cover нужен, чтобы env(safe-area-inset-*) в globals.css
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/manifest.ts menarium-v3/src/app/manifest.ts
+--- a/src/app/manifest.ts	2026-08-18 21:39:23.376909639 +0000
++++ b/src/app/manifest.ts	2026-08-21 07:37:58.376914914 +0000
+@@ -20,8 +20,8 @@
+     orientation: "portrait",
+     // Совпадает с --background: иначе системная строка и splash-экран
+     // вспыхивают белым перед первой отрисовкой тёмного интерфейса.
+-    background_color: "#070a10",
+-    theme_color: "#070a10",
++    background_color: "#0c0b0a",
++    theme_color: "#0c0b0a",
+     categories: ["shopping", "lifestyle", "social"],
+     icons: [
+       { src: "/icon.png", sizes: "512x512", type: "image/png", purpose: "any" },
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/app/opengraph-image.tsx menarium-v3/src/app/opengraph-image.tsx
+--- a/src/app/opengraph-image.tsx	2026-08-18 21:39:23.376909639 +0000
++++ b/src/app/opengraph-image.tsx	2026-08-21 07:37:33.229470081 +0000
+@@ -24,7 +24,7 @@
+           flexDirection: "column",
+           alignItems: "center",
+           justifyContent: "center",
+-          background: "linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #1a1030 100%)",
++          background: "linear-gradient(135deg, #0c0b0a 0%, #171613 55%, #2a1207 100%)",
+           color: "white",
+           fontFamily: "Onest",
+         }}
+@@ -51,7 +51,7 @@
+           />
+           <span style={{ fontSize: 72, fontWeight: 700, letterSpacing: -2 }}>Менариум</span>
+         </div>
+-        <p style={{ fontSize: 36, color: "rgba(255,255,255,0.75)", margin: 0 }}>
++        <p style={{ fontSize: 36, color: "rgba(245,241,234,0.78)", margin: 0 }}>
+           Меняйся. Просто
+         </p>
+       </div>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/components/layout/auth-shell.tsx menarium-v3/src/components/layout/auth-shell.tsx
+--- a/src/components/layout/auth-shell.tsx	2026-08-18 21:39:23.389643919 +0000
++++ b/src/components/layout/auth-shell.tsx	2026-08-21 07:34:20.092705486 +0000
+@@ -35,7 +35,7 @@
+ 
+           <div className="relative my-auto py-12">
+             <h2 className="max-w-xl text-5xl font-semibold leading-[1.02] tracking-[-0.055em] xl:text-6xl">
+-              Меняйся. <span className="gradient-text">Просто</span>
++              Меняйся. <span className="type-display-light">Просто</span>
+             </h2>
+             <p className="mt-6 max-w-lg text-base leading-7 text-text-subtle xl:text-lg">
+               Вещь на вещь, услуга на услугу или услуга на вещь. Выбирайте вариант и договаривайтесь напрямую.
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/components/layout/navigation.tsx menarium-v3/src/components/layout/navigation.tsx
+--- a/src/components/layout/navigation.tsx	2026-08-20 11:33:37.805097368 +0000
++++ b/src/components/layout/navigation.tsx	2026-08-21 07:37:11.083073852 +0000
+@@ -108,7 +108,7 @@
+                   href="/new"
+                   aria-label="Добавить объявление"
+                   aria-current={isActivePath(pathname, "/new") ? "page" : undefined}
+-                  className="inline-flex min-h-11 items-center gap-2 rounded-control border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:px-5"
++                  className="inline-flex min-h-11 items-center gap-2 rounded-control border border-line-default bg-fill-2 text-text-primary px-4 text-sm font-semibold shadow-[0_12px_28px_rgba(232,106,61,0.22)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] lg:px-5"
+                 >
+                   <Plus className="h-4 w-4" />
+                   <span className="hidden lg:inline">Добавить</span>
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/components/menarium/badge.tsx menarium-v3/src/components/menarium/badge.tsx
+--- a/src/components/menarium/badge.tsx	2026-08-20 09:05:18.109498269 +0000
++++ b/src/components/menarium/badge.tsx	2026-08-20 13:51:39.003745580 +0000
+@@ -19,7 +19,9 @@
+ const variants: Record<BadgeVariant, string> = {
+   neutral: "bg-fill-2 text-text-muted border-line-default",
+   glass: "bg-[var(--surface-sunken)]/78 text-text-strong border-line-default",
+-  gradient: "bg-gradient-to-r from-blue-500/85 to-teal-400/85 text-white border-line-default",
++  // Вариант 1: громкая градиентная плашка убрана — категория и тип это
++  // сведения, а не действие, и кричать им незачем.
++  gradient: "bg-teal-500/15 text-accent border-teal-500/30",
+   teal: "bg-teal-500/15 text-accent border-teal-500/30",
+   purple: "bg-blue-500/15 text-info border-blue-400/25",
+   danger: "bg-red-500/15 text-danger border-red-500/30",
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/components/menarium/button.tsx menarium-v3/src/components/menarium/button.tsx
+--- a/src/components/menarium/button.tsx	2026-08-18 21:39:23.389643919 +0000
++++ b/src/components/menarium/button.tsx	2026-08-21 07:37:11.080129949 +0000
+@@ -6,7 +6,9 @@
+ type ButtonSize = "sm" | "md" | "lg";
+ 
+ const variants: Record<ButtonVariant, string> = {
+-  primary: "border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow-[0_14px_34px_rgba(77,141,255,0.22)] hover:shadow-[0_18px_42px_rgba(56,214,178,0.2)]",
++  // Вариант 2: сплошной акцент вместо градиента. Градиент читается как
++  // украшение; сплошной цвет — как решение.
++  primary: "bg-accent-teal text-on-accent font-bold shadow-[0_12px_30px_rgba(232,106,61,0.26)] hover:brightness-110",
+   secondary: "border border-line-default bg-fill-2 text-text-primary font-semibold shadow-sm hover:border-line-strong hover:bg-fill-3",
+   ghost: "text-text-subtle hover:bg-fill-2 hover:text-text-primary",
+   danger: "bg-red-500/15 text-danger border border-red-500/30 hover:bg-red-500/25",
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/components/menarium/input.tsx menarium-v3/src/components/menarium/input.tsx
+--- a/src/components/menarium/input.tsx	2026-08-18 21:39:23.389643919 +0000
++++ b/src/components/menarium/input.tsx	2026-08-20 13:55:09.025630265 +0000
+@@ -5,7 +5,7 @@
+   return (
+     <input
+       className={cn(
+-        "min-h-12 w-full rounded-control border border-line-default bg-fill-2 px-4 py-3 text-text-primary shadow-inner shadow-black/10 outline-none placeholder:text-text-subtle focus:border-blue-300/55 focus:bg-fill-3 focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
++        "min-h-12 w-full border-0 border-b border-line-default bg-transparent px-1 py-3 text-lg font-light text-text-primary outline-none placeholder:font-light placeholder:text-text-subtle focus:border-accent-teal focus-visible:ring-0",
+         className,
+       )}
+       {...props}
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/components/menarium/item-card.tsx menarium-v3/src/components/menarium/item-card.tsx
+--- a/src/components/menarium/item-card.tsx	2026-08-20 08:51:44.265516883 +0000
++++ b/src/components/menarium/item-card.tsx	2026-08-21 08:22:51.341199793 +0000
+@@ -112,7 +112,7 @@
+         ) : null}
+         <div className="flex flex-1 flex-col p-4 sm:p-5.5">
+           {recommendationReason ? (
+-            <div className="mb-3 flex items-start gap-2 rounded-xs border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-info-soft">
++            <div className="mb-3 flex items-start gap-2 rounded-xs border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-text-muted">
+               <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+               <span>{recommendationReason}</span>
+             </div>
+@@ -126,7 +126,8 @@
+               </span>
+             ) : null}
+           </div>
+-          <div className="mt-auto rounded-control border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
++          {/* Вариант 1: рамки нет — блок отделён воздухом и волосяной линией. */}
++          <div className="mt-auto border-t border-line-hairline pt-3">
+             <span className="mb-1.5 flex items-center gap-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-accent">
+               <ArrowRightLeft className="h-3.5 w-3.5 text-accent" />
+               Ищу взамен
+diff -ruN '--exclude=*.tsbuildinfo' '--exclude=*-snapshots' menarium-2/src/components/menarium/select.tsx menarium-v3/src/components/menarium/select.tsx
+--- a/src/components/menarium/select.tsx	2026-08-18 21:39:23.389643919 +0000
++++ b/src/components/menarium/select.tsx	2026-08-20 13:55:09.027520283 +0000
+@@ -216,7 +216,7 @@
+         onClick={() => (open ? close() : openList())}
+         onKeyDown={onKeyDown}
+         className={cn(
+-          "flex min-h-12 w-full items-center justify-between gap-3 rounded-control border border-line-default bg-[var(--surface-input)] px-4 py-3 text-left text-text-primary outline-none transition",
++          "flex min-h-12 w-full items-center justify-between gap-3 border-0 border-b border-line-default bg-transparent px-1 py-3 text-left text-lg font-light text-text-primary outline-none transition",
+           "hover:border-line-strong focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+           "disabled:cursor-not-allowed disabled:border-line-hairline disabled:text-text-subtle disabled:hover:border-line-hairline",
+         )}
+--- a/public/brand/menarium-exchange.svg	2026-08-18 21:39:23.366250016 +0000
++++ b/public/brand/menarium-exchange.svg	2026-08-21 07:46:03.203131579 +0000
+@@ -3,6 +3,9 @@
+      width="896" height="896" viewBox="20 170 856 856">
+   <defs>
+     <!-- PURE VECTOR: no embedded raster/image -->
++    <!-- Вариант 3: знак перекрашен из синего в терракоту. Порядок
++         светлот внутри фаски сохранён, поэтому объём читается
++         так же, как в исходном знаке. -->
+     <linearGradient id="ringMetal" x1="0" y1="210" x2="0" y2="990" gradientUnits="userSpaceOnUse">
+       <stop offset="0" stop-color="#eef0ef"/>
+       <stop offset="0.16" stop-color="#d9dbda"/>
+@@ -25,27 +28,27 @@
+     </linearGradient>
+ 
+     <linearGradient id="arrowBlue" x1="80" y1="405" x2="770" y2="760" gradientUnits="userSpaceOnUse">
+-      <stop offset="0" stop-color="#2e83ca"/>
+-      <stop offset=".46" stop-color="#2878be"/>
+-      <stop offset=".78" stop-color="#2471b8"/>
+-      <stop offset="1" stop-color="#1a61a3"/>
++      <stop offset="0" stop-color="#e2794a"/>
++      <stop offset=".46" stop-color="#d96e3e"/>
++      <stop offset=".78" stop-color="#d16634"/>
++      <stop offset="1" stop-color="#b8511f"/>
+     </linearGradient>
+ 
+     <linearGradient id="arrowBlue2" x1="180" y1="600" x2="850" y2="800" gradientUnits="userSpaceOnUse">
+-      <stop offset="0" stop-color="#3188ce"/>
+-      <stop offset=".48" stop-color="#2879bf"/>
+-      <stop offset=".82" stop-color="#2572b6"/>
+-      <stop offset="1" stop-color="#1a61a3"/>
++      <stop offset="0" stop-color="#e57e4e"/>
++      <stop offset=".48" stop-color="#d96f3f"/>
++      <stop offset=".82" stop-color="#d26733"/>
++      <stop offset="1" stop-color="#b8511f"/>
+     </linearGradient>
+ 
+     <linearGradient id="bevelDark" x1="0" y1="0" x2="1" y2="1">
+-      <stop offset="0" stop-color="#185b99"/>
+-      <stop offset="1" stop-color="#0d4377"/>
++      <stop offset="0" stop-color="#9b4419"/>
++      <stop offset="1" stop-color="#7a3311"/>
+     </linearGradient>
+ 
+     <linearGradient id="bevelLight" x1="0" y1="0" x2="1" y2="1">
+-      <stop offset="0" stop-color="#67b7ed"/>
+-      <stop offset="1" stop-color="#2d8cd1"/>
++      <stop offset="0" stop-color="#f7b892"/>
++      <stop offset="1" stop-color="#e88a59"/>
+     </linearGradient>
+ 
+     <filter id="ringSoftShadow" x="-20%" y="-20%" width="140%" height="140%">
+@@ -110,7 +113,7 @@
+              L 46 558
+              Z"
+           fill="url(#arrowBlue)"
+-          stroke="#14588f" stroke-width="2.2"
++          stroke="#8e3d15" stroke-width="2.2"
+           stroke-linejoin="miter"/>
+ 
+     <!-- TOP ARROW left bevel -->
+@@ -122,7 +125,7 @@
+              L 579 459
+              L 579 394
+              L 704 501"
+-          fill="none" stroke="#5db2eb" stroke-width="5.2"
++          fill="none" stroke="#f4ab7c" stroke-width="5.2"
+           stroke-linejoin="miter" stroke-linecap="square" opacity=".72"/>
+ 
+     <!-- TOP ARROW head highlight -->
+@@ -150,7 +153,7 @@
+              L 821 769
+              Z"
+           fill="url(#arrowBlue2)"
+-          stroke="#14588f" stroke-width="2.2"
++          stroke="#8e3d15" stroke-width="2.2"
+           stroke-linejoin="miter"/>
+ 
+     <!-- BOTTOM ARROW right bevel -->
+@@ -162,7 +165,7 @@
+              L 309 666
+              L 309 608
+              L 195 712"
+-          fill="none" stroke="#5db2eb" stroke-width="5.2"
++          fill="none" stroke="#f4ab7c" stroke-width="5.2"
+           stroke-linejoin="miter" stroke-linecap="square" opacity=".70"/>
+ 
+     <!-- BOTTOM ARROW head highlight -->
