@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import { ArrowRight, Check, CircleUserRound, MailCheck, Tag } from "lucide-react";
 import { BrandGlyph } from "@/components/menarium/brand";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import type { ActivationStepId, ProfileActivation } from "@/features/profile/activation";
 import { cn } from "@/lib/utils";
 
@@ -18,14 +18,8 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
   const { nextAction } = activation;
 
   return (
-    <GlassCard className="relative overflow-hidden border border-white/8 p-5 sm:p-6">
-      <div
-        className={cn(
-          "pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full blur-3xl",
-          nextAction.kind === "urgent" ? "bg-amber-400/10" : "bg-teal-400/10",
-        )}
-      />
-      <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+    <SurfaceCard className="border border-white/8 p-5 sm:p-6">
+      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
         <div className="flex items-start gap-4">
           <span
             className={cn(
@@ -41,7 +35,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
             <p
               className={cn(
                 "text-xs font-semibold uppercase tracking-[0.16em]",
-                nextAction.kind === "urgent" ? "text-amber-200/75" : "text-teal-200/70",
+                nextAction.kind === "urgent" ? "text-amber-100/82" : "text-teal-100/82",
               )}
             >
               {nextAction.eyebrow}
@@ -61,10 +55,10 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
       </div>
 
       {!activation.complete ? (
-        <div className="relative mt-5 border-t border-white/[0.07] pt-4">
+        <div className="mt-5 border-t border-white/[0.07] pt-4">
           <div className="mb-3 flex items-center justify-between gap-4">
             <p className="text-xs font-medium text-white/62">Путь до первого обмена</p>
-            <p className="text-xs font-semibold text-teal-200/78">
+            <p className="text-xs font-semibold text-teal-100/82">
               {activation.completedCount} из {activation.steps.length}
             </p>
           </div>
@@ -77,7 +71,7 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
             aria-valuenow={activation.progress}
           >
             <div
-              className="h-full rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 transition-[width] duration-500"
+              className="h-full rounded-full bg-teal-300 transition-[width] duration-500"
               style={{ width: `${activation.progress}%` }}
             />
           </div>
@@ -116,6 +110,6 @@ export function ActivationPanel({ activation }: { activation: ProfileActivation 
           </ol>
         </div>
       ) : null}
-    </GlassCard>
+    </SurfaceCard>
   );
 }

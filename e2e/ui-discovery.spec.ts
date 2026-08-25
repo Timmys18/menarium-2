@@ -76,7 +76,7 @@ test.describe("Мобильное открытие каталога", () => {
 
     await expect(page).toHaveURL(/city=/);
     await expect(
-      page.getByRole("main").getByText("Найдено: 2", { exact: true }).filter({ visible: true }),
+      page.getByRole("main").getByText("2 объявления", { exact: true }).filter({ visible: true }),
     ).toBeVisible();
     await expect(page.getByRole("link", { name: "Актуальные", exact: true })).toHaveAttribute(
       "href",

@@ -3,13 +3,18 @@
 import { useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Camera, Check, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
+import { Camera, Check, Loader2, Trash2, Upload, X } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
+import { CategoryPicker } from "@/components/menarium/category-picker";
+import { CityPicker } from "@/components/menarium/city-picker";
 import { MenariumInput, MenariumTextarea } from "@/components/menarium/input";
 import type { PublicItem } from "@/features/items/serializers";
+import { categoryLabel, categoryOptions } from "@/features/taxonomy/catalog";
+import { findCityByName, getCity } from "@/features/locations/cities";
 import { cn } from "@/lib/utils";
+import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type EditableImage = {
   id?: string;
@@ -22,13 +27,16 @@ type EditableImage = {
 const categories = ["Техника", "Мода", "Музыка", "Спорт", "Книги", "Искусство", "Фото", "Услуги"];
 const quickWants = ["iPhone 15", "MacBook Pro", "PlayStation 5", "AirPods Pro", "Nike Jordan", "Vintage камера"];
 
+const defaultCategoryId = (type: "THING" | "SERVICE") => categoryOptions(type)[0]?.children[0]?.id ?? "";
+
 export function EditItemForm({ item }: { item: PublicItem }) {
   const router = useRouter();
+  const initialType = item.type === "SERVICE" ? "SERVICE" : "THING";
   const [title, setTitle] = useState(item.title);
-  const [type, setType] = useState<"THING" | "SERVICE">(item.type === "SERVICE" ? "SERVICE" : "THING");
-  const [category, setCategory] = useState(item.category);
+  const [type, setType] = useState<"THING" | "SERVICE">(initialType);
+  const [categoryId, setCategoryId] = useState(item.categoryId ?? defaultCategoryId(initialType));
   const [description, setDescription] = useState(item.description);
-  const [city, setCity] = useState(item.city);
+  const [cityId, setCityId] = useState(item.cityId ?? findCityByName(item.city)?.id ?? "");
   const [desiredText, setDesiredText] = useState(item.desired.join(", "));
   const [acceptsAnything, setAcceptsAnything] = useState(item.acceptsAnything);
   const [extraOfferText, setExtraOfferText] = useState(item.extraOfferText ?? "");
@@ -60,7 +68,8 @@ export function EditItemForm({ item }: { item: PublicItem }) {
   function validate() {
     if (title.trim().length < 2) return "Добавьте понятное название длиной хотя бы в два символа.";
     if (description.trim().length < 10) return "Расскажите о предложении чуть подробнее — минимум 10 символов.";
-    if (city.trim().length < 2) return "Укажите город, чтобы людям было проще оценить обмен.";
+    if (!categoryLabel(categoryId)) return "Выберите категорию из списка.";
+    if (!getCity(cityId)) return "Выберите город из списка.";
     if (desired.length === 0 && !acceptsAnything) {
       return "Напишите, что интересно получить, или отметьте, что открыты к любым предложениям.";
     }
@@ -143,9 +152,9 @@ export function EditItemForm({ item }: { item: PublicItem }) {
         body: JSON.stringify({
           title,
           type,
-          category,
+          categoryId,
           description,
-          city,
+          cityId,
           isOnline,
           desired,
           acceptsAnything,
@@ -155,8 +164,10 @@ export function EditItemForm({ item }: { item: PublicItem }) {
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error ?? "Не удалось сохранить объявление");
-      router.push(`/item/${body.data.id}`);
-      router.refresh();
+      await navigateWithViewTransition(
+        () => router.push(`/item/${body.data.id}`),
+        ["item-updated"],
+      );
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Не удалось сохранить объявление");
     } finally {
@@ -182,7 +193,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
 
   return (
     <form className="space-y-6" onSubmit={submit}>
-      <GlassCard className="overflow-hidden border border-white/8 p-5 sm:p-7">
+      <SurfaceCard className="overflow-hidden p-5 sm:p-7">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/65">Фотографии</p>
@@ -213,7 +224,7 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             (isUploading || images.length >= 8) && "pointer-events-none opacity-60",
           )}
         >
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-teal-400/20">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.06]">
             {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-blue-200" /> : <Upload className="h-6 w-6 text-teal-200" />}
           </div>
           <span className="inline-flex items-center gap-2 font-semibold text-white">
@@ -256,9 +267,9 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             ))}
           </div>
         ) : null}
-      </GlassCard>
+      </SurfaceCard>
 
-      <GlassCard className="space-y-6 border border-white/8 p-5 sm:p-7">
+      <SurfaceCard className="space-y-6 p-5 sm:p-7">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/65">Описание обмена</p>
           <h2 className="mt-1.5 text-2xl font-bold">Обнови детали</h2>
@@ -277,32 +288,29 @@ export function EditItemForm({ item }: { item: PublicItem }) {
           </label>
           <label className="space-y-2">
             <span className="text-sm font-medium text-white/70">Город</span>
-            <MenariumInput
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-              maxLength={80}
-              autoComplete="address-level2"
-              required
-            />
+            <CityPicker value={cityId} onChange={(city) => setCityId(city.id)} />
           </label>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
             <span className="text-sm font-medium text-white/70">Тип</span>
-            <select value={type} onChange={(event) => setType(event.target.value as "THING" | "SERVICE")} className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50">
+            <select
+              value={type}
+              onChange={(event) => {
+                const nextType = event.target.value as "THING" | "SERVICE";
+                setType(nextType);
+                setCategoryId(defaultCategoryId(nextType));
+              }}
+              className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50"
+            >
               <option value="THING">Предмет</option>
               <option value="SERVICE">Услуга</option>
             </select>
           </label>
           <label className="space-y-2">
             <span className="text-sm font-medium text-white/70">Категория</span>
-            <select value={category} onChange={(event) => setCategory(event.target.value)} className="min-h-12 w-full rounded-[14px] border border-white/10 bg-[#111723] px-4 py-3 text-white outline-none focus:border-blue-300/55 focus-visible:ring-2 focus-visible:ring-blue-300/50">
-              {categories.map((entry) => (
-                <option key={entry} value={entry}>{entry}</option>
-              ))}
-              {!categories.includes(category) ? <option value={category}>{category}</option> : null}
-            </select>
+            <CategoryPicker type={type} value={categoryId} onChange={setCategoryId} />
           </label>
         </div>
 
@@ -386,11 +394,11 @@ export function EditItemForm({ item }: { item: PublicItem }) {
             onClick={() => void cancel()}
             disabled={isSubmitting || isCancelling}
           >
-            {isCancelling ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+            {isCancelling ? <Loader2 className="h-5 w-5 animate-spin" /> : <X className="h-5 w-5" />}
             Отмена
           </MenariumButton>
         </div>
-      </GlassCard>
+      </SurfaceCard>
     </form>
   );
 }

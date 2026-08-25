@@ -95,7 +95,7 @@ test.describe("критический жизненный цикл обмена",
     resetSeedData();
   });
 
-  test("от создания объявления до уведомления и истории завершенной сделки", async ({ browser }) => {
+  test("от создания объявления до уведомления и истории завершённого обмена", async ({ browser }) => {
     const mariaContext = await browser.newContext();
     const dmitryContext = await browser.newContext();
     const maria = await mariaContext.newPage();
@@ -142,12 +142,12 @@ test.describe("критический жизненный цикл обмена",
         await expect(pick(main(dmitry).getByText("Вы предложили", { exact: true }))).toBeVisible();
         await expect(pick(main(dmitry).getByText("Вы получаете", { exact: true }))).toBeVisible();
         await confirmAction(dmitry, "Принять", "Принять обмен");
-        await expect(dmitry).toHaveURL(/\/profile\/exchanges\?.*tab=matches.*notice=accepted/);
+        await expect(dmitry).toHaveURL(/\/exchange\?.*tab=matches.*notice=accepted/);
         await expect(main(dmitry).getByText("Обмен принят", { exact: true })).toBeVisible();
         await expect(pick(main(dmitry).getByLabel("Текст сообщения"))).toBeEnabled({ timeout: 20_000 });
       });
 
-      await test.step("обе стороны обмениваются сообщениями в чате сделки", async () => {
+      await test.step("обе стороны обмениваются сообщениями в чате обмена", async () => {
         await openNotification(maria, "Обмен принят", swapId);
         await sendDealMessage(maria, senderMessage);
 

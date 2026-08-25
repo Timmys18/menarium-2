@@ -101,7 +101,7 @@ export function SwipeLikeModal({
         </div>
         <ArrowRightLeft className="h-4 w-4 justify-self-center text-teal-200" />
         <div className="min-w-0 text-right">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/62">Получаешь</span>
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/62">Вы получаете</span>
           <span className="mt-1 block truncate text-sm font-medium text-white">{receiverTitle}</span>
         </div>
       </div>

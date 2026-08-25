@@ -71,7 +71,7 @@ function actionForStep(step: ActivationStep, outgoingPending: number): ProfileNe
       return {
         eyebrow: "Обмен",
         title: "Найдите подходящий обмен",
-        description: "Выберите предложение другого участника и отправьте свой вариант.",
+        description: "Выберите объявление другого участника и отправьте предложение обмена.",
         href: step.href,
         label: "Открыть свайп",
         kind: "progress",
@@ -83,7 +83,7 @@ function actionForStep(step: ActivationStep, outgoingPending: number): ProfileNe
         description:
           outgoingPending > 0
             ? "Мы покажем ответ сразу, как только второй участник примет решение."
-            : "Предыдущий вариант не сложился. В свайпе уже могут быть новые подходящие предложения.",
+            : "Предыдущий вариант не сложился. В свайпе уже могут быть новые подходящие объявления.",
         href: step.href,
         label: outgoingPending > 0 ? "Открыть обмены" : "Найти другой вариант",
         kind: "progress",

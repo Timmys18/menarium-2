@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { devices, expect, test, type Page } from "@playwright/test";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 
@@ -153,7 +153,12 @@ test.describe("final UI acceptance matrix", () => {
       test.setTimeout(300_000);
       resetSeedData();
       const fixture = createIsolatedFixture();
-      const context = await browser.newContext({ viewport, isMobile: viewport.isMobile, hasTouch: viewport.hasTouch });
+      const context = await browser.newContext({
+        viewport,
+        isMobile: viewport.isMobile,
+        hasTouch: viewport.hasTouch,
+        userAgent: viewport.isMobile ? devices["iPhone 13"].userAgent : undefined,
+      });
       const page = await context.newPage();
       const browserErrors: string[] = [];
       page.on("pageerror", (error) => browserErrors.push(`pageerror: ${error.message}`));
@@ -191,9 +196,9 @@ test.describe("final UI acceptance matrix", () => {
           "/profile/chats",
           `/profile/chats/item/${fixture.threadId}`,
           `/exchange?tab=matches&swap=${fixture.swapId}`,
-          `/profile/exchanges?tab=matches&swap=${fixture.swapId}`,
+          `/exchange?tab=matches&swap=${fixture.swapId}`,
           `/exchange?tab=incoming&swap=${fixture.incomingPendingSwapId}`,
-          `/profile/exchanges?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`,
+          `/exchange?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`,
         ];
 
         for (const route of routes) {
@@ -224,7 +229,7 @@ test.describe("final UI acceptance matrix", () => {
           `${viewport.name}: incoming action`,
         );
 
-        await gotoRoute(page, `/profile/exchanges?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`);
+        await gotoRoute(page, `/exchange?tab=matches&swap=${fixture.incomingAcceptedSwapId}&notice=accepted`);
         await waitForSettledMain(page);
         logProgress(`${viewport.name} accepted focus`);
         await expectVisibleKeyboardFocus(

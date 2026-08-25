@@ -3,6 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const port = process.env.PORT ?? "3001";
+const localAppUrl = process.env.E2E_APP_URL ?? `http://localhost:${port}`;
 const nextAuthSecret = (process.env.NEXTAUTH_SECRET?.length ?? 0) >= 32
   ? process.env.NEXTAUTH_SECRET
   : "local-acceptance-secret-32-characters-minimum";
@@ -35,8 +36,11 @@ Object.assign(process.env, {
   APP_RELEASE: process.env.APP_RELEASE ?? "local-acceptance",
   HOSTNAME: "127.0.0.1",
   PORT: port,
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? `http://localhost:${port}`,
-  APP_URL: process.env.APP_URL ?? `http://localhost:${port}`,
+  // The production server runs on an isolated port during browser acceptance.
+  // Do not inherit a developer URL from .env or authentication silently posts
+  // to the wrong local server.
+  NEXTAUTH_URL: localAppUrl,
+  APP_URL: localAppUrl,
   NEXTAUTH_SECRET: nextAuthSecret,
   REDIS_URL: process.env.REDIS_URL ?? "redis://127.0.0.1:6379",
   SMTP_HOST: process.env.SMTP_HOST ?? "127.0.0.1",

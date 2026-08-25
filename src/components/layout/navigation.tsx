@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Bell, Compass, MessageCircle, Plus, Repeat2, Sparkles, UserRound } from "lucide-react";
-import { BrandLockup, BrandMark } from "@/components/menarium/brand";
+import { BrandLockup } from "@/components/menarium/brand";
 import { cn } from "@/lib/utils";
 
 const primaryItems = [
@@ -58,10 +59,22 @@ export function Navigation({
   pendingSwaps?: number;
 }) {
   const pathname = usePathname();
+  const [touchNavigation, setTouchNavigation] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const mobileBrowser = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      setTouchNavigation(mobileBrowser || navigator.maxTouchPoints > 0 || matchMedia("(any-pointer: coarse)").matches);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   return (
     <>
-      <nav aria-label="Основная навигация" className="desktop-navigation fixed inset-x-0 top-0 z-50 hidden md:block">
+      <nav
+        aria-label="Основная навигация"
+        className={cn("desktop-navigation fixed inset-x-0 top-0 z-50 hidden md:block", touchNavigation && "touch-navigation-device")}
+      >
         <div className="mx-auto max-w-[1480px] px-4 py-3 lg:px-6">
           <div className="app-chrome rounded-[24px] px-3 py-2.5">
             <div className="flex items-center justify-between gap-4">
@@ -95,7 +108,7 @@ export function Navigation({
                           : "border border-transparent text-white/62 hover:bg-white/[0.055] hover:text-white",
                       )}
                     >
-                      <Icon className={cn("h-4 w-4", active ? "text-teal-300" : "text-white/62")} />
+                      <Icon className={cn("h-4 w-4", active ? "text-blue-200" : "text-white/62")} />
                       {item.label}
                       <CountBadge count={count} />
                     </Link>
@@ -134,7 +147,7 @@ export function Navigation({
                   className={cn(
                     "flex h-11 w-11 items-center justify-center rounded-[14px] border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                     isActivePath(pathname, "/profile")
-                      ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
+                      ? "border-blue-300/25 bg-blue-400/10 text-blue-200"
                       : "border-white/[0.07] bg-white/[0.035] text-white/62 hover:bg-white/[0.07] hover:text-white",
                   )}
                 >
@@ -146,7 +159,7 @@ export function Navigation({
         </div>
       </nav>
 
-      <header className="mobile-navigation fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden">
+      <header className={cn("mobile-navigation fixed inset-x-0 top-0 z-50 px-3 pt-3 md:hidden", touchNavigation && "touch-navigation-device")}>
         <div className="app-chrome mx-auto flex max-w-lg items-center justify-between rounded-[24px] px-3 py-2">
           <Link
             href="/"
@@ -168,7 +181,7 @@ export function Navigation({
               className={cn(
                 "relative flex h-11 w-11 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                 isActivePath(pathname, "/notifications")
-                  ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
+                  ? "border-blue-300/25 bg-blue-400/10 text-blue-200"
                   : "border-white/[0.08] bg-white/[0.04] text-white/62",
               )}
             >
@@ -182,7 +195,7 @@ export function Navigation({
               className={cn(
                 "flex h-11 w-11 items-center justify-center rounded-xl border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                 isActivePath(pathname, "/profile")
-                  ? "border-teal-300/25 bg-teal-300/10 text-teal-200"
+                  ? "border-blue-300/25 bg-blue-400/10 text-blue-200"
                   : "border-white/[0.08] bg-white/[0.04] text-white/62",
               )}
             >
@@ -192,7 +205,10 @@ export function Navigation({
         </div>
       </header>
 
-      <nav aria-label="Мобильная навигация" className="mobile-navigation fixed inset-x-0 bottom-0 z-50 md:hidden">
+      <nav
+        aria-label="Мобильная навигация"
+        className={cn("mobile-navigation fixed inset-x-0 bottom-0 z-50 md:hidden", touchNavigation && "touch-navigation-device")}
+      >
         <div className="mobile-navigation-bottom-inset px-2.5 pt-5">
           <div className="app-chrome mx-auto max-w-lg rounded-[24px] px-1.5 py-1.5">
             <div className="grid grid-cols-5 items-stretch gap-0.5">
@@ -206,7 +222,7 @@ export function Navigation({
                     href={item.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[11px] font-medium leading-none transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
+                      "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[10px] font-medium leading-none tracking-[-0.01em] transition min-[360px]:text-[11px] min-[360px]:tracking-normal active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                       active && !item.primary ? "bg-white/[0.06] text-white" : "text-white/62",
                       item.primary && "text-white/86",
                     )}
@@ -217,15 +233,11 @@ export function Navigation({
                         item.primary
                           ? "h-8 w-10 rounded-xl text-white"
                           : active
-                            ? "h-8 w-10 rounded-xl bg-white/[0.1] text-teal-200"
+                            ? "h-8 w-10 rounded-xl bg-blue-400/[0.12] text-blue-200"
                             : "h-8 w-10 rounded-xl text-white/62",
                       )}
                     >
-                      {item.primary ? (
-                        <BrandMark size="xs" className="h-6 w-6" decorative />
-                      ) : (
-                        <Icon className="h-5 w-5" />
-                      )}
+                      <Icon className="h-5 w-5" />
                       <CountBadge count={count} compact />
                     </span>
                     <span className={cn("whitespace-nowrap", active && "font-semibold text-white")}>{item.label}</span>

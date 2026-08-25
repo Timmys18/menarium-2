@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Prisma, SwapStatus } from "@prisma/client";
 import { ArrowRight, MessageCircle } from "lucide-react";
-import { Badge } from "@/components/menarium/badge";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
@@ -43,12 +42,12 @@ function dealChatHref({
   isSender: boolean;
 }) {
   if (status === SwapStatus.ACCEPTED) {
-    return `/profile/exchanges?tab=matches&swap=${encodeURIComponent(id)}`;
+    return `/exchange?tab=matches&swap=${encodeURIComponent(id)}`;
   }
   if (status === SwapStatus.COMPLETED) {
-    return `/profile/exchanges?tab=matches&filter=history&swap=${encodeURIComponent(id)}`;
+    return `/exchange?tab=matches&filter=history&swap=${encodeURIComponent(id)}`;
   }
-  return `/profile/exchanges?tab=${isSender ? "outgoing" : "incoming"}&filter=history&swap=${encodeURIComponent(id)}`;
+  return `/exchange?tab=${isSender ? "outgoing" : "incoming"}&filter=history&swap=${encodeURIComponent(id)}`;
 }
 
 function formatChatTime(value: Date) {
@@ -160,9 +159,8 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
       ownContext: `Ваше предложение: ${yourItem.title}`,
       href: dealChatHref({ id: swap.id, status: swap.status, isSender }),
       unread: swap._count.messages,
-      preview: lastMessage?.text ?? "Сделка активна. Обсудите детали обмена.",
+      preview: lastMessage?.text ?? "Обмен активен. Обсудите детали в чате.",
       at: lastMessage?.createdAt ?? swap.updatedAt,
-      kind: "Обмен",
     };
   });
   const itemChats = itemThreads.map((thread) => {
@@ -177,7 +175,6 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
       unread: thread._count.messages,
       preview: lastMessage?.text ?? "Диалог создан, сообщений пока нет.",
       at: lastMessage?.createdAt ?? thread.updatedAt,
-      kind: "Объявление",
     };
   });
   const chats = [...dealChats, ...itemChats]
@@ -190,15 +187,14 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
   return (
     <div className="space-y-5">
       <header>
-        <p className="type-kicker text-teal-200/55">Все разговоры</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight">Сообщения</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Сообщения</h2>
       </header>
 
           {userId ? <ChatCenterRefresh /> : null}
           {!userId ? (
             <EmptyState
               title="Войдите, чтобы увидеть чаты"
-              description="Здесь будут диалоги по объявлениям и сделкам."
+              description="Здесь будут диалоги по объявлениям и активным обменам."
               actionHref={loginHref("/profile/chats")}
               actionLabel="Войти"
             />
@@ -214,9 +210,9 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                     href={chatsHref(filter)}
                     aria-current={activeFilter === filter ? "page" : undefined}
                     className={cn(
-                      "rounded-[14px] px-4 py-2.5 text-sm font-medium transition",
+                      "inline-flex min-h-11 items-center rounded-[14px] px-4 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                       activeFilter === filter
-                        ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
+                        ? "bg-white/[0.1] text-white"
                         : "text-white/62 hover:bg-white/[0.055] hover:text-white",
                     )}
                   >
@@ -229,13 +225,13 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
               </nav>
 
               {chats.length > 0 ? (
-                <GlassCard className="overflow-hidden border border-white/8">
+                <SurfaceCard className="overflow-hidden">
                   {chats.map((chat) => (
                     <Link
                       key={chat.id}
                       href={chat.href}
                       className={cn(
-                        "group flex items-start gap-3 border-b border-white/[0.05] px-4 py-4 transition last:border-b-0 hover:bg-white/[0.04] sm:items-center sm:gap-4 sm:px-5",
+                        "group flex min-h-20 items-start gap-3 border-b border-white/[0.05] px-4 py-4 transition last:border-b-0 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/70 sm:items-center sm:gap-4 sm:px-5",
                         chat.unread && "bg-blue-400/[0.025]",
                       )}
                     >
@@ -243,7 +239,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                         className={cn(
                           "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] sm:h-12 sm:w-12",
                           chat.unread
-                            ? "bg-gradient-to-br from-blue-500/60 to-teal-400/50 text-white"
+                            ? "bg-blue-400/18 text-blue-100"
                             : "bg-white/[0.05] text-white/62",
                         )}
                       >
@@ -257,7 +253,6 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
                           <span className="truncate font-semibold text-white">{chat.title}</span>
-                          <Badge variant={chat.kind === "Обмен" ? "teal" : "purple"}>{chat.kind}</Badge>
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-white/62">{chat.context}</span>
                         {chat.ownContext ? (
@@ -275,7 +270,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                       </span>
                     </Link>
                   ))}
-                </GlassCard>
+                </SurfaceCard>
               ) : (
                 <EmptyState
                   title={activeFilter === "unread" ? "Новых сообщений нет" : "Чатов пока нет"}
@@ -294,7 +289,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                   {page > 1 ? (
                     <Link
                       href={chatsHref(activeFilter, page - 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       ← Назад
                     </Link>
@@ -303,7 +298,7 @@ export default async function ProfileChatsPage({ searchParams }: Props) {
                   {page < totalPages ? (
                     <Link
                       href={chatsHref(activeFilter, page + 1)}
-                      className="rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
+                      className="inline-flex min-h-11 items-center rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       Дальше →
                     </Link>

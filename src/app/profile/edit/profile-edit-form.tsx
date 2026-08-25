@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Check, Eye, EyeOff, Loader2, Trash2, Upload } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { ConfirmDialog } from "@/components/menarium/dialog";
 import { MenariumInput } from "@/components/menarium/input";
 import { CityPicker } from "@/components/menarium/city-picker";
 import { findCityByName } from "@/features/locations/cities";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
+import { navigateWithViewTransition } from "@/lib/view-transition";
 
 type ProfileFormUser = {
   name: string | null;
@@ -96,8 +97,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Не удалось сохранить профиль");
-      router.push("/profile");
-      router.refresh();
+      await navigateWithViewTransition(() => router.push("/profile"), ["profile-updated"]);
     } catch (saveError) {
       setProfileError(saveError instanceof Error ? saveError.message : "Не удалось сохранить профиль");
     } finally {
@@ -149,14 +149,14 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
 
   return (
     <div className="space-y-6">
-      <GlassCard className="space-y-5 p-5 sm:p-8">
+      <SurfaceCard className="space-y-5 p-5 sm:p-8">
         {profileError ? (
           <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
             {profileError}
           </div>
         ) : null}
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500">
+          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-blue-500 text-white">
             {image ? (
               <Image src={image} alt="Аватар" fill sizes="80px" className="object-cover" />
             ) : (
@@ -178,7 +178,7 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             />
             <label
               htmlFor="avatar-upload"
-              className="glass-card inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold focus-within:ring-2 focus-within:ring-teal-400/60"
+              className="surface-card inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold focus-within:ring-2 focus-within:ring-blue-300/70"
             >
               {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Загрузить аватар
@@ -249,9 +249,9 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
             Отмена
           </MenariumLinkButton>
         </div>
-      </GlassCard>
+      </SurfaceCard>
 
-      <GlassCard className="space-y-4 p-5 sm:p-8">
+      <SurfaceCard className="space-y-4 p-5 sm:p-8">
         <h2 className="text-lg font-semibold">Смена пароля</h2>
         <p className="text-sm leading-5 text-white/62">
           После смены пароля мы завершим текущий сеанс. Войти снова можно будет уже с новым паролем.
@@ -339,9 +339,9 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           {isChangingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Обновить пароль
         </MenariumButton>
-      </GlassCard>
+      </SurfaceCard>
 
-      <GlassCard className="space-y-4 border border-red-500/20 p-5 sm:p-8">
+      <SurfaceCard className="space-y-4 border-red-500/20 p-5 sm:p-8">
         <h2 className="text-lg font-semibold text-red-200">Удаление аккаунта</h2>
         <p className="text-sm text-white/62">
           Личные данные будут удалены, объявления сняты с публикации. История завершённых сделок
@@ -379,13 +379,13 @@ export function ProfileEditForm({ user }: { user: ProfileFormUser }) {
           {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
           Удалить аккаунт
         </MenariumButton>
-      </GlassCard>
+      </SurfaceCard>
       <ConfirmDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={deleteAccount}
         title="Удалить аккаунт?"
-        description="Это действие нельзя отменить. Мы удалим ваши личные данные и закроем доступ к аккаунту. Завершённые сделки и сообщения останутся у участников с подписью «Удалённый пользователь»."
+        description="Это действие нельзя отменить. Мы удалим ваши личные данные и закроем доступ к аккаунту. Завершённые обмены и сообщения останутся у участников с подписью «Удалённый пользователь»."
         confirmLabel="Удалить мои данные"
         pending={isDeleting}
         danger

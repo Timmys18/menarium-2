@@ -4,13 +4,13 @@ import { useRef, useState, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Eye, EyeOff, Loader2, UserRound } from "lucide-react";
+import { Check, Eye, EyeOff, Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
-import { CityPicker } from "@/components/menarium/city-picker";
 import { getPasswordChecks, isPasswordReady } from "@/lib/password-policy";
 import { trackClientProductEvent } from "@/lib/product-analytics-client";
 import { safeCallbackUrl } from "@/lib/utils";
+import { navigateWithViewTransition } from "@/lib/view-transition";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -18,8 +18,6 @@ export function RegisterForm() {
   const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const loginHref = `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const hasTrackedStart = useRef(false);
-  const [name, setName] = useState("");
-  const [cityId, setCityId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +36,7 @@ export function RegisterForm() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, cityId, email, password }),
+        body: JSON.stringify({ email, password }),
       });
       const body = await response.json();
       if (!response.ok) {
@@ -61,8 +59,10 @@ export function RegisterForm() {
         return;
       }
 
-      router.push(destination);
-      router.refresh();
+      await navigateWithViewTransition(
+        () => router.push(destination),
+        ["account-created"],
+      );
     } catch {
       setError("Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.");
     } finally {
@@ -80,10 +80,7 @@ export function RegisterForm() {
         void trackClientProductEvent({ name: "registration_started", path: "/auth/register" });
       }}
     >
-      <div className="rounded-[18px] border border-white/7 bg-white/[0.025] p-4 sm:p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-200/65">Шаг 1 · Доступ</p>
-        <p className="mt-1.5 text-sm text-white/62">Только почта и пароль — этого достаточно, чтобы начать.</p>
-      </div>
+      <p className="text-sm leading-6 text-white/62">Только почта и пароль. Имя и город можно добавить позже в профиле.</p>
 
       <div className="space-y-2.5">
         <label htmlFor="register-email" className="block text-sm font-medium text-white/75">
@@ -146,40 +143,6 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <fieldset className="rounded-[18px] border border-white/8 bg-white/[0.025] p-4 sm:p-5">
-        <legend className="sr-only">Профиль — необязательно</legend>
-        <div className="mb-4 flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-blue-400/10 text-blue-200">
-            <UserRound className="h-4.5 w-4.5" />
-          </span>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-200/65">Шаг 2 · Профиль</p>
-            <p className="mt-1 text-sm text-white/62">Необязательно — можно заполнить сейчас или позже.</p>
-          </div>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label htmlFor="register-name" className="block text-sm font-medium text-white/70">
-              Имя
-            </label>
-            <MenariumInput
-              id="register-name"
-              name="name"
-              autoComplete="name"
-              placeholder="Как обращаться"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="register-city" className="block text-sm font-medium text-white/70">
-              Город
-            </label>
-            <CityPicker id="register-city" value={cityId} onChange={(city) => setCityId(city.id)} />
-          </div>
-        </div>
-      </fieldset>
-
       <p className="text-xs leading-5 text-white/62">
         После регистрации предложим подтвердить почту. Повторно отправить письмо всегда можно из профиля.
       </p>
@@ -200,7 +163,7 @@ export function RegisterForm() {
       ) : null}
       <MenariumButton type="submit" className="w-full" disabled={isSubmitting || !email || !passwordReady}>
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-        Зарегистрироваться
+        Создать аккаунт
       </MenariumButton>
       <MenariumLinkButton href={loginHref} variant="secondary" className="w-full">
         Уже есть аккаунт

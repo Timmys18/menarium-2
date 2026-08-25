@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowLeft, ArrowRightLeft, MessageCircle, ShieldCheck } from "lucide-react";
 import { BrandLockup } from "@/components/menarium/brand";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 
 export function AuthShell({
   title,
@@ -90,10 +90,9 @@ export function AuthShell({
             <p className="type-supporting mt-3 max-w-md text-sm sm:text-base">{subtitle}</p>
           </div>
 
-          <GlassCard className="relative overflow-hidden rounded-[26px] p-5 sm:rounded-[30px] sm:p-7">
-            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-teal-300/55 to-transparent" />
+          <SurfaceCard className="relative overflow-hidden rounded-[26px] p-5 sm:rounded-[30px] sm:p-7">
             {children}
-          </GlassCard>
+          </SurfaceCard>
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-white/62">
             <span className="flex items-center gap-1.5">

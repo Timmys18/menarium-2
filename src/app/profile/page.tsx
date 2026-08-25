@@ -2,8 +2,7 @@ import Link from "next/link";
 import { ItemStatus } from "@prisma/client";
 import { Pencil } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
-import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { toItemCardView } from "@/features/items/presenters";
@@ -98,13 +97,11 @@ export default async function ProfilePage({
         <ProfileNotice kind="welcome" />
       ) : null}
 
-      <GlassCard className="border border-white/8 p-4 sm:p-5">
-        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <SurfaceCard className="p-4 sm:p-5">
+        <header>
           <div>
-            <p className="type-kicker text-teal-200/55">Ваши вещи и услуги</p>
-            <h2 className="mt-1 text-2xl font-semibold tracking-tight">Мои объявления</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">Мои объявления</h2>
           </div>
-          <MenariumLinkButton href="/new" size="sm">Добавить</MenariumLinkButton>
         </header>
 
         <nav className="mt-5 grid grid-cols-2 gap-1 rounded-[18px] border border-white/7 bg-black/10 p-1 sm:grid-cols-4" aria-label="Статус объявлений">
@@ -189,7 +186,7 @@ export default async function ProfilePage({
             />
           </div>
         )}
-      </GlassCard>
+      </SurfaceCard>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { prisma } from "@/lib/prisma";
 import { cn, loginHref } from "@/lib/utils";
@@ -137,7 +137,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
             </div>
             <h1 className="type-page-title mt-3 text-4xl md:text-5xl">Центр безопасности</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/62 sm:text-base">
-              Здесь сохраняются ваши обращения, их связь со сделкой и результат проверки.
+              Здесь сохраняются ваши обращения, их связь с обменом и результат проверки.
               Внутреннее расследование остаётся конфиденциальным.
             </p>
           </header>
@@ -152,7 +152,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
             />
           ) : (
             <div className="space-y-5">
-              <GlassCard className="overflow-hidden border border-teal-300/12 bg-gradient-to-br from-teal-300/[0.07] via-white/[0.025] to-blue-400/[0.06] p-5 sm:p-6">
+              <SurfaceCard className="overflow-hidden border-teal-300/12 p-5 sm:p-6">
                 <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                   <div className="flex items-start gap-4">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] bg-teal-300/12 text-teal-200">
@@ -161,20 +161,20 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                     <div>
                       <h2 className="text-lg font-semibold">Мы сохраняем контекст</h2>
                       <p className="mt-1 max-w-xl text-sm leading-5 text-white/62">
-                        Жалоба из обмена прикрепляется к конкретной сделке. Блокировка остановит
+                        Жалоба из обмена прикрепляется к конкретному обмену. Блокировка остановит
                         новые контакты, но чат принятого обмена останется доступен для безопасного завершения.
                       </p>
                     </div>
                   </div>
                   <Link
-                    href="/profile/exchanges"
-                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.055] px-4 text-sm font-semibold text-white/72 transition hover:bg-white/[0.09] hover:text-white"
+                    href="/exchange"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-white/[0.055] px-4 text-sm font-semibold text-white/72 transition hover:bg-white/[0.09] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                   >
                     Открыть обмены
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
-              </GlassCard>
+              </SurfaceCard>
 
               <nav
                 aria-label="Фильтр обращений"
@@ -192,7 +192,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                     className={cn(
                       "flex min-h-11 items-center justify-center rounded-[14px] px-3 py-2.5 text-center text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75",
                       activeFilter === filter
-                        ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
+                        ? "bg-white/[0.1] text-white"
                         : "text-white/62 hover:bg-white/[0.055] hover:text-white",
                     )}
                   >
@@ -224,7 +224,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                         report.targetUser?.name ??
                         "Объект больше недоступен";
                     const contextHref = report.swap
-                      ? `/profile/exchanges?swap=${report.swap.id}`
+                      ? `/exchange?swap=${report.swap.id}`
                       : report.item
                         ? `/item/${report.item.id}`
                         : report.targetUser
@@ -232,7 +232,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                           : null;
 
                     return (
-                      <GlassCard key={report.id} className="border border-white/8 p-5 sm:p-6">
+                      <SurfaceCard key={report.id} className="p-5 sm:p-6">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                           <span
                             className={cn(
@@ -298,7 +298,7 @@ export default async function SafetyCenterPage({ searchParams }: Props) {
                             ) : null}
                           </div>
                         </div>
-                      </GlassCard>
+                      </SurfaceCard>
                     );
                   })}
                 </div>

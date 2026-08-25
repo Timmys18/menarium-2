@@ -126,6 +126,7 @@ export function ChatConversation({
   emptyMessage,
   draftKey,
   kind,
+  screenLayout = false,
 }: {
   target: ConversationTarget | null;
   resolveTarget?: () => Promise<ConversationTarget>;
@@ -139,6 +140,7 @@ export function ChatConversation({
   emptyMessage: string;
   draftKey: string;
   kind: "DEAL" | "ITEM";
+  screenLayout?: boolean;
 }) {
   const router = useRouter();
   const draftStorageKey = `menarium:chat-draft:v1:${currentUserId}:${draftKey}`;
@@ -535,7 +537,10 @@ export function ChatConversation({
 
   return (
     <div
-      className="min-w-0 max-w-full"
+      className={cn(
+        "min-w-0 max-w-full",
+        screenLayout && "flex min-h-0 flex-1 flex-col",
+      )}
       data-realtime-connected={target ? String(connected) : undefined}
     >
       {target ? (
@@ -585,7 +590,10 @@ export function ChatConversation({
         role="log"
         aria-live="polite"
         aria-label="Сообщения чата"
-        className="max-h-[32rem] space-y-2 overflow-y-auto overscroll-contain pr-1"
+        className={cn(
+          "space-y-2 overflow-y-auto overscroll-contain pr-1",
+          screenLayout ? "min-h-0 flex-1" : "max-h-[32rem]",
+        )}
       >
         {nextCursor ? (
           <div className="flex justify-center pb-2">
@@ -632,13 +640,13 @@ export function ChatConversation({
                     className={cn(
                       "max-w-[88%] overflow-hidden rounded-[19px] px-3.5 py-2.5 text-sm sm:max-w-[78%]",
                       isOwn
-                        ? "rounded-br-[7px] bg-gradient-to-br from-blue-500/28 to-teal-400/18 text-white/92"
+                        ? "rounded-br-[7px] border border-blue-300/18 bg-blue-400/[0.16] text-white/92"
                         : "rounded-bl-[7px] border border-white/[0.07] bg-white/[0.045] text-white/82",
                     )}
                   >
                     {message.replyTo ? (
                       <div className="mb-2 border-l-2 border-teal-300/45 pl-2.5 text-xs text-white/62">
-                        <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-teal-200/65">
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-teal-100/82">
                           {message.replyTo.senderId === currentUserId ? "Вы" : "Собеседник"}
                         </span>
                         <span className="mt-0.5 block max-w-[18rem] truncate">
@@ -674,7 +682,7 @@ export function ChatConversation({
                       </time>
                       {isOwn && message.id === lastOwnMessageId ? (
                         <span
-                          className={cn("inline-flex items-center gap-1", message.isRead && "text-teal-200/75")}
+                          className={cn("inline-flex items-center gap-1", message.isRead && "text-teal-100/90")}
                           aria-label={message.isRead ? "Прочитано" : "Отправлено"}
                         >
                           <CheckCheck className="h-3.5 w-3.5" />
@@ -718,12 +726,18 @@ export function ChatConversation({
         ) : null}
       </div>
 
-      <form className="mt-4 space-y-2" onSubmit={sendMessage}>
+      <form
+        className={cn(
+          "mt-4 space-y-2",
+          screenLayout && "shrink-0 border-t border-white/[0.06] bg-[#09111a]/96 pt-3",
+        )}
+        onSubmit={sendMessage}
+      >
         {replyingTo ? (
           <div className="flex items-center gap-3 rounded-[15px] border border-teal-300/12 bg-teal-300/[0.045] px-3 py-2.5">
-            <Reply className="h-4 w-4 shrink-0 text-teal-200/65" />
+            <Reply className="h-4 w-4 shrink-0 text-teal-100/82" />
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-200/65">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-100/82">
                 Ответ
               </p>
               <p className="truncate text-xs text-white/62">{messageSummary(replyingTo)}</p>
@@ -827,9 +841,9 @@ export function ChatConversation({
             <span />
           )}
           {target && !connected ? (
-            <span className="shrink-0 text-amber-200/60">Восстанавливаем связь…</span>
+            <span className="shrink-0 text-amber-100/82">Восстанавливаем связь…</span>
           ) : pushState === "enabled" ? (
-            <span className="flex shrink-0 items-center gap-1.5 text-teal-200/55">
+            <span className="flex shrink-0 items-center gap-1.5 text-teal-100/82">
               <Bell className="h-3 w-3" />
               Уведомления включены
             </span>

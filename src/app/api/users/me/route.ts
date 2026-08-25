@@ -160,7 +160,7 @@ export async function DELETE(req: Request) {
     where: { ownerId: auth.userId, status: ItemStatus.IN_DEAL },
   });
   if (activeItems > 0) {
-    return errorResponse("У вас есть объявления в активной сделке. Сначала завершите обмены", 409);
+    return errorResponse("У вас есть объявления в активном обмене. Сначала завершите обмен", 409);
   }
 
   const profileMedia = await prisma.mediaAsset.findMany({

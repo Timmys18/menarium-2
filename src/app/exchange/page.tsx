@@ -4,7 +4,7 @@ import { CheckCircle2, Clock3, MessageCircle, ShieldCheck, UserRound } from "luc
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { BrandGlyph, BrandMark } from "@/components/menarium/brand";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { TrustActions } from "@/components/trust/trust-actions";
@@ -68,7 +68,7 @@ function exchangeHref(
   search.set("filter", filter);
   if (swapId) search.set("swap", swapId);
   if (page && page > 1) search.set("page", String(page));
-  return `/profile/exchanges?${search.toString()}`;
+  return `/exchange?${search.toString()}`;
 }
 
 function statusPresentation(
@@ -106,7 +106,7 @@ function statusPresentation(
         }
       : {
           label: "В чате",
-          description: "Обмен принят. Детали остаются в чате этой сделки.",
+          description: "Обмен принят. Согласуйте детали в чате обмена.",
           variant: "teal",
         };
   }
@@ -137,7 +137,7 @@ function statusPresentation(
 
   return {
     label: "Обмен отменён",
-    description: "Сделка закрыта, объявления снова доступны для других предложений.",
+    description: "Обмен закрыт, объявления снова доступны для других предложений обмена.",
     variant: "glass",
   };
 }
@@ -334,14 +334,6 @@ export async function ExchangePageContent({ searchParams }: Props) {
   const selectedStatus =
     selectedSwap && userId ? statusPresentation(selectedSwap, userId) : null;
   const selectedOwnBlock = selectedBlock?.blockerId === userId;
-  const showSentNotice =
-    params.notice === "sent" &&
-    selectedSwap?.senderId === userId &&
-    selectedSwap.status === SwapStatus.PENDING;
-  const showAcceptedNotice =
-    params.notice === "accepted" &&
-    selectedSwap?.receiverId === userId &&
-    selectedSwap.status === SwapStatus.ACCEPTED;
   const activeItemLabel =
     activeItemCount === 1
       ? "активное объявление"
@@ -357,9 +349,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
             )}
           >
             <div>
-              <h1 className="type-page-title text-3xl sm:text-4xl md:text-5xl">
-                Мои <span className="gradient-text">обмены</span>
-              </h1>
+              <h1 className="type-page-title text-3xl sm:text-4xl md:text-5xl">Мои обмены</h1>
             </div>
             {userId && totalSwaps > 0 ? (
               needsResponseCount > 0 ? (
@@ -375,54 +365,15 @@ export async function ExchangePageContent({ searchParams }: Props) {
                     </Link>
                   </div>
                 </div>
-              ) : (
-                <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/62 md:self-auto">
-                  <CheckCircle2 className="h-4 w-4 text-teal-300" />
-                  Новых решений не требуется
-                </div>
-              )
+              ) : null
             ) : null}
           </header>
-
-          {showSentNotice ? (
-            <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300 text-[#07130f]">
-                <CheckCircle2 className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="font-semibold text-white">Предложение отправлено</p>
-                <p className="mt-1 text-sm leading-6 text-white/62">
-                  Партнёр уже получил уведомление. До ответа вы можете отозвать предложение в карточке обмена.
-                </p>
-              </div>
-            </GlassCard>
-          ) : null}
-
-          {showAcceptedNotice ? (
-            <GlassCard className="mb-5 flex items-start gap-3 border border-teal-300/20 bg-teal-300/[0.065] p-4 sm:p-5">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-teal-300 text-[#07130f]">
-                <CheckCircle2 className="h-5 w-5" />
-              </span>
-              <div className="min-w-0">
-                <p className="font-semibold text-white">Обмен принят</p>
-                <p className="mt-1 text-sm leading-6 text-white/62">
-                  Обе вещи теперь в сделке. Чат уже открыт: напишите партнёру, чтобы согласовать детали обмена.
-                </p>
-                <a
-                  href="#exchange-chat"
-                  className="-ml-2 mt-2 inline-flex min-h-11 items-center rounded-xl px-2 text-sm font-semibold text-teal-200 transition hover:bg-white/[0.05] hover:text-teal-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
-                >
-                  Открыть чат ↓
-                </a>
-              </div>
-            </GlassCard>
-          ) : null}
 
           {!userId ? (
             <EmptyState
               title="Войдите, чтобы управлять обменами"
-              description="Здесь будут предложения других людей, ваши ответы, договорённости и чат каждой сделки."
-              actionHref={loginHref("/profile/exchanges")}
+              description="Здесь будут входящие и исходящие предложения обмена, активные обмены и их история."
+              actionHref={loginHref("/exchange")}
               actionLabel="Войти"
             />
           ) : totalSwaps === 0 ? (
@@ -434,7 +385,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                   : "После публикации вы сможете предлагать обмен в каталоге и свайпе."
               }
               actionHref={activeItemCount > 0 ? "/catalog" : "/new"}
-              actionLabel={activeItemCount > 0 ? "Открыть каталог" : "Добавить вещь"}
+              actionLabel={activeItemCount > 0 ? "Открыть каталог" : "Добавить объявление"}
               secondaryActionHref={activeItemCount > 0 ? "/swipe" : undefined}
               secondaryActionLabel={activeItemCount > 0 ? "Перейти к свайпу" : undefined}
             />
@@ -459,7 +410,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       className={cn(
                         "min-w-0 overflow-hidden rounded-[15px] px-2 py-2.5 text-xs font-medium transition sm:shrink-0 sm:px-4 sm:text-sm",
                         tab === activeTab
-                          ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white shadow-[0_10px_24px_rgba(77,141,255,0.18)]"
+                          ? "bg-blue-500/90 text-white shadow-[0_10px_24px_rgba(77,141,255,0.18)]"
                           : "text-white/62 hover:bg-white/[0.06] hover:text-white",
                       )}
                     >
@@ -495,7 +446,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
               </div>
 
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[minmax(420px,500px)_minmax(0,1fr)] xl:grid-cols-[520px_minmax(0,1fr)]">
-                <GlassCard
+                <SurfaceCard
                   id="exchange-list"
                   className={cn(
                     "border border-white/8 p-4 sm:p-5 lg:order-1",
@@ -633,9 +584,9 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       ) : null}
                     </div>
                   ) : null}
-                </GlassCard>
+                </SurfaceCard>
 
-                <GlassCard
+                <SurfaceCard
                   id="exchange-detail"
                   className={cn(
                     "min-w-0 max-w-full scroll-mt-24 overflow-hidden border border-white/10 p-4 sm:p-5 lg:order-2",
@@ -644,6 +595,18 @@ export async function ExchangePageContent({ searchParams }: Props) {
                 >
                   {selectedSwap && selectedTheirItem && selectedYourItem && selectedStatus ? (
                     <>
+                      {params.notice === "accepted" && selectedSwap.status === SwapStatus.ACCEPTED ? (
+                        <div
+                          role="status"
+                          className="mb-4 flex items-start gap-3 rounded-[17px] border border-teal-300/20 bg-teal-300/[0.075] px-4 py-3.5 text-sm text-teal-50"
+                        >
+                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-200" />
+                          <div>
+                            <p className="font-semibold text-white">Обмен принят</p>
+                            <p className="mt-1 leading-5 text-teal-100/78">Теперь договоритесь о деталях в чате и подтвердите завершение после обмена.</p>
+                          </div>
+                        </div>
+                      ) : null}
                       {params.swap ? (
                         <Link
                           href={exchangeHref(activeTab, undefined, activeFilter, page)}
@@ -654,8 +617,8 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       ) : null}
                       <div className="mb-4 flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-blue-500/20 to-teal-400/15">
-                            <MessageCircle className="h-5 w-5 text-teal-200" />
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-blue-400/12 text-blue-100">
+                            <MessageCircle className="h-5 w-5" />
                           </div>
                           <div className="min-w-0">
                             <h2 className="truncate font-semibold">
@@ -680,7 +643,47 @@ export async function ExchangePageContent({ searchParams }: Props) {
                         </p>
                       ) : null}
 
-                      <div className="mb-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] sm:items-center">
+                      <section className="mb-3 rounded-[17px] border border-white/9 bg-white/[0.035] p-3.5 sm:hidden" aria-label="Текущее состояние обмена">
+                        <div className="flex items-center justify-between gap-3">
+                          <Badge variant={selectedStatus.variant}>{selectedStatus.label}</Badge>
+                          {selectedSwap.status === SwapStatus.ACCEPTED ? (
+                            <a
+                              href="#exchange-chat"
+                              className="inline-flex min-h-11 items-center gap-2 rounded-[13px] bg-gradient-to-r from-blue-500 to-teal-400 px-3.5 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                              Открыть чат
+                            </a>
+                          ) : null}
+                        </div>
+                        <p className="mt-2.5 text-sm leading-5 text-white/72">{selectedStatus.description}</p>
+                      </section>
+
+                      <div className="mb-4 grid grid-cols-[minmax(0,1fr)_34px_minmax(0,1fr)] items-stretch gap-2 sm:hidden">
+                        {[
+                          { label: "Вы отдаёте", item: selectedYourItem, card: toItemCardView(selectedYourItem) },
+                          { label: "Вы получаете", item: selectedTheirItem, card: toItemCardView(selectedTheirItem) },
+                        ].map((entry, index) => (
+                          <div key={entry.item.id} className="contents">
+                            {index === 1 ? (
+                              <span className="flex items-center justify-center" aria-hidden="true">
+                                <BrandGlyph className="h-6 w-6 text-teal-200/72" />
+                              </span>
+                            ) : null}
+                            <article className="min-w-0 overflow-hidden rounded-[15px] border border-white/8 bg-white/[0.025]">
+                              <div className="relative h-20 overflow-hidden bg-white/[0.03]">
+                                <ItemCoverImage src={entry.card.image} alt={entry.item.title} sizes="42vw" />
+                              </div>
+                              <div className="p-2.5">
+                                <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-teal-200/68">{entry.label}</span>
+                                <h3 className="mt-1 line-clamp-2 text-xs font-semibold leading-4 text-white/88">{entry.item.title}</h3>
+                              </div>
+                            </article>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mb-5 hidden gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] sm:items-center">
                         {[
                           { label: "Вы отдаёте", item: selectedYourItem, card: toItemCardView(selectedYourItem) },
                           { label: "Вы получаете", item: selectedTheirItem, card: toItemCardView(selectedTheirItem) },
@@ -757,7 +760,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                           theirTitle: selectedTheirItem.title,
                           theirImage: toItemCardView(selectedTheirItem).image,
                         }}
-                        acceptedHref={`/profile/exchanges?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
+                        acceptedHref={`/exchange?tab=matches&swap=${encodeURIComponent(selectedSwap.id)}&notice=accepted`}
                       />
 
                       {selectedPartner ? (
@@ -771,7 +774,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                             </span>
                             <div>
                               <h3 id="exchange-safety-title" className="text-sm font-semibold">
-                                Безопасность сделки
+                                Безопасность обмена
                               </h3>
                               <p className="mt-1 text-xs leading-4 text-white/62">
                                 Если что-то пошло не по договорённости, сообщите нам прямо из этого обмена.
@@ -796,7 +799,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                       <p className="mt-2 text-sm text-white/62">Здесь появятся детали, действия и чат.</p>
                     </div>
                   )}
-                </GlassCard>
+                </SurfaceCard>
               </div>
             </>
           )}

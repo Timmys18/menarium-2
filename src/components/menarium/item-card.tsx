@@ -1,10 +1,8 @@
 import { ArrowRightLeft, Globe2, Heart, MapPin, Sparkles } from "lucide-react";
 import { ItemContextLink } from "@/components/catalog/item-context-link";
-import { Badge } from "@/components/menarium/badge";
 import { HoverCard } from "@/components/menarium/card";
 import { FavoriteButton } from "@/components/menarium/favorite-button";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
-import { cn } from "@/lib/utils";
 
 export type ItemCardProps = {
   id: string;
@@ -35,10 +33,8 @@ export function ItemCard({
   wanted,
   city,
   type,
-  reserveTopRight = false,
   isOnline,
   likes,
-  flexible,
   priority,
   returnHref,
   isFavorite,
@@ -72,25 +68,6 @@ export function ItemCard({
             sizes="(max-width: 640px) 100vw, (max-width: 1535px) 50vw, 33vw"
             imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
           />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0d131d]/85 to-transparent" />
-          <div className={cn(
-            "absolute left-4 top-4 flex flex-wrap items-start gap-2",
-            reserveTopRight ? "right-28" : showFavorite ? "right-16" : "right-4",
-          )}>
-            <Badge className={cn("bg-[#090d14]/78", reserveTopRight && "max-w-full truncate whitespace-nowrap")}>
-              {category}
-            </Badge>
-            <Badge variant={isOnline ? "teal" : "glass"} className="bg-[#090d14]/78">
-              {isOnline ? <Globe2 className="h-3 w-3" /> : null}
-              {isOnline ? "Онлайн" : type === "SERVICE" ? "Услуга" : "Предмет"}
-            </Badge>
-          </div>
-          {flexible ? (
-            <div className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#090d14]/88 px-3 py-1.5 text-[11px] font-medium text-white/82">
-              <Sparkles className="h-3 w-3 text-teal-200" />
-              Открыт к вариантам
-            </div>
-          ) : null}
         </div>
         {showFavorite ? (
           <FavoriteButton
@@ -110,8 +87,11 @@ export function ItemCard({
               <span>{recommendationReason}</span>
             </div>
           ) : null}
-            <div className="mb-4 flex items-start justify-between gap-3">
-            <h3 className="line-clamp-2 text-base font-semibold leading-5.5 tracking-[-0.02em] text-white sm:text-lg sm:leading-6">{title}</h3>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="mb-1.5 text-xs text-white/62">{category}{type === "SERVICE" ? " · услуга" : ""}</p>
+              <h3 className="line-clamp-2 text-base font-semibold leading-5.5 tracking-[-0.02em] text-white sm:text-lg sm:leading-6">{title}</h3>
+            </div>
             {likes ? (
               <span className="flex shrink-0 items-center gap-1 text-sm text-white/78">
                 <Heart className="h-4 w-4 text-blue-300" />
@@ -119,12 +99,11 @@ export function ItemCard({
               </span>
             ) : null}
           </div>
-          <div className="mt-auto rounded-[15px] border border-teal-300/[0.12] bg-teal-300/[0.05] px-3 py-2.5 sm:px-3.5 sm:py-3">
-            <span className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-teal-100/78">
-              <ArrowRightLeft className="h-3.5 w-3.5 text-teal-200" />
-              Ищу взамен
+          <div className="mt-auto border-t border-white/[0.075] pt-3">
+            <span className="flex items-start gap-2 text-sm leading-5 text-white/78">
+              <ArrowRightLeft className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
+              <span className="line-clamp-2">Ищет: {wanted}</span>
             </span>
-            <span className="line-clamp-2 block text-sm leading-5 text-white/82">{wanted}</span>
           </div>
           <div className="mt-3 flex items-center justify-between gap-3 text-xs text-white/78">
             {city ? (
@@ -133,7 +112,7 @@ export function ItemCard({
                 <span className="truncate">{city}</span>
               </span>
             ) : <span />}
-            <span className="shrink-0 text-teal-200/80">Посмотреть →</span>
+            {isOnline ? <Globe2 className="h-3.5 w-3.5 shrink-0 text-teal-200" aria-label="Доступно онлайн" /> : null}
           </div>
         </div>
     </HoverCard>

@@ -56,14 +56,9 @@ export default async function SwipePage() {
       <div className="page-enter min-h-screen px-4 pb-52 pt-20 sm:px-6 md:pb-32 md:pt-28">
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 text-center md:mb-8">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/72 md:hidden">
-              Быстрый поиск
-            </p>
-            <h1 className="type-page-title mb-2 text-3xl md:mb-4 md:text-5xl">
-              <span className="gradient-text">Свайп</span> обмена
-            </h1>
+            <h1 className="type-page-title mb-2 text-3xl md:mb-4 md:text-5xl">Свайп обмена</h1>
             <p className="mx-auto max-w-xl text-sm text-white/66 md:text-base">
-              Проведите влево, чтобы пропустить, или вправо, чтобы предложить обмен. Можно использовать и кнопки ниже.
+              Листайте объявления и выбирайте интересные.
             </p>
           </div>
 
@@ -82,7 +77,7 @@ export default async function SwipePage() {
           ) : (
             <EmptyState
               title="Новых карточек пока нет"
-              description="Вы уже просмотрели доступные объявления или в каталоге пока мало активных предложений."
+              description="Вы уже просмотрели доступные объявления или в каталоге пока мало новых вариантов."
               actionHref="/catalog"
               actionLabel="Открыть каталог"
             />

@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, Clock, Heart, Plus, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
+import { Check, Clock, Heart, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { ItemType } from "@prisma/client";
 import { AppShell } from "@/components/layout/app-shell";
 import { PreviewUiNotice } from "@/components/preview-ui-notice";
-import { GlassCard, SurfaceCard } from "@/components/menarium/card";
-import { MenariumLinkButton } from "@/components/menarium/button";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { categories } from "@/features/items/sample-data";
@@ -54,7 +53,7 @@ function filterLinkClass(active: boolean, compact = false) {
     "flex items-center justify-between gap-2 rounded-[13px] text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65",
     compact ? "min-h-11 min-w-0 justify-center px-2.5 py-2.5" : "min-h-11 w-full px-3 py-2.5",
     active
-      ? "border border-teal-300/18 bg-teal-300/[0.085] text-white"
+      ? "border border-blue-300/22 bg-blue-400/[0.10] text-white"
       : "border border-transparent text-white/62 hover:bg-white/[0.045] hover:text-white",
   );
 }
@@ -94,7 +93,6 @@ export default async function CatalogPage({ searchParams }: Props) {
   const favoriteIds = new Set(favoriteRows.map((favorite) => favorite.itemId));
   const totalPages = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));
   const activeFilterCount = [selectedCategory, selectedCity, parsedType].filter(Boolean).length;
-  const hasSearchControls = Boolean(q || activeFilterCount > 0 || sort !== "new");
   const typeLabel = typeOptions.find((entry) => entry.id === parsedType)?.label;
 
   return (
@@ -103,36 +101,14 @@ export default async function CatalogPage({ searchParams }: Props) {
       <div className={`page-enter min-h-screen px-4 pb-32 sm:px-6 md:pt-32 ${preview ? "pt-36" : "pt-24"}`}>
         <CatalogScrollRestoration href={currentCatalogHref} />
         <div className="mx-auto max-w-[1600px]">
-          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="mb-7">
             <div>
-              <p className="type-kicker text-teal-200/70">Вещи и услуги рядом</p>
-              <h1 className="type-page-title mt-2 text-4xl sm:text-5xl">
-                Найдите встречный <span className="gradient-text">вариант</span>
-              </h1>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
-              <div className="rounded-full border border-white/[0.075] bg-white/[0.035] px-4 py-2 text-sm text-white/62">
-                Найдено: <span className="font-semibold text-white/85">{total}</span>
-              </div>
-              {hasSearchControls ? (
-                <Link
-                  href="/catalog"
-                  scroll={false}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-[13px] border border-white/10 bg-white/[0.035] px-3 text-sm text-white/70 transition hover:bg-white/[0.075] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/65"
-                >
-                  <X className="h-4 w-4" />
-                  Очистить
-                </Link>
-              ) : null}
-              <MenariumLinkButton href="/new" size="sm" className="hidden sm:inline-flex">
-                <Plus className="h-4 w-4" />
-                Добавить своё
-              </MenariumLinkButton>
+              <h1 className="type-page-title text-4xl sm:text-5xl">Каталог</h1>
             </div>
           </div>
 
           <form action="/catalog" className="sticky top-[72px] z-30 mb-6 md:static">
-            <GlassCard className="flex items-center gap-2 rounded-[18px] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.34)] sm:gap-3 sm:p-2.5">
+            <SurfaceCard className="flex items-center gap-2 rounded-[18px] p-2 sm:gap-3 sm:p-2.5">
               <Search className="ml-2 h-5 w-5 shrink-0 text-white/62 sm:ml-3" />
               <label htmlFor="catalog-search" className="sr-only">
                 Найти вещь или услугу
@@ -156,7 +132,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                 <span className="hidden sm:inline">Найти</span>
                 <Search className="h-4 w-4 sm:hidden" />
               </button>
-            </GlassCard>
+            </SurfaceCard>
           </form>
 
           <div className="mb-6 space-y-3 lg:hidden">
@@ -172,7 +148,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                     aria-current={active ? "page" : undefined}
                     className={cn(filterLinkClass(active, true), "flex-col gap-1 text-xs")}
                   >
-                    <Icon className={cn("h-3.5 w-3.5", active ? "text-teal-200" : "text-white/62")} />
+                    <Icon className={cn("h-3.5 w-3.5", active ? "text-blue-200" : "text-white/62")} />
                     <span className="truncate">{item.label}</span>
                   </Link>
                 );
@@ -191,7 +167,7 @@ export default async function CatalogPage({ searchParams }: Props) {
               </summary>
               <div className="border-t border-white/[0.065] p-4">
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Тип предложения</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/62">Тип объявления</p>
                   <div className="grid grid-cols-3 gap-1.5">
                     {typeOptions.map((entry) => {
                       const active = (entry.id === undefined && !parsedType) || entry.id === parsedType;
@@ -236,7 +212,7 @@ export default async function CatalogPage({ searchParams }: Props) {
             {activeFilterCount > 0 || q ? (
               <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 text-xs">
                 {q ? (
-                  <Link href={buildCatalogHref({ ...catalogBase, q: undefined })} scroll={false} className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-teal-300/15 bg-teal-300/[0.055] px-3 py-2 text-teal-100/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/75">
+                  <Link href={buildCatalogHref({ ...catalogBase, q: undefined })} scroll={false} className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-blue-300/18 bg-blue-400/[0.085] px-3 py-2 text-blue-100/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75">
                     Запрос: {q} <X className="h-3 w-3" />
                   </Link>
                 ) : null}
@@ -271,7 +247,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                     return (
                       <Link key={item.id} href={buildCatalogHref({ ...catalogBase, sort: item.id })} scroll={false} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
                         <span className="flex items-center gap-2"><Icon className="h-4 w-4" />{item.label}</span>
-                        {active ? <Check className="h-3.5 w-3.5 text-teal-200" /> : null}
+                        {active ? <Check className="h-3.5 w-3.5 text-blue-200" /> : null}
                       </Link>
                     );
                   })}
@@ -285,7 +261,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                     return (
                       <Link key={entry.label} href={buildCatalogHref({ ...catalogBase, type: entry.id })} scroll={false} aria-current={active ? "page" : undefined} className={filterLinkClass(active)}>
                         {entry.label}
-                        {active ? <Check className="h-3.5 w-3.5 text-teal-200" /> : null}
+                        {active ? <Check className="h-3.5 w-3.5 text-blue-200" /> : null}
                       </Link>
                     );
                   })}
@@ -305,16 +281,10 @@ export default async function CatalogPage({ searchParams }: Props) {
               <div className="mb-4 flex flex-wrap items-end justify-between gap-3 px-1">
                 <div>
                   <h2 className="text-lg font-semibold tracking-[-0.02em] text-white">
-                    {q ? `По запросу «${q}»` : activeFilterCount > 0 ? "Подходящие предложения" : "Все предложения"}
+                    {q ? `По запросу «${q}»` : activeFilterCount > 0 ? "Подходящие объявления" : "Все объявления"}
                   </h2>
-                  <p className="mt-1 text-xs text-white/62">
-                    {total} {total === 1 ? "предложение" : total >= 2 && total <= 4 ? "предложения" : "предложений"} · {sortOptions.find((option) => option.id === sort)?.label.toLowerCase()} · страница {page} из {totalPages}
-                  </p>
+                  <p className="mt-1 text-xs text-white/62">{total} {total === 1 ? "объявление" : total >= 2 && total <= 4 ? "объявления" : "объявлений"}</p>
                 </div>
-                <MenariumLinkButton href="/new" size="sm" className="sm:hidden">
-                  <Plus className="h-4 w-4" />
-                  Добавить
-                </MenariumLinkButton>
               </div>
               {cards.length > 0 ? (
                 <>
@@ -349,7 +319,7 @@ export default async function CatalogPage({ searchParams }: Props) {
                 </>
               ) : (
                 <EmptyState
-                  title="Пока нет подходящих предложений"
+                  title="Пока нет подходящих объявлений"
                   description="Измените фильтры или создайте собственное объявление — встречный вариант может найтись с другой стороны."
                   actionHref={activeFilterCount > 0 || q ? "/catalog" : "/new"}
                   actionLabel={activeFilterCount > 0 || q ? "Сбросить поиск" : "Создать объявление"}

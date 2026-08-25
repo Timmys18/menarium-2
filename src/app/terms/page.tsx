@@ -1,10 +1,11 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { GlassCard } from "@/components/menarium/card";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "@/lib/support";
 
 const sections = [
   {
     title: "Назначение сервиса",
-    text: "Менариум позволяет публиковать объявления о вещах и услугах, предлагать обмен, вести переписку и фиксировать статус сделки.",
+    text: "Менариум позволяет публиковать объявления о вещах и услугах, отправлять предложения обмена, вести переписку и фиксировать статус обмена.",
   },
   {
     title: "Ответственность пользователей",
@@ -12,7 +13,7 @@ const sections = [
   },
   {
     title: "Обмены и статусы",
-    text: "Предложение обмена может быть принято, отклонено, отозвано, отменено или завершено. Завершение подтверждается участниками сделки.",
+    text: "Предложение обмена можно принять, отклонить или отозвать. Принятый обмен можно отменить или завершить; завершение подтверждают оба участника.",
   },
   {
     title: "Запрещенный контент",
@@ -27,9 +28,9 @@ const sections = [
 export default function TermsPage() {
   return (
     <AppShell>
-      <div className="min-h-screen px-6 pb-32 pt-24 md:pt-32">
-        <GlassCard className="mx-auto max-w-4xl space-y-5 p-8">
-          <h1 className="text-4xl font-bold">Пользовательское соглашение</h1>
+      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-32">
+        <GlassCard className="mx-auto max-w-4xl space-y-5 p-6 sm:p-8">
+          <h1 className="text-3xl font-bold leading-tight sm:text-4xl">Пользовательское соглашение</h1>
           <p className="text-white/62">
             Правила использования сервиса Менариум.
           </p>
@@ -39,7 +40,13 @@ export default function TermsPage() {
               <p className="text-white/62">{section.text}</p>
             </section>
           ))}
-          <p className="text-sm text-white/62">Перед публичным запуском соглашение должно пройти финальную юридическую вычитку под российскую юрисдикцию.</p>
+          <p className="text-sm leading-6 text-white/62">
+            Вопросы о правилах сервиса можно отправить на{" "}
+            <a className="rounded text-teal-200 underline decoration-teal-200/35 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70" href={SUPPORT_MAILTO}>
+              {SUPPORT_EMAIL}
+            </a>
+            .
+          </p>
         </GlassCard>
       </div>
     </AppShell>

@@ -24,7 +24,7 @@ export async function PATCH(req: Request, context: Context) {
   if (!item) return errorResponse("Объявление не найдено", 404);
 
   if (item.status === ItemStatus.IN_DEAL) {
-    return errorResponse("Нельзя модерировать объявление, пока оно находится в активной сделке", 409);
+    return errorResponse("Нельзя модерировать объявление, пока оно находится в активном обмене", 409);
   }
 
   const updated = await prisma.$transaction(async (tx) => {

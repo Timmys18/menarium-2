@@ -9,17 +9,14 @@ import {
   Globe2,
   MapPin,
   MessageCircle,
-  Package,
   CheckCircle2,
   ShieldCheck,
-  Sparkles,
   Star,
   UserRound,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard, SurfaceCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { FavoriteButton } from "@/components/menarium/favorite-button";
 import { ItemCard } from "@/components/menarium/item-card";
 import {
@@ -334,7 +331,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
           </MenariumLinkButton>
 
           {showPublishedSuccess ? (
-            <GlassCard className="mb-5 overflow-hidden border border-teal-300/20 bg-gradient-to-r from-teal-300/[0.12] via-blue-400/[0.08] to-transparent p-5 sm:mb-7 sm:p-6">
+            <SurfaceCard className="mb-5 border-teal-300/20 p-5 sm:mb-7 sm:p-6">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-3.5">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-teal-300 text-[#06130f] shadow-[0_12px_30px_rgba(52,211,153,0.18)]">
@@ -353,12 +350,12 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   Найти вариант
                 </MenariumLinkButton>
               </div>
-            </GlassCard>
+            </SurfaceCard>
           ) : null}
 
           <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-7">
             <div className="lg:sticky lg:top-28">
-              <GlassCard className="overflow-hidden rounded-[24px] sm:rounded-[32px]">
+              <SurfaceCard className="overflow-hidden rounded-[24px] sm:rounded-[32px]">
                 <div className="relative">
                   <ItemImageGallery
                     images={publicItem.images.length > 0 ? publicItem.images : [{ id: "placeholder", url: card.image }]}
@@ -366,24 +363,15 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     itemId={publicItem.id}
                   />
                 </div>
-              </GlassCard>
+              </SurfaceCard>
             </div>
 
             <div className="space-y-5">
-              <GlassCard className="p-5 sm:p-7">
-                <div className="mb-5 flex flex-wrap gap-2">
-                  <Badge variant="gradient">{publicItem.category}</Badge>
-                  <Badge variant="glass">
-                    <Package className="h-3 w-3" />
-                    {publicItem.type === "SERVICE" ? "Услуга" : "Предмет"}
-                  </Badge>
-                  {publicItem.isOnline ? (
-                    <Badge variant="teal">
-                      <Globe2 className="h-3 w-3" />
-                      Онлайн
-                    </Badge>
-                  ) : null}
-                </div>
+              <SurfaceCard className="p-5 sm:p-7">
+                <p className="mb-3 text-sm text-white/62">
+                  {publicItem.category} · {publicItem.type === "SERVICE" ? "услуга" : "предмет"}
+                  {publicItem.isOnline ? " · доступно онлайн" : ""}
+                </p>
 
                 <div className="flex items-start gap-3">
                   <h1 className="type-page-title min-w-0 flex-1 text-2xl sm:text-4xl">
@@ -417,12 +405,11 @@ export default async function ItemPage({ params, searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <div className="my-6 rounded-[20px] border border-blue-300/[0.16] bg-gradient-to-br from-blue-400/[0.10] to-teal-300/[0.045] p-4 sm:p-5">
-                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-100/58">
-                    <ArrowRightLeft className="h-4 w-4 text-teal-200/78" />
-                    В обмен рассматривает
-                  </div>
-                  <p className="text-base font-medium leading-relaxed text-white/88 sm:text-lg">{wanted}</p>
+                <div className="my-6 border-y border-white/[0.075] py-4 sm:py-5">
+                  <p className="flex items-start gap-2 text-base font-medium leading-relaxed text-white/88 sm:text-lg">
+                    <ArrowRightLeft className="mt-1 h-4 w-4 shrink-0 text-teal-200" />
+                    <span>Ищет: {wanted}</span>
+                  </p>
                 </div>
 
                 <div
@@ -492,14 +479,11 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     {publicItem.description}
                   </p>
                 </section>
-              </GlassCard>
+              </SurfaceCard>
 
               <SurfaceCard className="p-5 sm:p-6">
                 {publicItem.owner?.id ? (
-                  <Link
-                    href={`/user/${publicItem.owner.id}`}
-                    className="group mb-5 block rounded-[18px] border border-white/8 bg-white/[0.025] p-3.5 transition hover:border-teal-300/18 hover:bg-teal-300/[0.04]"
-                  >
+                  <Link href={`/user/${publicItem.owner.id}`} className="group mb-5 block border-b border-white/8 pb-5 transition hover:text-teal-100">
                     <span className="flex items-center gap-3">
                       {publicItem.owner.image ? (
                         <Image
@@ -511,7 +495,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                           className="h-11 w-11 shrink-0 rounded-[14px] object-cover"
                         />
                       ) : (
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-sky-400/20 to-teal-300/14 text-teal-100/80">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-white/[0.06] text-white/72">
                           <UserRound className="h-5 w-5" />
                         </span>
                       )}
@@ -526,7 +510,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                         <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                       </span>
                     </span>
-                    <span className="mt-3 flex flex-wrap gap-2 border-t border-white/7 pt-3">
+                    <span className="mt-3 flex flex-wrap gap-2 pt-1">
                       {ownerReputation.averageRating ? (
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/12 bg-amber-300/[0.055] px-2.5 py-1 text-[11px] text-amber-100/70">
                           <Star className="h-3 w-3 fill-current" />
@@ -592,22 +576,9 @@ export default async function ItemPage({ params, searchParams }: Props) {
               aria-labelledby="related-items-title"
             >
               <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-teal-200/62">
-                    <Sparkles className="h-4 w-4" />
-                    Продолжить поиск
-                  </p>
-                  <h2
-                    id="related-items-title"
-                    className="mt-2 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl"
-                  >
-                    Похожие варианты
-                  </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/62">
-                    Подборка учитывает эту вещь
-                    {userId ? ", ваши сохранения и активные предложения." : " и близкие варианты в каталоге."}
-                  </p>
-                </div>
+                <h2 id="related-items-title" className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+                  Похожие объявления
+                </h2>
                 <MenariumLinkButton href="/catalog" variant="ghost" size="sm" className="w-full sm:w-auto">
                   Весь каталог
                   <ChevronRight className="h-4 w-4" />

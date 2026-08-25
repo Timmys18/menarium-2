@@ -202,6 +202,10 @@ export async function resetLoginRateLimit(email: string, ip: string) {
   const fullKey = `rate:login:${email}:${ip}`;
   devMemory.delete(fullKey);
 
+  // The isolated browser server does not need rate-limit cleanup because it
+  // bypasses limits entirely and intentionally runs without Redis.
+  if (process.env.E2E_TEST_MODE === "true") return;
+
   try {
     const redis = getRedis();
     if (redis) await redis.del(fullKey);

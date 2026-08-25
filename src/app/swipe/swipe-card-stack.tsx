@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { MenariumDialog } from "@/components/menarium/dialog";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { navigateWithViewTransition } from "@/lib/view-transition";
@@ -173,13 +173,13 @@ export function SwipeCardStack({
   if (!card) {
     return (
       <>
-        <GlassCard className="mx-auto flex min-h-[420px] max-w-[460px] flex-col items-center justify-center border border-white/8 p-8 text-center md:min-h-[510px]">
+        <SurfaceCard className="mx-auto flex min-h-[420px] max-w-[460px] flex-col items-center justify-center p-8 text-center md:min-h-[510px]">
           <Loader2 className="mb-4 h-7 w-7 animate-spin text-teal-200" />
           <h2 className="text-xl font-semibold">Ищем новые варианты</h2>
           <p className="mt-2 max-w-xs text-sm leading-6 text-white/62">
             Очередь просмотрена. Через несколько секунд проверим свежие объявления.
           </p>
-        </GlassCard>
+        </SurfaceCard>
         {undoNotice}
       </>
     );
@@ -190,9 +190,6 @@ export function SwipeCardStack({
   return (
     <>
       <div className="relative flex min-h-[420px] items-center justify-center md:min-h-[510px]">
-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-5 scale-[0.91] border border-white/5 opacity-35 md:h-[490px] md:translate-y-7" />
-        <GlassCard className="absolute h-[400px] w-[min(430px,91vw)] translate-y-2.5 scale-[0.96] border border-white/7 opacity-55 md:h-[490px] md:translate-y-3" />
-
         <motion.div
           style={{ x, rotate }}
           drag={loading || undoing ? false : "x"}
@@ -201,7 +198,7 @@ export function SwipeCardStack({
           onDragEnd={onDragEnd}
           className="relative z-10 w-full max-w-[460px] touch-pan-y"
         >
-          <GlassCard className="relative overflow-hidden border border-white/12 shadow-[0_30px_80px_rgba(0,0,0,0.36)]">
+          <SurfaceCard className="relative overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.36)]">
             <motion.div
               style={{ opacity: likeOpacity }}
               className="pointer-events-none absolute left-5 top-5 z-20 rotate-[-5deg] rounded-[14px] border-2 border-teal-300 bg-[#07110f]/80 px-4 py-2 text-sm font-bold tracking-[0.16em] text-teal-200 backdrop-blur-xl"
@@ -222,23 +219,12 @@ export function SwipeCardStack({
                 priority
                 sizes="(max-width: 520px) 94vw, 460px"
               />
-              <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3.5 md:p-4">
-                <span className="rounded-full border border-white/12 bg-black/50 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-xl">
-                  {card.category}
-                </span>
-                {card.isOnline ? (
-                  <span className="flex items-center gap-1.5 rounded-full border border-teal-300/20 bg-[#07110f]/70 px-3 py-1.5 text-xs font-medium text-teal-100 backdrop-blur-xl">
-                    <Wifi className="h-3.5 w-3.5" />
-                    Онлайн
-                  </span>
-                ) : null}
-              </div>
-              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0b1019] to-transparent" />
             </div>
 
             <div className="px-4 pb-4 pt-3.5 sm:px-5 md:px-6 md:pb-5 md:pt-4">
               <h2 className="line-clamp-1 text-xl font-bold tracking-tight sm:text-2xl">{card.title}</h2>
               <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/62 md:mt-2">
+                <span>{card.category}</span>
                 <span className="flex items-center gap-1.5">
                   <UserRound className="h-3.5 w-3.5" />
                   {card.ownerName}
@@ -247,13 +233,13 @@ export function SwipeCardStack({
                   <MapPin className="h-3.5 w-3.5" />
                   {card.city}
                 </span>
+                {card.isOnline ? <span className="flex items-center gap-1.5 text-teal-100/78"><Wifi className="h-3.5 w-3.5" />Онлайн</span> : null}
               </div>
-              <div className="mt-3 rounded-[15px] border border-teal-300/15 bg-teal-300/[0.055] px-3.5 py-2.5 md:mt-4 md:rounded-[16px] md:px-4 md:py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-200/72">Интересно взамен</p>
-                <p className="mt-0.5 line-clamp-1 text-sm leading-5 text-white/82 md:mt-1 md:line-clamp-2">{card.wanted}</p>
+              <div className="mt-3 border-t border-white/[0.075] pt-3 md:mt-4">
+                <p className="line-clamp-1 text-sm leading-5 text-white/82 md:line-clamp-2">Ищет: {card.wanted}</p>
               </div>
             </div>
-          </GlassCard>
+          </SurfaceCard>
         </motion.div>
       </div>
 
@@ -291,10 +277,6 @@ export function SwipeCardStack({
         </button>
       </div>
 
-      <p className="mx-auto mt-3 hidden max-w-[460px] text-center text-xs text-white/62 md:block">
-        Можно тянуть карточку влево или вправо
-      </p>
-
       {error ? (
         <p role="alert" className="mx-auto mt-4 max-w-md text-center text-sm text-red-300">
           {error}
@@ -320,7 +302,7 @@ export function SwipeCardStack({
       <MenariumDialog
         open={createPromptOpen}
         onClose={() => setCreatePromptOpen(false)}
-        title="Сначала добавьте своё предложение"
+        title="Сначала добавьте своё объявление"
         description={`Чтобы предложить обмен на «${card.title}», нужно показать, что вы отдаёте. После публикации мы вернём вас к этой карточке.`}
         footer={
           <>

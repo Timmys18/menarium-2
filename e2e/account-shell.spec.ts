@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { devices, expect, test, type Locator, type Page } from "@playwright/test";
 import { spawnSync } from "node:child_process";
 
 const MARIA = {
@@ -33,11 +33,13 @@ async function login(page: Page) {
   });
 }
 
-async function waitForStableAccountShell(page: Page) {
+async function waitForStableAccountShell(page: Page, fullProfile = false) {
   await page.waitForFunction(() => document.querySelectorAll("#main-content").length === 1);
   await expect(page.locator("#main-content")).toHaveCount(1);
-  await expect(page.locator("#main-content").getByText("Личный кабинет", { exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Разделы личного кабинета" })).toBeVisible();
+  const fullHeader = page.locator("#main-content").getByText("Личный кабинет", { exact: true });
+  if (fullProfile) await expect(fullHeader).toBeVisible();
+  else await expect(fullHeader).toBeHidden();
 }
 
 test.describe("единый каркас личного кабинета", () => {
@@ -50,7 +52,7 @@ test.describe("единый каркас личного кабинета", () =>
     await login(page);
     await page.goto("/profile");
 
-    await waitForStableAccountShell(page);
+    await waitForStableAccountShell(page, true);
     const accountHeader = page.locator("#main-content").getByText("Личный кабинет", { exact: true });
     const accountNavigation = page.getByRole("navigation", { name: "Разделы личного кабинета" });
     await expect(accountHeader).toBeVisible();
@@ -61,7 +63,7 @@ test.describe("единый каркас личного кабинета", () =>
 
     await page.getByRole("link", { name: /В обмене/ }).click();
     await expect(page).toHaveURL(/\/profile\?status=deal/);
-    await waitForStableAccountShell(page);
+    await waitForStableAccountShell(page, true);
     await expect(accountHeader).toBeVisible();
     await expect(accountNavigation).toBeVisible();
     await expect(page.getByRole("link", { name: /В обмене/ })).toHaveAttribute("aria-current", "page");
@@ -69,7 +71,6 @@ test.describe("единый каркас личного кабинета", () =>
 
     for (const [label, path] of [
       ["Сообщения", "/profile/chats"],
-      ["Обмены", "/profile/exchanges"],
       ["Избранное", "/profile/favorites"],
       ["Профиль и настройки", "/profile/edit"],
       ["Безопасность", "/profile/safety"],
@@ -77,15 +78,25 @@ test.describe("единый каркас личного кабинета", () =>
     ] as const) {
       await accountNavigation.getByRole("link", { name: new RegExp(label) }).click();
       await expect(page).toHaveURL(new RegExp(`${path.replaceAll("/", "\\/")}(?:\\?|$)`));
-      await waitForStableAccountShell(page);
-      await expect(accountHeader).toBeVisible();
+      await waitForStableAccountShell(page, path === "/profile");
       await expect(accountNavigation).toBeVisible();
       await expect.poll(() => page.evaluate(() => (window as Window & { __accountShellMarker?: string }).__accountShellMarker)).toBe("preserved");
     }
 
     await expect(page.getByRole("heading", { name: "Мои объявления" })).toBeVisible();
     await expect(page.getByText("Sony WH-1000XM5", { exact: true })).toBeVisible();
+
+    await accountNavigation.getByRole("link", { name: /Обмены/ }).click();
+    await expect(page).toHaveURL(/\/exchange(?:\?|$)/);
+    await expect(page.getByRole("link", { name: "Обмены", exact: true }).first()).toHaveAttribute("aria-current", "page");
+    await expect(accountHeader).toBeHidden();
     await page.screenshot({ path: "test-results/account-shell-desktop.png", fullPage: true });
+  });
+
+  test("старый маршрут обменов сохраняет параметры и открывает единый раздел", async ({ page }) => {
+    await login(page);
+    await page.goto("/profile/exchanges?tab=matches&filter=history&swap=demo&notice=accepted");
+    await expect(page).toHaveURL(/\/exchange\?tab=matches&filter=history&swap=demo&notice=accepted$/);
   });
 
   test("сохраняет аккуратный кабинет на мобильном экране", async ({ browser }) => {
@@ -93,6 +104,7 @@ test.describe("единый каркас личного кабинета", () =>
       viewport: { width: 390, height: 844 },
       isMobile: true,
       hasTouch: true,
+      userAgent: devices["iPhone 13"].userAgent,
     });
     const page = await context.newPage();
     try {
@@ -104,6 +116,12 @@ test.describe("единый каркас личного кабинета", () =>
       await expect(page.getByRole("navigation", { name: "Разделы личного кабинета" })).toBeHidden();
       await expect(page.getByRole("navigation", { name: "Мобильная навигация" })).toBeVisible();
       await expect(pick(page.getByRole("link", { name: "Менариум — главная" }))).toBeVisible();
+
+      await page.goto("/profile/chats");
+      await expect(pick(page.getByText("Личный кабинет", { exact: true }))).toBeHidden();
+      await expect(page.getByRole("link", { name: "В кабинет" })).toBeVisible();
+      await expect(pick(page.getByText("Сообщения", { exact: true }))).toBeVisible();
+      await expect(page.getByRole("navigation", { name: "Разделы личного кабинета" })).toBeHidden();
       await page.screenshot({ path: "test-results/account-shell-mobile-viewport.png" });
     } finally {
       await context.close();

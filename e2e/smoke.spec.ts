@@ -8,7 +8,7 @@ test.describe("Menarium smoke", () => {
 
   test("каталог открывается", async ({ page }) => {
     await page.goto("/catalog");
-    await expect(page.getByRole("heading", { name: "Найдите встречный вариант" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Каталог" })).toBeVisible();
   });
 
   test("страница входа открывается", async ({ page }) => {
@@ -20,7 +20,7 @@ test.describe("Menarium smoke", () => {
 
   test("страница регистрации открывается", async ({ page }) => {
     await page.goto("/auth/register");
-    await expect(page.getByRole("button", { name: "Зарегистрироваться" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Создать аккаунт" })).toBeVisible();
   });
 
   test("сброс пароля открывается", async ({ page }) => {

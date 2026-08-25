@@ -7,7 +7,7 @@ import { CalendarDays, MessageSquareQuote, PackageOpen, ShieldCheck, Star } from
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import { serializeItem } from "@/features/items/serializers";
@@ -161,7 +161,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
     <AppShell>
       <div className="min-h-screen px-4 pb-32 pt-20 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
-          <GlassCard className="rounded-3xl p-5 sm:p-8">
+          <SurfaceCard className="rounded-3xl p-5 sm:p-8">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               {user.image ? (
                 <Image
@@ -173,7 +173,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   className="h-20 w-20 rounded-2xl object-cover sm:h-24 sm:w-24"
                 />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500 text-2xl font-bold sm:h-24 sm:w-24 sm:text-3xl">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-400/18 text-2xl font-bold text-blue-100 sm:h-24 sm:w-24 sm:text-3xl">
                   {getInitials(user.name, user.email)}
                 </div>
               )}
@@ -221,14 +221,14 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 />
               ) : null}
             </div>
-          </GlassCard>
+          </SurfaceCard>
 
           <section
             id="reputation"
             aria-labelledby="reputation-title"
             className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]"
           >
-            <GlassCard className="overflow-hidden border border-amber-300/12 bg-gradient-to-br from-amber-300/[0.075] via-white/[0.025] to-teal-300/[0.045] p-6 sm:p-7">
+            <SurfaceCard className="overflow-hidden border border-amber-300/12 p-6 sm:p-7">
               <p className="text-xs font-semibold uppercase tracking-[0.17em] text-amber-100/55">
                 Подтверждённая история
               </p>
@@ -267,9 +267,9 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   </div>
                 ))}
               </div>
-            </GlassCard>
+            </SurfaceCard>
 
-            <GlassCard className="border border-white/8 p-6 sm:p-7">
+            <SurfaceCard className="border border-white/8 p-6 sm:p-7">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.17em] text-white/62">
@@ -293,7 +293,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                           className={cn(
                             "block h-full rounded-full",
                             rating >= 4
-                              ? "bg-gradient-to-r from-amber-300 to-teal-300"
+                              ? "bg-amber-300"
                               : "bg-white/25",
                           )}
                           style={{ width: `${width}%` }}
@@ -308,7 +308,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                 Оценку можно оставить только после обмена, подтверждённого обеими сторонами.
                 Отзывы публикуются после ответа партнёра или окончания слепого периода.
               </p>
-            </GlassCard>
+            </SurfaceCard>
           </section>
 
           {reviews.length > 0 ? (
@@ -316,7 +316,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
               <div className="mb-4 flex items-end justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200/60">
-                    Только завершённые сделки
+                    Только завершённые обмены
                   </p>
                   <h2 id="public-reviews-title" className="mt-2 text-2xl font-semibold">
                     Отзывы партнёров
@@ -329,7 +329,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 {reviews.map((review) => (
-                  <GlassCard key={review.id} className="p-5">
+                  <SurfaceCard key={review.id} className="p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
                         {review.reviewer.image ? (
@@ -359,7 +359,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                     <p className="mt-4 text-sm leading-6 text-white/62">
                       {review.comment || "Обмен завершён без дополнительного комментария."}
                     </p>
-                  </GlassCard>
+                  </SurfaceCard>
                 ))}
               </div>
               {totalReviewPages > 1 ? (
@@ -370,7 +370,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   {reviewsPage > 1 ? (
                     <Link
                       href={reviewsHref(id, reviewsPage - 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       ← Новее
                     </Link>
@@ -381,7 +381,7 @@ export default async function PublicUserPage({ params, searchParams }: Props) {
                   {reviewsPage < totalReviewPages ? (
                     <Link
                       href={reviewsHref(id, reviewsPage + 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       Старее →
                     </Link>

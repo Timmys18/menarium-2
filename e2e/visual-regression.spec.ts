@@ -1,4 +1,4 @@
-import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { devices, expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { spawnSync } from "node:child_process";
 
 const maria = { email: "maria@menarium.ru", password: "MenariumDemo2026!" };
@@ -96,7 +96,11 @@ test.describe("visual regression", () => {
     test.setTimeout(180_000);
     const fixture = prepareFixture();
     const context = await browser.newContext({
-      viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: "reduce",
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+      userAgent: devices["iPhone 13"].userAgent,
+      reducedMotion: "reduce",
     });
     const publicPage = await context.newPage();
     await open(publicPage, "/auth/register");

@@ -4,7 +4,7 @@ import { ItemStatus, Prisma, UserStatus } from "@prisma/client";
 import { ArrowLeft, Heart, Plus, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCard } from "@/components/menarium/item-card";
 import {
@@ -241,7 +241,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
           </header>
 
           {total > 0 && ownItems.length === 0 ? (
-            <GlassCard className="mb-7 flex flex-col gap-4 border border-teal-300/18 bg-gradient-to-r from-teal-300/[0.08] via-blue-400/[0.055] to-transparent p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <SurfaceCard className="mb-7 flex flex-col gap-4 border-teal-300/18 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div>
                 <h2 className="text-xl font-semibold tracking-[-0.025em]">Добавьте своё объявление</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-white/62">
@@ -252,7 +252,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
                 <Plus className="h-4 w-4" />
                 Добавить объявление
               </MenariumLinkButton>
-            </GlassCard>
+            </SurfaceCard>
           ) : null}
 
           {favoriteRows.length > 0 ? (
@@ -297,13 +297,13 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
               {totalPages > 1 ? (
                 <nav aria-label="Страницы избранного" className="mt-10 flex items-center justify-center gap-3">
                   {page > 1 ? (
-                    <Link href={favoritesHref(page - 1)} className="rounded-[14px] border border-white/10 bg-white/[0.045] px-5 py-3 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white">
+                    <Link href={favoritesHref(page - 1)} className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.045] px-5 py-3 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
                       ← Назад
                     </Link>
                   ) : null}
                   <span className="text-sm text-white/62">{page} из {totalPages}</span>
                   {page < totalPages ? (
-                    <Link href={favoritesHref(page + 1)} className="rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white">
+                    <Link href={favoritesHref(page + 1)} className="inline-flex min-h-11 items-center rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-5 py-3 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
                       Дальше →
                     </Link>
                   ) : null}
@@ -323,7 +323,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
 
           {page === 1 && recommendations.length > 0 ? (
             <section className="mt-16 border-t border-white/[0.07] pt-10" aria-labelledby="recommendations-title">
-              <GlassCard className="mb-6 overflow-hidden border border-teal-300/12 bg-gradient-to-br from-teal-300/[0.065] to-blue-400/[0.035] p-5 sm:p-6">
+              <SurfaceCard className="mb-6 overflow-hidden border-teal-300/12 p-5 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-teal-200/70">
@@ -349,7 +349,7 @@ export async function FavoritesPageContent({ searchParams }: FavoritesPageProps)
                     </div>
                   ) : null}
                 </div>
-              </GlassCard>
+              </SurfaceCard>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {recommendations.map((item) => {
                   const card = toItemCardView(serializeItem(item), item._count.favorites);

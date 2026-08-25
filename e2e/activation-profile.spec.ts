@@ -33,7 +33,7 @@ test.describe("первый вход и личный кабинет", () => {
       const content = page.locator("main");
       await content.getByLabel("Электронная почта").fill(email);
       await content.getByLabel("Пароль").fill(password);
-      await content.getByRole("button", { name: "Зарегистрироваться" }).click();
+      await content.getByRole("button", { name: "Создать аккаунт" }).click();
 
       await page.waitForURL((url) => url.pathname === "/profile", { waitUntil: "commit", timeout: 20_000 });
       await expect(content.getByText("Аккаунт создан", { exact: true })).toBeVisible();

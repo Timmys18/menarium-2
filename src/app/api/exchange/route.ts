@@ -486,7 +486,7 @@ export async function PATCH(req: Request) {
       if (error.message === "FORBIDDEN") return errorResponse("Вы не можете управлять этим обменом", 403);
       if (error.message === "ONLY_RECEIVER") return errorResponse("Это действие доступно только получателю", 403);
       if (error.message === "ONLY_SENDER") return errorResponse("Это действие доступно только отправителю", 403);
-      if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Одно из объявлений уже участвует в другой сделке", 409);
+      if (error.message === "ITEM_NOT_ACTIVE") return errorResponse("Одно из объявлений уже участвует в другом обмене", 409);
       if (error.message === "ITEM_STATE_INVALID") return errorResponse("Состояние объявлений изменилось. Обновите страницу", 409);
       if (error.message === "INVALID_STATUS") return errorResponse("Действие недоступно в текущем статусе обмена", 409);
     }

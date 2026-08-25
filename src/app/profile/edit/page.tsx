@@ -1,6 +1,6 @@
 import { ShieldCheck, UserRound } from "lucide-react";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { loginHref } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
@@ -56,9 +56,9 @@ export default async function ProfileEditPage() {
             <>
               <ProfileEditForm user={user} />
               {!user.emailVerified ? (
-                <GlassCard className="mt-5 border border-white/8 px-4 sm:px-5">
+                <SurfaceCard className="mt-5 border border-white/8 px-4 sm:px-5">
                   <EmailVerifyBanner email={user.email} compact />
-                </GlassCard>
+                </SurfaceCard>
               ) : null}
             </>
           ) : (

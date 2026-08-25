@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChatConversation, type ChatMessageView } from "@/components/chat/chat-conversation";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 
 export function ItemChatPanel({
   itemId,
@@ -46,7 +46,7 @@ export function ItemChatPanel({
   }
 
   return (
-    <GlassCard className="mt-8 p-6">
+    <SurfaceCard className="mt-8 p-6">
       <div className="mb-5">
         <h2 className="text-xl font-semibold">Чат по объявлению</h2>
         {!canWrite ? (
@@ -71,6 +71,6 @@ export function ItemChatPanel({
         draftKey={`item:${itemId}`}
         kind="ITEM"
       />
-    </GlassCard>
+    </SurfaceCard>
   );
 }

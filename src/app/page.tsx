@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ItemStatus } from "@prisma/client";
-import { ArrowRight, Check, Compass, MessageCircle, Plus, ShieldCheck } from "lucide-react";
+import { ArrowRight, Compass, MessageCircle, Plus, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PreviewUiNotice } from "@/components/preview-ui-notice";
 import { BrandMark } from "@/components/menarium/brand";
@@ -37,16 +37,16 @@ export default async function Home() {
   const primaryAction = !userId
     ? {
         href: loginHref("/new"),
-        label: "Предложить своё",
+        label: "Создать объявление",
       }
     : activeItemCount === 0
       ? {
           href: "/new",
-          label: "Добавить предложение",
+          label: "Добавить объявление",
         }
       : {
           href: "/new",
-          label: "Добавить предложение",
+          label: "Добавить объявление",
         };
 
   return (
@@ -70,20 +70,6 @@ export default async function Home() {
                 Открыть каталог
                 <ArrowRight className="h-5 w-5" />
               </MenariumLinkButton>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/62">
-              {[
-                "Вещи и услуги",
-                "Любые сочетания",
-                "Договорённость в чате",
-              ].map((label) => (
-                <span key={label} className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-300/10 text-teal-200">
-                    <Check className="h-3 w-3" />
-                  </span>
-                  {label}
-                </span>
-              ))}
             </div>
           </div>
 
@@ -187,7 +173,7 @@ export default async function Home() {
                   icon: Compass,
                   number: "02",
                   title: "Предложите обмен",
-                  text: "Выберите чужое предложение и добавьте своё.",
+                  text: "Выберите чужое объявление и предложите своё взамен.",
                 },
                 {
                   icon: MessageCircle,

@@ -5,12 +5,8 @@
   --foreground: #f7f9fc;
   --brand-blue-primary: #4d8dff;
   --brand-blue-light: #78aaff;
-  --brand-blue-purple: #7d7aff;
-  --brand-purple-dark: #8b73ff;
   --accent-teal: #38d6b2;
   --accent-cyan: #39c7e8;
-  --accent-purple: #8177ff;
-  --accent-fuchsia: #bb74ff;
   --accent-amber: #ffbc72;
   --surface-raised: #101722;
   --surface-card: #0d131d;
@@ -32,10 +28,8 @@
   --color-foreground: var(--foreground);
   --color-brand-blue: var(--brand-blue-primary);
   --color-brand-blue-light: var(--brand-blue-light);
-  --color-brand-purple: var(--accent-purple);
   --color-accent-teal: var(--accent-teal);
   --color-accent-cyan: var(--accent-cyan);
-  --color-accent-fuchsia: var(--accent-fuchsia);
   --font-sans: var(--font-onest);
   --font-display: var(--font-space-grotesk);
 }
@@ -231,7 +225,11 @@ a {
 
 html:active-view-transition-type(exchange-proposed) ::view-transition-new(root),
 html:active-view-transition-type(exchange-accepted) ::view-transition-new(root),
-html:active-view-transition-type(item-created) ::view-transition-new(root) {
+html:active-view-transition-type(item-created) ::view-transition-new(root),
+html:active-view-transition-type(item-updated) ::view-transition-new(root),
+html:active-view-transition-type(account-created) ::view-transition-new(root),
+html:active-view-transition-type(account-signed-in) ::view-transition-new(root),
+html:active-view-transition-type(profile-updated) ::view-transition-new(root) {
   animation: causal-route-enter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -336,25 +334,6 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   -webkit-text-fill-color: transparent;
 }
 
-.gradient-text-accent {
-  background: linear-gradient(120deg, var(--accent-teal), var(--brand-blue-light));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.glow-purple {
-  box-shadow:
-    0 0 30px rgba(77, 141, 255, 0.3),
-    0 0 70px rgba(77, 141, 255, 0.12);
-}
-
-.glow-teal {
-  box-shadow:
-    0 0 30px rgba(56, 214, 178, 0.28),
-    0 0 70px rgba(56, 214, 178, 0.1);
-}
-
 .skip-link {
   position: fixed;
   left: 1rem;
@@ -454,6 +433,16 @@ html:active-view-transition-type(item-created) ::view-transition-new(root) {
   }
 
   .mobile-navigation {
+    display: block !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktop-navigation.touch-navigation-device {
+    display: none !important;
+  }
+
+  .mobile-navigation.touch-navigation-device {
     display: block !important;
   }
 }

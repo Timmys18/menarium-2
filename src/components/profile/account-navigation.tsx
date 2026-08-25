@@ -24,7 +24,7 @@ type AccountNavigationProps = {
 const entries = [
   { href: "/profile", label: "Мои объявления", icon: PackageCheck, countKey: "listings" },
   { href: "/profile/chats", label: "Сообщения", icon: MessageCircle, countKey: "messages" },
-  { href: "/profile/exchanges", label: "Обмены", icon: Repeat2, countKey: "exchanges" },
+  { href: "/exchange", label: "Обмены", icon: Repeat2, countKey: "exchanges" },
   { href: "/profile/favorites", label: "Избранное", icon: Heart, countKey: "favorites" },
   { href: "/profile/edit", label: "Профиль и настройки", icon: UserRound },
   { href: "/profile/safety", label: "Безопасность", icon: ShieldCheck },

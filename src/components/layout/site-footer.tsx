@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandLockup } from "@/components/menarium/brand";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "@/lib/support";
 
 export function SiteFooter() {
   return (
@@ -27,6 +28,9 @@ export function SiteFooter() {
           <Link href="/terms" className="inline-flex min-h-11 items-center px-2 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
             Соглашение
           </Link>
+          <a href={SUPPORT_MAILTO} className="inline-flex min-h-11 items-center px-2 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70">
+            {SUPPORT_EMAIL}
+          </a>
         </nav>
       </div>
     </footer>

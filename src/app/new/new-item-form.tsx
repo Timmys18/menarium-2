@@ -8,16 +8,14 @@ import {
   ArrowRight,
   Camera,
   Check,
-  CheckCircle2,
   Loader2,
   MapPin,
-  Sparkles,
   Trash2,
   Upload,
 } from "lucide-react";
 import { Badge } from "@/components/menarium/badge";
 import { MenariumButton } from "@/components/menarium/button";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { MenariumInput, MenariumTextarea } from "@/components/menarium/input";
 import { CategoryPicker } from "@/components/menarium/category-picker";
 import { CityPicker } from "@/components/menarium/city-picker";
@@ -58,7 +56,7 @@ const DEFAULT_CITY_ID = findCityByName("Москва")?.id ?? "";
 const defaultCategoryId = (type: "THING" | "SERVICE") => categoryOptions(type)[0]?.children[0]?.id ?? "";
 const quickWants = ["iPhone", "MacBook", "Игровая консоль", "Наушники", "Кроссовки", "Винтажная камера"];
 const steps = [
-  { title: "Предложение", hint: "Что и как выглядит" },
+  { title: "Объявление", hint: "Что и как выглядит" },
   { title: "Подробности", hint: "Состояние и формат" },
   { title: "Обмен", hint: "Что хочется взамен" },
 ];
@@ -197,7 +195,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
 
     if (stepToValidate === 1) {
       if (description.trim().length < 10) {
-        setError("Расскажите о предложении чуть подробнее — минимум 10 символов.");
+        setError("Расскажите об объявлении чуть подробнее — минимум 10 символов.");
         return false;
       }
       if (!getCity(cityId)) {
@@ -355,7 +353,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
           </div>
         ) : null}
 
-        <ol className="grid grid-cols-3 gap-2" aria-label="Шаги создания объявления">
+        <ol className="grid grid-cols-3 border-b border-white/[0.08]" aria-label="Шаги создания объявления">
           {steps.map((entry, index) => {
             const isCurrent = index === step;
             const isComplete = index < step;
@@ -364,13 +362,13 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 key={entry.title}
                 aria-current={isCurrent ? "step" : undefined}
                 className={cn(
-                  "rounded-[18px] border px-3 py-3 transition sm:px-4",
-                  isCurrent && "border-blue-300/35 bg-blue-400/[0.1]",
-                  isComplete && "border-teal-300/25 bg-teal-300/[0.06]",
-                  !isCurrent && !isComplete && "border-white/8 bg-white/[0.025]",
+                  "border-b-2 px-2 pb-3 text-center transition sm:px-4 sm:text-left",
+                  isCurrent && "border-blue-300 text-white",
+                  isComplete && "border-teal-300 text-white/82",
+                  !isCurrent && !isComplete && "border-transparent text-white/62",
                 )}
               >
-                <div className="mb-1 flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2 sm:justify-start">
                   <span
                     className={cn(
                       "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
@@ -391,13 +389,12 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
           })}
         </ol>
 
-        <GlassCard className="overflow-hidden border border-white/8 p-5 sm:p-7">
+        <SurfaceCard className="overflow-hidden p-5 sm:p-7">
           {step === 0 ? (
             <section className="space-y-6" aria-labelledby="new-item-step-one">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 1 из 3</p>
-                <h2 ref={stepHeadingRef} id="new-item-step-one" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что вы предлагаете?</h2>
-                <p className="mt-2 text-sm leading-6 text-white/62">Название и хорошее первое фото помогают получить больше осмысленных предложений.</p>
+                <h2 ref={stepHeadingRef} id="new-item-step-one" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что публикуете?</h2>
+                <p className="mt-2 text-sm leading-6 text-white/62">Название и хорошее первое фото помогают другим людям быстрее понять, подходит ли им обмен.</p>
               </div>
 
               <fieldset>
@@ -464,11 +461,11 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 <label
                   htmlFor="item-images"
                   className={cn(
-                    "block cursor-pointer rounded-[22px] border border-dashed border-white/15 bg-white/[0.025] p-6 text-center transition hover:border-blue-300/35 hover:bg-blue-400/[0.04]",
+                  "block cursor-pointer rounded-[22px] border border-dashed border-white/15 bg-white/[0.025] p-6 text-center transition hover:border-blue-300/35 hover:bg-white/[0.05]",
                     (isUploading || images.length >= 8) && "pointer-events-none opacity-60",
                   )}
                 >
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-teal-400/20">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.06]">
                     {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-blue-200" /> : <Upload className="h-6 w-6 text-teal-200" />}
                   </div>
                   <span className="block font-semibold text-white">
@@ -518,7 +515,6 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
           {step === 1 ? (
             <section className="space-y-6" aria-labelledby="new-item-step-two">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 2 из 3</p>
                 <h2 ref={stepHeadingRef} id="new-item-step-two" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Расскажите честно и по делу</h2>
                 <p className="mt-2 text-sm leading-6 text-white/62">Состояние, комплектация и нюансы заранее снимают лишние вопросы.</p>
               </div>
@@ -569,9 +565,8 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
           {step === 2 ? (
             <section className="space-y-6" aria-labelledby="new-item-step-three">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200/70">Шаг 3 из 3</p>
                 <h2 ref={stepHeadingRef} id="new-item-step-three" tabIndex={-1} className="scroll-mt-24 text-2xl font-bold outline-none sm:text-3xl">Что будет хорошим обменом?</h2>
-                <p className="mt-2 text-sm leading-6 text-white/62">Дайте людям ориентир, но оставьте пространство для неожиданных удачных предложений.</p>
+                <p className="mt-2 text-sm leading-6 text-white/62">Дайте людям ориентир, но оставьте пространство для удачных вариантов обмена.</p>
               </div>
 
               <label className="block space-y-2">
@@ -619,7 +614,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 <span>
                   <span className="block font-semibold text-white">Открыт к любым предложениям</span>
                   <span className="mt-1 block text-sm leading-5 text-white/62">
-                    Отметь, если готов рассмотреть идеи вне списка выше.
+                    Отметьте, если готовы рассмотреть идеи вне списка выше.
                   </span>
                 </span>
               </label>
@@ -635,17 +630,6 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
                 />
               </label>
 
-              <div className="rounded-[20px] border border-teal-300/20 bg-gradient-to-br from-teal-300/[0.08] to-blue-400/[0.05] p-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-300" />
-                  <div>
-                    <p className="font-semibold text-white">Всё готово к публикации</p>
-                    <p className="mt-1 text-sm leading-5 text-white/62">
-                      Объявление сразу появится в каталоге. Его можно будет изменить или снять с публикации в профиле.
-                    </p>
-                  </div>
-                </div>
-              </div>
             </section>
           ) : null}
 
@@ -677,12 +661,12 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
               </MenariumButton>
             )}
           </div>
-        </GlassCard>
+        </SurfaceCard>
       </div>
 
       <aside className="hidden lg:block">
-        <GlassCard className="sticky top-28 overflow-hidden border border-white/8">
-          <div className="relative aspect-[4/3] bg-gradient-to-br from-blue-500/12 to-teal-400/8">
+        <SurfaceCard className="sticky top-28 overflow-hidden">
+          <div className="relative aspect-[4/3] bg-white/[0.025]">
             {images[0] ? (
               <Image
                 src={images[0].url}
@@ -701,11 +685,9 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0b1019] to-transparent" />
           </div>
           <div className="p-5">
-            <div className="mb-3 flex flex-wrap gap-2">
-              <Badge variant="purple">{type === "THING" ? "Вещь" : "Услуга"}</Badge>
-              <Badge variant="glass">{categoryLabel(categoryId) ?? "Категория"}</Badge>
-              {isOnline ? <Badge variant="teal">Онлайн</Badge> : null}
-            </div>
+            <p className="mb-2 text-sm text-white/62">
+              {categoryLabel(categoryId) ?? "Категория"}{isOnline ? " · онлайн" : ""}
+            </p>
             <h3 className={cn("text-xl font-bold leading-tight", title ? "text-white" : "text-white/62")}>
               {title || "Название появится здесь"}
             </h3>
@@ -718,7 +700,6 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
             </div>
             <div className="mt-5 border-t border-white/8 pt-4">
               <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-teal-200/65">
-                <Sparkles className="h-3.5 w-3.5" />
                 Интересно взамен
               </div>
               <p className="text-sm leading-5 text-white/62">
@@ -730,7 +711,7 @@ export function NewItemForm({ userId, returnTo, continuationTitle }: NewItemForm
               </p>
             </div>
           </div>
-        </GlassCard>
+        </SurfaceCard>
       </aside>
     </div>
   );

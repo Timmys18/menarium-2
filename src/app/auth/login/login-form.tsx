@@ -8,6 +8,7 @@ import { Eye, EyeOff, Loader2, LockKeyhole } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
 import { safeCallbackUrl } from "@/lib/utils";
+import { navigateWithViewTransition } from "@/lib/view-transition";
 
 export function LoginForm() {
   const router = useRouter();
@@ -45,8 +46,10 @@ export function LoginForm() {
         return;
       }
 
-      router.push(safeCallbackUrl(searchParams.get("callbackUrl")));
-      router.refresh();
+      await navigateWithViewTransition(
+        () => router.push(safeCallbackUrl(searchParams.get("callbackUrl"))),
+        ["account-signed-in"],
+      );
     } catch {
       setError("Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.");
     } finally {

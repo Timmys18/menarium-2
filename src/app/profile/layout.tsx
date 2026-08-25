@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { ItemStatus, SwapStatus } from "@prisma/client";
-import { CheckCircle2, ChevronDown, MapPin, Settings } from "lucide-react";
+import { CheckCircle2, MapPin, Settings } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MenariumLinkButton } from "@/components/menarium/button";
-import { GlassCard, SurfaceCard } from "@/components/menarium/card";
-import { AccountNavigation } from "@/components/profile/account-navigation";
+import { SurfaceCard } from "@/components/menarium/card";
+import { ProfileLayoutFrame } from "@/components/profile/profile-layout-frame";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/server/session";
 import { SignOutButton } from "./profile-actions";
@@ -72,10 +72,12 @@ export default async function ProfileLayout({ children }: { children: React.Reac
 
   return (
     <AppShell>
-      <div className="min-h-screen px-4 pb-32 pt-24 sm:px-6 md:pt-28">
-        <div className="mx-auto max-w-[1360px]">
-          {user ? (
-            <GlassCard className="mb-5 overflow-hidden border border-white/8 p-4 sm:p-5">
+      <ProfileLayoutFrame
+        hasUser={Boolean(user)}
+        counts={accountCounts}
+        profileCard={
+          user ? (
+            <SurfaceCard className="mb-5 overflow-hidden p-4 sm:p-5">
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div className="flex min-w-0 items-center gap-3.5 sm:gap-4">
                   {user.image ? (
@@ -87,7 +89,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                       className="h-14 w-14 shrink-0 rounded-[18px] object-cover sm:h-16 sm:w-16"
                     />
                   ) : (
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-blue-500 to-teal-400 text-lg font-bold sm:h-16 sm:w-16">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-blue-500 text-lg font-bold sm:h-16 sm:w-16">
                       {getInitials(user.name, user.email)}
                     </span>
                   )}
@@ -125,34 +127,12 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                   <SignOutButton />
                 </div>
               </div>
-            </GlassCard>
-          ) : null}
-
-          <div className={user ? "grid items-start gap-5 lg:grid-cols-[250px_minmax(0,1fr)]" : ""}>
-            {user ? (
-              <SurfaceCard className="hidden p-2 lg:sticky lg:top-28 lg:block">
-                <AccountNavigation counts={accountCounts} />
-              </SurfaceCard>
-            ) : null}
-            <div className="min-w-0">
-              {user ? (
-                <SurfaceCard className="mb-4 p-2 lg:hidden">
-                  <details className="group">
-                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-semibold text-white marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-300/65">
-                      Разделы профиля
-                      <ChevronDown className="h-4 w-4 text-white/78 transition-transform duration-200 group-open:rotate-180" />
-                    </summary>
-                    <div className="border-t border-white/8 pt-2">
-                      <AccountNavigation counts={accountCounts} />
-                    </div>
-                  </details>
-                </SurfaceCard>
-              ) : null}
-              {children}
-            </div>
-          </div>
-        </div>
-      </div>
+            </SurfaceCard>
+          ) : null
+        }
+      >
+        {children}
+      </ProfileLayoutFrame>
     </AppShell>
   );
 }

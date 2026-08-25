@@ -58,4 +58,15 @@ describe("interface voice", () => {
 
     expect(violations, violations.join("\n")).toEqual([]);
   });
+
+  it("uses exchange terminology consistently", () => {
+    const violations = sourceFiles(sourceRoot).flatMap((file) => {
+      const lines = readFileSync(file, "utf8").split(/\r?\n/);
+      return lines.flatMap((line, index) =>
+        /сделк/iu.test(line) ? [`${path.relative(process.cwd(), file)}:${index + 1}: ${line.trim()}`] : [],
+      );
+    });
+
+    expect(violations, violations.join("\n")).toEqual([]);
+  });
 });

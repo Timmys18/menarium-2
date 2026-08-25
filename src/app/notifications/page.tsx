@@ -120,9 +120,9 @@ export default async function NotificationsPage({ searchParams }: Props) {
                     href={notificationsHref(filter)}
                     aria-current={activeFilter === filter ? "page" : undefined}
                     className={cn(
-                      "rounded-[14px] px-4 py-2.5 text-sm font-medium transition",
+                      "inline-flex min-h-11 items-center rounded-[14px] px-4 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
                       activeFilter === filter
-                        ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white"
+                        ? "bg-white/[0.1] text-white"
                         : "text-white/62 hover:bg-white/[0.055] hover:text-white",
                     )}
                   >
@@ -232,7 +232,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                   {page > 1 ? (
                     <Link
                       href={notificationsHref(activeFilter, page - 1)}
-                      className="rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white"
+                      className="inline-flex min-h-11 items-center rounded-[14px] border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/65 transition hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       ← Назад
                     </Link>
@@ -241,7 +241,7 @@ export default async function NotificationsPage({ searchParams }: Props) {
                   {page < totalPages ? (
                     <Link
                       href={notificationsHref(activeFilter, page + 1)}
-                      className="rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white"
+                      className="inline-flex min-h-11 items-center rounded-[14px] bg-gradient-to-r from-blue-500 to-teal-400 px-4 py-2.5 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
                     >
                       Дальше →
                     </Link>

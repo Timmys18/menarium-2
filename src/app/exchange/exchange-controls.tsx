@@ -19,7 +19,7 @@ type ExchangeSnapshot = {
 };
 
 const confirmMessages: Record<ExchangeAction, string> = {
-  accept: "Принять предложение обмена? Обе вещи будут зарезервированы для этой сделки, а затем откроется чат для договорённостей.",
+  accept: "Принять предложение обмена? Оба объявления будут зарезервированы для этого обмена, а затем откроется чат для договорённостей.",
   decline: "Отклонить предложение? Отправитель получит уведомление.",
   revoke: "Отозвать своё предложение обмена?",
   complete: "Подтвердить завершение обмена? После подтверждения обеими сторонами объявления будут архивированы.",
@@ -53,6 +53,7 @@ export function ExchangeActionPanel({
   async function runAction(action: ExchangeAction) {
     setError(null);
     setPendingAction(action);
+    setConfirmAction(null);
     try {
       const response = await fetch("/api/exchange", {
         method: "PATCH",
@@ -64,7 +65,6 @@ export function ExchangeActionPanel({
         error?: string;
       };
       if (!response.ok) throw new Error(body.error ?? "Не удалось выполнить действие");
-      setConfirmAction(null);
       if (action === "accept" && acceptedHref) {
         await navigateWithViewTransition(() => router.replace(acceptedHref), ["exchange-accepted"]);
         return;
@@ -235,19 +235,22 @@ function ExchangeProgress({
             ? "Нужно ваше подтверждение"
             : "Договоритесь о деталях в чате";
   const steps = [
-    { label: "Предложение", detail: "Отправлено", done: true },
+    { label: "Предложение", mobileLabel: "Предложено", detail: "Отправлено", done: true },
     {
       label: "Решение",
+      mobileLabel: "Решение",
       detail: terminal ? "Закрыто" : accepted ? "Принято" : isReceiver ? "Ваш ход" : "Ожидание",
       done: accepted,
     },
     {
       label: "Договорённость",
+      mobileLabel: "В чате",
       detail: accepted ? (participantCompleted || partnerCompleted ? "Согласовано" : "В чате") : "После принятия",
       done: completed || (accepted && (participantCompleted || partnerCompleted)),
     },
     {
       label: "Завершение",
+      mobileLabel: "Готово",
       detail: completed ? "Подтверждено" : participantCompleted ? "Ждём партнёра" : partnerCompleted ? "Ваш ход" : "Обе стороны",
       done: completed,
     },
@@ -256,11 +259,11 @@ function ExchangeProgress({
   return (
       <section
         key={`${snapshot.status}:${snapshot.senderCompleted}:${snapshot.receiverCompleted}`}
-        className="exchange-progress-panel mb-5 rounded-[18px] border border-white/10 bg-white/[0.03] p-4"
+        className="exchange-progress-panel mb-4 rounded-[18px] border border-white/10 bg-white/[0.03] p-3.5 sm:mb-5 sm:p-4"
         aria-labelledby="exchange-progress-title"
         data-exchange-progress={snapshot.status.toLowerCase()}
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
           <h3 id="exchange-progress-title" className="text-sm font-semibold text-white/90">
             Этапы обмена
           </h3>
@@ -268,15 +271,16 @@ function ExchangeProgress({
             {summary}
           </p>
         </div>
-        <ol className="grid gap-2 sm:grid-cols-4" aria-label="Последовательность обмена">
+        <ol className="grid grid-cols-4 gap-1.5 sm:gap-2" aria-label="Последовательность обмена">
           {steps.map((step, index) => {
             const isCurrent = index === currentStep && !step.done;
             const isUnavailable = terminal && index > 1;
             return (
               <li
                 key={step.label}
+                aria-label={`${step.label}: ${step.detail}`}
                 aria-current={isCurrent ? "step" : undefined}
-                className={`flex min-w-0 items-center gap-3 rounded-[14px] border px-3 py-2.5 sm:block ${
+                className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-[12px] border p-2 text-center sm:block sm:rounded-[14px] sm:px-3 sm:py-2.5 sm:text-left ${
                   step.done
                     ? "border-teal-300/20 bg-teal-300/[0.07]"
                     : isCurrent
@@ -296,9 +300,10 @@ function ExchangeProgress({
                 >
                   {step.done ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
                 </span>
-                <span className="min-w-0">
-                  <span className="block text-xs font-semibold text-white/84">{step.label}</span>
-                  <span className="mt-0.5 block text-[11px] leading-4 text-white/62">{step.detail}</span>
+                <span className="flex min-w-0 flex-col items-center text-center sm:block sm:text-left">
+                  <span className="block text-[9px] font-semibold leading-3 text-white/84 sm:hidden">{step.mobileLabel}</span>
+                  <span className="hidden text-xs font-semibold leading-normal text-white/84 sm:block">{step.label}</span>
+                  <span className="mt-0.5 hidden text-[11px] leading-4 text-white/62 sm:block">{step.detail}</span>
                 </span>
               </li>
             );
@@ -373,7 +378,7 @@ export function ExchangeDealPanel({
           <p className="mt-1 text-xs text-white/62">Новые сообщения недоступны.</p>
         ) : null}
       </div>
-      <div className="mx-4 mt-4 grid grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)_44px] items-center gap-2 rounded-[16px] border border-white/8 bg-white/[0.035] p-2.5">
+      <div className="mx-4 mt-4 hidden grid-cols-[44px_minmax(0,1fr)_auto_minmax(0,1fr)_44px] items-center gap-2 rounded-[16px] border border-white/8 bg-white/[0.035] p-2.5 sm:grid">
         <span className="relative h-11 w-11 overflow-hidden rounded-[12px] border border-white/8 bg-white/[0.03]">
           <ItemCoverImage src={itemContext.yourImage} alt="" sizes="44px" />
         </span>
@@ -421,8 +426,14 @@ export function ExchangeDealPanel({
   return (
     <>
       <ExchangeProgress snapshot={snapshot} isSender={isSender} isReceiver={isReceiver} />
-      {snapshot.status === "ACCEPTED" ? chatSection : actionPanel}
-      {snapshot.status === "ACCEPTED" ? actionPanel : chatSection}
+      {snapshot.status === "PENDING" ? (
+        actionPanel
+      ) : (
+        <>
+          {chatSection}
+          {actionPanel}
+        </>
+      )}
     </>
   );
 }

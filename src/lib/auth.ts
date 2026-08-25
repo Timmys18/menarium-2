@@ -23,8 +23,15 @@ function sessionStateKey(userId: string) {
   return `menarium:session-state:${userId}`;
 }
 
+function getSessionStateRedis() {
+  // Browser acceptance runs against the real database but deliberately has no
+  // Redis service. Rate limits are already disabled there, so session caching
+  // must not turn a valid authentication flow into an infrastructure timeout.
+  return process.env.E2E_TEST_MODE === "true" ? null : getRedis();
+}
+
 async function getSessionState(userId: string): Promise<SessionState | null> {
-  const redis = getRedis();
+  const redis = getSessionStateRedis();
   if (redis) {
     const cached = await redis.get(sessionStateKey(userId));
     if (cached) {
@@ -50,7 +57,7 @@ async function getSessionState(userId: string): Promise<SessionState | null> {
 }
 
 export async function invalidateUserSessionState(userId: string) {
-  const redis = getRedis();
+  const redis = getSessionStateRedis();
   if (redis) await redis.del(sessionStateKey(userId));
 }
 

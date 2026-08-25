@@ -1,11 +1,19 @@
-import { ExchangePageContent } from "@/app/exchange/page";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default function ProfileExchangesPage({
+export default async function ProfileExchangesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ swap?: string; tab?: string; filter?: string; page?: string; notice?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  return <ExchangePageContent searchParams={searchParams} />;
+  const params = await searchParams;
+  const search = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (Array.isArray(value)) value.forEach((entry) => search.append(key, entry));
+    else if (value !== undefined) search.set(key, value);
+  });
+
+  redirect(search.size > 0 ? `/exchange?${search.toString()}` : "/exchange");
 }

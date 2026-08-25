@@ -4,7 +4,7 @@ import { ItemStatus } from "@prisma/client";
 import { ArrowLeft, MessageCircle, UserRound } from "lucide-react";
 import { ChatConversation } from "@/components/chat/chat-conversation";
 import { Badge } from "@/components/menarium/badge";
-import { GlassCard } from "@/components/menarium/card";
+import { SurfaceCard } from "@/components/menarium/card";
 import { EmptyState } from "@/components/menarium/empty-state";
 import { ItemCoverImage } from "@/components/menarium/item-cover-image";
 import { loadItemThreadMessagePage } from "@/features/chat/message-pages";
@@ -63,7 +63,7 @@ export default async function ItemThreadPage({ params }: Props) {
   const itemImage = thread?.item.images[0]?.url ?? "/menarium-placeholder.svg";
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-5xl">
           {!userId ? (
             <EmptyState
               title="Войдите, чтобы открыть диалог"
@@ -75,21 +75,21 @@ export default async function ItemThreadPage({ params }: Props) {
             <>
               <Link
                 href="/profile/chats"
-                className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm text-white/78 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm text-white/78 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Все чаты
               </Link>
 
-              <GlassCard className="overflow-hidden border border-white/10">
-                <header className="border-b border-white/8 p-4 sm:p-5">
-                  <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <SurfaceCard className="flex h-[calc(100dvh-14rem)] min-h-[34rem] flex-col overflow-hidden border border-white/10 md:h-auto md:max-h-[52rem] md:min-h-[42rem]">
+                <header className="shrink-0 border-b border-white/8 px-3.5 py-3 sm:px-5 sm:py-4">
+                  <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-gradient-to-br from-blue-500/45 to-teal-400/35">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-blue-400/15 text-blue-100">
                         <UserRound className="h-5 w-5" />
                       </span>
                       <div className="min-w-0">
-                        <p className="text-xs text-white/62">Диалог по объявлению</p>
+                        <p className="text-xs text-white/62">Объявление</p>
                         <h1 className="mt-0.5 truncate text-xl font-semibold">
                           {partner?.name ?? "Участник Менариум"}
                         </h1>
@@ -109,39 +109,37 @@ export default async function ItemThreadPage({ params }: Props) {
                   </div>
                 </header>
 
-                <div className="grid gap-5 p-4 sm:p-5 md:grid-cols-[180px_minmax(0,1fr)]">
-                  <aside>
-                    {canOpenItem ? (
-                      <Link
-                        href={`/item/${thread.item.id}`}
-                        className="group block rounded-[18px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
-                      >
-                        <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] border border-white/8 bg-white/[0.03]">
-                          <ItemCoverImage
-                            src={itemImage}
-                            alt={thread.item.title}
-                            sizes="180px"
-                            imageClassName="transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                        <p className="mt-3 line-clamp-2 text-sm font-semibold text-white/80">{thread.item.title}</p>
-                        <p className="mt-1 text-xs text-teal-100">Открыть объявление →</p>
-                      </Link>
-                    ) : (
-                      <div>
-                        <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] border border-white/8 bg-white/[0.03]">
-                          <ItemCoverImage src={itemImage} alt={thread.item.title} sizes="180px" />
-                        </div>
-                        <p className="mt-3 line-clamp-2 text-sm font-semibold text-white/80">{thread.item.title}</p>
-                        <p className="mt-1 text-xs leading-4 text-white/62">Объявление больше не опубликовано</p>
-                      </div>
-                    )}
-                  </aside>
+                <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-4">
+                  {canOpenItem ? (
+                    <Link
+                      href={`/item/${thread.item.id}`}
+                      className="group mb-3 flex min-h-16 shrink-0 items-center gap-3 rounded-[16px] border border-white/8 bg-white/[0.035] p-2 transition hover:border-white/14 hover:bg-white/[0.055] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
+                    >
+                      <span className="relative h-12 w-16 shrink-0 overflow-hidden rounded-[12px] bg-white/[0.03]">
+                        <ItemCoverImage src={itemImage} alt="" sizes="64px" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-100/82">Объявление</span>
+                        <span className="mt-1 block truncate text-sm font-semibold text-white/86">{thread.item.title}</span>
+                      </span>
+                      <span className="pr-1 text-xs font-medium text-teal-100">Открыть</span>
+                    </Link>
+                  ) : (
+                    <div className="mb-3 flex min-h-16 shrink-0 items-center gap-3 rounded-[16px] border border-white/8 bg-white/[0.025] p-2">
+                      <span className="relative h-12 w-16 shrink-0 overflow-hidden rounded-[12px] bg-white/[0.03]">
+                        <ItemCoverImage src={itemImage} alt="" sizes="64px" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-white/78">{thread.item.title}</span>
+                        <span className="mt-1 block text-xs text-white/62">Объявление больше не опубликовано</span>
+                      </span>
+                    </div>
+                  )}
 
-                  <section aria-label="Переписка" className="min-w-0 rounded-[20px] border border-white/7 bg-black/10 p-4">
-                    <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-200/55">
+                  <section aria-label="Переписка" className="flex min-h-0 flex-1 flex-col rounded-[18px] border border-white/7 bg-black/10 p-3 sm:p-4">
+                    <div className="mb-2 flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-blue-100/82">
                       <MessageCircle className="h-4 w-4" />
-                      История диалога
+                      Переписка
                     </div>
                     <ChatConversation
                       target={{
@@ -158,10 +156,11 @@ export default async function ItemThreadPage({ params }: Props) {
                       emptyMessage="Сообщений пока нет. Начните разговор с важного вопроса об объявлении."
                       draftKey={`item:${thread.item.id}`}
                       kind="ITEM"
+                      screenLayout
                     />
                   </section>
                 </div>
-              </GlassCard>
+              </SurfaceCard>
             </>
           ) : null}
     </div>

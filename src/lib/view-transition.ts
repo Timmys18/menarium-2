@@ -8,7 +8,10 @@ function nextPaint() {
 
 function waitForNavigation(previousUrl: string) {
   return new Promise<void>((resolve) => {
-    const deadline = performance.now() + 10_000;
+    // Chromium aborts a view transition when its DOM update takes too long.
+    // Give fast client navigation time to animate, then gracefully fall back
+    // while a cold or slow route keeps loading normally.
+    const deadline = performance.now() + 2_000;
     const check = () => {
       if (window.location.href !== previousUrl || performance.now() >= deadline) {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });

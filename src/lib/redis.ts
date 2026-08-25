@@ -5,6 +5,11 @@ const globalForRedis = globalThis as unknown as {
 };
 
 export function getRedis() {
+  // Browser acceptance runs in one isolated application process. It uses the
+  // in-memory realtime fallback so a missing local Redis daemon cannot create
+  // console noise or mask a UI failure.
+  if (process.env.E2E_TEST_MODE === "true") return null;
+
   const url = process.env.REDIS_URL;
 
   if (!url) {
@@ -16,7 +21,13 @@ export function getRedis() {
 
   if (!globalForRedis.redis) {
     globalForRedis.redis = new Redis(url, {
-      maxRetriesPerRequest: 2,
+      // Redis backs protection and live updates, but it must never hold a page
+      // render indefinitely when a proxy accepts TCP connections without
+      // serving Redis commands. Callers can then apply their own safe fallback.
+      connectTimeout: 1_500,
+      commandTimeout: 1_500,
+      maxRetriesPerRequest: 1,
+      retryStrategy: (attempt) => (attempt < 2 ? 150 : null),
       enableReadyCheck: false,
     });
   }
