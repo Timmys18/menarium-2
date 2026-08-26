@@ -20,7 +20,7 @@
 | Доступность | `e2e/ui-acceptance.spec.ts` | Нет нарушений Axe уровней `critical` и `serious` |
 | Области нажатия | `e2e/ui-acceptance.spec.ts` | Все видимые самостоятельные действия не меньше 44x44 CSS px |
 | Адаптивность | `e2e/ui-acceptance.spec.ts` | Пройдены 320x800, 390x844, 768x1024 и 1440x1000 |
-| Контроль изображений | `e2e/visual-regression.spec.ts` | 13 эталонных изображений совпали с текущим интерфейсом |
+| Контроль изображений | `e2e/visual-regression.spec.ts` | 16 эталонных изображений для Windows и Linux совпали с текущим интерфейсом |
 | Production CSP | `e2e/production-csp.spec.ts` | Проверены nonce, `strict-dynamic`, отсутствие `unsafe-eval` и ошибок CSP в Chromium |
 
 ## Покрытые маршруты и состояния
