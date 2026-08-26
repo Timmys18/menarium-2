@@ -24,7 +24,6 @@ type EditableImage = {
   isNew?: boolean;
 };
 
-const categories = ["Техника", "Мода", "Музыка", "Спорт", "Книги", "Искусство", "Фото", "Услуги"];
 const quickWants = ["iPhone 15", "MacBook Pro", "PlayStation 5", "AirPods Pro", "Nike Jordan", "Vintage камера"];
 
 const defaultCategoryId = (type: "THING" | "SERVICE") => categoryOptions(type)[0]?.children[0]?.id ?? "";

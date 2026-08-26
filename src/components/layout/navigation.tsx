@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const primaryItems = [
   { href: "/catalog", label: "Каталог", icon: Compass, primary: false },
   { href: "/swipe", label: "Свайп", icon: Sparkles, primary: false },
-  { href: "/exchange", label: "Обмены", icon: Repeat2, primary: false },
+  { href: "/exchange", label: "Обмены", compactLabel: "Обмен", icon: Repeat2, primary: false },
   { href: "/profile/chats", label: "Сообщения", icon: MessageCircle, primary: false },
 ];
 
@@ -80,6 +80,7 @@ export function Navigation({
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/"
+                scroll
                 aria-label="Менариум — главная"
                 aria-current={pathname === "/" ? "page" : undefined}
                 className="desktop-brand group flex min-h-11 items-center rounded-2xl px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
@@ -100,6 +101,7 @@ export function Navigation({
                     <Link
                       key={item.href}
                       href={item.href}
+                      scroll
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "desktop-nav-link relative flex min-h-11 items-center gap-2 rounded-[14px] px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70 lg:px-5",
@@ -119,6 +121,7 @@ export function Navigation({
               <div className="desktop-actions flex items-center gap-2">
                 <Link
                   href="/new"
+                  scroll
                   aria-label="Добавить объявление"
                   aria-current={isActivePath(pathname, "/new") ? "page" : undefined}
                   className="inline-flex min-h-11 items-center gap-2 rounded-[14px] border border-blue-300/20 bg-gradient-to-r from-blue-500 to-teal-400 px-4 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(77,141,255,0.2)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/80 lg:px-5"
@@ -128,6 +131,7 @@ export function Navigation({
                 </Link>
                 <Link
                   href="/notifications"
+                  scroll
                   aria-label="Уведомления"
                   aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
                   className={cn(
@@ -142,6 +146,7 @@ export function Navigation({
                 </Link>
                 <Link
                   href="/profile"
+                  scroll
                   aria-label="Профиль"
                   aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
                   className={cn(
@@ -163,6 +168,7 @@ export function Navigation({
         <div className="app-chrome mx-auto flex max-w-lg items-center justify-between rounded-[24px] px-3 py-2">
           <Link
             href="/"
+            scroll
             aria-label="Менариум — главная"
             aria-current={pathname === "/" ? "page" : undefined}
             className="flex min-h-11 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70"
@@ -176,6 +182,7 @@ export function Navigation({
           <div className="flex items-center gap-1.5">
             <Link
               href="/notifications"
+              scroll
               aria-label="Уведомления"
               aria-current={isActivePath(pathname, "/notifications") ? "page" : undefined}
               className={cn(
@@ -190,6 +197,7 @@ export function Navigation({
             </Link>
             <Link
               href="/profile"
+              scroll
               aria-label="Личный кабинет"
               aria-current={isActivePath(pathname, "/profile") ? "page" : undefined}
               className={cn(
@@ -220,6 +228,8 @@ export function Navigation({
                   <Link
                     key={item.href}
                     href={item.href}
+                    scroll
+                    aria-label={item.label}
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "relative grid min-h-[60px] min-w-0 grid-rows-[32px_auto] items-center justify-items-center gap-0.5 rounded-[16px] px-0.5 py-1 text-[10px] font-medium leading-none tracking-[-0.01em] transition min-[360px]:text-[11px] min-[360px]:tracking-normal active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/70",
@@ -240,7 +250,15 @@ export function Navigation({
                       <Icon className="h-5 w-5" />
                       <CountBadge count={count} compact />
                     </span>
-                    <span className={cn("whitespace-nowrap", active && "font-semibold text-white")}>{item.label}</span>
+                    <span
+                      className={cn(
+                        "whitespace-nowrap max-[359px]:text-[10px] max-[359px]:tracking-[-0.04em]",
+                        active && "font-semibold text-white",
+                      )}
+                    >
+                      <span className="min-[360px]:hidden">{"compactLabel" in item ? item.compactLabel : item.label}</span>
+                      <span className="max-[359px]:hidden">{item.label}</span>
+                    </span>
                   </Link>
                 );
               })}

@@ -83,7 +83,7 @@ export function FavoriteButton({
           favorite
             ? "border-rose-300/25 bg-rose-400/16 text-rose-100 shadow-[0_10px_28px_rgba(244,114,182,0.16)]"
             : "border-white/14 bg-[#090d14]/82 text-white/72 hover:border-white/24 hover:bg-[#111824]/92 hover:text-white",
-          !showLabel && "h-11 w-11 px-0",
+          !showLabel && "h-12 w-12 px-0",
         )}
       >
         {pending ? (

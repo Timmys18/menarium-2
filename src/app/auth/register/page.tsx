@@ -6,7 +6,7 @@ import { RegisterForm } from "./register-form";
 export default function RegisterPage() {
   return (
     <AppShell mode="auth">
-      <AuthShell title="Добро пожаловать" subtitle="Создайте аккаунт, чтобы публиковать объявления и договариваться об обменах.">
+      <AuthShell title="Добро пожаловать">
         <Suspense fallback={<div className="text-sm text-white/62">Загрузка формы...</div>}>
           <RegisterForm />
         </Suspense>

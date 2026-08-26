@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ItemStatus } from "@prisma/client";
-import { ArrowRight, Compass, MessageCircle, Plus, ShieldCheck } from "lucide-react";
+import { ArrowRight, Compass, MessageCircle, Plus } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PreviewUiNotice } from "@/components/preview-ui-notice";
 import { BrandMark } from "@/components/menarium/brand";
@@ -194,17 +194,6 @@ export default async function Home() {
                 );
               })}
             </div>
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-3 text-xs text-white/62">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.03] px-3 py-2">
-              <ShieldCheck className="h-4 w-4 text-teal-200" />
-              Статусы видны обеим сторонам
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.03] px-3 py-2">
-              <MessageCircle className="h-4 w-4 text-blue-200" />
-              История договорённостей остаётся в чате
-            </span>
           </div>
         </section>
       </div>

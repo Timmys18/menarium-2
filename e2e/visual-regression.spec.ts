@@ -129,4 +129,26 @@ test.describe("visual regression", () => {
     await expect(page).toHaveScreenshot("mobile-empty-safety.png", { animations: "disabled" });
     await context.close();
   });
+
+  test("compact mobile surfaces", async ({ browser }) => {
+    test.setTimeout(180_000);
+    const fixture = prepareFixture();
+    const context = await browser.newContext({
+      viewport: { width: 320, height: 800 },
+      isMobile: true,
+      hasTouch: true,
+      userAgent: devices["iPhone 13"].userAgent,
+      reducedMotion: "reduce",
+    });
+    await login(context);
+    const page = await context.newPage();
+
+    await open(page, "/");
+    await expect(page).toHaveScreenshot("compact-home.png", { animations: "disabled" });
+    await open(page, `/item/${fixture.otherItemId}`);
+    await expect(page).toHaveScreenshot("compact-item.png", { animations: "disabled" });
+    await open(page, `/exchange?tab=matches&swap=${fixture.swapId}`);
+    await expect(page).toHaveScreenshot("compact-exchange.png", { animations: "disabled" });
+    await context.close();
+  });
 });

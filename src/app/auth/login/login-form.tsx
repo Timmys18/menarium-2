@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Loader2, LockKeyhole } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { MenariumButton, MenariumLinkButton } from "@/components/menarium/button";
 import { MenariumInput } from "@/components/menarium/input";
 import { safeCallbackUrl } from "@/lib/utils";
@@ -126,23 +126,14 @@ export function LoginForm() {
           {error}
         </div>
       ) : null}
-      <MenariumButton type="submit" className="w-full" disabled={isSubmitting || !email || !password}>
+      <MenariumButton type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
         Войти
       </MenariumButton>
 
-      <div className="flex items-center gap-3 py-0.5" aria-hidden="true">
-        <span className="h-px flex-1 bg-white/8" />
-        <span className="text-xs text-white/62">Первый раз здесь?</span>
-        <span className="h-px flex-1 bg-white/8" />
-      </div>
       <MenariumLinkButton href={registerHref} variant="secondary" className="w-full">
         Создать аккаунт
       </MenariumLinkButton>
-      <p className="flex items-center justify-center gap-2 text-center text-xs text-white/62">
-        <LockKeyhole className="h-3.5 w-3.5 text-teal-200/60" />
-        Мы не передаём данные для входа другим пользователям.
-      </p>
     </form>
   );
 }

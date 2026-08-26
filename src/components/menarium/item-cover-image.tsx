@@ -29,7 +29,7 @@ export function ItemCoverImage({
     return (
       <div
         className={cn(
-          "absolute inset-0 flex items-center justify-center bg-gradient-to-br from-teal-950/80 via-[#0a0a0f] to-purple-950/80",
+          "absolute inset-0 flex items-center justify-center bg-[#101722]",
           className,
         )}
       >

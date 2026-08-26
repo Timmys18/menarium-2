@@ -105,7 +105,8 @@ async function assertPageFitsViewport(page: Page, route: string, viewport: strin
 }
 
 async function expectVisibleKeyboardFocus(page: Page, selector: string, context: string) {
-  const label = page.getByText(selector, { exact: true });
+  const label = page.getByRole("link", { name: selector, exact: true });
+  await expect(label, `${context}: action should be unique`).toHaveCount(1);
   await label.evaluate((element) => {
     const target = element.closest<HTMLElement>("a, button, input, select, textarea, [tabindex]");
     if (!target) throw new Error(`No interactive ancestor for ${element.textContent}`);
@@ -234,17 +235,17 @@ test.describe("final UI acceptance matrix", () => {
         logProgress(`${viewport.name} accepted focus`);
         await expectVisibleKeyboardFocus(
           page,
-          viewport.width >= 1024 ? "Открыть чат ↓" : "← Все обмены",
+          viewport.width >= 1024 ? "Открыть чат" : "← Все обмены",
           `${viewport.name}: accepted chat action`,
         );
 
         logProgress(`${viewport.name} image upload`);
         await gotoRoute(page, "/new");
         await waitForSettledMain(page);
-        const imageInput = page.locator("#item-images");
-        await expect(imageInput).toBeAttached();
+        const imageInput = page.locator("#main-content").locator("#item-images");
+        await expect(imageInput, "/new should contain one active image upload control").toHaveCount(1);
         await page.waitForFunction(() => {
-          const input = document.querySelector("#item-images");
+          const input = document.querySelector("#main-content #item-images");
           return Boolean(input && Object.keys(input).some((key) => key.startsWith("__reactProps$")));
         });
         const [uploadResponse] = await Promise.all([
@@ -267,8 +268,14 @@ test.describe("final UI acceptance matrix", () => {
         logProgress(`${viewport.name} city filter`);
         await gotoRoute(page, "/catalog");
         await waitForSettledMain(page);
-        if (viewport.width < 1024) await page.getByText("Фильтры", { exact: true }).click();
-        await page.getByRole("button", { name: /Выберите город/ }).click();
+        if (viewport.width < 1024) {
+          const filtersToggle = page.locator("#main-content summary").filter({ hasText: "Фильтры" });
+          await expect(filtersToggle, "mobile catalog should expose one filter toggle").toHaveCount(1);
+          await filtersToggle.click();
+        }
+        const cityPicker = page.locator("#main-content").getByRole("button", { name: /Выберите город/ });
+        await expect(cityPicker, "catalog should expose one city picker").toHaveCount(1);
+        await cityPicker.click();
         violations.push(...await touchTargetViolations(page, "/catalog with city filter", viewport.name));
         await expectNoCriticalAxeViolations(page, "/catalog with city filter");
 

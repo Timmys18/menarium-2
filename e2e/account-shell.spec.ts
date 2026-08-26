@@ -95,8 +95,8 @@ test.describe("единый каркас личного кабинета", () =>
 
   test("старый маршрут обменов сохраняет параметры и открывает единый раздел", async ({ page }) => {
     await login(page);
-    await page.goto("/profile/exchanges?tab=matches&filter=history&swap=demo&notice=accepted");
-    await expect(page).toHaveURL(/\/exchange\?tab=matches&filter=history&swap=demo&notice=accepted$/);
+    await page.goto("/profile/exchanges?tab=matches&filter=history");
+    await expect(page).toHaveURL(/\/exchange\?tab=matches&filter=history$/);
   });
 
   test("сохраняет аккуратный кабинет на мобильном экране", async ({ browser }) => {

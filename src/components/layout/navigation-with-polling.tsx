@@ -11,10 +11,12 @@ type InboxCounts = {
 };
 
 export function NavigationWithPolling({
+  enabled,
   initialUnreadNotifications,
   initialUnreadMessages,
   initialPendingSwaps,
 }: {
+  enabled: boolean;
   initialUnreadNotifications: number;
   initialUnreadMessages: number;
   initialPendingSwaps: number;
@@ -41,18 +43,19 @@ export function NavigationWithPolling({
     }
   }, []);
 
-  useRealtime(true, () => {
+  useRealtime(enabled, () => {
     void refreshCounts();
   });
 
   useEffect(() => {
+    if (!enabled) return;
     const onFocus = () => void refreshCounts();
     window.addEventListener("focus", onFocus);
 
     return () => {
       window.removeEventListener("focus", onFocus);
     };
-  }, [refreshCounts]);
+  }, [enabled, refreshCounts]);
 
   return (
     <Navigation

@@ -56,10 +56,7 @@ export default async function SwipePage() {
       <div className="page-enter min-h-screen px-4 pb-52 pt-20 sm:px-6 md:pb-32 md:pt-28">
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 text-center md:mb-8">
-            <h1 className="type-page-title mb-2 text-3xl md:mb-4 md:text-5xl">Свайп обмена</h1>
-            <p className="mx-auto max-w-xl text-sm text-white/66 md:text-base">
-              Листайте объявления и выбирайте интересные.
-            </p>
+            <h1 className="type-page-title text-3xl md:text-5xl">Свайп обмена</h1>
           </div>
 
           {!userId ? (

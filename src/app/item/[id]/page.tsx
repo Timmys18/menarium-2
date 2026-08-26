@@ -481,7 +481,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                 </section>
               </SurfaceCard>
 
-              <SurfaceCard className="p-5 sm:p-6">
+              <aside className="border-t border-white/8 pt-5 sm:pt-6">
                 {publicItem.owner?.id ? (
                   <Link href={`/user/${publicItem.owner.id}`} className="group mb-5 block border-b border-white/8 pb-5 transition hover:text-teal-100">
                     <span className="flex items-center gap-3">
@@ -567,7 +567,7 @@ export default async function ItemPage({ params, searchParams }: Props) {
                     />
                   </div>
                 ) : null}
-              </SurfaceCard>
+              </aside>
             </div>
           </div>
           {!showChatPanel && relatedItems.length > 0 ? (

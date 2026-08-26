@@ -82,7 +82,7 @@ export function ItemCard({
         ) : null}
         <div className="flex flex-1 flex-col p-4 sm:p-5.5">
           {recommendationReason ? (
-            <div className="mb-3 flex items-start gap-2 rounded-[13px] border border-blue-300/12 bg-blue-400/[0.05] px-3 py-2 text-xs leading-4 text-blue-100/68">
+            <div className="mb-3 flex items-start gap-2 text-xs leading-4 text-white/62">
               <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-200" />
               <span>{recommendationReason}</span>
             </div>

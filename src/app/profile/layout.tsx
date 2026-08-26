@@ -89,7 +89,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
                       className="h-14 w-14 shrink-0 rounded-[18px] object-cover sm:h-16 sm:w-16"
                     />
                   ) : (
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-blue-500 text-lg font-bold sm:h-16 sm:w-16">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] bg-blue-700 text-lg font-bold sm:h-16 sm:w-16">
                       {getInitials(user.name, user.email)}
                     </span>
                   )}

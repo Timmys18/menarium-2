@@ -519,7 +519,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                 <Badge variant={presentation.variant}>{presentation.label}</Badge>
                               </div>
 
-                              <div className="mt-3 overflow-hidden rounded-[17px] border border-white/8 bg-[#0a111b]/72">
+                              <div className="mt-3 border-t border-white/8 pt-3">
                                 <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] sm:grid-cols-[9rem_minmax(0,1fr)]">
                                   <div className="relative min-h-32 overflow-hidden bg-white/[0.03] sm:min-h-36">
                                     <ItemCoverImage
@@ -535,7 +535,7 @@ export async function ExchangePageContent({ searchParams }: Props) {
                                     <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/62">{theirCard.category} · {theirCard.city}</p>
                                   </div>
                                 </div>
-                                <div className="mx-3 flex items-center gap-3 border-t border-white/7 py-3">
+                                <div className="flex items-center gap-3 border-t border-white/7 pt-3">
                                   <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[12px] border border-white/8 bg-white/[0.03]">
                                     <ItemCoverImage src={yourCard.image} alt={yourItem.title} sizes="44px" />
                                   </div>
@@ -631,9 +631,20 @@ export async function ExchangePageContent({ searchParams }: Props) {
                             </p>
                           </div>
                         </div>
-                        <Badge variant={selectedStatus.variant} className="hidden max-w-[12rem] shrink-0 truncate sm:inline-flex">
-                          {selectedStatus.label}
-                        </Badge>
+                        <div className="hidden shrink-0 items-center gap-2 sm:flex">
+                          <Badge variant={selectedStatus.variant} className="max-w-[12rem] truncate">
+                            {selectedStatus.label}
+                          </Badge>
+                          {selectedSwap.status === SwapStatus.ACCEPTED ? (
+                            <a
+                              href="#exchange-chat"
+                              className="inline-flex min-h-11 items-center gap-2 rounded-[13px] bg-gradient-to-r from-blue-500 to-teal-400 px-3.5 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/75"
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                              Открыть чат
+                            </a>
+                          ) : null}
+                        </div>
                       </div>
 
                       {selectedSwap.status === SwapStatus.PENDING ? (

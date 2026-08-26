@@ -17,7 +17,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   if (!email || !token) {
     return (
       <AppShell mode="auth">
-        <AuthShell title="Подтверждение email" subtitle="Ссылка неполная или устарела.">
+        <AuthShell title="Подтверждение email">
           <div className="space-y-4 text-center">
             <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
               Ссылка недействительна. Запросите новое письмо в профиле.
@@ -41,7 +41,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   if (!consumed.ok) {
     return (
       <AppShell mode="auth">
-        <AuthShell title="Подтверждение email" subtitle="Ссылка не сработала.">
+        <AuthShell title="Подтверждение email">
           <div className="space-y-4 text-center">
             <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
               Ссылка устарела или уже использована. Отправьте письмо повторно из профиля.
@@ -65,7 +65,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   return (
     <AppShell mode="auth">
-      <AuthShell title="Готово!" subtitle="Email подтверждён. Добро пожаловать в Менариум.">
+      <AuthShell title="Готово!">
         <div className="space-y-4 text-center">
           <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-4 text-sm text-teal-100">
             Почта {email} подтверждена. Можно обмениваться и общаться в чатах.

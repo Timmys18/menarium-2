@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { onest, spaceGrotesk } from "./fonts";
 import { ProductAnalytics } from "@/components/analytics/product-analytics";
+import { ApplicationShell } from "@/components/layout/application-shell";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import "./globals.css";
 
@@ -44,7 +45,7 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         <AuthProvider>
-          {children}
+          <ApplicationShell>{children}</ApplicationShell>
           <ProductAnalytics />
         </AuthProvider>
       </body>

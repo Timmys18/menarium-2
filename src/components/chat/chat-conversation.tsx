@@ -728,7 +728,7 @@ export function ChatConversation({
 
       <form
         className={cn(
-          "mt-4 space-y-2",
+          "sticky bottom-[calc(var(--mobile-nav-clearance)+0.75rem)] z-20 mt-4 space-y-2 md:static",
           screenLayout && "shrink-0 border-t border-white/[0.06] bg-[#09111a]/96 pt-3",
         )}
         onSubmit={sendMessage}

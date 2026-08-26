@@ -6,7 +6,7 @@ import { LoginForm } from "./login-form";
 export default function LoginPage() {
   return (
     <AppShell mode="auth">
-      <AuthShell title="С возвращением" subtitle="Войдите и продолжайте обмены, чаты и свайп.">
+      <AuthShell title="С возвращением">
         <Suspense fallback={<div className="text-sm text-white/62">Загрузка формы...</div>}>
           <LoginForm />
         </Suspense>
