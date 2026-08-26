@@ -38,12 +38,10 @@ async function openFromNavigation(page: Page, href: string, mobile: boolean, fro
     ? page.locator("header.mobile-navigation a[href='/']")
     : navigation.locator(`a[href="${href}"]`).first();
   await expect(link).toBeVisible();
-  // Start observing before the click: Next can complete a client-side navigation
-  // during Playwright's automatic click wait.
-  await Promise.all([
-    page.waitForURL((url) => url.pathname === href, { timeout: 30_000 }),
-    link.click(),
-  ]);
+  // Assert the resulting address, rather than subscribing to a load event that
+  // a client-side transition may have already completed during the click.
+  await link.click();
+  await expect(page).toHaveURL((url) => url.pathname === href, { timeout: 30_000 });
   await page.waitForFunction(() => document.querySelectorAll("#main-content").length === 1);
   await expect(page.locator("#main-content h1, #main-content h2").first()).toBeVisible();
 

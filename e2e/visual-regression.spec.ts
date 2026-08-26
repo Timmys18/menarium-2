@@ -36,14 +36,22 @@ async function settle(page: Page) {
   await expect(page.locator("#main-content")).toHaveCount(1);
   await page.locator("#main-content").first().waitFor({ state: "visible" });
   await page.evaluate(async () => document.fonts.ready);
-  await page.waitForFunction(() =>
-    Array.from(document.images)
+  await expect.poll(
+    async () => page.locator("img").evaluateAll((elements) => {
+      const images = elements.filter((element): element is HTMLImageElement => element instanceof HTMLImageElement);
+      return images
       .filter((image) => {
         const rect = image.getBoundingClientRect();
         return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
       })
-      .every((image) => image.complete && image.naturalWidth > 0),
-  );
+      .filter((image) => !image.complete || image.naturalWidth === 0)
+      .map((image) => image.currentSrc || image.getAttribute("src") || image.alt);
+    }),
+    {
+      message: "Visible images did not load",
+      timeout: 15_000,
+    },
+  ).toEqual([]);
   await page.waitForTimeout(250);
 }
 

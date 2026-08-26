@@ -46,6 +46,9 @@ export function ItemCoverImage({
       src={src}
       alt={alt}
       fill
+      // Demo assets are bundled with the app; loading them directly keeps visual
+      // fixtures independent from the on-demand image optimizer.
+      unoptimized={src.startsWith("/demo/")}
       loading={priority ? "eager" : undefined}
       sizes={sizes ?? "(max-width: 768px) 100vw, 33vw"}
       className={cn("object-cover", imageClassName)}
